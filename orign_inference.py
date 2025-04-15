@@ -25,6 +25,7 @@ def generate_with_kv_cache(
     # 编码输入文本
     inputs = tokenizer(prompt, return_tensors="pt", padding=True)
     input_ids = inputs.input_ids.to(DEVICE)
+    attention_mask = inputs.attention_mask.to(DEVICE)
     
     # 初始化生成参数
     generated_ids = input_ids.clone()
@@ -36,6 +37,7 @@ def generate_with_kv_cache(
         with torch.no_grad():
             outputs = model(
                 input_ids=input_ids,
+                attention_mask=attention_mask,
                 past_key_values=past_key_values,
                 use_cache=True  # 启用KV缓存
             )
@@ -57,6 +59,8 @@ def generate_with_kv_cache(
         # 更新生成序列
         generated_ids = torch.cat([generated_ids, next_token.unsqueeze(0)], dim=-1)
         input_ids = next_token.unsqueeze(0)
+        # 更新attention_mask，为新token添加mask值1
+        attention_mask = torch.ones((1, 1), dtype=torch.long, device=DEVICE)
         
     # 解码结果
     return tokenizer.decode(generated_ids[0], skip_special_tokens=True)
