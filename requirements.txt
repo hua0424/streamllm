@@ -1,0 +1,29 @@
+# Python 依赖包列表
+# 核心依赖
+transformers
+torch
+ctranslate2
+faster-whisper
+
+# 数据处理与科学计算
+numpy
+pandas
+scipy
+
+# 音频处理
+librosa
+pydub
+
+# VAD (如果使用外部VAD)
+# webrtcvad # 或者其他VAD库
+
+# Jupyter notebooks (开发和实验环境)
+jupyterlab
+notebook
+ipywidgets
+
+# 其他工具
+python-dotenv
+tqdm
+matplotlib # 用于结果可视化
+jiwer # 用于计算WER 
