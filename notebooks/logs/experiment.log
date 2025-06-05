@@ -1,0 +1,5 @@
+2025-06-04 18:00:20 - DataPreprocessingNotebook - INFO - 原始音频目录: D:\project\my\research\dataset\NCSSD\C-ZH
+2025-06-04 18:00:20 - DataPreprocessingNotebook - INFO - 处理后音频目录: D:\project\my\research\streamllm\data\processed_audio
+2025-06-04 18:00:20 - DataPreprocessingNotebook - INFO - 文本记录目录: D:\project\my\research\streamllm\data\transcripts
+2025-06-04 18:00:20 - DataPreprocessingNotebook - INFO - 目标采样率: 16000 Hz
+2025-06-04 18:00:20 - DataPreprocessingNotebook - INFO - 目标通道数: 1
