@@ -43,3 +43,32 @@
 2025-06-04 18:14:11 - DataPreprocessingNotebook - INFO - 已处理: D:\project\my\research\dataset\NCSSD\C-ZH\562\4_1_d562.wav -> length30+ (时长: 63.00秒)
 2025-06-04 18:14:16 - DataPreprocessingNotebook - INFO - 已处理: D:\project\my\research\dataset\NCSSD\C-ZH\620\9_1_d620.wav -> length30+ (时长: 33.72秒)
 2025-06-04 18:14:17 - DataPreprocessingNotebook - INFO - 已处理: D:\project\my\research\dataset\NCSSD\C-ZH\631\3_1_d631.wav -> length30+ (时长: 30.86秒)
+2025-06-10 02:56:38 - DataPreprocessingNotebook - INFO - 原始音频目录: /usr/local/app/jupyterlab/yanjiu/streamllm/notebooks/D:\project\my\research\dataset\NCSSD\C-ZH
+2025-06-10 02:56:38 - DataPreprocessingNotebook - INFO - 处理后音频目录: /usr/local/app/jupyterlab/yanjiu/streamllm/notebooks/D:\project\my\research\streamllm\data\processed_audio
+2025-06-10 02:56:38 - DataPreprocessingNotebook - INFO - 文本记录目录: /usr/local/app/jupyterlab/yanjiu/streamllm/notebooks/D:\project\my\research\streamllm\data\transcripts
+2025-06-10 02:56:38 - DataPreprocessingNotebook - INFO - 目标采样率: 16000 Hz
+2025-06-10 02:56:38 - DataPreprocessingNotebook - INFO - 目标通道数: 1
+2025-06-10 03:05:02 - DataPreprocessingNotebook - INFO - 原始音频目录: /usr/local/app/jupyterlab/yanjiu/streamllm/notebooks/D:\project\my\research\dataset\NCSSD\C-ZH
+2025-06-10 03:05:02 - DataPreprocessingNotebook - INFO - 处理后音频目录: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio
+2025-06-10 03:05:02 - DataPreprocessingNotebook - INFO - 文本记录目录: /usr/local/app/jupyterlab/yanjiu/streamllm/data/transcripts
+2025-06-10 03:05:02 - DataPreprocessingNotebook - INFO - 目标采样率: 16000 Hz
+2025-06-10 03:05:02 - DataPreprocessingNotebook - INFO - 目标通道数: 1
+2025-06-10 03:06:34 - DataPreprocessingNotebook - INFO - 原始音频目录: /usr/local/app/jupyterlab/yanjiu/streamllm/data/raw_audio
+2025-06-10 03:06:34 - DataPreprocessingNotebook - INFO - 处理后音频目录: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio
+2025-06-10 03:06:34 - DataPreprocessingNotebook - INFO - 文本记录目录: /usr/local/app/jupyterlab/yanjiu/streamllm/data/transcripts
+2025-06-10 03:06:34 - DataPreprocessingNotebook - INFO - 目标采样率: 16000 Hz
+2025-06-10 03:06:34 - DataPreprocessingNotebook - INFO - 目标通道数: 1
+2025-06-10 03:11:14 - __main__ - INFO - 测试ASR流式处理...
+2025-06-10 03:15:32 - DataPreprocessingNotebook - INFO - 原始音频目录: /usr/local/app/jupyterlab/yanjiu/streamllm/data/raw_audio
+2025-06-10 03:15:32 - DataPreprocessingNotebook - INFO - 处理后音频目录: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio
+2025-06-10 03:15:32 - DataPreprocessingNotebook - INFO - 文本记录目录: /usr/local/app/jupyterlab/yanjiu/streamllm/data/transcripts
+2025-06-10 03:15:32 - DataPreprocessingNotebook - INFO - 目标采样率: 16000 Hz
+2025-06-10 03:15:32 - DataPreprocessingNotebook - INFO - 目标通道数: 1
+2025-06-10 03:16:05 - __main__ - INFO - 测试ASR流式处理...
+2025-06-10 03:21:34 - DataPreprocessingNotebook - INFO - 原始音频目录: /usr/local/app/jupyterlab/yanjiu/streamllm/data/raw_audio
+2025-06-10 03:21:34 - DataPreprocessingNotebook - INFO - 处理后音频目录: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio
+2025-06-10 03:21:34 - DataPreprocessingNotebook - INFO - 文本记录目录: /usr/local/app/jupyterlab/yanjiu/streamllm/data/transcripts
+2025-06-10 03:21:34 - DataPreprocessingNotebook - INFO - 目标采样率: 16000 Hz
+2025-06-10 03:21:34 - DataPreprocessingNotebook - INFO - 目标通道数: 1
+2025-06-10 03:22:01 - __main__ - INFO - 测试ASR流式处理...
+2025-06-10 03:22:58 - __main__ - INFO - 使用音频文件进行测试: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length10/0_0_d1.wav
