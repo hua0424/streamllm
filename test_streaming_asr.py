@@ -84,10 +84,9 @@ def test_streaming_asr(audio_file_path: str, model_size: str = "base"):
     print("正在初始化流式ASR处理器...")
     asr_processor = StreamingASRProcessor(
         model_size=model_size,
-        device="cpu",  # 可以改为 "cuda" 如果有GPU
-        min_chunk_duration=3.0,  # 最小处理长度3秒
-        context_pre_duration=1.0,  # 前置上下文1秒
-        context_post_duration=1.0,  # 后置上下文1秒
+        min_chunk_duration=4.0,  # 最小处理长度3秒
+        context_pre_duration=2.0,  # 前置上下文1秒
+        context_post_duration=2.0,  # 后置上下文1秒
         vad_aggressiveness=2,  # VAD敏感度
         sample_rate=16000
     )
@@ -137,10 +136,7 @@ def test_streaming_asr(audio_file_path: str, model_size: str = "base"):
             print(f"  处理音频块时出错: {e}")
             import traceback
             traceback.print_exc()
-        
-        # 模拟实时处理延迟
-        time.sleep(0.1)
-        
+
         if is_finished:
             break
     

@@ -8,9 +8,13 @@ from typing import List, Dict, Optional, Tuple, Any
 from dataclasses import dataclass
 import librosa
 from scipy import signal
+import os
+from dotenv import load_dotenv
 
 # 从配置导入
 from src.config import ASR_MODEL_NAME, DEVICE, VAD_PARAMETERS
+
+load_dotenv() # 加载 .env 文件中的环境变量
 
 @dataclass
 class AudioSegment:
@@ -57,7 +61,15 @@ class StreamingASRProcessor:
             sample_rate (int): 音频采样率
         """
         print(f'正在加载ASR模型: {model_size} 设备: {device} 计算类型: {compute_type}')
-        self.model = WhisperModel(model_size, device=device, compute_type=compute_type)
+        # Hugging Face 配置 (如果需要从特定端点或使用token)
+        HF_ENDPOINT = os.getenv("HF_ENDPOINT")
+        HF_TOKEN = os.getenv("HF_TOKEN")
+        HF_HOME = os.getenv("HF_HOME") # 默认缓存路径
+        print(f'HF_ENDPOINT: {HF_ENDPOINT}')
+        print(f'HF_TOKEN: {HF_TOKEN}')
+        print(f'HF_HOME: {HF_HOME}')
+
+        self.model = WhisperModel(model_size, device=device)
         
         # 配置参数
         self.min_chunk_duration = min_chunk_duration
@@ -106,58 +118,60 @@ class StreamingASRProcessor:
         if audio_data.dtype != np.float32:
             audio_data = audio_data.astype(np.float32)
         
-        # 预处理：高通滤波去除低频噪声
-        b, a = signal.butter(5, 300 / (self.sample_rate / 2), 'high')
-        audio_filtered = signal.filtfilt(b, a, audio_data)
+        print(f"VAD处理音频块: 时长 {len(audio_data)/self.sample_rate:.2f}s, RMS: {np.sqrt(np.mean(audio_data**2)):.4f}")
         
+        # 简化的VAD：直接基于能量，不使用高通滤波避免过度过滤
         # 按帧计算能量
         frame_energies = []
         frame_positions = []
         
-        for i in range(0, len(audio_filtered) - self.frame_size + 1, self.frame_size // 2):  # 50%重叠
-            frame = audio_filtered[i:i + self.frame_size]
+        for i in range(0, len(audio_data) - self.frame_size + 1, self.frame_size // 2):  # 50%重叠
+            frame = audio_data[i:i + self.frame_size]
             # 计算RMS能量
             energy = np.sqrt(np.mean(frame ** 2))
             frame_energies.append(energy)
             frame_positions.append(i)
         
         if not frame_energies:
+            print("  没有足够的帧进行分析")
             return segments
         
         # 自适应阈值：使用能量分布的统计特性
         energy_array = np.array(frame_energies)
         energy_mean = np.mean(energy_array)
         energy_std = np.std(energy_array)
+        energy_max = np.max(energy_array)
         
-        # 动态阈值计算
-        base_threshold = energy_mean + energy_std * 0.5
-        adaptive_threshold = max(base_threshold, self.energy_threshold)
+        print(f"  能量统计: 均值={energy_mean:.4f}, 标准差={energy_std:.4f}, 最大值={energy_max:.4f}")
+        
+        # 更灵敏的动态阈值计算
+        if energy_max > 0.001:  # 如果有明显的信号
+            # 使用更低的阈值
+            base_threshold = energy_mean + energy_std * 0.2  # 降低系数从0.5到0.2
+            adaptive_threshold = max(base_threshold, energy_max * 0.1)  # 使用最大值的10%作为最低阈值
+        else:
+            # 对于很小的信号，使用固定的很低阈值
+            adaptive_threshold = 0.0001
+        
+        print(f"  使用阈值: {adaptive_threshold:.4f}")
         
         # VAD决策：标记语音帧
         speech_frames = []
+        speech_frame_count = 0
         for i, energy in enumerate(frame_energies):
             is_speech = energy > adaptive_threshold
             if is_speech:
                 speech_frames.append((frame_positions[i], frame_positions[i] + self.frame_size))
+                speech_frame_count += 1
+        
+        print(f"  检测到 {speech_frame_count}/{len(frame_energies)} 个语音帧")
         
         if not speech_frames:
+            print("  没有检测到语音帧")
             return segments
         
-        # 平滑处理：去除孤立的帧
-        smoothed_frames = []
-        for i, (start, end) in enumerate(speech_frames):
-            # 检查前后帧
-            context_count = 0
-            for j in range(max(0, i-2), min(len(speech_frames), i+3)):
-                if j != i:
-                    context_count += 1
-            
-            # 如果有足够的上下文，保留这个帧
-            if context_count >= 1 or len(speech_frames) < 3:
-                smoothed_frames.append((start, end))
-        
-        if not smoothed_frames:
-            return segments
+        # 简化平滑处理：保留所有检测到的帧
+        smoothed_frames = speech_frames  # 简化：不进行平滑处理
         
         # 合并连续的语音帧
         merged_segments = []
@@ -165,9 +179,9 @@ class StreamingASRProcessor:
         current_end = smoothed_frames[0][1]
         
         for frame_start, frame_end in smoothed_frames[1:]:
-            # 如果间隔小于200ms，合并
+            # 如果间隔小于500ms，合并
             gap = frame_start - current_end
-            if gap <= 0.2 * self.sample_rate:  
+            if gap <= 0.5 * self.sample_rate:  # 增加合并间隔
                 current_end = frame_end
             else:
                 merged_segments.append((current_start, current_end))
@@ -176,17 +190,21 @@ class StreamingASRProcessor:
         
         merged_segments.append((current_start, current_end))
         
+        print(f"  合并后得到 {len(merged_segments)} 个语音段")
+        
         # 创建AudioSegment对象
         for seg_start, seg_end in merged_segments:
             # 扩展边界，包含更多上下文
-            extended_start = max(0, seg_start - int(0.1 * self.sample_rate))  # 前100ms
-            extended_end = min(len(audio_data), seg_end + int(0.1 * self.sample_rate))  # 后100ms
+            extended_start = max(0, seg_start - int(0.2 * self.sample_rate))  # 前200ms
+            extended_end = min(len(audio_data), seg_end + int(0.2 * self.sample_rate))  # 后200ms
             
             seg_audio = audio_data[extended_start:extended_end].astype(np.float32)
             seg_duration = len(seg_audio) / self.sample_rate
             
-            # 过滤太短的段
-            if seg_duration >= 0.5:  # 最小0.5秒
+            print(f"    语音段: 开始={extended_start/self.sample_rate:.2f}s, 结束={extended_end/self.sample_rate:.2f}s, 时长={seg_duration:.2f}s")
+            
+            # 降低最小时长要求
+            if seg_duration >= 0.3:  # 最小0.3秒
                 segment = AudioSegment(
                     id=self._generate_segment_id(),
                     audio_data=seg_audio,
@@ -195,7 +213,9 @@ class StreamingASRProcessor:
                     duration=seg_duration
                 )
                 segments.append(segment)
+                print(f"      -> 创建音频段 {segment.id}")
         
+        print(f"  最终返回 {len(segments)} 个音频段")
         return segments
 
     def add_audio_chunk(self, audio_chunk: np.ndarray) -> List[TranscriptionResult]:
@@ -211,6 +231,8 @@ class StreamingASRProcessor:
         # 检测语音段
         new_segments = self._detect_speech_segments(audio_chunk, self.current_audio_time)
         self.audio_segments.extend(new_segments)
+        
+        print(f"添加了 {len(new_segments)} 个新音频段，总段数: {len(self.audio_segments)}")
         
         # 更新时间
         self.current_audio_time += len(audio_chunk) / self.sample_rate
@@ -251,24 +273,32 @@ class StreamingASRProcessor:
     def _can_process_segment(self, target_idx: int) -> bool:
         """检查是否可以处理指定的音频段"""
         if target_idx >= len(self.audio_segments):
+            print(f"      索引超出范围: {target_idx} >= {len(self.audio_segments)}")
             return False
         
         if self.audio_segments[target_idx].is_processed:
+            print(f"      段已处理")
             return False
         
         # 计算到目标段为止的总时长
         total_duration = sum(seg.duration for seg in self.audio_segments[:target_idx + 1])
+        print(f"      累计时长: {total_duration:.2f}s (需要: {self.min_chunk_duration:.2f}s)")
         if total_duration < self.min_chunk_duration:
+            print(f"      累计时长不足")
             return False
         
         # 检查是否有足够的后置上下文（除非录音已结束）
         pre_segments, target_segment, post_segments = self._get_context_segments(target_idx)
         post_duration = sum(seg.duration for seg in post_segments)
         
+        print(f"      后置上下文: {post_duration:.2f}s (需要: {self.context_post_duration:.2f}s), 录音结束: {self.is_recording_ended}")
+        
         # 如果录音未结束且后置上下文不足，不处理
         if not self.is_recording_ended and post_duration < self.context_post_duration:
+            print(f"      后置上下文不足且录音未结束")
             return False
         
+        print(f"      可以处理")
         return True
 
     def _combine_audio_segments(self, segments: List[AudioSegment]) -> np.ndarray:
@@ -404,18 +434,32 @@ class StreamingASRProcessor:
         """处理准备好的音频段"""
         new_results = []
         
+        if not self.audio_segments:
+            return new_results
+        
+        print(f"检查 {len(self.audio_segments)} 个音频段是否可以处理...")
+        
         # 从前往后检查可以处理的段
         for i in range(len(self.audio_segments)):
+            segment = self.audio_segments[i]
+            print(f"  段 {i+1}/{len(self.audio_segments)}: {segment.id} ({segment.duration:.2f}s, 已处理: {segment.is_processed})")
+            
             if not self._can_process_segment(i):
+                print(f"    -> 不能处理")
                 continue
             
             target_segment = self.audio_segments[i]
             if target_segment.is_processed:
+                print(f"    -> 已经处理过")
                 continue
+            
+            print(f"    -> 可以处理，开始转录...")
             
             # 获取上下文段
             pre_segments, target_segment, post_segments = self._get_context_segments(i)
             all_segments = pre_segments + [target_segment] + post_segments
+            
+            print(f"      上下文: {len(pre_segments)} 前置 + 1 目标 + {len(post_segments)} 后置 = {len(all_segments)} 段")
             
             # 执行转录
             transcription_result = self._transcribe_with_cache(all_segments, target_segment)
@@ -426,7 +470,9 @@ class StreamingASRProcessor:
             if target_result:
                 new_results.append(target_result)
                 self.final_results.append(target_result)
-                print(f"[{target_result.start_time:.2f}s -> {target_result.end_time:.2f}s] {target_result.text}")
+                print(f"      -> 转录成功: [{target_result.start_time:.2f}s -> {target_result.end_time:.2f}s] {target_result.text}")
+            else:
+                print(f"      -> 转录结果为空")
             
             # 标记为已处理
             target_segment.is_processed = True
@@ -485,3 +531,63 @@ class StreamingASRProcessor:
 
 # 向后兼容的别名
 FasterWhisperStreamer = StreamingASRProcessor
+
+def main():
+    """测试函数，通过指定wav文件路径测试whisper是否能正常工作"""
+    import argparse
+    import librosa
+    
+    parser = argparse.ArgumentParser(description='测试Whisper ASR')
+    parser.add_argument('--wav_path', type=str, required=True, help='WAV文件路径')
+    parser.add_argument('--model_size', type=str, default='base', help='模型大小')
+    parser.add_argument('--chunk_size', type=int, default=16000, help='音频块大小(样本数)')
+    
+    args = parser.parse_args()
+    
+    print(f"正在测试WAV文件: {args.wav_path}")
+    
+    try:
+        # 加载音频文件
+        audio_data, sr = librosa.load(args.wav_path, sr=16000, mono=True)
+        print(f"音频加载成功: 时长 {len(audio_data)/sr:.2f}s, 采样率 {sr}Hz")
+        
+        # 创建Whisper模型实例进行测试
+        from faster_whisper import WhisperModel
+        
+        print(f"正在加载Whisper模型: {args.model_size}")
+        HF_ENDPOINT = os.getenv("HF_ENDPOINT")
+        HF_TOKEN = os.getenv("HF_TOKEN")
+        HF_HOME = os.getenv("HF_HOME") # 默认缓存路径
+        print(f'HF_ENDPOINT: {HF_ENDPOINT}')
+        print(f'HF_TOKEN: {HF_TOKEN}')
+        print(f'HF_HOME: {HF_HOME}')
+        model = WhisperModel(args.model_size, device="cpu")
+        
+        # 直接转录整个音频文件
+        print("开始转录...")
+        segments, info = model.transcribe(audio_data, language="zh", beam_size=1)
+        
+        print(f"检测到的语言: {info.language} (概率: {info.language_probability:.2f})")
+        print("转录结果:")
+        print("-" * 50)
+        
+        full_text = ""
+        import datetime
+        start_time = time.time()
+        start_datetime = datetime.datetime.fromtimestamp(start_time)
+        print(f"开始转录时间: {start_datetime.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}")
+        for segment in segments:
+            print(f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-6]}[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}")
+            full_text += segment.text
+        
+        print(f"转录结束时间: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]}")
+        print("-" * 50)
+        print(f"完整转录文本: {full_text}")
+        
+    except Exception as e:
+        print(f"测试失败: {str(e)}")
+        import traceback
+        traceback.print_exc()
+
+if __name__ == "__main__":
+    main()

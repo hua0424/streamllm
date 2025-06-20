@@ -13,7 +13,7 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 HF_HOME = os.getenv("HF_HOME") # 默认缓存路径
 
 # 设备配置
-DEVICE = "cuda" # 或者 "cpu"
+DEVICE = "cpu" # 或者 "cpu"
 
 # --- 音频目标格式配置 ---
 TARGET_SAMPLE_RATE = int(os.getenv("TARGET_SAMPLE_RATE", "16000")) # 目标采样率 (Hz)
