@@ -1,0 +1,4 @@
+{
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "python.defaultInterpreterPath": "/root/miniconda3/envs/uv/bin/python"
+} 

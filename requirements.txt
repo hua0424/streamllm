@@ -13,9 +13,11 @@ scipy
 # 音频处理
 librosa
 pydub
+soundfile
 
-# VAD (如果使用外部VAD)
-# webrtcvad # 或者其他VAD库
+# VAD (语音活动检测)
+silero-vad
+# webrtcvad # 备选VAD库
 
 # Jupyter notebooks (开发和实验环境)
 jupyterlab
