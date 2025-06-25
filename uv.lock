@@ -1481,6 +1481,20 @@ wheels = [
 ]
 
 [[package]]
+name = "silero-vad"
+version = "5.1.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "onnxruntime" },
+    { name = "torch" },
+    { name = "torchaudio" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b1/b4/d0311b2e6220a11f8f4699f4a278cb088131573286cdfe804c87c7eb5123/silero_vad-5.1.2.tar.gz", hash = "sha256:c442971160026d2d7aa0ad83f0c7ee86c89797a65289fe625c8ea59fc6fb828d", size = 5098526, upload-time = "2024-10-09T09:50:47.019Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/98/f7/5ae11d13fbb733cd3bfd7ff1c3a3902e6f55437df4b72307c1f168146268/silero_vad-5.1.2-py3-none-any.whl", hash = "sha256:93b41953d7774b165407fda6b533c119c5803864e367d5034dc626c82cfdf661", size = 5026737, upload-time = "2024-10-09T09:50:44.355Z" },
+]
+
+[[package]]
 name = "six"
 version = "1.17.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1588,6 +1602,7 @@ dependencies = [
     { name = "pydub" },
     { name = "python-dotenv" },
     { name = "scipy" },
+    { name = "silero-vad" },
     { name = "torch" },
     { name = "torchaudio" },
     { name = "torchvision" },
@@ -1608,6 +1623,7 @@ requires-dist = [
     { name = "pydub", specifier = ">=0.25.1" },
     { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "scipy", specifier = ">=1.15.3" },
+    { name = "silero-vad", specifier = ">=5.1.2" },
     { name = "torch", specifier = ">=2.6.0", index = "https://download.pytorch.org/whl/cu124" },
     { name = "torchaudio", specifier = ">=2.6.0", index = "https://download.pytorch.org/whl/cu124" },
     { name = "torchvision", specifier = ">=0.21.0", index = "https://download.pytorch.org/whl/cu124" },

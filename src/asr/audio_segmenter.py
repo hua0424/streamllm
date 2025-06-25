@@ -35,8 +35,8 @@ class VADAudioSegmenter:
         self,
         sample_rate: int = 16000,
         threshold: float = 0.5,
-        min_speech_duration: float = 0.25,
-        min_silence_duration: float = 0.2,
+        min_speech_duration: float = 2,
+        min_silence_duration: float = 0.5,
         speech_pad_ms: int = 30,
         buffer_size_seconds: float = 10.0
     ):
@@ -93,6 +93,7 @@ class VADAudioSegmenter:
         self.total_processed_samples = 0
         self.completed_segments = []
         self.current_speech_start = None
+        self.last_segment_end = 0.0  # 记录上一个分段结束的时间
         
         # 创建VAD迭代器（流式模式）
         if SILERO_VAD_AVAILABLE:
@@ -158,7 +159,7 @@ class VADAudioSegmenter:
         return segments
     
     def _segment_audio_batch(self, audio_data: np.ndarray) -> List[Dict]:
-        """批量模式的VAD分段"""
+        """批量模式的VAD分段 - 保持音频完整性"""
         # 确保音频数据格式正确
         audio_data = self._normalize_audio(audio_data)
         
@@ -194,15 +195,33 @@ class VADAudioSegmenter:
             logger.error(f"VAD分段失败: {e}")
             return []
         
-        # 转换为统一格式
+        # 如果没有检测到语音，返回整个音频作为一个段
+        if not speech_timestamps:
+            logger.warning("未检测到语音段，返回整个音频作为一个段")
+            total_duration = len(audio_data) / self.sample_rate
+            return [{
+                'segment_id': 1,
+                'start_time': 0.0,
+                'end_time': total_duration,
+                'duration': total_duration,
+                'audio_data': audio_data.copy(),
+                'file_path': None
+            }]
+        
+        # 创建连续的分段，确保不丢失任何音频
         segments = []
+        segment_start_time = 0.0  # 从音频开始
+        
         for i, timestamp in enumerate(speech_timestamps):
-            start_time = timestamp['start']
-            end_time = timestamp['end']
+            speech_start = timestamp['start']
+            speech_end = timestamp['end']
             
-            # 提取音频数据
-            start_sample = int(start_time * self.sample_rate)
-            end_sample = int(end_time * self.sample_rate)
+            # 每个分段从上一个分段结束位置开始，到当前语音段结束
+            segment_end_time = speech_end
+            
+            # 提取音频数据（包含前面的静音 + 当前语音段）
+            start_sample = int(segment_start_time * self.sample_rate)
+            end_sample = int(segment_end_time * self.sample_rate)
             
             # 确保索引有效
             start_sample = max(0, min(start_sample, len(audio_data)))
@@ -212,11 +231,35 @@ class VADAudioSegmenter:
             
             segments.append({
                 'segment_id': i + 1,
-                'start_time': start_time,
-                'end_time': end_time,
-                'duration': end_time - start_time,
+                'start_time': segment_start_time,
+                'end_time': segment_end_time,
+                'duration': segment_end_time - segment_start_time,
                 'audio_data': segment_audio,
-                'file_path': None
+                'file_path': None,
+                'speech_start': speech_start,  # 记录实际语音开始时间
+                'speech_end': speech_end       # 记录实际语音结束时间
+            })
+            
+            # 下一个分段从当前分段结束位置开始
+            segment_start_time = segment_end_time
+        
+        # 如果最后还有剩余音频，创建最后一个分段
+        total_duration = len(audio_data) / self.sample_rate
+        if segment_start_time < total_duration - 0.01:  # 留0.01秒容差
+            start_sample = int(segment_start_time * self.sample_rate)
+            end_sample = len(audio_data)
+            
+            segment_audio = audio_data[start_sample:end_sample].copy()
+            
+            segments.append({
+                'segment_id': len(segments) + 1,
+                'start_time': segment_start_time,
+                'end_time': total_duration,
+                'duration': total_duration - segment_start_time,
+                'audio_data': segment_audio,
+                'file_path': None,
+                'speech_start': None,  # 可能只包含静音
+                'speech_end': None
             })
         
         return segments
@@ -293,35 +336,69 @@ class VADAudioSegmenter:
             剩余的语音段列表
         """
         remaining_segments = []
+        current_time = self.total_processed_samples / self.sample_rate
         
         # 如果还有未完成的语音段，强制结束
         if self.current_speech_start is not None:
-            current_time = self.total_processed_samples / self.sample_rate
             segment = self._create_segment_from_buffer(self.current_speech_start, current_time)
             if segment:
                 remaining_segments.append(segment)
+        
+        # 如果还有剩余的音频没有被分段（最后的静音部分）
+        elif self.last_segment_end < current_time - 0.01:  # 留0.01秒容差
+            # 计算缓冲区的时间范围
+            buffer_duration = len(self.audio_buffer) / self.sample_rate
+            buffer_start_time = current_time - buffer_duration
+            
+            # 计算在缓冲区中的位置
+            rel_start_time = self.last_segment_end - buffer_start_time
+            
+            start_sample = int(rel_start_time * self.sample_rate)
+            end_sample = len(self.audio_buffer)
+            
+            if end_sample > start_sample:
+                audio_data = self.audio_buffer[start_sample:end_sample].copy()
+                
+                final_segment = {
+                    'segment_id': len(self.completed_segments) + 1,
+                    'start_time': self.last_segment_end,
+                    'end_time': current_time,
+                    'duration': current_time - self.last_segment_end,
+                    'audio_data': audio_data,
+                    'file_path': None,
+                    'speech_start': None,  # 可能只包含静音
+                    'speech_end': None
+                }
+                
+                remaining_segments.append(final_segment)
+                self.completed_segments.append(final_segment)
         
         # 重置状态
         self._reset_streaming_state()
         
         return remaining_segments
     
-    def _create_segment_from_buffer(self, start_time: float, end_time: float) -> Optional[Dict]:
-        """从缓冲区创建音频段"""
-        duration = end_time - start_time
+    def _create_segment_from_buffer(self, speech_start_time: float, speech_end_time: float) -> Optional[Dict]:
+        """从缓冲区创建音频段 - 保持音频完整性"""
+        speech_duration = speech_end_time - speech_start_time
         
-        # 检查最小长度
-        if duration < self.min_speech_duration:
-            logger.debug(f"语音段太短 ({duration:.3f}s)，跳过")
+        # 检查语音段最小长度
+        if speech_duration < self.min_speech_duration:
+            logger.debug(f"语音段太短 ({speech_duration:.3f}s)，跳过")
             return None
+        
+        # 分段从上一个分段结束位置开始，到当前语音段结束
+        segment_start_time = self.last_segment_end
+        segment_end_time = speech_end_time
+        segment_duration = segment_end_time - segment_start_time
         
         # 计算缓冲区的时间范围
         buffer_duration = len(self.audio_buffer) / self.sample_rate
         buffer_start_time = (self.total_processed_samples / self.sample_rate) - buffer_duration
         
         # 计算在缓冲区中的位置
-        rel_start_time = start_time - buffer_start_time
-        rel_end_time = end_time - buffer_start_time
+        rel_start_time = segment_start_time - buffer_start_time
+        rel_end_time = segment_end_time - buffer_start_time
         
         start_sample = int(rel_start_time * self.sample_rate)
         end_sample = int(rel_end_time * self.sample_rate)
@@ -331,19 +408,24 @@ class VADAudioSegmenter:
         end_sample = max(start_sample, min(end_sample, len(self.audio_buffer)))
         
         if end_sample <= start_sample:
-            logger.warning(f"无法从缓冲区提取音频段 [{start_time:.3f}s -> {end_time:.3f}s]")
+            logger.warning(f"无法从缓冲区提取音频段 [{segment_start_time:.3f}s -> {segment_end_time:.3f}s]")
             return None
         
         audio_data = self.audio_buffer[start_sample:end_sample].copy()
         
         segment = {
             'segment_id': len(self.completed_segments) + 1,
-            'start_time': start_time,
-            'end_time': end_time,
-            'duration': duration,
+            'start_time': segment_start_time,
+            'end_time': segment_end_time,
+            'duration': segment_duration,
             'audio_data': audio_data,
-            'file_path': None
+            'file_path': None,
+            'speech_start': speech_start_time,  # 记录实际语音开始时间
+            'speech_end': speech_end_time       # 记录实际语音结束时间
         }
+        
+        # 更新上一个分段结束时间
+        self.last_segment_end = segment_end_time
         
         self.completed_segments.append(segment)
         return segment
@@ -415,7 +497,9 @@ class VADAudioSegmenter:
                 'coverage_ratio': 0.0,
                 'total_segment_duration': 0.0,
                 'gaps': [],
-                'overlaps': []
+                'overlaps': [],
+                'first_segment_starts_at_zero': False,
+                'last_segment_ends_at_end': False
             }
         
         # 按开始时间排序
@@ -424,6 +508,10 @@ class VADAudioSegmenter:
         # 计算总时长
         total_segment_duration = sum(seg['duration'] for seg in segments)
         coverage_ratio = total_segment_duration / original_duration
+        
+        # 检查是否从0开始，到结尾结束
+        first_segment_starts_at_zero = abs(sorted_segments[0]['start_time']) <= tolerance
+        last_segment_ends_at_end = abs(sorted_segments[-1]['end_time'] - original_duration) <= tolerance
         
         # 检查间隙和重叠
         gaps = []
@@ -448,10 +536,13 @@ class VADAudioSegmenter:
                     'duration': current_end - next_start
                 })
         
+        # 修改完整性标准：必须连续覆盖整个音频
         is_complete = (
-            coverage_ratio >= 0.8 and  # 至少80%覆盖率
-            len(gaps) == 0 and  # 无间隙
-            abs(total_segment_duration - original_duration) <= tolerance  # 总时长差异在容忍范围内
+            first_segment_starts_at_zero and  # 从0开始
+            last_segment_ends_at_end and     # 到结尾结束
+            len(gaps) == 0 and               # 无间隙
+            len(overlaps) == 0 and           # 无重叠
+            abs(total_segment_duration - original_duration) <= tolerance  # 总时长匹配
         )
         
         return {
@@ -459,8 +550,46 @@ class VADAudioSegmenter:
             'coverage_ratio': coverage_ratio,
             'total_segment_duration': total_segment_duration,
             'gaps': gaps,
-            'overlaps': overlaps
+            'overlaps': overlaps,
+            'first_segment_starts_at_zero': first_segment_starts_at_zero,
+            'last_segment_ends_at_end': last_segment_ends_at_end
         }
+    
+    def reconstruct_audio_from_segments(self, segments: List[Dict]) -> np.ndarray:
+        """
+        从分段重构原始音频
+        
+        Args:
+            segments: 音频段列表
+            
+        Returns:
+            重构的音频数据
+        """
+        if not segments:
+            return np.array([], dtype=np.float32)
+        
+        # 按开始时间排序
+        sorted_segments = sorted(segments, key=lambda x: x['start_time'])
+        
+        # 计算总长度
+        total_samples = int(sorted_segments[-1]['end_time'] * self.sample_rate)
+        reconstructed_audio = np.zeros(total_samples, dtype=np.float32)
+        
+        # 依次填充每个分段
+        for segment in sorted_segments:
+            start_sample = int(segment['start_time'] * self.sample_rate)
+            audio_data = segment['audio_data']
+            end_sample = start_sample + len(audio_data)
+            
+            # 确保不越界
+            if end_sample <= total_samples:
+                reconstructed_audio[start_sample:end_sample] = audio_data
+            else:
+                # 裁剪到总长度
+                remaining_samples = total_samples - start_sample
+                reconstructed_audio[start_sample:] = audio_data[:remaining_samples]
+        
+        return reconstructed_audio
 
 
 class StreamingAudioSimulator:
@@ -544,10 +673,36 @@ def test_batch_segmentation(audio_file: str, output_dir: str):
         print(f"\n完整性验证:")
         print(f"覆盖率: {verification['coverage_ratio']:.1%}")
         print(f"是否完整: {'是' if verification['is_complete'] else '否'}")
+        print(f"从0开始: {'是' if verification['first_segment_starts_at_zero'] else '否'}")
+        print(f"到结尾结束: {'是' if verification['last_segment_ends_at_end'] else '否'}")
         if verification['gaps']:
             print(f"间隙数量: {len(verification['gaps'])}")
+            for gap in verification['gaps']:
+                print(f"  间隙: {gap['start']:.3f}s -> {gap['end']:.3f}s (时长: {gap['duration']:.3f}s)")
         if verification['overlaps']:
             print(f"重叠数量: {len(verification['overlaps'])}")
+            for overlap in verification['overlaps']:
+                print(f"  重叠: {overlap['start']:.3f}s -> {overlap['end']:.3f}s (时长: {overlap['duration']:.3f}s)")
+        
+        # 测试音频重构
+        print(f"\n音频重构测试:")
+        try:
+            reconstructed_audio = segmenter.reconstruct_audio_from_segments(segments)
+            
+            # 比较原始音频和重构音频
+            min_length = min(len(audio_data), len(reconstructed_audio))
+            original_trimmed = audio_data[:min_length]
+            reconstructed_trimmed = reconstructed_audio[:min_length]
+            
+            # 计算均方根误差
+            mse = np.mean((original_trimmed - reconstructed_trimmed) ** 2)
+            print(f"原始音频长度: {len(audio_data)} 样本 ({len(audio_data)/16000:.3f}s)")
+            print(f"重构音频长度: {len(reconstructed_audio)} 样本 ({len(reconstructed_audio)/16000:.3f}s)")
+            print(f"均方根误差: {mse:.6f}")
+            print(f"音频匹配: {'是' if mse < 1e-10 else '否'}")
+            
+        except Exception as e:
+            print(f"音频重构失败: {e}")
         
         return segments
         
@@ -642,6 +797,36 @@ def test_streaming_segmentation(audio_file: str, output_dir: str, chunk_duration
         print(f"\n完整性验证:")
         print(f"覆盖率: {verification['coverage_ratio']:.1%}")
         print(f"是否完整: {'是' if verification['is_complete'] else '否'}")
+        print(f"从0开始: {'是' if verification['first_segment_starts_at_zero'] else '否'}")
+        print(f"到结尾结束: {'是' if verification['last_segment_ends_at_end'] else '否'}")
+        if verification['gaps']:
+            print(f"间隙数量: {len(verification['gaps'])}")
+            for gap in verification['gaps']:
+                print(f"  间隙: {gap['start']:.3f}s -> {gap['end']:.3f}s (时长: {gap['duration']:.3f}s)")
+        if verification['overlaps']:
+            print(f"重叠数量: {len(verification['overlaps'])}")
+            for overlap in verification['overlaps']:
+                print(f"  重叠: {overlap['start']:.3f}s -> {overlap['end']:.3f}s (时长: {overlap['duration']:.3f}s)")
+        
+        # 测试音频重构（流式模式）
+        print(f"\n音频重构测试:")
+        try:
+            reconstructed_audio = segmenter.reconstruct_audio_from_segments(all_segments)
+            
+            # 比较原始音频和重构音频
+            min_length = min(len(simulator.audio_data), len(reconstructed_audio))
+            original_trimmed = simulator.audio_data[:min_length]
+            reconstructed_trimmed = reconstructed_audio[:min_length]
+            
+            # 计算均方根误差
+            mse = np.mean((original_trimmed - reconstructed_trimmed) ** 2)
+            print(f"原始音频长度: {len(simulator.audio_data)} 样本 ({simulator.total_duration:.3f}s)")
+            print(f"重构音频长度: {len(reconstructed_audio)} 样本 ({len(reconstructed_audio)/16000:.3f}s)")
+            print(f"均方根误差: {mse:.6f}")
+            print(f"音频匹配: {'是' if mse < 1e-10 else '否'}")
+            
+        except Exception as e:
+            print(f"音频重构失败: {e}")
         
         return all_segments
         
