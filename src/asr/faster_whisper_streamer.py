@@ -3,11 +3,13 @@
 from faster_whisper import WhisperModel
 import numpy as np
 import time
-from typing import List, Dict, Optional, Callable
+import logging
+from typing import List, Dict, Optional, Callable, Generator, Tuple
 from dataclasses import dataclass
 import os
 from dotenv import load_dotenv
 from datetime import datetime
+from queue import Queue
 
 # 从配置导入
 from src.config import ASR_MODEL_NAME, DEVICE, VAD_PARAMETERS
@@ -16,6 +18,9 @@ from src.config import ASR_MODEL_NAME, DEVICE, VAD_PARAMETERS
 from src.asr.audio_segmenter import VADAudioSegmenter
 
 load_dotenv()  # 加载 .env 文件中的环境变量
+
+# 获取当前模块的logger
+logger = logging.getLogger(__name__)
 
 @dataclass
 class TextOutput:
@@ -63,23 +68,23 @@ class StreamingASRProcessor:
             sample_rate: 音频采样率
             text_callback: 文本输出回调函数 callback(text, start_time, end_time)
         """
-        print(f'正在加载ASR模型: {model_size} 设备: {device}')
+        logger.info(f'正在加载ASR模型: {model_size} 设备: {device}')
         
         # 根据设备自动选择计算类型
         if compute_type == 'auto':
             if device.lower() == 'cpu':
                 compute_type = 'int8'  # CPU使用int8
-                print(f'CPU设备自动选择计算类型: {compute_type}')
+                logger.info(f'CPU设备自动选择计算类型: {compute_type}')
             else:
                 compute_type = 'float16'  # GPU使用float16
-                print(f'GPU设备自动选择计算类型: {compute_type}')
+                logger.info(f'GPU设备自动选择计算类型: {compute_type}')
         
         # 加载Whisper模型，添加错误处理
         try:
             self.model = WhisperModel(model_size, device=device, compute_type=compute_type)
         except ValueError as e:
             if "float16" in str(e):
-                print(f"float16不支持，回退到int8...")
+                logger.warning(f"float16不支持，回退到int8...")
                 compute_type = 'int8'
                 self.model = WhisperModel(model_size, device=device, compute_type=compute_type)
             else:
@@ -114,7 +119,7 @@ class StreamingASRProcessor:
         self.is_stream_started = True
         self.is_stream_finished = False
         
-        print('ASR模型加载完成')
+        logger.info('ASR模型加载完成')
 
     def _generate_segment_id(self) -> str:
         """生成音频段ID"""
@@ -138,7 +143,7 @@ class StreamingASRProcessor:
         
         combined_audio = self._combine_segments(segments)
         
-        print(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}正在转录 {len(segments)} 个语音段，总时长: {len(combined_audio)/self.sample_rate:.2f}s")
+        logger.debug(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}正在转录 {len(segments)} 个语音段，总时长: {len(combined_audio)/self.sample_rate:.2f}s")
         
         start_time = time.time()
         segments_result, info = self.model.transcribe(
@@ -158,7 +163,7 @@ class StreamingASRProcessor:
         # 处理结果
         transcription_segments = []
         for i, segment in enumerate(segments_result):
-            print(f"  段 {i+1}: [{segment.start:.2f}s-{segment.end:.2f}s] {segment.text}")
+            logger.debug(f"  段 {i+1}: [{segment.start:.2f}s-{segment.end:.2f}s] {segment.text}")
             transcription_segments.append({
                 'text': segment.text.strip(),
                 'start': segment.start,
@@ -184,7 +189,7 @@ class StreamingASRProcessor:
             'transcription_time': transcription_time
         }
         
-        print(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}转录完成，耗时: {time.time() - start_time:.2f}s")
+        logger.debug(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}转录完成，耗时: {time.time() - start_time:.2f}s")
         return result
 
     def _extract_segment_text(self, recognition_result: Dict, segment_index: int, 
@@ -207,7 +212,7 @@ class StreamingASRProcessor:
         
         segment_end_offset = segment_start_offset + target_audio_segment.duration
         
-        print(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}    目标段 {segment_index+1}: 合并音频中时间范围 [{segment_start_offset:.2f}s - {segment_end_offset:.2f}s]")
+        logger.debug(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}    目标段 {segment_index+1}: 合并音频中时间范围 [{segment_start_offset:.2f}s - {segment_end_offset:.2f}s]")
         
         # 收集目标段对应的词
         matched_words = []
@@ -218,7 +223,7 @@ class StreamingASRProcessor:
                 seg_center = (trans_seg['start'] + trans_seg['end']) / 2
                 if segment_start_offset <= seg_center <= segment_end_offset:
                     matched_words.append(trans_seg['text'].strip())
-                    print(f"      段级匹配: {trans_seg['text'].strip()}")
+                    logger.debug(f"      段级匹配: {trans_seg['text'].strip()}")
                 continue
             
             # 使用词级时间戳进行匹配
@@ -242,10 +247,10 @@ class StreamingASRProcessor:
         
         if matched_words:
             result_text = ''.join(matched_words).strip()
-            print(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}    段 {segment_index+1} 提取的文本: '{result_text}'")
+            logger.debug(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}    段 {segment_index+1} 提取的文本: '{result_text}'")
             return result_text
         else:
-            print(f"    段 {segment_index+1} 没有匹配到文本")
+            logger.debug(f"    段 {segment_index+1} 没有匹配到文本")
             return None
 
     def _process_queue(self) -> List[str]:
@@ -264,7 +269,7 @@ class StreamingASRProcessor:
             if queue_length < self.prefix_segments + 2 and not self.is_stream_finished:
                 return new_texts
             
-            print(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}队列长度: {queue_length}, 总时长: {queue_duration:.2f}s, 流式结束: {self.is_stream_finished} - 开始识别")
+            logger.debug(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}队列长度: {queue_length}, 总时长: {queue_duration:.2f}s, 流式结束: {self.is_stream_finished} - 开始识别")
             
             # 进行新的识别
             current_recognition = self._transcribe_segments(self.segment_queue)
@@ -284,13 +289,13 @@ class StreamingASRProcessor:
                         timestamp=time.time()
                     )
                 else:
-                    print(f" 第 {i} 段没有提取到文本")
+                    logger.debug(f" 第 {i} 段没有提取到文本")
             
             # 决定哪个段的文本已经确定了需要输出
             # 一般情况是输出第前缀段数+1个段，这个是要识别的段，如果是流式开头，那么应该输出前缀段数+1个段，因为这些段的前缀不可能再多了
             if self.is_stream_finished:
-                output_segment_index = list(range(max(self.prefix_segments-1, 0), queue_length))
-                print(f"流式结束，输出所有段:{output_segment_index}")
+                output_segment_index = list(range(self.prefix_segments, queue_length - self.prefix_segments + 1))
+                logger.debug(f"流式结束，输出所有段:{output_segment_index}")
 
             elif self.is_stream_started:
                 output_segment_index = list(range(0, self.prefix_segments + 1))
@@ -302,7 +307,7 @@ class StreamingASRProcessor:
             for i in output_segment_index:
                 self.text_outputs.append(self.segment_queue[i].text)
                 new_texts.append(self.segment_queue[i].text)
-                print(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}  ✓ 输出文本: index[{i}] [{self.segment_queue[i].start_time:.2f}s-{self.segment_queue[i].end_time:.2f}s] '{self.segment_queue[i].text}'")
+                logger.info(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}  ✓ 输出文本: index[{i}] [{self.segment_queue[i].start_time:.2f}s-{self.segment_queue[i].end_time:.2f}s] '{self.segment_queue[i].text}'")
 
             if self.text_callback:
                 self.text_callback(new_texts, self.segment_queue[output_segment_index[0]].start_time, self.segment_queue[output_segment_index[-1]].end_time)
@@ -311,30 +316,19 @@ class StreamingASRProcessor:
             self.segment_queue.pop(0)
         
         return new_texts
-
+    
     def add_audio_chunk(self, audio_chunk: np.ndarray, is_stream_finished: bool = False) -> List[str]:
         """
         添加音频块并返回新的文本输出
-        
-        Args:
-            audio_chunk: 音频数据 (float32, 单声道, 16kHz)
-            
-        Returns:
-            List[str]: 新输出的文本列表
         """
-
-        if self.is_stream_finished:
-            raise ValueError("流式处理已结束，无法添加音频块")
-        
-        # 使用分段器处理音频块
+        logger.info(f"添加音频块: {is_stream_finished}")
         if is_stream_finished:
+            logger.info("🎉 检测到最后一个音频块，流结束")
             self.is_stream_finished = True
-        
+
         start_time = time.time()
         new_segments_data = self.audio_segmenter.process_streaming_audio(audio_chunk)
-        print(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}音频分段处理时间: {time.time() - start_time:.2f}s")
-        
-        # 转换为AudioSegment对象并添加到队列
+
         for seg_data in new_segments_data:
             segment = AudioSegment(
                 id=self._generate_segment_id(),
@@ -344,10 +338,92 @@ class StreamingASRProcessor:
                 duration=seg_data['duration']
             )
             self.segment_queue.append(segment)
-            print(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}新增语音段: {segment.id} [{segment.start_time:.2f}s-{segment.end_time:.2f}s] {segment.duration:.2f}s")
+            logger.debug(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}新增语音段: {segment.id} [{segment.start_time:.2f}s-{segment.end_time:.2f}s] {segment.duration:.2f}s")
+            
+        logger.debug(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}音频分段处理时间: {time.time() - start_time:.2f}s")
+
+        start_time = time.time()
+        new_texts = self._process_queue()
+        logger.info(f"ASR队列处理时间: {time.time() - start_time:.2f}s, 生成文本: {new_texts}")
+        logger.debug(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}ASR队列处理时间: {time.time() - start_time:.2f}s")
+        return new_texts
+    
+    def add_audio_chunk_queue(self, chunk_queue: Queue[Tuple[np.ndarray, bool]]) -> Generator[str, None, None]:
+        """
+        添加音频块生成器并返回新的文本输出
         
-        # 处理队列并返回新文本
-        return self._process_queue()
+        Args:
+            audio_chunk_generator: 音频数据生成器
+        """
+        logger.info("开始添加音频块生成器")
+        while True:
+            chunk_data, is_last = chunk_queue.get()
+            new_texts = self.add_audio_chunk(chunk_data, is_stream_finished=is_last)
+            yield ' '.join([text.text for text in new_texts])
+            if is_last:
+                break
+
+    def add_audio_chunk_generator(self, chunk_generator: Generator[Tuple[np.ndarray, bool], None, None]) -> Generator[str, None, None]:
+        """
+        添加音频块生成器并返回新的文本输出
+        
+        Args:
+            audio_chunk_generator: 音频数据生成器
+        """
+        chunk_count = 0
+        start_time = time.time()
+        
+        for chunk_data, is_last in chunk_generator:
+            chunk_count += 1
+            current_time = time.time() - start_time
+            
+            logger.debug(f"处理第{chunk_count}个音频块 (耗时: {current_time:.2f}s):")
+            logger.debug(f"  样本数: {len(chunk_data)}")
+            logger.debug(f"  数据类型: {chunk_data.dtype}")
+            logger.debug(f"  数据范围: [{chunk_data.min():.4f}, {chunk_data.max():.4f}]")
+            logger.debug(f"  是否最后块: {is_last}")
+
+            new_texts = self.add_audio_chunk(chunk_data, is_stream_finished=is_last)
+
+            if new_texts:
+                yield ' '.join([text.text for text in new_texts])
+
+    # def add_audio_chunk(self, audio_chunk: np.ndarray, is_stream_finished: bool = False) -> List[str]:
+    #     """
+    #     添加音频块并返回新的文本输出
+        
+    #     Args:
+    #         audio_chunk: 音频数据 (float32, 单声道, 16kHz)
+            
+    #     Returns:
+    #         List[str]: 新输出的文本列表
+    #     """
+
+    #     if self.is_stream_finished:
+    #         raise ValueError("流式处理已结束，无法添加音频块")
+        
+    #     # 使用分段器处理音频块
+    #     if is_stream_finished:
+    #         self.is_stream_finished = True
+        
+    #     start_time = time.time()
+    #     new_segments_data = self.audio_segmenter.process_streaming_audio(audio_chunk)
+    #     logger.debug(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}音频分段处理时间: {time.time() - start_time:.2f}s")
+        
+    #     # 转换为AudioSegment对象并添加到队列
+    #     for seg_data in new_segments_data:
+    #         segment = AudioSegment(
+    #             id=self._generate_segment_id(),
+    #             audio_data=seg_data['audio_data'],
+    #             start_time=seg_data['start_time'],
+    #             end_time=seg_data['end_time'],
+    #             duration=seg_data['duration']
+    #         )
+    #         self.segment_queue.append(segment)
+    #         logger.debug(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}新增语音段: {segment.id} [{segment.start_time:.2f}s-{segment.end_time:.2f}s] {segment.duration:.2f}s")
+        
+    #     # 处理队列并返回新文本
+    #     return self._process_queue()
 
     def get_all_text_outputs(self) -> List[TextOutput]:
         """获取所有文本输出"""
@@ -365,7 +441,7 @@ class StreamingASRProcessor:
         self.current_segments_count = 0
         self.is_stream_finished = False
         self.audio_segmenter._reset_streaming_state()
-        print("ASR处理器状态已重置")
+        logger.info("ASR处理器状态已重置")
 
 # 向后兼容的别名
 FasterWhisperStreamer = StreamingASRProcessor
@@ -389,7 +465,7 @@ def main():
     if args.fast_mode:
         args.model_size = 'tiny'
         args.threshold = 2.0
-        print("启用快速模式: 使用tiny模型，阈值2.0s")
+        logger.info("启用快速模式: 使用tiny模型，阈值2.0s")
     
     print(f"正在测试WAV文件: {args.wav_path}")
     print(f"模型大小: {args.model_size}")
@@ -403,12 +479,12 @@ def main():
     
     def text_callback(text: str, start_time: float, end_time: float):
         """文本输出回调"""
-        print(f"[实时输出] [{start_time:.2f}s-{end_time:.2f}s] {text}")
+        logger.info(f"[实时输出] [{start_time:.2f}s-{end_time:.2f}s] {text}")
     
     try:
         # 加载音频文件
         audio_data, sr = librosa.load(args.wav_path, sr=16000, mono=True)
-        print(f"音频加载成功: 时长 {len(audio_data)/sr:.2f}s")
+        logger.info(f"音频加载成功: 时长 {len(audio_data)/sr:.2f}s")
         
         start_time = time.time()
         
@@ -422,17 +498,17 @@ def main():
             if compute_type == 'auto':
                 if DEVICE.lower() == 'cpu':
                     compute_type = 'int8'
-                    print(f'CPU设备自动选择计算类型: {compute_type}')
+                    logger.info(f'CPU设备自动选择计算类型: {compute_type}')
                 else:
                     compute_type = 'float16'
-                    print(f'GPU设备自动选择计算类型: {compute_type}')
+                    logger.info(f'GPU设备自动选择计算类型: {compute_type}')
             
             # 加载Whisper模型
             try:
                 model = WhisperModel(args.model_size, device=DEVICE, compute_type=compute_type)
             except ValueError as e:
                 if "float16" in str(e):
-                    print(f"float16不支持，回退到int8...")
+                    logger.warning(f"float16不支持，回退到int8...")
                     compute_type = 'int8'
                     model = WhisperModel(args.model_size, device=DEVICE, compute_type=compute_type)
                 else:
@@ -496,7 +572,7 @@ def main():
             
             # 处理音频块
             is_stream_finished = (i >= len(audio_data) - chunk_size)
-            print(f"流式结束:{is_stream_finished} i = {i}, chunk_size = {chunk_size}, len(audio_data) = {len(audio_data)}")
+            logger.debug(f"流式结束:{is_stream_finished} i = {i}, chunk_size = {chunk_size}, len(audio_data) = {len(audio_data)}")
             new_texts = processor.add_audio_chunk(chunk, is_stream_finished=is_stream_finished)
             all_texts.extend(new_texts)
         
@@ -514,9 +590,9 @@ def main():
         print(processor.get_final_text())
         
     except Exception as e:
-        print(f"测试失败: {str(e)}")
+        logger.error(f"测试失败: {str(e)}")
         import traceback
-        traceback.print_exc()
+        logger.error(traceback.format_exc())
 
 
 

@@ -233,8 +233,8 @@ def run_single_experiment(audio_file_path, reference_transcript_path, config_ove
             # 这里只是为了获取一个示例输出
             temp_full_response = [results["llm_first_token_response"]]
             for _ in range(10): # Gen a few more tokens
-                next_tok, _ = pipeline.llm_streamer.generate_next_token()
-                if next_tok and next_tok not in [pipeline.llm_streamer.tokenizer.eos_token, "<|im_end|>"]:
+                next_tok, _, is_eos = pipeline.llm_streamer.generate_next_token()
+                if next_tok and next_tok not in [pipeline.llm_streamer.tokenizer.eos_token, "<|im_end|>"] and not is_eos:
                     temp_full_response.append(next_tok)
                 else:
                     break

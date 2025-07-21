@@ -141,25 +141,23 @@ class StreamingPipeline:
                 self.llm_streamer.precompute_kv_cache_for_prompt([full_prompt_for_llm])
             else:
                 logger.info(f"LLM: Triggering generation. KV will be updated by generate_next_token for: '{full_prompt_for_llm}'")
-                pass 
+                pass
 
-            if full_prompt_for_llm: 
-                logger.info("LLM: Generating first token based on current KV cache.")
-                # Pass the latest text fragment to generate_next_token if KV was not just precomputed for the *entire* buffer.
-                # If precompute_kv_cache_for_prompt was just called for full_prompt_for_llm, 
-                # then new_text_fragment should ideally be empty or represent only the *very last* part not in that precomputation.
-                # For simplicity here, if KV existed, we assume the new text_fragment is the delta.
-                # If KV did NOT exist, precompute handled all of llm_input_buffer, so new_text_fragment for generate is effectively empty.
-                fragment_for_generate = text_fragment if self.llm_streamer.past_key_values and not (trigger_generation and not self.llm_streamer.past_key_values) else "" 
-                if not self.llm_streamer.past_key_values: # If KV was just built from scratch for full_prompt_for_llm
-                     fragment_for_generate = "" # All content is in KV already
-                
-                llm_response_token, first_token_latency = self.llm_streamer.generate_next_token(new_text_fragment=fragment_for_generate) 
-                if llm_response_token:
-                    logger.info(f"LLM First Token: '{llm_response_token}', Latency: {first_token_latency:.3f}s")
+            # 如果触发了生成，则生成一个token
+            if trigger_generation:
+                fragment_for_generate = text_fragment if not self.llm_streamer.past_key_values else ""
+                llm_response_token, first_token_latency, is_eos = self.llm_streamer.generate_next_token(new_text_fragment=fragment_for_generate)
+                logger.info(f"LLM generated token: '{llm_response_token}', latency: {first_token_latency:.3f}s, is_eos: {is_eos}")
+                self.llm_input_buffer = [] # 清空缓冲区
+                return llm_response_token, first_token_latency
+            else:
+                # 只是更新KV缓存，不生成token
+                _ , _, _ = self.llm_streamer.generate_next_token(new_text_fragment=text_fragment) # Call to update KV
+                logger.info(f"LLM: Updated KV cache with text fragment: '{text_fragment}'")
+                return None, 0.0
         else:
             logger.info(f"LLM: Non-triggering input. Updating KV with fragment: '{text_fragment}'")
-            _ , _ = self.llm_streamer.generate_next_token(new_text_fragment=text_fragment) # Call to update KV
+            _ , _, _ = self.llm_streamer.generate_next_token(new_text_fragment=text_fragment) # Call to update KV
             logger.debug("LLM KV cache updated with new fragment.")
             
         return llm_response_token, first_token_latency

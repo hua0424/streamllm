@@ -1,0 +1,916 @@
+2025-06-30 08:26:03 - __main__ - INFO - 开始LLM流式推理测试...
+2025-06-30 08:26:03 - __main__ - INFO - 测试将使用设备: cpu
+2025-06-30 08:26:03 - __main__ - INFO - 正在加载LLM模型 Qwen/Qwen1.5-0.5B-Chat 到 cpu...
+2025-06-30 08:26:03 - __main__ - INFO - HF_HOME: /usr/local/app/jupyterlab/model/hfhome, HF_ENDPOINT: https://huggingface.co
+2025-06-30 08:27:25 - __main__ - INFO - LLM模型加载完成。
+2025-06-30 08:27:25 - __main__ - INFO - 
+--- 测试1: 逐步输入并生成 ---
+2025-06-30 08:27:25 - __main__ - INFO - 输入片段1: '请介绍一下北京的'
+2025-06-30 08:27:25 - __main__ - WARNING - 警告: 没有预计算的KV缓存或当前输入。请先调用 precompute_kv_cache_for_prompt 或确保输入已处理。
+2025-06-30 08:27:25 - __main__ - INFO - 为输入预计算KV缓存: 请介绍一下北京的...
+2025-06-30 08:27:31 - __main__ - INFO - KV缓存预计算完成，耗时: 6668.44 ms
+2025-06-30 08:27:32 - __main__ - ERROR - 生成过程中出现错误: The size of tensor a (26) must match the size of tensor b (3) at non-singleton dimension 3
+2025-06-30 08:27:32 - __main__ - ERROR - 
+详细错误信息:
+2025-06-30 08:27:32 - __main__ - ERROR - Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/llm/stream_llm_inference.py", line 173, in generate_next_token
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 703, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 436, in forward
+    layer_outputs = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/modeling_layers.py", line 48, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 257, in forward
+    hidden_states, self_attn_weights = self.self_attn(
+                                       ^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 189, in forward
+    attn_output, attn_weights = attention_interface(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py", line 54, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: The size of tensor a (26) must match the size of tensor b (3) at non-singleton dimension 3
+
+2025-06-30 08:27:32 - __main__ - INFO -   LLM Token1: 'None' (Latency: 0.00 ms)
+2025-06-30 08:27:32 - __main__ - INFO - 输入片段2: '天气和'
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '', 耗时: 0.1694秒
+2025-06-30 08:27:32 - __main__ - INFO -   LLM Token2: '' (Latency: 169.43 ms)
+2025-06-30 08:27:32 - __main__ - INFO - 输入片段3: '美食。'
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '', 耗时: 0.0714秒
+2025-06-30 08:27:32 - __main__ - INFO -   LLM Token3: '' (Latency: 71.44 ms)
+2025-06-30 08:27:32 - __main__ - INFO - 继续生成后续几个token...
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '
+', 耗时: 0.0339秒
+2025-06-30 08:27:32 - __main__ - INFO -   LLM Next Token 1: '
+' (Latency: 33.89 ms)
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '', 耗时: 0.0371秒
+2025-06-30 08:27:32 - __main__ - INFO -   LLM未能生成更多token。
+2025-06-30 08:27:32 - __main__ - INFO - 测试1完整句子: 
+
+2025-06-30 08:27:32 - __main__ - INFO - 测试1所有计时事件: [('precompute_kv_cache', 1751272051.7760599, 6668.443190999824)]
+2025-06-30 08:27:32 - __main__ - INFO - 
+
+--- 测试2: 完整流程 (precompute + generate_full_response_with_cache) ---
+2025-06-30 08:27:32 - __main__ - INFO - 完整提示: ['你好，请问你叫什么名字？']
+2025-06-30 08:27:32 - __main__ - INFO - 
+--- 开始使用KV缓存流式生成完整回复 ---
+2025-06-30 08:27:32 - __main__ - INFO - 为输入预计算KV缓存: 你好，请问你叫什么名字？...
+2025-06-30 08:27:32 - __main__ - INFO - KV缓存预计算完成，耗时: 62.04 ms
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '', 耗时: 0.0343秒
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '我是', 耗时: 0.0376秒
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '来自', 耗时: 0.0384秒
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '阿里', 耗时: 0.0406秒
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '云', 耗时: 0.0398秒
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '的大', 耗时: 0.0486秒
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '规模', 耗时: 0.0342秒
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '语言', 耗时: 0.0349秒
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '模型', 耗时: 0.0349秒
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '，', 耗时: 0.0423秒
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '我', 耗时: 0.0360秒
+2025-06-30 08:27:32 - __main__ - INFO - 生成token: '叫', 耗时: 0.0390秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '通', 耗时: 0.0382秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '义', 耗时: 0.0369秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '千', 耗时: 0.0426秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '问', 耗时: 0.0394秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '。', 耗时: 0.0439秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '', 耗时: 0.0467秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '
+', 耗时: 0.0456秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '', 耗时: 0.0392秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '', 耗时: 0.0446秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '
+', 耗时: 0.0418秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '', 耗时: 0.0325秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '', 耗时: 0.0370秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '
+', 耗时: 0.0426秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '', 耗时: 0.0373秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '', 耗时: 0.0347秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '
+', 耗时: 0.0377秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '', 耗时: 0.0360秒
+2025-06-30 08:27:33 - __main__ - INFO - 生成token: '', 耗时: 0.0357秒
+2025-06-30 08:27:33 - __main__ - INFO - 完整回复: 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 08:27:33 - __main__ - INFO - 首个token延迟: 0.0343秒 (如果成功生成)
+2025-06-30 08:27:33 - __main__ - INFO - 总生成时间: 1.1730秒, Tokens: 30
+2025-06-30 08:27:33 - __main__ - INFO -   完整回复 (有缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 08:27:33 - __main__ - INFO -   首Token总延迟 (含预计算): 34.27 ms
+2025-06-30 08:27:33 - __main__ - INFO -   总生成时间 (含预计算): 1172.99 ms, Tokens: 30
+2025-06-30 08:27:33 - __main__ - INFO - 测试2所有计时事件: [('precompute_kv_cache', 1751272052.5086658, 62.044534999586176)]
+2025-06-30 08:27:33 - __main__ - INFO - 
+
+--- 测试3: 无缓存生成对比 ---
+2025-06-30 08:27:33 - __main__ - INFO - 
+--- 开始无KV缓存生成完整回复 (用于对比) ---
+2025-06-30 08:27:36 - __main__ - INFO - 完整回复 (无缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 08:27:36 - __main__ - INFO - 总生成时间 (无缓存): 1.1762秒, Tokens: 17
+2025-06-30 08:27:36 - __main__ - INFO -   完整回复 (无缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 08:27:36 - __main__ - INFO -   总延迟 (无缓存,近似FTL): 1176.23 ms
+2025-06-30 08:27:36 - __main__ - INFO -   总生成时间 (无缓存): 1176.23 ms, Tokens: 17
+2025-06-30 08:27:36 - __main__ - INFO - 
+LLM流式推理测试结束。
+2025-06-30 09:07:15 - __main__ - INFO - 开始LLM流式推理测试...
+2025-06-30 09:07:15 - __main__ - INFO - 测试将使用设备: cuda
+2025-06-30 09:07:15 - __main__ - INFO - 正在加载LLM模型 Qwen/Qwen1.5-0.5B-Chat 到 cuda...
+2025-06-30 09:07:15 - __main__ - INFO - HF_HOME: /usr/local/app/jupyterlab/model/hfhome, HF_ENDPOINT: https://huggingface.co
+2025-06-30 09:08:07 - __main__ - INFO - LLM模型加载完成。
+2025-06-30 09:08:07 - __main__ - INFO - 
+--- 测试1: 逐步输入并生成 ---
+2025-06-30 09:08:07 - __main__ - INFO - 输入片段1: '请介绍一下北京的'
+2025-06-30 09:08:07 - __main__ - WARNING - 警告: 没有预计算的KV缓存或当前输入。请先调用 precompute_kv_cache_for_prompt 或确保输入已处理。
+2025-06-30 09:08:07 - __main__ - INFO - 为输入预计算KV缓存: 请介绍一下北京的...
+2025-06-30 09:08:09 - __main__ - INFO - KV缓存预计算完成，耗时: 2357.62 ms
+2025-06-30 09:08:09 - __main__ - ERROR - 生成过程中出现错误: The size of tensor a (27) must match the size of tensor b (4) at non-singleton dimension 3
+2025-06-30 09:08:09 - __main__ - ERROR - 
+详细错误信息:
+2025-06-30 09:08:09 - __main__ - ERROR - Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/llm/stream_llm_inference.py", line 183, in generate_next_token
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 703, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 436, in forward
+    layer_outputs = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/modeling_layers.py", line 48, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 257, in forward
+    hidden_states, self_attn_weights = self.self_attn(
+                                       ^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 189, in forward
+    attn_output, attn_weights = attention_interface(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py", line 54, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: The size of tensor a (27) must match the size of tensor b (4) at non-singleton dimension 3
+
+2025-06-30 09:08:09 - __main__ - INFO -   LLM Token1: 'None' (Latency: 0.00 ms)
+2025-06-30 09:08:09 - __main__ - INFO - 输入片段2: '天气和'
+2025-06-30 09:08:09 - __main__ - ERROR - 生成过程中出现错误: The size of tensor a (29) must match the size of tensor b (2) at non-singleton dimension 3
+2025-06-30 09:08:09 - __main__ - ERROR - 
+详细错误信息:
+2025-06-30 09:08:09 - __main__ - ERROR - Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/llm/stream_llm_inference.py", line 183, in generate_next_token
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 703, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 436, in forward
+    layer_outputs = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/modeling_layers.py", line 48, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 257, in forward
+    hidden_states, self_attn_weights = self.self_attn(
+                                       ^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 189, in forward
+    attn_output, attn_weights = attention_interface(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py", line 54, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: The size of tensor a (29) must match the size of tensor b (2) at non-singleton dimension 3
+
+2025-06-30 09:08:09 - __main__ - INFO -   LLM Token2: 'None' (Latency: 0.00 ms)
+2025-06-30 09:08:09 - __main__ - INFO - 输入片段3: '美食。'
+2025-06-30 09:08:09 - __main__ - ERROR - 生成过程中出现错误: The size of tensor a (31) must match the size of tensor b (2) at non-singleton dimension 3
+2025-06-30 09:08:09 - __main__ - ERROR - 
+详细错误信息:
+2025-06-30 09:08:09 - __main__ - ERROR - Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/llm/stream_llm_inference.py", line 183, in generate_next_token
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 703, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 436, in forward
+    layer_outputs = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/modeling_layers.py", line 48, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 257, in forward
+    hidden_states, self_attn_weights = self.self_attn(
+                                       ^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 189, in forward
+    attn_output, attn_weights = attention_interface(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py", line 54, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: The size of tensor a (31) must match the size of tensor b (2) at non-singleton dimension 3
+
+2025-06-30 09:08:09 - __main__ - INFO -   LLM Token3: 'None' (Latency: 0.00 ms)
+2025-06-30 09:08:09 - __main__ - INFO - 继续生成后续几个token...
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '', 耗时: 1.2833秒
+2025-06-30 09:08:11 - __main__ - INFO -   LLM未能生成更多token。
+2025-06-30 09:08:11 - __main__ - INFO - 测试1完整句子: 
+2025-06-30 09:08:11 - __main__ - INFO - 测试1所有计时事件: [('precompute_kv_cache', 1751274489.4212728, 2357.6164939986484)]
+2025-06-30 09:08:11 - __main__ - INFO - 
+
+--- 测试2: 完整流程 (precompute + generate_full_response_with_cache) ---
+2025-06-30 09:08:11 - __main__ - INFO - 完整提示: ['你好，请问你叫什么名字？']
+2025-06-30 09:08:11 - __main__ - INFO - 
+--- 开始使用KV缓存流式生成完整回复 ---
+2025-06-30 09:08:11 - __main__ - INFO - 为输入预计算KV缓存: 你好，请问你叫什么名字？...
+2025-06-30 09:08:11 - __main__ - INFO - KV缓存预计算完成，耗时: 39.97 ms
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '', 耗时: 0.1120秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '我是', 耗时: 0.0160秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '来自', 耗时: 0.0163秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '阿里', 耗时: 0.0160秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '云', 耗时: 0.0158秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '的大', 耗时: 0.0157秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '规模', 耗时: 0.0158秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '语言', 耗时: 0.0159秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '模型', 耗时: 0.0158秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '，', 耗时: 0.0232秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '我', 耗时: 0.0157秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '叫', 耗时: 0.0161秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '通', 耗时: 0.0159秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '义', 耗时: 0.0162秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '千', 耗时: 0.0157秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '问', 耗时: 0.0161秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '。', 耗时: 0.0158秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '', 耗时: 0.0156秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '
+', 耗时: 0.0155秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '', 耗时: 0.0216秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '', 耗时: 0.0162秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '
+', 耗时: 0.0160秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '', 耗时: 0.0158秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '', 耗时: 0.0159秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '
+', 耗时: 0.0160秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '', 耗时: 0.0159秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '', 耗时: 0.0157秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '
+', 耗时: 0.0157秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '', 耗时: 0.0164秒
+2025-06-30 09:08:11 - __main__ - INFO - 生成token: '', 耗时: 0.0158秒
+2025-06-30 09:08:11 - __main__ - INFO - 完整回复: 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 09:08:11 - __main__ - INFO - 首个token延迟: 0.1120秒 (如果成功生成)
+2025-06-30 09:08:11 - __main__ - INFO - 总生成时间: 0.5861秒, Tokens: 30
+2025-06-30 09:08:11 - __main__ - INFO -   完整回复 (有缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 09:08:11 - __main__ - INFO -   首Token总延迟 (含预计算): 112.00 ms
+2025-06-30 09:08:11 - __main__ - INFO -   总生成时间 (含预计算): 586.10 ms, Tokens: 30
+2025-06-30 09:08:11 - __main__ - INFO - 测试2所有计时事件: [('precompute_kv_cache', 1751274491.2636728, 39.971048001461895)]
+2025-06-30 09:08:11 - __main__ - INFO - 
+
+--- 测试3: 无缓存生成对比 ---
+2025-06-30 09:08:11 - __main__ - INFO - 
+--- 开始无KV缓存生成完整回复 (用于对比) ---
+2025-06-30 09:08:12 - __main__ - INFO - 完整回复 (无缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 09:08:12 - __main__ - INFO - 总生成时间 (无缓存): 0.8886秒, Tokens: 17
+2025-06-30 09:08:12 - __main__ - INFO -   完整回复 (无缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 09:08:12 - __main__ - INFO -   总延迟 (无缓存,近似FTL): 888.60 ms
+2025-06-30 09:08:12 - __main__ - INFO -   总生成时间 (无缓存): 888.60 ms, Tokens: 17
+2025-06-30 09:08:12 - __main__ - INFO - 
+LLM流式推理测试结束。
+2025-06-30 09:14:02 - __main__ - INFO - 开始LLM流式推理测试...
+2025-06-30 09:14:03 - __main__ - INFO - 测试将使用设备: cuda
+2025-06-30 09:14:03 - __main__ - INFO - 正在加载LLM模型 Qwen/Qwen1.5-0.5B-Chat 到 cuda...
+2025-06-30 09:14:03 - __main__ - INFO - HF_HOME: /usr/local/app/jupyterlab/model/hfhome, HF_ENDPOINT: https://huggingface.co
+2025-06-30 09:15:02 - __main__ - INFO - LLM模型加载完成。
+2025-06-30 09:15:02 - __main__ - INFO - 
+--- 测试1: 逐步输入并生成 ---
+2025-06-30 09:15:02 - __main__ - INFO - 输入片段1: '请介绍一下北京的'
+2025-06-30 09:15:02 - __main__ - WARNING - 警告: 没有预计算的KV缓存或当前输入。请先调用 precompute_kv_cache_for_prompt 或确保输入已处理。
+2025-06-30 09:15:02 - __main__ - INFO - 为输入预计算KV缓存: 请介绍一下北京的...
+2025-06-30 09:15:03 - __main__ - INFO - KV缓存预计算完成，耗时: 1425.80 ms
+2025-06-30 09:15:03 - __main__ - ERROR - 生成过程中出现错误: The size of tensor a (27) must match the size of tensor b (4) at non-singleton dimension 3
+2025-06-30 09:15:03 - __main__ - ERROR - 
+详细错误信息:
+2025-06-30 09:15:04 - __main__ - ERROR - Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/llm/stream_llm_inference.py", line 195, in generate_next_token
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 703, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 436, in forward
+    layer_outputs = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/modeling_layers.py", line 48, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 257, in forward
+    hidden_states, self_attn_weights = self.self_attn(
+                                       ^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 189, in forward
+    attn_output, attn_weights = attention_interface(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py", line 54, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: The size of tensor a (27) must match the size of tensor b (4) at non-singleton dimension 3
+
+2025-06-30 09:15:04 - __main__ - INFO -   LLM Token1: 'None' (Latency: 0.00 ms)
+2025-06-30 09:15:04 - __main__ - INFO - 输入片段2: '天气和'
+2025-06-30 09:15:04 - __main__ - ERROR - 生成过程中出现错误: The size of tensor a (29) must match the size of tensor b (2) at non-singleton dimension 3
+2025-06-30 09:15:04 - __main__ - ERROR - 
+详细错误信息:
+2025-06-30 09:15:04 - __main__ - ERROR - Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/llm/stream_llm_inference.py", line 195, in generate_next_token
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 703, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 436, in forward
+    layer_outputs = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/modeling_layers.py", line 48, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 257, in forward
+    hidden_states, self_attn_weights = self.self_attn(
+                                       ^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 189, in forward
+    attn_output, attn_weights = attention_interface(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py", line 54, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: The size of tensor a (29) must match the size of tensor b (2) at non-singleton dimension 3
+
+2025-06-30 09:15:04 - __main__ - INFO -   LLM Token2: 'None' (Latency: 0.00 ms)
+2025-06-30 09:15:04 - __main__ - INFO - 输入片段3: '美食。'
+2025-06-30 09:15:04 - __main__ - ERROR - 生成过程中出现错误: The size of tensor a (31) must match the size of tensor b (2) at non-singleton dimension 3
+2025-06-30 09:15:04 - __main__ - ERROR - 
+详细错误信息:
+2025-06-30 09:15:04 - __main__ - ERROR - Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/llm/stream_llm_inference.py", line 195, in generate_next_token
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 703, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 969, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 436, in forward
+    layer_outputs = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/modeling_layers.py", line 48, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 257, in forward
+    hidden_states, self_attn_weights = self.self_attn(
+                                       ^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/qwen2/modeling_qwen2.py", line 189, in forward
+    attn_output, attn_weights = attention_interface(
+                                ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py", line 54, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: The size of tensor a (31) must match the size of tensor b (2) at non-singleton dimension 3
+
+2025-06-30 09:15:04 - __main__ - INFO -   LLM Token3: 'None' (Latency: 0.00 ms)
+2025-06-30 09:15:04 - __main__ - INFO - 继续生成后续几个token...
+2025-06-30 09:15:04 - __main__ - INFO - 生成token: '', 耗时: 0.8007秒
+2025-06-30 09:15:04 - __main__ - INFO -   LLM未能生成更多token。
+2025-06-30 09:15:04 - __main__ - INFO - 测试1完整句子: 
+2025-06-30 09:15:04 - __main__ - INFO - 测试1所有计时事件: [('precompute_kv_cache', 1751274903.6081774, 1425.7952309999382)]
+2025-06-30 09:15:04 - __main__ - INFO - 
+
+--- 测试2: 完整流程 (precompute + generate_full_response_with_cache) ---
+2025-06-30 09:15:04 - __main__ - INFO - 完整提示: ['你好，请问你叫什么名字？']
+2025-06-30 09:15:04 - __main__ - INFO - 
+--- 开始使用KV缓存流式生成完整回复 ---
+2025-06-30 09:15:04 - __main__ - INFO - 为输入预计算KV缓存: 你好，请问你叫什么名字？...
+2025-06-30 09:15:04 - __main__ - INFO - KV缓存预计算完成，耗时: 19.82 ms
+2025-06-30 09:15:04 - __main__ - INFO - 生成token: '', 耗时: 0.0414秒
+2025-06-30 09:15:04 - __main__ - INFO - 生成token: '我是', 耗时: 0.0166秒
+2025-06-30 09:15:04 - __main__ - INFO - 生成token: '来自', 耗时: 0.0158秒
+2025-06-30 09:15:04 - __main__ - INFO - 生成token: '阿里', 耗时: 0.0162秒
+2025-06-30 09:15:04 - __main__ - INFO - 生成token: '云', 耗时: 0.0161秒
+2025-06-30 09:15:04 - __main__ - INFO - 生成token: '的大', 耗时: 0.0158秒
+2025-06-30 09:15:04 - __main__ - INFO - 生成token: '规模', 耗时: 0.0159秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '语言', 耗时: 0.0156秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '模型', 耗时: 0.0162秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '，', 耗时: 0.0163秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '我', 耗时: 0.0160秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '叫', 耗时: 0.0163秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '通', 耗时: 0.0162秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '义', 耗时: 0.0155秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '千', 耗时: 0.0159秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '问', 耗时: 0.0157秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '。', 耗时: 0.0163秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '', 耗时: 0.0168秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '
+', 耗时: 0.0533秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '', 耗时: 0.0161秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '', 耗时: 0.0162秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '
+', 耗时: 0.0159秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '', 耗时: 0.0163秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '', 耗时: 0.0159秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '
+', 耗时: 0.0165秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '', 耗时: 0.0160秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '', 耗时: 0.0419秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '
+', 耗时: 0.0158秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '', 耗时: 0.0162秒
+2025-06-30 09:15:05 - __main__ - INFO - 生成token: '', 耗时: 0.0163秒
+2025-06-30 09:15:05 - __main__ - INFO - 完整回复: 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 09:15:05 - __main__ - INFO - 首个token延迟: 0.0414秒 (如果成功生成)
+2025-06-30 09:15:05 - __main__ - INFO - 总生成时间: 0.5710秒, Tokens: 30
+2025-06-30 09:15:05 - __main__ - INFO -   完整回复 (有缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 09:15:05 - __main__ - INFO -   首Token总延迟 (含预计算): 41.45 ms
+2025-06-30 09:15:05 - __main__ - INFO -   总生成时间 (含预计算): 571.04 ms, Tokens: 30
+2025-06-30 09:15:05 - __main__ - INFO - 测试2所有计时事件: [('precompute_kv_cache', 1751274904.8471148, 19.81914999851142)]
+2025-06-30 09:15:05 - __main__ - INFO - 
+
+--- 测试3: 无缓存生成对比 ---
+2025-06-30 09:15:05 - __main__ - INFO - 
+--- 开始无KV缓存生成完整回复 (用于对比) ---
+2025-06-30 09:15:06 - __main__ - INFO - 完整回复 (无缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 09:15:06 - __main__ - INFO - 总生成时间 (无缓存): 0.7723秒, Tokens: 17
+2025-06-30 09:15:06 - __main__ - INFO -   完整回复 (无缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 09:15:06 - __main__ - INFO -   总延迟 (无缓存,近似FTL): 772.31 ms
+2025-06-30 09:15:06 - __main__ - INFO -   总生成时间 (无缓存): 772.31 ms, Tokens: 17
+2025-06-30 09:15:06 - __main__ - INFO - 
+LLM流式推理测试结束。
+2025-06-30 09:40:31 - __main__ - INFO - 开始LLM流式推理测试...
+2025-06-30 09:40:31 - __main__ - INFO - 测试将使用设备: cuda
+2025-06-30 09:40:31 - __main__ - INFO - 正在加载LLM模型 Qwen/Qwen1.5-0.5B-Chat 到 cuda...
+2025-06-30 09:40:31 - __main__ - INFO - HF_HOME: /usr/local/app/jupyterlab/model/hfhome, HF_ENDPOINT: https://huggingface.co
+2025-06-30 09:41:19 - __main__ - INFO - LLM模型加载完成。
+2025-06-30 09:41:19 - __main__ - INFO - 
+--- 测试1: 逐步输入并生成 ---
+2025-06-30 09:41:19 - __main__ - INFO - 输入片段1: '请介绍一下北京的'
+2025-06-30 09:41:19 - __main__ - WARNING - 警告: 没有预计算的KV缓存或当前输入。请先调用 precompute_kv_cache_for_prompt 或确保输入已处理。
+2025-06-30 09:41:19 - __main__ - INFO - 为输入预计算KV缓存: 请介绍一下北京的...
+2025-06-30 09:41:21 - __main__ - INFO - KV缓存预计算完成，耗时: 1495.27 ms
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 2.5475秒
+2025-06-30 09:41:24 - __main__ - INFO -   LLM Token1: '' (Latency: 2547.45 ms)
+2025-06-30 09:41:24 - __main__ - INFO - 输入片段2: '天气和'
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 0.0597秒
+2025-06-30 09:41:24 - __main__ - INFO -   LLM Token2: '' (Latency: 59.74 ms)
+2025-06-30 09:41:24 - __main__ - INFO - 输入片段3: '美食。'
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 0.0599秒
+2025-06-30 09:41:24 - __main__ - INFO -   LLM Token3: '' (Latency: 59.93 ms)
+2025-06-30 09:41:24 - __main__ - INFO - 继续生成后续几个token...
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '
+', 耗时: 0.0160秒
+2025-06-30 09:41:24 - __main__ - INFO -   LLM Next Token 1: '
+' (Latency: 16.00 ms)
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 0.0165秒
+2025-06-30 09:41:24 - __main__ - INFO -   LLM未能生成更多token。
+2025-06-30 09:41:24 - __main__ - INFO - 测试1完整句子: 
+
+2025-06-30 09:41:24 - __main__ - INFO - 测试1所有计时事件: [('precompute_kv_cache', 1751276481.0848882, 1495.2703449998808)]
+2025-06-30 09:41:24 - __main__ - INFO - 
+
+--- 测试2: 完整流程 (precompute + generate_full_response_with_cache) ---
+2025-06-30 09:41:24 - __main__ - INFO - 完整提示: ['你好，请问你叫什么名字？']
+2025-06-30 09:41:24 - __main__ - INFO - 
+--- 开始使用KV缓存流式生成完整回复 ---
+2025-06-30 09:41:24 - __main__ - INFO - 为输入预计算KV缓存: 你好，请问你叫什么名字？...
+2025-06-30 09:41:24 - __main__ - INFO - KV缓存预计算完成，耗时: 18.40 ms
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 0.0430秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '我是', 耗时: 0.0164秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '来自', 耗时: 0.0160秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '阿里', 耗时: 0.0161秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '云', 耗时: 0.0162秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '的大', 耗时: 0.0159秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '规模', 耗时: 0.0160秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '语言', 耗时: 0.0159秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '模型', 耗时: 0.0159秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '，', 耗时: 0.0160秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '我', 耗时: 0.0159秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '叫', 耗时: 0.0156秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '通', 耗时: 0.0179秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '义', 耗时: 0.0166秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '千', 耗时: 0.0180秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '问', 耗时: 0.0169秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '。', 耗时: 0.0509秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 0.0200秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '
+', 耗时: 0.0167秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 0.0160秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 0.0160秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '
+', 耗时: 0.0161秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 0.0162秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 0.0160秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '
+', 耗时: 0.0163秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 0.0239秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 0.0160秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '
+', 耗时: 0.0168秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 0.0160秒
+2025-06-30 09:41:24 - __main__ - INFO - 生成token: '', 耗时: 0.0164秒
+2025-06-30 09:41:24 - __main__ - INFO - 完整回复: 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 09:41:24 - __main__ - INFO - 首个token延迟: 0.0430秒 (如果成功生成)
+2025-06-30 09:41:24 - __main__ - INFO - 总生成时间: 0.5615秒, Tokens: 30
+2025-06-30 09:41:24 - __main__ - INFO -   完整回复 (有缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 09:41:24 - __main__ - INFO -   首Token总延迟 (含预计算): 43.05 ms
+2025-06-30 09:41:24 - __main__ - INFO -   总生成时间 (含预计算): 561.52 ms, Tokens: 30
+2025-06-30 09:41:24 - __main__ - INFO - 测试2所有计时事件: [('precompute_kv_cache', 1751276484.2265232, 18.402099998638732)]
+2025-06-30 09:41:24 - __main__ - INFO - 
+
+--- 测试3: 无缓存生成对比 ---
+2025-06-30 09:41:24 - __main__ - INFO - 
+--- 开始无KV缓存生成完整回复 (用于对比) ---
+2025-06-30 09:41:25 - __main__ - INFO - 完整回复 (无缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 09:41:25 - __main__ - INFO - 总生成时间 (无缓存): 0.7680秒, Tokens: 17
+2025-06-30 09:41:25 - __main__ - INFO -   完整回复 (无缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-06-30 09:41:25 - __main__ - INFO -   总延迟 (无缓存,近似FTL): 767.99 ms
+2025-06-30 09:41:25 - __main__ - INFO -   总生成时间 (无缓存): 767.99 ms, Tokens: 17
+2025-06-30 09:41:25 - __main__ - INFO - 
+LLM流式推理测试结束。
+2025-07-01 08:16:18 - __main__ - INFO - 开始LLM流式推理测试...
+2025-07-01 08:16:18 - __main__ - INFO - 测试将使用设备: cuda
+2025-07-01 08:16:18 - __main__ - INFO - 正在加载LLM模型 Qwen/Qwen1.5-0.5B-Chat 到 cuda...
+2025-07-01 08:16:18 - __main__ - INFO - HF_HOME: /usr/local/app/jupyterlab/model/hfhome, HF_ENDPOINT: https://huggingface.co
+2025-07-01 08:16:29 - __main__ - ERROR - 测试过程中发生未预料的错误: (MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/Qwen/Qwen1.5-0.5B-Chat/tree/main/additional_chat_templates?recursive=False&expand=False (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))"), '(Request ID: 98c8e138-d0ec-4383-9184-eb35e400f401)')
+2025-07-01 08:16:29 - __main__ - ERROR - Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 703, in urlopen
+    httplib_response = self._make_request(
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 386, in _make_request
+    self._validate_conn(conn)
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 1042, in _validate_conn
+    conn.connect()
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/connection.py", line 414, in connect
+    self.sock = ssl_wrap_socket(
+                ^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/util/ssl_.py", line 449, in ssl_wrap_socket
+    ssl_sock = _ssl_wrap_socket_impl(
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/util/ssl_.py", line 493, in _ssl_wrap_socket_impl
+    return ssl_context.wrap_socket(sock, server_hostname=server_hostname)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/ssl.py", line 455, in wrap_socket
+    return self.sslsocket_class._create(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/ssl.py", line 1041, in _create
+    self.do_handshake()
+  File "/root/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/ssl.py", line 1319, in do_handshake
+    self._sslobj.do_handshake()
+ssl.SSLEOFError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/adapters.py", line 489, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/util/retry.py", line 592, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/Qwen/Qwen1.5-0.5B-Chat/tree/main/additional_chat_templates?recursive=False&expand=False (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/llm/stream_llm_inference.py", line 477, in <module>
+    llm_streamer = StreamLLMInference(model_name=test_model_name, device=test_device)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/llm/stream_llm_inference.py", line 40, in __init__
+    self.tokenizer = AutoTokenizer.from_pretrained(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/auto/tokenization_auto.py", line 1013, in from_pretrained
+    return tokenizer_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/tokenization_utils_base.py", line 1968, in from_pretrained
+    for template in list_repo_templates(
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/hub.py", line 163, in list_repo_templates
+    for entry in list_repo_tree(
+                 ^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/hf_api.py", line 3140, in list_repo_tree
+    for path_info in paginate(path=tree_url, headers=headers, params={"recursive": recursive, "expand": expand}):
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_pagination.py", line 36, in paginate
+    r = session.get(path, params=params, headers=headers)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 600, in get
+    return self.request("GET", url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 587, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 701, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_http.py", line 96, in send
+    return super().send(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/adapters.py", line 563, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: (MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/Qwen/Qwen1.5-0.5B-Chat/tree/main/additional_chat_templates?recursive=False&expand=False (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))"), '(Request ID: 98c8e138-d0ec-4383-9184-eb35e400f401)')
+
+2025-07-01 08:28:04 - __main__ - INFO - 开始LLM流式推理测试...
+2025-07-01 08:28:04 - __main__ - INFO - 测试将使用设备: cuda
+2025-07-01 08:28:04 - __main__ - INFO - 正在加载LLM模型 Qwen/Qwen1.5-0.5B-Chat 到 cuda...
+2025-07-01 08:28:04 - __main__ - INFO - HF_HOME: /usr/local/app/jupyterlab/model/hfhome, HF_ENDPOINT: https://huggingface.co
+2025-07-01 08:29:12 - __main__ - INFO - LLM模型加载完成。
+2025-07-01 08:29:12 - __main__ - INFO - 
+--- 测试1: 逐步输入并生成 ---
+2025-07-01 08:29:12 - __main__ - INFO - 输入片段1: '请介绍一下北京的'
+2025-07-01 08:29:12 - __main__ - WARNING - 警告: 没有预计算的KV缓存或当前输入。请先调用 precompute_kv_cache_for_prompt 或确保输入已处理。
+2025-07-01 08:29:12 - __main__ - INFO - 为输入预计算KV缓存: 请介绍一下北京的...
+2025-07-01 08:29:15 - __main__ - INFO - KV缓存预计算完成，耗时: 2496.04 ms
+2025-07-01 08:29:16 - __main__ - INFO - 生成token: '', 耗时: 4.2229秒
+2025-07-01 08:29:16 - __main__ - INFO -   LLM Token1: '' (Latency: 4222.89 ms)
+2025-07-01 08:29:16 - __main__ - INFO - 输入片段2: '天气和'
+2025-07-01 08:29:16 - __main__ - INFO - 生成token: '', 耗时: 0.0851秒
+2025-07-01 08:29:16 - __main__ - INFO -   LLM Token2: '' (Latency: 85.06 ms)
+2025-07-01 08:29:16 - __main__ - INFO - 输入片段3: '美食。'
+2025-07-01 08:29:16 - __main__ - INFO - 生成token: '', 耗时: 0.0754秒
+2025-07-01 08:29:16 - __main__ - INFO -   LLM Token3: '' (Latency: 75.40 ms)
+2025-07-01 08:29:16 - __main__ - INFO - 继续生成后续几个token...
+2025-07-01 08:29:16 - __main__ - INFO - 生成token: '
+', 耗时: 0.0177秒
+2025-07-01 08:29:16 - __main__ - INFO -   LLM Next Token 1: '
+' (Latency: 17.72 ms)
+2025-07-01 08:29:16 - __main__ - INFO - 生成token: '', 耗时: 0.0180秒
+2025-07-01 08:29:16 - __main__ - INFO -   LLM未能生成更多token。
+2025-07-01 08:29:16 - __main__ - INFO - 测试1完整句子: 
+
+2025-07-01 08:29:16 - __main__ - INFO - 测试1所有计时事件: [('precompute_kv_cache', 1751358555.0666678, 2496.035314998153)]
+2025-07-01 08:29:16 - __main__ - INFO - 
+
+--- 测试2: 完整流程 (precompute + generate_full_response_with_cache) ---
+2025-07-01 08:29:16 - __main__ - INFO - 完整提示: ['你好，请问你叫什么名字？']
+2025-07-01 08:29:16 - __main__ - INFO - 
+--- 开始使用KV缓存流式生成完整回复 ---
+2025-07-01 08:29:16 - __main__ - INFO - 为输入预计算KV缓存: 你好，请问你叫什么名字？...
+2025-07-01 08:29:17 - __main__ - INFO - KV缓存预计算完成，耗时: 19.46 ms
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '', 耗时: 0.0356秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '我是', 耗时: 0.0176秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '来自', 耗时: 0.0178秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '阿里', 耗时: 0.0176秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '云', 耗时: 0.0179秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '的大', 耗时: 0.0204秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '规模', 耗时: 0.0188秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '语言', 耗时: 0.0175秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '模型', 耗时: 0.0177秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '，', 耗时: 0.0176秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '我', 耗时: 0.0178秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '叫', 耗时: 0.0198秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '通', 耗时: 0.0185秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '义', 耗时: 0.0177秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '千', 耗时: 0.0175秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '问', 耗时: 0.0202秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '。', 耗时: 0.0175秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '', 耗时: 0.0176秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '
+', 耗时: 0.0198秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '', 耗时: 0.0200秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '', 耗时: 0.0181秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '
+', 耗时: 0.0177秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '', 耗时: 0.0214秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '', 耗时: 0.0200秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '
+', 耗时: 0.0184秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '', 耗时: 0.0217秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '', 耗时: 0.0180秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '
+', 耗时: 0.0189秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '', 耗时: 0.0191秒
+2025-07-01 08:29:17 - __main__ - INFO - 生成token: '', 耗时: 0.0180秒
+2025-07-01 08:29:17 - __main__ - INFO - 完整回复: 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-07-01 08:29:17 - __main__ - INFO - 首个token延迟: 0.0356秒 (如果成功生成)
+2025-07-01 08:29:17 - __main__ - INFO - 总生成时间: 0.5762秒, Tokens: 30
+2025-07-01 08:29:17 - __main__ - INFO -   完整回复 (有缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-07-01 08:29:17 - __main__ - INFO -   首Token总延迟 (含预计算): 35.60 ms
+2025-07-01 08:29:17 - __main__ - INFO -   总生成时间 (含预计算): 576.16 ms, Tokens: 30
+2025-07-01 08:29:17 - __main__ - INFO - 测试2所有计时事件: [('precompute_kv_cache', 1751358557.0154698, 19.45822500056238)]
+2025-07-01 08:29:17 - __main__ - INFO - 
+
+--- 测试3: 无缓存生成对比 ---
+2025-07-01 08:29:17 - __main__ - INFO - 
+--- 开始无KV缓存生成完整回复 (用于对比) ---
+2025-07-01 08:29:18 - __main__ - INFO - 完整回复 (无缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-07-01 08:29:18 - __main__ - INFO - 总生成时间 (无缓存): 0.9512秒, Tokens: 17
+2025-07-01 08:29:18 - __main__ - INFO -   完整回复 (无缓存): 我是来自阿里云的大规模语言模型，我叫通义千问。
+2025-07-01 08:29:18 - __main__ - INFO -   总延迟 (无缓存,近似FTL): 951.21 ms
+2025-07-01 08:29:18 - __main__ - INFO -   总生成时间 (无缓存): 951.21 ms, Tokens: 17
+2025-07-01 08:29:18 - __main__ - INFO - 
+LLM流式推理测试结束。
