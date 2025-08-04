@@ -40,8 +40,8 @@ class StreamLLMInference:
         """
         if device == "auto":
             device = "cuda" if torch.cuda.is_available() else "cpu"
-        logger.info(f"正在加载LLM模型 {model_name} 到 {device}...")
-        logger.info(f"HF_HOME: {hf_home}, HF_ENDPOINT: {hf_endpoint}")
+        logger.info(f"Loading LLM model {model_name} on {device}")
+        logger.debug(f"HF_HOME: {hf_home}, HF_ENDPOINT: {hf_endpoint}")
         self.device = device
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(

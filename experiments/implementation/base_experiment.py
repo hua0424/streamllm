@@ -21,7 +21,6 @@ sys.path.append(str(Path(__file__).parent.parent.parent))
 from src.utils.logging_utils import get_logger
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.asr.faster_whisper_streamer import StreamingASRProcessor
-from src.pipeline.optimized_streaming_pipeline import create_optimized_pipeline_from_wav
 from src.pipeline.ultra_low_latency_pipeline import create_ultra_low_latency_pipeline_from_wav
 
 # 导入四个对比系统

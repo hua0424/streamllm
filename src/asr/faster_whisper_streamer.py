@@ -71,16 +71,16 @@ class StreamingASRProcessor:
             sample_rate: 音频采样率
             text_callback: 文本输出回调函数 callback(text, start_time, end_time)
         """
-        logger.info(f'正在加载ASR模型: {model_size} 设备: {device}')
+        logger.info(f'Loading ASR model: {model_size} on {device}')
         
         # 根据设备自动选择计算类型
         if compute_type == 'auto':
             if device.lower() == 'cpu':
                 compute_type = 'int8'  # CPU使用int8
-                logger.info(f'CPU设备自动选择计算类型: {compute_type}')
+                logger.debug(f'Auto-selected compute type for CPU: {compute_type}')
             else:
                 compute_type = 'float16'  # GPU使用float16
-                logger.info(f'GPU设备自动选择计算类型: {compute_type}')
+                logger.debug(f'Auto-selected compute type for GPU: {compute_type}')
         
         # 加载Whisper模型，添加错误处理
         try:
@@ -122,7 +122,7 @@ class StreamingASRProcessor:
         self.is_stream_started = True
         self.is_stream_finished = False
         
-        logger.info('ASR模型加载完成')
+        logger.info('ASR model loaded successfully')
 
     def _generate_segment_id(self) -> str:
         """生成音频段ID"""

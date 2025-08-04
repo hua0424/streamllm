@@ -51,11 +51,30 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO") # DEBUG, INFO, WARNING, ERROR, CRITIC
 LOG_FILE = os.getenv("LOG_FILE", "logs/experiment.log") # 日志文件路径 (如果需要保存到文件)
 
 # 确保缓存目录存在
-if not os.path.exists(HF_HOME):
+if HF_HOME and not os.path.exists(HF_HOME):
     os.makedirs(HF_HOME, exist_ok=True)
 
-print(f"LLM Model: {LLM_MODEL_NAME}")
-print(f"ASR Model: {ASR_MODEL_NAME}")
-print(f"Device: {DEVICE}")
-print(f"HuggingFace Cache Home: {HF_HOME}") 
-print(f"HF_ENDPOINT: {HF_ENDPOINT}")
+# 生产环境配置
+PRODUCTION_MODE = os.getenv("PRODUCTION_MODE", "false").lower() == "true"
+
+# 仅在非生产环境或DEBUG模式下输出配置信息
+if not PRODUCTION_MODE or LOG_LEVEL == "DEBUG":
+    print(f"LLM Model: {LLM_MODEL_NAME}")
+    print(f"ASR Model: {ASR_MODEL_NAME}")
+    print(f"Device: {DEVICE}")
+    print(f"HuggingFace Cache Home: {HF_HOME}") 
+    print(f"HF_ENDPOINT: {HF_ENDPOINT}")
+
+# 配置验证
+def validate_config():
+    """验证关键配置项"""
+    warnings = []
+    
+    if not LLM_MODEL_NAME:
+        warnings.append("LLM_MODEL_NAME not set")
+    if not ASR_MODEL_NAME:
+        warnings.append("ASR_MODEL_NAME not set")
+    if not HF_HOME:
+        warnings.append("HF_HOME not set, using default cache location")
+    
+    return warnings

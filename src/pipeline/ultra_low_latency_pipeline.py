@@ -57,7 +57,7 @@ class UltraLowLatencyPipeline:
         self.is_speech_finished = False
         self.first_token_generated = False
         
-        logger.info("超低延迟流水线初始化完成")
+        logger.info("Ultra low latency pipeline initialized")
     
     def _precompute_common_responses(self):
         """预计算常见问题的KV缓存"""
@@ -69,7 +69,7 @@ class UltraLowLatencyPipeline:
             "请问"
         ]
         
-        logger.info("预计算常见回复的KV缓存...")
+        logger.debug("Precomputing KV cache for common responses")
         for pattern in common_patterns:
             try:
                 # 为每个常见模式预计算KV缓存
