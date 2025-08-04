@@ -270,8 +270,8 @@ class StreamingPipeline:
         logger.info("Audio stream processing finished.")
 
 if __name__ == '__main__':
-    import logging
-    logging.basicConfig(level=logging.INFO)
+    from src.utils.logging_utils import set_global_log_level
+    set_global_log_level('INFO')
     pipeline = StreamingPipeline(silence_based_segmentation=False, asr_buffer_size_seconds=5)
     pipeline.process_audio_stream(audio_frames_producer=None) 
 

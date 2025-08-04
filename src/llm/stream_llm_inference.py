@@ -13,7 +13,7 @@ import queue
 from src.config import LLM_MODEL_NAME, DEVICE, HF_HOME, HF_ENDPOINT, HF_TOKEN
 from src.utils.logging_utils import get_logger # 导入 logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 from dotenv import load_dotenv
 load_dotenv()  # 加载 .env 文件中的环境变量
@@ -43,20 +43,54 @@ class StreamLLMInference:
         logger.info(f"正在加载LLM模型 {model_name} 到 {device}...")
         logger.info(f"HF_HOME: {hf_home}, HF_ENDPOINT: {hf_endpoint}")
         self.device = device
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            model_name, 
-            cache_dir=hf_home, 
-            token=hf_token,
-            trust_remote_code=True # 对于某些模型如Qwen是必要的
-        )
-        self.model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            torch_dtype="auto",
-            device_map=device if device == "auto" else None, # device_map="auto" or device_map=device for single GPU
-            cache_dir=hf_home,
-            token=hf_token,
-            trust_remote_code=True # 对于某些模型如Qwen是必要的
-        )
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                model_name, 
+                cache_dir=hf_home, 
+                token=hf_token,
+                trust_remote_code=True, # 对于某些模型如Qwen是必要的
+                local_files_only=False  # 先尝试在线加载
+            )
+        except Exception as e:
+            logger.warning(f"在线加载tokenizer失败: {e}")
+            logger.info("尝试离线模式加载tokenizer...")
+            try:
+                self.tokenizer = AutoTokenizer.from_pretrained(
+                    model_name, 
+                    cache_dir=hf_home, 
+                    token=hf_token,
+                    trust_remote_code=True,
+                    local_files_only=True  # 离线模式
+                )
+            except Exception as e2:
+                logger.error(f"离线加载也失败: {e2}")
+                raise RuntimeError(f"无法加载tokenizer，在线和离线模式都失败: {e}, {e2}")
+        try:
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_name,
+                torch_dtype="auto",
+                device_map=device if device == "auto" else None, # device_map="auto" or device_map=device for single GPU
+                cache_dir=hf_home,
+                token=hf_token,
+                trust_remote_code=True, # 对于某些模型如Qwen是必要的
+                local_files_only=False  # 先尝试在线加载
+            )
+        except Exception as e:
+            logger.warning(f"在线加载模型失败: {e}")
+            logger.info("尝试离线模式加载模型...")
+            try:
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    model_name,
+                    torch_dtype="auto",
+                    device_map=device if device == "auto" else None,
+                    cache_dir=hf_home,
+                    token=hf_token,
+                    trust_remote_code=True,
+                    local_files_only=True  # 离线模式
+                )
+            except Exception as e2:
+                logger.error(f"离线加载也失败: {e2}")
+                raise RuntimeError(f"无法加载模型，在线和离线模式都失败: {e}, {e2}")
         if device != "auto": # 如果不是自动分配，则手动移到指定设备
             self.model.to(device)
         
@@ -144,7 +178,11 @@ class StreamLLMInference:
 
         # 如果生成结束，直接生成token，并返回
         if first_text[1]:
-            yield self.generate_next_token(max_new_tokens=max_new_tokens, temperature=temperature, top_p=top_p, repetition_penalty=repetition_penalty)
+            logger.info(f"生成结束，直接生成token")
+            text = first_text + self.generation_prompt
+            logger.info(f"流式添加提示词结束生成提示符: {text}")
+            for token, token_time in self._stream_generate_tokens(past_key_values, current_input_ids, current_attention_mask, max_new_tokens, temperature, top_p, repetition_penalty):
+                yield token, token_time
             return
 
         # 如果生成未结束，则流式添加提示词
@@ -162,7 +200,7 @@ class StreamLLMInference:
         for token, token_time in self._stream_generate_tokens(past_key_values, current_input_ids, current_attention_mask, max_new_tokens, temperature, top_p, repetition_penalty):
             yield token, token_time
             
-    def stream_add_and_generate_queue(self, prompt_queue: queue.Queue[Tuple[str, bool]], system_prompt:str="You are a helpful assistant responding in Chinese.", max_new_tokens=50, temperature=0.1, top_p=0.9, repetition_penalty=1.1) -> Generator[tuple[str, float], None, None]:
+    def stream_add_and_generate_queue(self, prompt_queue: queue.Queue[Tuple[str, bool]], system_prompt:str="You are a helpful assistant responding in Chinese.", max_new_tokens=50, temperature=0.1, top_p=0.9, repetition_penalty=1.1) -> Generator[tuple[str, bool], None, None]:
         """
         通过文本队列流式添加提示词并生成下一个token。
         prompt_queue: 文本队列，每个元素为tuple[str, bool]，其中str为文本片段，bool为是否结束。
@@ -182,7 +220,12 @@ class StreamLLMInference:
 
         # 如果生成结束，直接生成token，并返回
         if first_text[1]:
-            yield self.generate_next_token(max_new_tokens=max_new_tokens, temperature=temperature, top_p=top_p, repetition_penalty=repetition_penalty)
+            logger.info(f"生成结束，直接生成token")
+            text = first_text + self.generation_prompt
+            logger.info(f"流式添加提示词结束生成提示符: {text}")
+            for token, token_time in self._stream_generate_tokens(past_key_values, current_input_ids, current_attention_mask, max_new_tokens, temperature, top_p, repetition_penalty):
+                yield token, False
+            yield "", True
             return
 
         # 如果生成未结束，则流式添加提示词
@@ -886,9 +929,9 @@ def test_stream_llm_inference_once_input():
     args = parser.parse_args()
 
     # 根据参数设置日志级别
-    log_level = getattr(logging, args.log_level)
-    logging.basicConfig(level=log_level)
-    logger = logging.getLogger(__name__)
+    from src.utils.logging_utils import set_global_log_level
+    set_global_log_level(args.log_level)
+    logger = get_logger(__name__)
 
     llm_streamer = StreamLLMInference(device="cuda", eval_mode=args.eval)
     prompt = args.prompt
@@ -950,10 +993,9 @@ def test_stream_llm_inference_stream_input():
     args = parser.parse_args()
     
     # 根据参数设置日志级别
-    log_level = getattr(logging, args.log_level)
-
-    logging.basicConfig(level=log_level)
-    logger = logging.getLogger(__name__)
+    from src.utils.logging_utils import set_global_log_level
+    set_global_log_level(args.log_level)
+    logger = get_logger(__name__)
 
     llm_streamer = StreamLLMInference(device="cuda", eval_mode=args.eval)
 
@@ -1018,10 +1060,9 @@ def test_stream_llm_inference_old():
     args = parser.parse_args()
     
     # 根据参数设置日志级别
-    log_level = getattr(logging, args.log_level)
-
-    logging.basicConfig(level=log_level)
-    logger = logging.getLogger(__name__)
+    from src.utils.logging_utils import set_global_log_level
+    set_global_log_level(args.log_level)
+    logger = get_logger(__name__)
 
     logger.info("开始LLM流式推理测试...")
     

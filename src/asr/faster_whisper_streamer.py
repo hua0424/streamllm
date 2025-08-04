@@ -17,10 +17,13 @@ from src.config import ASR_MODEL_NAME, DEVICE, VAD_PARAMETERS
 # 导入音频分段器
 from src.asr.audio_segmenter import VADAudioSegmenter
 
+# 导入日志工具
+from src.utils.logging_utils import get_logger
+
 load_dotenv()  # 加载 .env 文件中的环境变量
 
 # 获取当前模块的logger
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 @dataclass
 class TextOutput:
@@ -348,7 +351,7 @@ class StreamingASRProcessor:
         logger.debug(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}ASR队列处理时间: {time.time() - start_time:.2f}s")
         return new_texts
     
-    def add_audio_chunk_queue(self, chunk_queue: Queue[Tuple[np.ndarray, bool]]) -> Generator[str, None, None]:
+    def add_audio_chunk_queue(self, chunk_queue: Queue[Tuple[np.ndarray, bool]]) -> Generator[Tuple[str, bool], None, None]:
         """
         添加音频块生成器并返回新的文本输出
         
@@ -359,7 +362,8 @@ class StreamingASRProcessor:
         while True:
             chunk_data, is_last = chunk_queue.get()
             new_texts = self.add_audio_chunk(chunk_data, is_stream_finished=is_last)
-            yield ' '.join([text.text for text in new_texts])
+            if new_texts:
+                yield (' '.join([text.text if hasattr(text, 'text') else str(text) for text in new_texts]), is_last)
             if is_last:
                 break
 
@@ -386,7 +390,7 @@ class StreamingASRProcessor:
             new_texts = self.add_audio_chunk(chunk_data, is_stream_finished=is_last)
 
             if new_texts:
-                yield ' '.join([text.text for text in new_texts])
+                yield ' '.join([text.text if hasattr(text, 'text') else str(text) for text in new_texts])
 
     # def add_audio_chunk(self, audio_chunk: np.ndarray, is_stream_finished: bool = False) -> List[str]:
     #     """

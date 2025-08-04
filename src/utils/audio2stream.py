@@ -3,23 +3,10 @@ import librosa
 import time
 import logging
 from typing import Generator, Tuple
-
-# 配置日志
-def setup_logger(level=logging.INFO):
-    """
-    设置日志配置
-    
-    Args:
-        level: 日志级别，可以是 logging.DEBUG, logging.INFO, logging.WARNING 等
-    """
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+from src.utils.logging_utils import get_logger
 
 # 获取当前模块的logger
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 def wav2stream(
     wav_path: str,
@@ -99,9 +86,9 @@ def main():
     
     args = parser.parse_args()
     
-    # 设置日志级别
-    log_level = getattr(logging, args.log_level.upper())
-    setup_logger(log_level)
+    # 设置全局日志级别
+    from src.utils.logging_utils import set_global_log_level
+    set_global_log_level(args.log_level)
     
     logger.info(f"测试wav2stream函数")
     logger.info(f"WAV文件: {args.wav_path}")

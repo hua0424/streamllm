@@ -1,0 +1,85 @@
+{
+  "experiment_info": {
+    "name": "length_impact_experiment",
+    "version": "1.0",
+    "config": {
+      "experiment_name": "length_impact_experiment",
+      "version": "1.0",
+      "num_runs": 1,
+      "asr_model_size": "base",
+      "llm_model_name": "Qwen/Qwen1.5-0.5B-Chat",
+      "chunk_duration": 0.3,
+      "simulate_delay": true,
+      "output_dir": "experiments/results",
+      "log_level": "INFO"
+    },
+    "sample_count": 4,
+    "success_count": 0
+  },
+  "sample_results": [
+    {
+      "sample_id": "length_10s_sample_1",
+      "audio_file": "data/processed_audio/length10/1_1_d2.wav",
+      "audio_length": 10.0,
+      "baseline_latency": 0.0,
+      "optimized_latency": 0.0,
+      "optimization_ratio": 0.0,
+      "asr_accuracy": null,
+      "asr_processing_time": null,
+      "llm_processing_time": null,
+      "memory_usage": null,
+      "error_message": "Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?",
+      "timestamp": "2025-08-04T00:20:06.919591"
+    },
+    {
+      "sample_id": "length_10s_sample_2",
+      "audio_file": "data/processed_audio/length10/0_0_d2.wav",
+      "audio_length": 10.0,
+      "baseline_latency": 0.0,
+      "optimized_latency": 0.0,
+      "optimization_ratio": 0.0,
+      "asr_accuracy": null,
+      "asr_processing_time": null,
+      "llm_processing_time": null,
+      "memory_usage": null,
+      "error_message": "Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?",
+      "timestamp": "2025-08-04T00:20:09.831273"
+    },
+    {
+      "sample_id": "length_20s_sample_1",
+      "audio_file": "data/processed_audio/length20/13_0_d13.wav",
+      "audio_length": 20.0,
+      "baseline_latency": 0.0,
+      "optimized_latency": 0.0,
+      "optimization_ratio": 0.0,
+      "asr_accuracy": null,
+      "asr_processing_time": null,
+      "llm_processing_time": null,
+      "memory_usage": null,
+      "error_message": "Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?",
+      "timestamp": "2025-08-04T00:20:21.627397"
+    },
+    {
+      "sample_id": "length_20s_sample_2",
+      "audio_file": "data/processed_audio/length20/4_0_d9.wav",
+      "audio_length": 20.0,
+      "baseline_latency": 0.0,
+      "optimized_latency": 0.0,
+      "optimization_ratio": 0.0,
+      "asr_accuracy": null,
+      "asr_processing_time": null,
+      "llm_processing_time": null,
+      "memory_usage": null,
+      "error_message": "Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?",
+      "timestamp": "2025-08-04T00:20:37.404671"
+    }
+  ],
+  "summary_statistics": {
+    "error": "没有有效结果"
+  },
+  "conclusions": [
+    "实验执行过程中出现错误，无法生成有效结论"
+  ],
+  "execution_time": 45.12295889854431,
+  "timestamp": "2025-08-04T00:20:37.404714"
+}

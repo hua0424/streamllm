@@ -20,10 +20,10 @@ except ImportError:
     SILERO_VAD_AVAILABLE = False
     
 from src.config import VAD_PARAMETERS
+from src.utils.logging_utils import get_logger
 
-# 设置日志
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# 获取当前模块的logger
+logger = get_logger(__name__)
 
 class VADAudioSegmenter:
     """

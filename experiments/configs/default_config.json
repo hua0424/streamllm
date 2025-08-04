@@ -1,0 +1,89 @@
+{
+  "experiment_config": {
+    "random_seed": 42,
+    "num_runs_per_config": 5,
+    "output_precision": 4,
+    "log_level": "INFO"
+  },
+  "data_config": {
+    "base_data_dir": "data/processed_audio",
+    "transcript_dir": "data/transcripts",
+    "test_audio_lengths": [3, 5, 10, 15, 20, 30],
+    "samples_per_length": 10,
+    "audio_format": "wav",
+    "sample_rate": 16000
+  },
+  "model_config": {
+    "asr_models": ["tiny", "base", "small", "medium"],
+    "default_asr_model": "base",
+    "llm_model": "Qwen/Qwen1.5-0.5B-Chat",
+    "comparison_models": [
+      "Qwen/Qwen2-Audio-7B-Instruct"
+    ]
+  },
+  "experiment_1_length_impact": {
+    "enabled": true,
+    "audio_lengths": [3, 5, 10, 15, 20, 30],
+    "chunk_duration": 0.3,
+    "simulate_delay": true,
+    "recognition_threshold": 2.0
+  },
+  "experiment_2_model_comparison": {
+    "enabled": true,
+    "test_set_size": 50,
+    "metrics": ["latency", "accuracy", "memory_usage", "throughput"]
+  },
+  "experiment_3_ablation_study": {
+    "enabled": true,
+    "configurations": {
+      "baseline": {"streaming_asr": false, "kv_cache": false},
+      "asr_only": {"streaming_asr": true, "kv_cache": false},
+      "llm_only": {"streaming_asr": false, "kv_cache": true},
+      "full_opt": {"streaming_asr": true, "kv_cache": true}
+    },
+    "test_audio": "data/processed_audio/length_10s/sample_001.wav",
+    "num_trials": 10
+  },
+  "experiment_4_asr_model_scale": {
+    "enabled": true,
+    "model_sizes": ["tiny", "base", "small", "medium"],
+    "test_set": "data/processed_audio/length_10s",
+    "metrics": ["latency", "accuracy", "memory_usage", "model_size"]
+  },
+  "experiment_5_audio_quality": {
+    "enabled": true,
+    "quality_levels": ["clean", "30db", "20db", "10db"],
+    "sample_rates": [8000, 16000, 44100],
+    "audio_formats": ["wav", "mp3"]
+  },
+  "experiment_6_tradeoff_analysis": {
+    "enabled": true,
+    "parameter_grid": {
+      "recognition_threshold": [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0],
+      "chunk_duration": [0.1, 0.2, 0.3, 0.5, 0.8, 1.0],
+      "trigger_strategy": ["immediate", "punctuation", "complete"]
+    }
+  },
+  "experiment_7_concurrent_performance": {
+    "enabled": true,
+    "concurrent_users": [1, 2, 4, 8, 16],
+    "test_duration": 60,
+    "audio_length": 10,
+    "metrics": ["avg_latency", "max_latency", "success_rate", "throughput"]
+  },
+  "analysis_config": {
+    "statistical_tests": ["ttest_rel", "anova", "kruskal_wallis"],
+    "significance_level": 0.05,
+    "effect_size_thresholds": {
+      "small": 0.2,
+      "medium": 0.5,
+      "large": 0.8
+    },
+    "visualization": {
+      "figure_size": [10, 6],
+      "dpi": 300,
+      "style": "seaborn-v0_8",
+      "color_palette": "Set2"
+    }
+  }
+}

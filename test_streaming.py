@@ -6,13 +6,16 @@ import queue
 import threading
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.asr.faster_whisper_streamer import StreamingASRProcessor
-from src.utils.audio2stream import wav2stream, setup_logger
-from typing import Generator, Tuple
+from src.utils.audio2stream import wav2stream
+from src.utils.logging_utils import get_logger, set_global_log_level
+from src.pipeline.optimized_streaming_pipeline import create_optimized_pipeline_from_wav
+from src.pipeline.ultra_low_latency_pipeline import create_ultra_low_latency_pipeline_from_wav
+from typing import Generator, Tuple, Any
 
 # 获取当前模块的logger
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-def _produce_and_start_thread(generator: Generator[tuple[any, bool], None, None]) -> tuple[threading.Thread, queue.Queue[Tuple[any, bool]]]:
+def _produce_and_start_thread(generator: Generator[tuple[Any, bool], None, None]) -> tuple[threading.Thread, queue.Queue[Tuple[Any, bool]]]:
     """从原始生成器获取数据块并放入队列"""
     my_queue = queue.Queue[Tuple[any, bool]]()
     
@@ -65,36 +68,74 @@ def _llm_processor(llm_processor: StreamLLMInference, text_queue: queue.Queue[Tu
     return _produce_and_start_thread(llm_generator)
 
 
-def main():
-    """测试wav2stream函数的流式音频输出"""
-    
-    # 解析命令行参数
-    parser = argparse.ArgumentParser(description='测试wav2stream流式音频输出')
-    parser.add_argument('--wav_path', type=str, 
-                       default="/usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav",
-                       help='测试音频文件路径')
-    parser.add_argument('--chunk_duration', type=float, default=0.5, help='每个音频块时长(秒)')
-    parser.add_argument('--simulate_delay', action='store_true', help='是否模拟实时延迟')
-    parser.add_argument('--log_level', type=str, default='INFO',
-                       choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-                       help='日志级别')
-    parser.add_argument('--model_size', type=str, default="base", help='模型大小')
-    parser.add_argument('--threshold', type=float, default=0.5, help='识别阈值')
-    
-    args = parser.parse_args()
-    
-    # 设置日志级别
-    log_level = getattr(logging, args.log_level.upper())
-    setup_logger(log_level)
-    
+def test_ultra_low_latency_pipeline(args):
+    """测试超低延迟流水线"""
     logger.info("=" * 60)
-    logger.info("测试wav2stream流式音频输出")
+    logger.info("测试超低延迟流水线")
     logger.info("=" * 60)
     logger.info(f"音频文件: {args.wav_path}")
     logger.info(f"音频块时长: {args.chunk_duration}s")
     logger.info(f"模拟延迟: {args.simulate_delay}")
-    logger.info(f"日志级别: {args.log_level}")
     logger.info("-" * 60)
+    
+    start_time = time.time()
+    
+    try:
+        # 使用超低延迟流水线
+        for token, latency, reason in create_ultra_low_latency_pipeline_from_wav(
+            wav_path=args.wav_path,
+            chunk_duration=args.chunk_duration,
+            simulate_delay=args.simulate_delay,
+            asr_model_size=args.model_size
+        ):
+            current_time = time.time() - start_time
+            logger.info(f"[{current_time:.2f}s] ⚡ Token: '{token}' | 延迟: {latency*1000:.1f}ms | 触发: {reason}")
+            
+        total_time = time.time() - start_time
+        logger.info(f"超低延迟流水线总耗时: {total_time:.2f}s")
+        
+    except Exception as e:
+        logger.error(f"超低延迟流水线测试失败: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+
+def test_optimized_pipeline(args):
+    """测试优化的流式流水线"""
+    logger.info("=" * 60)
+    logger.info("测试优化流式流水线")
+    logger.info("=" * 60)
+    logger.info(f"音频文件: {args.wav_path}")
+    logger.info(f"音频块时长: {args.chunk_duration}s")
+    logger.info(f"模拟延迟: {args.simulate_delay}")
+    logger.info("-" * 60)
+    
+    start_time = time.time()
+    
+    try:
+        # 使用优化流水线
+        for token, timestamp in create_optimized_pipeline_from_wav(
+            wav_path=args.wav_path,
+            chunk_duration=args.chunk_duration,
+            simulate_delay=args.simulate_delay,
+            asr_model_size=args.model_size,
+            llm_model_name="Qwen/Qwen1.5-0.5B-Chat"  # 明确指定模型
+        ):
+            current_time = time.time() - start_time
+            logger.info(f"[{current_time:.2f}s] 🤖 LLM回复: '{token}'")
+            
+        total_time = time.time() - start_time
+        logger.info(f"优化流水线总耗时: {total_time:.2f}s")
+        
+    except Exception as e:
+        logger.error(f"优化流水线测试失败: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+
+def test_original_pipeline(args):
+    """测试原始流水线（对比用）"""
+    logger.info("=" * 60)
+    logger.info("测试原始流水线")
+    logger.info("=" * 60)
     
     try:
         # 1. 生成音频
@@ -117,7 +158,9 @@ def main():
         # 3. llm
         # 创建流式llm处理器
         logger.info("开始创建LLM处理器")
-        llm_processor=StreamLLMInference()
+        llm_processor=StreamLLMInference(
+            model_name="Qwen/Qwen1.5-0.5B-Chat"  # 明确指定模型
+        )
         llm_producer_thread, llm_queue = _llm_processor(
             llm_processor,
             asr_queue
@@ -147,6 +190,45 @@ def main():
         logger.error(f"测试失败: {str(e)}")
         import traceback
         logger.error(traceback.format_exc())
+
+def main():
+    """主测试函数"""
+    # 解析命令行参数
+    parser = argparse.ArgumentParser(description='测试流式语音对话系统')
+    parser.add_argument('--wav_path', type=str, 
+                       default="/usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav",
+                       help='测试音频文件路径')
+    parser.add_argument('--chunk_duration', type=float, default=0.3, help='每个音频块时长(秒)')
+    parser.add_argument('--simulate_delay', action='store_true', help='是否模拟实时延迟')
+    parser.add_argument('--log_level', type=str, default='INFO',
+                       choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+                       help='日志级别')
+    parser.add_argument('--model_size', type=str, default="base", help='ASR模型大小')
+    parser.add_argument('--threshold', type=float, default=2.0, help='识别阈值(秒)')
+    parser.add_argument('--mode', type=str, default='ultra', 
+                       choices=['ultra', 'optimized', 'original', 'all'],
+                       help='测试模式：超低延迟、优化版、原始版或全部对比')
+    
+    args = parser.parse_args()
+    
+    # 设置全局日志级别
+    set_global_log_level(args.log_level)
+    
+    logger.info("🚀 流式语音对话系统测试程序")
+    logger.info(f"音频文件: {args.wav_path}")
+    logger.info(f"音频块时长: {args.chunk_duration}s")
+    logger.info(f"模拟延迟: {args.simulate_delay}")
+    logger.info(f"日志级别: {args.log_level}")
+    logger.info(f"测试模式: {args.mode}")
+    
+    if args.mode in ['ultra', 'all']:
+        test_ultra_low_latency_pipeline(args)
+    
+    if args.mode in ['optimized', 'all']:
+        test_optimized_pipeline(args)
+    
+    if args.mode in ['original', 'all']:
+        test_original_pipeline(args)
 
 if __name__ == "__main__":
     main()

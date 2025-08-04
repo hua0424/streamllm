@@ -6,11 +6,34 @@ import os
 
 from src.config import LOG_LEVEL, LOG_FILE
 
+# 全局日志级别变量，用于运行时动态设置
+_global_log_level = None
+
 # 确保日志目录存在
 if LOG_FILE:
     log_dir = os.path.dirname(LOG_FILE)
     if log_dir and not os.path.exists(log_dir):
         os.makedirs(log_dir, exist_ok=True)
+
+def set_global_log_level(level):
+    """
+    设置全局日志级别，影响所有通过get_logger创建的logger
+
+    Args:
+        level (str): 日志级别 (e.g., 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
+    """
+    global _global_log_level
+    _global_log_level = level.upper()
+
+    # 更新根logger的级别
+    root_logger = logging.getLogger()
+    root_logger.setLevel(getattr(logging, _global_log_level, logging.INFO))
+
+    # 更新所有已存在的logger的级别
+    for name in logging.Logger.manager.loggerDict:
+        logger = logging.getLogger(name)
+        if logger.handlers:  # 只更新已配置的logger
+            logger.setLevel(getattr(logging, _global_log_level, logging.INFO))
 
 def get_logger(name, level=None, log_file=None):
     """
@@ -18,20 +41,27 @@ def get_logger(name, level=None, log_file=None):
 
     Args:
         name (str): logger的名称，通常是 __name__。
-        level (str, optional): 日志级别 (e.g., 'DEBUG', 'INFO')。默认为 config.LOG_LEVEL。
+        level (str, optional): 日志级别 (e.g., 'DEBUG', 'INFO')。如果设置了全局级别，则优先使用全局级别。
         log_file (str, optional): 日志文件路径。默认为 config.LOG_FILE。
 
     Returns:
         logging.Logger: 配置好的logger实例。
     """
     logger = logging.getLogger(name)
-    
-    _level = level if level else LOG_LEVEL
+
+    # 优先使用全局日志级别，然后是参数级别，最后是配置文件级别
+    if _global_log_level:
+        _level = _global_log_level
+    elif level:
+        _level = level.upper()
+    else:
+        _level = LOG_LEVEL.upper()
+
     _log_file = log_file if log_file else LOG_FILE
 
     # 防止重复添加 handlers
     if not logger.handlers:
-        logger.setLevel(getattr(logging, _level.upper(), logging.INFO))
+        logger.setLevel(getattr(logging, _level, logging.INFO))
 
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -53,6 +83,9 @@ def get_logger(name, level=None, log_file=None):
                 logger.error(f"Failed to create file handler for log file {_log_file}: {e}", exc_info=False)
                 # 不要因为日志文件创建失败而崩溃，但要打印错误到控制台
                 # 此时，logger只有控制台handler
+    else:
+        # 如果logger已存在但需要更新级别
+        logger.setLevel(getattr(logging, _level, logging.INFO))
 
     return logger
 

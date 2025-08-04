@@ -914,3 +914,1886 @@ requests.exceptions.SSLError: (MaxRetryError("HTTPSConnectionPool(host='huggingf
 2025-07-01 08:29:18 - __main__ - INFO -   总生成时间 (无缓存): 951.21 ms, Tokens: 17
 2025-07-01 08:29:18 - __main__ - INFO - 
 LLM流式推理测试结束。
+2025-07-21 10:20:01 - __main__ - DEBUG - 这是一条DEBUG级别的日志
+2025-07-21 10:20:01 - __main__ - INFO - 这是一条INFO级别的日志
+2025-07-21 10:20:01 - __main__ - WARNING - 这是一条WARNING级别的日志
+2025-07-21 10:20:01 - __main__ - ERROR - 这是一条ERROR级别的日志
+2025-07-21 10:20:01 - __main__ - CRITICAL - 这是一条CRITICAL级别的日志
+2025-07-21 10:20:01 - test_module1 - DEBUG - 模块1: DEBUG日志
+2025-07-21 10:20:01 - test_module1 - INFO - 模块1: INFO日志
+2025-07-21 10:20:01 - test_module1 - WARNING - 模块1: WARNING日志
+2025-07-21 10:20:01 - test_module2 - DEBUG - 模块2: DEBUG日志
+2025-07-21 10:20:01 - test_module2 - INFO - 模块2: INFO日志
+2025-07-21 10:20:01 - test_module2 - ERROR - 模块2: ERROR日志
+2025-07-21 10:20:14 - __main__ - INFO - 这是一条INFO级别的日志
+2025-07-21 10:20:14 - __main__ - WARNING - 这是一条WARNING级别的日志
+2025-07-21 10:20:14 - __main__ - ERROR - 这是一条ERROR级别的日志
+2025-07-21 10:20:14 - __main__ - CRITICAL - 这是一条CRITICAL级别的日志
+2025-07-21 10:20:14 - test_module1 - INFO - 模块1: INFO日志
+2025-07-21 10:20:14 - test_module1 - WARNING - 模块1: WARNING日志
+2025-07-21 10:20:14 - test_module2 - INFO - 模块2: INFO日志
+2025-07-21 10:20:14 - test_module2 - ERROR - 模块2: ERROR日志
+2025-07-21 10:31:00 - __main__ - INFO - 设置全局日志级别为: DEBUG
+2025-07-21 10:31:00 - __main__ - INFO - 测试ASR模块日志...
+2025-07-21 10:31:15 - src.asr.audio_segmenter - DEBUG - ASR音频分段器: DEBUG日志
+2025-07-21 10:31:15 - src.asr.audio_segmenter - INFO - ASR音频分段器: INFO日志
+2025-07-21 10:31:15 - src.asr.audio_segmenter - WARNING - ASR音频分段器: WARNING日志
+2025-07-21 10:31:15 - __main__ - INFO - 测试LLM模块日志...
+2025-07-21 10:31:37 - src.llm.stream_llm_inference - DEBUG - LLM推理模块: DEBUG日志
+2025-07-21 10:31:37 - src.llm.stream_llm_inference - INFO - LLM推理模块: INFO日志
+2025-07-21 10:31:37 - src.llm.stream_llm_inference - WARNING - LLM推理模块: WARNING日志
+2025-07-21 10:31:37 - __main__ - INFO - 测试音频工具模块日志...
+2025-07-21 10:31:37 - src.utils.audio2stream - DEBUG - 音频流工具: DEBUG日志
+2025-07-21 10:31:37 - src.utils.audio2stream - INFO - 音频流工具: INFO日志
+2025-07-21 10:31:37 - src.utils.audio2stream - WARNING - 音频流工具: WARNING日志
+2025-07-21 10:31:37 - __main__ - INFO - 测试流水线模块日志...
+2025-07-21 10:31:37 - __main__ - ERROR - 流水线模块测试失败: cannot import name 'AudioSegmenter' from 'src.asr.audio_segmenter' (/usr/local/app/jupyterlab/yanjiu/streamllm/src/asr/audio_segmenter.py)
+2025-07-21 10:31:37 - __main__ - INFO - 所有模块日志测试完成！
+2025-07-23 04:04:38 - __main__ - INFO - ============================================================
+2025-07-23 04:04:38 - __main__ - INFO - 测试wav2stream流式音频输出
+2025-07-23 04:04:38 - __main__ - INFO - ============================================================
+2025-07-23 04:04:38 - __main__ - INFO - 音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav
+2025-07-23 04:04:38 - __main__ - INFO - 音频块时长: 0.5s
+2025-07-23 04:04:38 - __main__ - INFO - 模拟延迟: False
+2025-07-23 04:04:38 - __main__ - INFO - 日志级别: DEBUG
+2025-07-23 04:04:38 - __main__ - INFO - ------------------------------------------------------------
+2025-07-23 04:04:38 - __main__ - INFO - 开始生成音频
+2025-07-23 04:04:38 - __main__ - INFO - 开始创建ASR处理器
+2025-07-23 04:04:38 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-07-23 04:04:38 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-07-23 04:04:42 - src.asr.audio_segmenter - INFO - 已加载 Silero VAD 模型 (pip版本)
+2025-07-23 04:04:42 - src.asr.faster_whisper_streamer - INFO - ASR模型加载完成
+2025-07-23 04:04:42 - src.asr.faster_whisper_streamer - INFO - ASR处理器状态已重置
+2025-07-23 04:04:42 - src.asr.faster_whisper_streamer - INFO - 开始添加音频块生成器
+2025-07-23 04:04:42 - __main__ - INFO - 开始创建LLM处理器
+2025-07-23 04:04:42 - src.llm.stream_llm_inference - INFO - 正在加载LLM模型 Qwen/Qwen1.5-0.5B-Chat 到 cpu...
+2025-07-23 04:04:42 - src.llm.stream_llm_inference - INFO - HF_HOME: /usr/local/app/jupyterlab/model/hfhome, HF_ENDPOINT: https://huggingface.co
+2025-07-23 04:04:50 - src.utils.audio2stream - INFO - 音频加载成功: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav, 时长 32.14s, 采样率 16000Hz
+2025-07-23 04:04:50 - src.utils.audio2stream - INFO - 开始生成音频流，每个chunk 0.5s (8000样本), 无延迟
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [0.00s-0.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [0.50s-1.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [1.00s-1.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [1.50s-2.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [2.00s-2.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [2.50s-3.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [3.00s-3.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [3.50s-4.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [4.00s-4.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [4.50s-5.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [5.00s-5.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [5.50s-6.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [6.00s-6.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [6.50s-7.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [7.00s-7.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [7.50s-8.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [8.00s-8.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [8.50s-9.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [9.00s-9.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [9.50s-10.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [10.00s-10.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [10.50s-11.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [11.00s-11.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [11.50s-12.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [12.00s-12.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [12.50s-13.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [13.00s-13.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [13.50s-14.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [14.00s-14.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [14.50s-15.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [15.00s-15.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [15.50s-16.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [16.00s-16.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [16.50s-17.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [17.00s-17.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [17.50s-18.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [18.00s-18.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [18.50s-19.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [19.00s-19.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [19.50s-20.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [20.00s-20.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [20.50s-21.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [21.00s-21.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [21.50s-22.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [22.00s-22.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [22.50s-23.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [23.00s-23.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [23.50s-24.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [24.00s-24.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [24.50s-25.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [25.00s-25.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [25.50s-26.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [26.00s-26.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [26.50s-27.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [27.00s-27.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [27.50s-28.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [28.00s-28.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [28.50s-29.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [29.00s-29.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [29.50s-30.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [30.00s-30.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [30.50s-31.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [31.00s-31.50s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [31.50s-32.00s] 样本数8000, 最后块:False
+2025-07-23 04:04:50 - src.utils.audio2stream - DEBUG - 生成音频块: [32.00s-32.14s] 样本数2240, 最后块:True
+2025-07-23 04:04:51 - src.asr.audio_segmenter - DEBUG - 语音开始: 0.192s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.536音频分段处理时间: 0.65s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.536ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.542音频分段处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.542ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.audio_segmenter - DEBUG - 语音结束: 1.256s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.548新增语音段: seg_0001 [0.00s-1.26s] 1.26s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.548音频分段处理时间: 0.01s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.548ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.audio_segmenter - DEBUG - 语音开始: 1.692s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.553音频分段处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.554ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.559音频分段处理时间: 0.01s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.560ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.565音频分段处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.565ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.571音频分段处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.571ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.576音频分段处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.577ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.audio_segmenter - DEBUG - 语音结束: 4.192s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.583新增语音段: seg_0002 [1.26s-4.19s] 2.94s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.583音频分段处理时间: 0.01s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.583ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.588音频分段处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.589ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.594音频分段处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.594ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.audio_segmenter - DEBUG - 语音开始: 5.948s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.600音频分段处理时间: 0.01s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.600ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.605音频分段处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.606ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.611音频分段处理时间: 0.01s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.612ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.617音频分段处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.617ASR队列处理时间: 0.00s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:51 - src.asr.audio_segmenter - DEBUG - 语音结束: 7.916s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.623新增语音段: seg_0003 [4.19s-7.92s] 3.72s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.623音频分段处理时间: 0.01s
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.623队列长度: 3, 总时长: 7.92s, 流式结束: False - 开始识别
+2025-07-23 04:04:51 - src.asr.faster_whisper_streamer - DEBUG - 04:04:51.624正在转录 3 个语音段，总时长: 7.92s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG -   段 1: [0.00s-4.22s] 今天我們去醫院看病了
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG -   段 2: [5.48s-7.42s] 醫生說我們兩個嗓子
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.570转录完成，耗时: 0.95s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.570    目标段 1: 合并音频中时间范围 [0.00s - 1.26s]
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.570    段 1 提取的文本: '今天'
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.571    目标段 2: 合并音频中时间范围 [1.26s - 4.19s]
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.571    段 2 提取的文本: '我們去醫院看病'
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.571    目标段 3: 合并音频中时间范围 [4.19s - 7.92s]
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.571    段 3 提取的文本: '了醫生說我們兩個嗓子'
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - 04:04:52.571  ✓ 输出文本: index[0] [0.00s-1.26s] 'TextOutput(segment_id='seg_0001', text='今天', start_time=0.0, end_time=1.256, timestamp=1753243492.57104)'
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - 04:04:52.572  ✓ 输出文本: index[1] [1.26s-4.19s] 'TextOutput(segment_id='seg_0002', text='我們去醫院看病', start_time=1.256, end_time=4.192, timestamp=1753243492.5714414)'
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.95s, 生成文本: [TextOutput(segment_id='seg_0001', text='今天', start_time=0.0, end_time=1.256, timestamp=1753243492.57104), TextOutput(segment_id='seg_0002', text='我們去醫院看病', start_time=1.256, end_time=4.192, timestamp=1753243492.5714414)]
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.572ASR队列处理时间: 0.95s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:52 - src.asr.audio_segmenter - DEBUG - 语音开始: 8.416s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.577音频分段处理时间: 0.01s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.578ASR队列处理时间: 0.00s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.583音频分段处理时间: 0.00s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.583ASR队列处理时间: 0.00s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.588音频分段处理时间: 0.00s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.588ASR队列处理时间: 0.00s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:52 - src.asr.audio_segmenter - DEBUG - 语音结束: 9.660s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.594新增语音段: seg_0004 [7.92s-9.66s] 1.74s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.594音频分段处理时间: 0.01s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.594队列长度: 3, 总时长: 8.40s, 流式结束: False - 开始识别
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.594正在转录 3 个语音段，总时长: 8.40s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG -   段 1: [0.00s-3.00s] 我們去醫院看病了
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG -   段 2: [4.22s-7.84s] 醫生說我們兩個嗓子都有問題
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.962转录完成，耗时: 0.37s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.962    目标段 1: 合并音频中时间范围 [0.00s - 2.94s]
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.963    段 1 提取的文本: '我們去醫院看病'
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.963    目标段 2: 合并音频中时间范围 [2.94s - 6.66s]
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.963    段 2 提取的文本: '了醫生說我們兩個嗓子'
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.963    目标段 3: 合并音频中时间范围 [6.66s - 8.40s]
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.963    段 3 提取的文本: '都有問題'
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - 04:04:52.964  ✓ 输出文本: index[1] [4.19s-7.92s] 'TextOutput(segment_id='seg_0003', text='了醫生說我們兩個嗓子', start_time=4.192, end_time=7.916, timestamp=1753243492.963685)'
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.37s, 生成文本: [TextOutput(segment_id='seg_0003', text='了醫生說我們兩個嗓子', start_time=4.192, end_time=7.916, timestamp=1753243492.963685)]
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.964ASR队列处理时间: 0.37s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:52 - src.asr.audio_segmenter - DEBUG - 语音开始: 10.128s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.971音频分段处理时间: 0.01s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.971ASR队列处理时间: 0.00s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.976音频分段处理时间: 0.00s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.977ASR队列处理时间: 0.00s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.983音频分段处理时间: 0.01s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.983ASR队列处理时间: 0.00s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.989音频分段处理时间: 0.00s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.989ASR队列处理时间: 0.00s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.996音频分段处理时间: 0.01s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - DEBUG - 04:04:52.996ASR队列处理时间: 0.00s
+2025-07-23 04:04:52 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:52 - src.asr.audio_segmenter - DEBUG - 语音结束: 12.692s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.003新增语音段: seg_0005 [9.66s-12.69s] 3.03s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.003音频分段处理时间: 0.01s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.004队列长度: 3, 总时长: 8.50s, 流式结束: False - 开始识别
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.004正在转录 3 个语音段，总时长: 8.50s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG -   段 1: [1.36s-4.92s] 一生说我们两个嗓子都有问题
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG -   段 2: [5.52s-7.90s] 后来说我儿子回来
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.328转录完成，耗时: 0.32s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.328    目标段 1: 合并音频中时间范围 [0.00s - 3.72s]
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.328    段 1 提取的文本: '一生说我们两个嗓子'
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.328    目标段 2: 合并音频中时间范围 [3.72s - 5.47s]
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.328    段 2 提取的文本: '都有问题'
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.329    目标段 3: 合并音频中时间范围 [5.47s - 8.50s]
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.329    段 3 提取的文本: '后来说我儿子回来'
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 04:04:53.329  ✓ 输出文本: index[1] [7.92s-9.66s] 'TextOutput(segment_id='seg_0004', text='都有问题', start_time=7.916, end_time=9.66, timestamp=1753243493.3291094)'
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.33s, 生成文本: [TextOutput(segment_id='seg_0004', text='都有问题', start_time=7.916, end_time=9.66, timestamp=1753243493.3291094)]
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.329ASR队列处理时间: 0.33s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.334音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.335ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.340音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.340ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.audio_segmenter - DEBUG - 语音开始: 14.128s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.345音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.346ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.351音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.351ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.357音频分段处理时间: 0.01s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.357ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.audio_segmenter - DEBUG - 语音结束: 15.820s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.362新增语音段: seg_0006 [12.69s-15.82s] 3.13s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.363音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.363队列长度: 3, 总时长: 7.90s, 流式结束: False - 开始识别
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.363正在转录 3 个语音段，总时长: 7.90s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG -   段 1: [0.00s-1.20s] 都有問題
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG -   段 2: [2.00s-4.10s] 後來說我兒子回來
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG -   段 3: [5.76s-7.42s] 也說嗓的有問題
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.703转录完成，耗时: 0.34s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.703    目标段 1: 合并音频中时间范围 [0.00s - 1.74s]
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.703    段 1 提取的文本: '都有問題'
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.704    目标段 2: 合并音频中时间范围 [1.74s - 4.78s]
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.704    段 2 提取的文本: '後來說我兒子回來'
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.704    目标段 3: 合并音频中时间范围 [4.78s - 7.90s]
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.704    段 3 提取的文本: '也說嗓的有問題'
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 04:04:53.705  ✓ 输出文本: index[1] [9.66s-12.69s] 'TextOutput(segment_id='seg_0005', text='後來說我兒子回來', start_time=9.66, end_time=12.692, timestamp=1753243493.704718)'
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.34s, 生成文本: [TextOutput(segment_id='seg_0005', text='後來說我兒子回來', start_time=9.66, end_time=12.692, timestamp=1753243493.704718)]
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.705ASR队列处理时间: 0.34s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.audio_segmenter - DEBUG - 语音开始: 16.064s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.710音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.711ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.716音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.716ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.721音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.721ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.727音频分段处理时间: 0.01s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.727ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.732音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.732ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.737音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.738ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.743音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.743ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.749音频分段处理时间: 0.01s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.749ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.755音频分段处理时间: 0.01s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.756ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.760音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.761ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.766音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.766ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.771音频分段处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.772ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.777音频分段处理时间: 0.01s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.777ASR队列处理时间: 0.00s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:53 - src.asr.audio_segmenter - DEBUG - 语音结束: 22.596s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.783新增语音段: seg_0007 [15.82s-22.60s] 6.78s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.783音频分段处理时间: 0.01s
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.783队列长度: 3, 总时长: 12.94s, 流式结束: False - 开始识别
+2025-07-23 04:04:53 - src.asr.faster_whisper_streamer - DEBUG - 04:04:53.784正在转录 3 个语音段，总时长: 12.94s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG -   段 1: [0.00s-2.40s] 後來送我兒子回來
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG -   段 2: [4.18s-5.66s] 也說嗓子有問題
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG -   段 3: [6.22s-10.16s] 然後就買院說是因為我前一段買了一個誤化器
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG -   段 4: [10.16s-12.58s] 我們做了誤化吸入才造成的
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.189转录完成，耗时: 0.41s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.189    目标段 1: 合并音频中时间范围 [0.00s - 3.03s]
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.189    段 1 提取的文本: '後來送我兒子回來'
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.189    目标段 2: 合并音频中时间范围 [3.03s - 6.16s]
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.190    段 2 提取的文本: '也說嗓子有問題'
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.190    目标段 3: 合并音频中时间范围 [6.16s - 12.94s]
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.190    段 3 提取的文本: '然後就買院說是因為我前一段買了一個誤化器我們做了誤化吸入才造成的'
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 04:04:54.190  ✓ 输出文本: index[1] [12.69s-15.82s] 'TextOutput(segment_id='seg_0006', text='也說嗓子有問題', start_time=12.692, end_time=15.82, timestamp=1753243494.1902058)'
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.41s, 生成文本: [TextOutput(segment_id='seg_0006', text='也說嗓子有問題', start_time=12.692, end_time=15.82, timestamp=1753243494.1902058)]
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.190ASR队列处理时间: 0.41s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.audio_segmenter - DEBUG - 语音开始: 23.032s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.196音频分段处理时间: 0.01s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.197ASR队列处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.201音频分段处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.202ASR队列处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.207音频分段处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.207ASR队列处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.212音频分段处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.213ASR队列处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.218音频分段处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.218ASR队列处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.224音频分段处理时间: 0.01s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.224ASR队列处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.229音频分段处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.229ASR队列处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.audio_segmenter - DEBUG - 语音结束: 26.532s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.235新增语音段: seg_0008 [22.60s-26.53s] 3.94s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.235音频分段处理时间: 0.01s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.235队列长度: 3, 总时长: 13.84s, 流式结束: False - 开始识别
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.236正在转录 3 个语音段，总时长: 13.84s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG -   段 1: [1.14s-2.62s] 也說嗓子有問題
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG -   段 2: [3.18s-7.12s] 然後就買院說是因為我前一段買了一個誤化器
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG -   段 3: [7.12s-9.68s] 我們做了誤化吸入才造成的
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG -   段 4: [9.68s-12.56s] 我這好心好意給他們買的誤化器
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG -   段 5: [12.56s-13.30s] 他們就開始
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.701转录完成，耗时: 0.47s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.702    目标段 1: 合并音频中时间范围 [0.00s - 3.13s]
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.702    段 1 提取的文本: '也說嗓子有問題'
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.702    目标段 2: 合并音频中时间范围 [3.13s - 9.90s]
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.702    段 2 提取的文本: '然後就買院說是因為我前一段買了一個誤化器我們做了誤化吸入才造成的'
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.702    目标段 3: 合并音频中时间范围 [9.90s - 13.84s]
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.703    段 3 提取的文本: '我這好心好意給他們買的誤化器他們就開始'
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 04:04:54.703  ✓ 输出文本: index[1] [15.82s-22.60s] 'TextOutput(segment_id='seg_0007', text='然後就買院說是因為我前一段買了一個誤化器我們做了誤化吸入才造成的', start_time=15.82, end_time=22.596, timestamp=1753243494.7029135)'
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.47s, 生成文本: [TextOutput(segment_id='seg_0007', text='然後就買院說是因為我前一段買了一個誤化器我們做了誤化吸入才造成的', start_time=15.82, end_time=22.596, timestamp=1753243494.7029135)]
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.703ASR队列处理时间: 0.47s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.708音频分段处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.709ASR队列处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.audio_segmenter - DEBUG - 语音开始: 27.852s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.714音频分段处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.715ASR队列处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.720音频分段处理时间: 0.01s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.721ASR队列处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.725音频分段处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.726ASR队列处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.731音频分段处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.731ASR队列处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:54 - src.asr.audio_segmenter - DEBUG - 语音结束: 29.820s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.736新增语音段: seg_0009 [26.53s-29.82s] 3.29s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.737音频分段处理时间: 0.00s
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.737队列长度: 3, 总时长: 14.00s, 流式结束: False - 开始识别
+2025-07-23 04:04:54 - src.asr.faster_whisper_streamer - DEBUG - 04:04:54.737正在转录 3 个语音段，总时长: 14.00s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG -   段 1: [0.00s-4.00s] 然後就買了説是因為我前一段買了一個誤化器
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG -   段 2: [4.00s-6.62s] 我們做了誤化吸入才造成的
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG -   段 3: [6.62s-9.44s] 我這好心好意給他們買的誤化器
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG -   段 4: [9.44s-10.20s] 他們就開始
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG -   段 5: [11.88s-13.68s] 還是沒完沒了的說物
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.173转录完成，耗时: 0.44s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.173    目标段 1: 合并音频中时间范围 [0.00s - 6.78s]
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.174    段 1 提取的文本: '然後就買了説是因為我前一段買了一個誤化器我們做了誤化吸入才造成的'
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.174    目标段 2: 合并音频中时间范围 [6.78s - 10.71s]
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.174    段 2 提取的文本: '我這好心好意給他們買的誤化器他們就開始'
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.176    目标段 3: 合并音频中时间范围 [10.71s - 14.00s]
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.176    段 3 提取的文本: '還是沒完沒了的說物'
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - 04:04:55.176  ✓ 输出文本: index[1] [22.60s-26.53s] 'TextOutput(segment_id='seg_0008', text='我這好心好意給他們買的誤化器他們就開始', start_time=22.596, end_time=26.532, timestamp=1753243495.1765056)'
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.44s, 生成文本: [TextOutput(segment_id='seg_0008', text='我這好心好意給他們買的誤化器他們就開始', start_time=22.596, end_time=26.532, timestamp=1753243495.1765056)]
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.177ASR队列处理时间: 0.44s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.182音频分段处理时间: 0.00s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.182ASR队列处理时间: 0.00s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:55 - src.asr.audio_segmenter - DEBUG - 语音开始: 30.756s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.187音频分段处理时间: 0.00s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.188ASR队列处理时间: 0.00s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.193音频分段处理时间: 0.00s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.193ASR队列处理时间: 0.00s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.198音频分段处理时间: 0.00s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.198ASR队列处理时间: 0.00s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - 添加音频块: True
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - 🎉 检测到最后一个音频块，流结束
+2025-07-23 04:04:55 - src.asr.audio_segmenter - DEBUG - 语音结束: 32.064s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.201新增语音段: seg_0010 [29.82s-32.06s] 2.24s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.201音频分段处理时间: 0.00s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.201队列长度: 3, 总时长: 9.47s, 流式结束: True - 开始识别
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.201正在转录 3 个语音段，总时长: 9.47s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG -   段 1: [0.00s-2.62s] 我这好心好意给他们买的物化器
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG -   段 2: [2.62s-3.42s] 他们就开始
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG -   段 3: [5.18s-7.08s] 还是没完没了的说物
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG -   段 4: [7.86s-9.00s] 还说我乱化钱
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.581转录完成，耗时: 0.38s
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.581    目标段 1: 合并音频中时间范围 [0.00s - 3.94s]
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.581    段 1 提取的文本: '我这好心好意给他们买的物化器他们就开始'
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.581    目标段 2: 合并音频中时间范围 [3.94s - 7.22s]
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.581    段 2 提取的文本: '还是没完没了的说物'
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.582    目标段 3: 合并音频中时间范围 [7.22s - 9.47s]
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.582    段 3 提取的文本: '还说我乱化钱'
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 流式结束，输出所有段:[1, 2]
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - 04:04:55.582  ✓ 输出文本: index[1] [26.53s-29.82s] 'TextOutput(segment_id='seg_0009', text='还是没完没了的说物', start_time=26.532, end_time=29.82, timestamp=1753243495.582108)'
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - 04:04:55.582  ✓ 输出文本: index[2] [29.82s-32.06s] 'TextOutput(segment_id='seg_0010', text='还说我乱化钱', start_time=29.82, end_time=32.064, timestamp=1753243495.5824816)'
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.38s, 生成文本: [TextOutput(segment_id='seg_0009', text='还是没完没了的说物', start_time=26.532, end_time=29.82, timestamp=1753243495.582108), TextOutput(segment_id='seg_0010', text='还说我乱化钱', start_time=29.82, end_time=32.064, timestamp=1753243495.5824816)]
+2025-07-23 04:04:55 - src.asr.faster_whisper_streamer - DEBUG - 04:04:55.583ASR队列处理时间: 0.38s
+2025-07-23 04:05:13 - src.llm.stream_llm_inference - INFO - LLM模型加载完成。
+2025-07-23 04:05:13 - src.llm.stream_llm_inference - DEBUG - 生成提示符: '<|im_start|>assistant
+'
+2025-07-23 04:05:13 - src.llm.stream_llm_inference - INFO - first_text: 今天 我們去醫院看病
+2025-07-23 04:05:48 - src.llm.stream_llm_inference - INFO - 生成结束，直接生成token
+2025-07-23 04:05:48 - src.llm.stream_llm_inference - INFO - 流式添加提示词结束生成提示符: 今天 我們去醫院看病<|im_start|>assistant
+
+2025-07-23 04:05:48 - __main__ - INFO - LLM输出: tensor([[151644]])
+2025-07-23 04:05:48 - __main__ - INFO - 消费者线程已完成。
+2025-08-01 02:48:50 - __main__ - INFO - ============================================================
+2025-08-01 02:48:50 - __main__ - INFO - 测试wav2stream流式音频输出
+2025-08-01 02:48:50 - __main__ - INFO - ============================================================
+2025-08-01 02:48:50 - __main__ - INFO - 音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav
+2025-08-01 02:48:50 - __main__ - INFO - 音频块时长: 0.5s
+2025-08-01 02:48:50 - __main__ - INFO - 模拟延迟: False
+2025-08-01 02:48:50 - __main__ - INFO - 日志级别: DEBUG
+2025-08-01 02:48:50 - __main__ - INFO - ------------------------------------------------------------
+2025-08-01 02:48:50 - __main__ - INFO - 开始生成音频
+2025-08-01 02:48:50 - __main__ - INFO - 开始创建ASR处理器
+2025-08-01 02:48:50 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-01 02:48:50 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-01 02:48:57 - src.asr.audio_segmenter - INFO - 已加载 Silero VAD 模型 (pip版本)
+2025-08-01 02:48:57 - src.asr.faster_whisper_streamer - INFO - ASR模型加载完成
+2025-08-01 02:48:57 - src.asr.faster_whisper_streamer - INFO - ASR处理器状态已重置
+2025-08-01 02:48:57 - src.asr.faster_whisper_streamer - INFO - 开始添加音频块生成器
+2025-08-01 02:48:57 - __main__ - INFO - 开始创建LLM处理器
+2025-08-01 02:48:57 - src.llm.stream_llm_inference - INFO - 正在加载LLM模型 Qwen/Qwen1.5-0.5B-Chat 到 cpu...
+2025-08-01 02:48:57 - src.llm.stream_llm_inference - INFO - HF_HOME: /usr/local/app/jupyterlab/model/hfhome, HF_ENDPOINT: https://huggingface.co
+2025-08-01 02:49:02 - src.utils.audio2stream - INFO - 音频加载成功: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav, 时长 32.14s, 采样率 16000Hz
+2025-08-01 02:49:02 - src.utils.audio2stream - INFO - 开始生成音频流，每个chunk 0.5s (8000样本), 无延迟
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [0.00s-0.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [0.50s-1.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [1.00s-1.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [1.50s-2.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [2.00s-2.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [2.50s-3.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [3.00s-3.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [3.50s-4.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [4.00s-4.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [4.50s-5.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [5.00s-5.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [5.50s-6.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [6.00s-6.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [6.50s-7.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [7.00s-7.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [7.50s-8.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [8.00s-8.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [8.50s-9.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [9.00s-9.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [9.50s-10.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [10.00s-10.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [10.50s-11.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [11.00s-11.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [11.50s-12.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [12.00s-12.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [12.50s-13.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [13.00s-13.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [13.50s-14.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [14.00s-14.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [14.50s-15.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [15.00s-15.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [15.50s-16.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [16.00s-16.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [16.50s-17.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [17.00s-17.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [17.50s-18.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [18.00s-18.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [18.50s-19.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [19.00s-19.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [19.50s-20.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [20.00s-20.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [20.50s-21.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [21.00s-21.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [21.50s-22.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [22.00s-22.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [22.50s-23.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [23.00s-23.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [23.50s-24.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [24.00s-24.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [24.50s-25.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [25.00s-25.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [25.50s-26.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [26.00s-26.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [26.50s-27.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [27.00s-27.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [27.50s-28.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [28.00s-28.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [28.50s-29.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [29.00s-29.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [29.50s-30.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [30.00s-30.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [30.50s-31.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [31.00s-31.50s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [31.50s-32.00s] 样本数8000, 最后块:False
+2025-08-01 02:49:02 - src.utils.audio2stream - DEBUG - 生成音频块: [32.00s-32.14s] 样本数2240, 最后块:True
+2025-08-01 02:49:02 - src.asr.audio_segmenter - DEBUG - 语音开始: 0.192s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.872音频分段处理时间: 0.60s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.872ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.878音频分段处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.878ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.audio_segmenter - DEBUG - 语音结束: 1.256s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.883新增语音段: seg_0001 [0.00s-1.26s] 1.26s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.883音频分段处理时间: 0.01s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.884ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.audio_segmenter - DEBUG - 语音开始: 1.692s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.889音频分段处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.889ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.894音频分段处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.894ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.899音频分段处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.900ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.905音频分段处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.905ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.910音频分段处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.910ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.audio_segmenter - DEBUG - 语音结束: 4.192s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.915新增语音段: seg_0002 [1.26s-4.19s] 2.94s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.916音频分段处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.916ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.921音频分段处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.921ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.926音频分段处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.927ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.audio_segmenter - DEBUG - 语音开始: 5.948s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.932音频分段处理时间: 0.01s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.932ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.937音频分段处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.938ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.943音频分段处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.943ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.948音频分段处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.948ASR队列处理时间: 0.00s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 02:49:02 - src.asr.audio_segmenter - DEBUG - 语音结束: 7.916s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.954新增语音段: seg_0003 [4.19s-7.92s] 3.72s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.954音频分段处理时间: 0.01s
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.954队列长度: 3, 总时长: 7.92s, 流式结束: False - 开始识别
+2025-08-01 02:49:02 - src.asr.faster_whisper_streamer - DEBUG - 02:49:02.955正在转录 3 个语音段，总时长: 7.92s
+2025-08-01 02:49:03 - src.asr.faster_whisper_streamer - DEBUG -   段 1: [0.00s-4.22s] 今天我們去醫院看病了
+2025-08-01 02:49:03 - src.asr.faster_whisper_streamer - DEBUG -   段 2: [5.48s-7.42s] 醫生說我們兩個嗓子
+2025-08-01 02:49:03 - src.asr.faster_whisper_streamer - DEBUG - 02:49:03.884转录完成，耗时: 0.93s
+2025-08-01 02:49:03 - src.asr.faster_whisper_streamer - DEBUG - 02:49:03.884    目标段 1: 合并音频中时间范围 [0.00s - 1.26s]
+2025-08-01 02:49:03 - src.asr.faster_whisper_streamer - DEBUG - 02:49:03.884    段 1 提取的文本: '今天'
+2025-08-01 02:49:03 - src.asr.faster_whisper_streamer - DEBUG - 02:49:03.884    目标段 2: 合并音频中时间范围 [1.26s - 4.19s]
+2025-08-01 02:49:03 - src.asr.faster_whisper_streamer - DEBUG - 02:49:03.884    段 2 提取的文本: '我們去醫院看病'
+2025-08-01 02:49:03 - src.asr.faster_whisper_streamer - DEBUG - 02:49:03.884    目标段 3: 合并音频中时间范围 [4.19s - 7.92s]
+2025-08-01 02:49:03 - src.asr.faster_whisper_streamer - DEBUG - 02:49:03.885    段 3 提取的文本: '了醫生說我們兩個嗓子'
+2025-08-01 02:49:03 - src.asr.faster_whisper_streamer - INFO - 02:49:03.885  ✓ 输出文本: index[0] [0.00s-1.26s] 'TextOutput(segment_id='seg_0001', text='今天', start_time=0.0, end_time=1.256, timestamp=1754016543.8846154)'
+2025-08-01 02:49:03 - src.asr.faster_whisper_streamer - INFO - 02:49:03.885  ✓ 输出文本: index[1] [1.26s-4.19s] 'TextOutput(segment_id='seg_0002', text='我們去醫院看病', start_time=1.256, end_time=4.192, timestamp=1754016543.8849552)'
+2025-08-01 02:49:03 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.93s, 生成文本: [TextOutput(segment_id='seg_0001', text='今天', start_time=0.0, end_time=1.256, timestamp=1754016543.8846154), TextOutput(segment_id='seg_0002', text='我們去醫院看病', start_time=1.256, end_time=4.192, timestamp=1754016543.8849552)]
+2025-08-01 02:49:03 - src.asr.faster_whisper_streamer - DEBUG - 02:49:03.885ASR队列处理时间: 0.93s
+2025-08-01 02:49:07 - __main__ - ERROR - 测试失败: (MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/Qwen/Qwen1.5-0.5B-Chat/tree/main/additional_chat_templates?recursive=False&expand=False (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))"), '(Request ID: 7aba10f3-7120-4729-bfbe-0d7a6485dd1a)')
+2025-08-01 02:49:08 - __main__ - ERROR - Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 703, in urlopen
+    httplib_response = self._make_request(
+                       ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 386, in _make_request
+    self._validate_conn(conn)
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 1042, in _validate_conn
+    conn.connect()
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/connection.py", line 414, in connect
+    self.sock = ssl_wrap_socket(
+                ^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/util/ssl_.py", line 449, in ssl_wrap_socket
+    ssl_sock = _ssl_wrap_socket_impl(
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/util/ssl_.py", line 493, in _ssl_wrap_socket_impl
+    return ssl_context.wrap_socket(sock, server_hostname=server_hostname)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/ssl.py", line 455, in wrap_socket
+    return self.sslsocket_class._create(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/ssl.py", line 1041, in _create
+    self.do_handshake()
+  File "/root/.local/share/uv/python/cpython-3.12.10-linux-x86_64-gnu/lib/python3.12/ssl.py", line 1319, in do_handshake
+    self._sslobj.do_handshake()
+ssl.SSLEOFError: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/adapters.py", line 489, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/connectionpool.py", line 787, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/urllib3/util/retry.py", line 592, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/Qwen/Qwen1.5-0.5B-Chat/tree/main/additional_chat_templates?recursive=False&expand=False (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/test_streaming.py", line 120, in main
+    llm_processor=StreamLLMInference()
+                  ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/llm/stream_llm_inference.py", line 46, in __init__
+    self.tokenizer = AutoTokenizer.from_pretrained(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/models/auto/tokenization_auto.py", line 1013, in from_pretrained
+    return tokenizer_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/tokenization_utils_base.py", line 1968, in from_pretrained
+    for template in list_repo_templates(
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/transformers/utils/hub.py", line 163, in list_repo_templates
+    for entry in list_repo_tree(
+                 ^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/hf_api.py", line 3140, in list_repo_tree
+    for path_info in paginate(path=tree_url, headers=headers, params={"recursive": recursive, "expand": expand}):
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_pagination.py", line 36, in paginate
+    r = session.get(path, params=params, headers=headers)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 600, in get
+    return self.request("GET", url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 587, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 701, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_http.py", line 96, in send
+    return super().send(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/adapters.py", line 563, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: (MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/Qwen/Qwen1.5-0.5B-Chat/tree/main/additional_chat_templates?recursive=False&expand=False (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))"), '(Request ID: 7aba10f3-7120-4729-bfbe-0d7a6485dd1a)')
+
+2025-08-01 10:42:19 - __main__ - INFO - 🚀 流式语音对话系统测试程序
+2025-08-01 10:42:19 - __main__ - INFO - 音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav
+2025-08-01 10:42:19 - __main__ - INFO - 音频块时长: 0.3s
+2025-08-01 10:42:19 - __main__ - INFO - 模拟延迟: False
+2025-08-01 10:42:19 - __main__ - INFO - 日志级别: INFO
+2025-08-01 10:42:19 - __main__ - INFO - 测试模式: all
+2025-08-01 10:42:19 - __main__ - INFO - ============================================================
+2025-08-01 10:42:19 - __main__ - INFO - 测试超低延迟流水线
+2025-08-01 10:42:19 - __main__ - INFO - ============================================================
+2025-08-01 10:42:19 - __main__ - INFO - 音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav
+2025-08-01 10:42:19 - __main__ - INFO - 音频块时长: 0.3s
+2025-08-01 10:42:19 - __main__ - INFO - 模拟延迟: False
+2025-08-01 10:42:19 - __main__ - INFO - ------------------------------------------------------------
+2025-08-01 10:42:19 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-01 10:42:19 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-01 10:42:25 - src.asr.audio_segmenter - INFO - 已加载 Silero VAD 模型 (pip版本)
+2025-08-01 10:42:25 - src.asr.faster_whisper_streamer - INFO - ASR模型加载完成
+2025-08-01 10:42:25 - src.llm.stream_llm_inference - INFO - 正在加载LLM模型 Qwen/Qwen1.5-0.5B-Chat 到 cpu...
+2025-08-01 10:42:25 - src.llm.stream_llm_inference - INFO - HF_HOME: /usr/local/app/jupyterlab/model/hfhome, HF_ENDPOINT: https://huggingface.co
+2025-08-01 10:42:35 - src.llm.stream_llm_inference - WARNING - 在线加载tokenizer失败: (MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/Qwen/Qwen1.5-0.5B-Chat/tree/main/additional_chat_templates?recursive=False&expand=False (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))"), '(Request ID: c9a551a4-22a7-46f1-8cef-26ceb0f39660)')
+2025-08-01 10:42:35 - src.llm.stream_llm_inference - INFO - 尝试离线模式加载tokenizer...
+2025-08-01 10:43:21 - src.llm.stream_llm_inference - INFO - LLM模型加载完成。
+2025-08-01 10:43:21 - src.pipeline.ultra_low_latency_pipeline - INFO - 预计算常见回复的KV缓存...
+2025-08-01 10:43:21 - src.llm.stream_llm_inference - INFO - 为输入预计算KV缓存: User: 你好...
+2025-08-01 11:33:34 - __main__ - INFO - 🚀 流式语音对话系统测试程序
+2025-08-01 11:33:34 - __main__ - INFO - 音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav
+2025-08-01 11:33:34 - __main__ - INFO - 音频块时长: 0.3s
+2025-08-01 11:33:34 - __main__ - INFO - 模拟延迟: False
+2025-08-01 11:33:34 - __main__ - INFO - 日志级别: INFO
+2025-08-01 11:33:34 - __main__ - INFO - 测试模式: all
+2025-08-01 11:33:34 - __main__ - INFO - ============================================================
+2025-08-01 11:33:34 - __main__ - INFO - 测试超低延迟流水线
+2025-08-01 11:33:34 - __main__ - INFO - ============================================================
+2025-08-01 11:33:34 - __main__ - INFO - 音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav
+2025-08-01 11:33:34 - __main__ - INFO - 音频块时长: 0.3s
+2025-08-01 11:33:34 - __main__ - INFO - 模拟延迟: False
+2025-08-01 11:33:34 - __main__ - INFO - ------------------------------------------------------------
+2025-08-01 11:33:34 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-01 11:33:34 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-01 11:33:34 - __main__ - ERROR - 超低延迟流水线测试失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-01 11:33:34 - __main__ - ERROR - Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/test_streaming.py", line 85, in test_ultra_low_latency_pipeline
+    for token, latency, reason in create_ultra_low_latency_pipeline_from_wav(
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/pipeline/ultra_low_latency_pipeline.py", line 263, in create_ultra_low_latency_pipeline_from_wav
+    pipeline = UltraLowLatencyPipeline(
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/pipeline/ultra_low_latency_pipeline.py", line 37, in __init__
+    self.asr_processor = StreamingASRProcessor(
+                         ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/asr/faster_whisper_streamer.py", line 94, in __init__
+    raise e
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/asr/faster_whisper_streamer.py", line 87, in __init__
+    self.model = WhisperModel(model_size, device=device, compute_type=compute_type)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/faster_whisper/transcribe.py", line 641, in __init__
+    model_path = download_model(
+                 ^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/faster_whisper/utils.py", line 107, in download_model
+    return huggingface_hub.snapshot_download(repo_id, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/_snapshot_download.py", line 161, in snapshot_download
+    repo_info = api.repo_info(repo_id=repo_id, repo_type=repo_type, revision=revision, token=token)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/hf_api.py", line 2816, in repo_info
+    return method(
+           ^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/hf_api.py", line 2600, in model_info
+    r = get_session().get(path, headers=headers, timeout=timeout, params=params)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 600, in get
+    return self.request("GET", url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 573, in request
+    prep = self.prepare_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 484, in prepare_request
+    p.prepare(
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/models.py", line 368, in prepare
+    self.prepare_url(url, params)
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/models.py", line 439, in prepare_url
+    raise MissingSchema(
+requests.exceptions.MissingSchema: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+
+2025-08-01 11:33:34 - __main__ - INFO - ============================================================
+2025-08-01 11:33:34 - __main__ - INFO - 测试优化流式流水线
+2025-08-01 11:33:34 - __main__ - INFO - ============================================================
+2025-08-01 11:33:34 - __main__ - INFO - 音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav
+2025-08-01 11:33:34 - __main__ - INFO - 音频块时长: 0.3s
+2025-08-01 11:33:34 - __main__ - INFO - 模拟延迟: False
+2025-08-01 11:33:34 - __main__ - INFO - ------------------------------------------------------------
+2025-08-01 11:33:34 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-01 11:33:34 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-01 11:33:34 - __main__ - ERROR - 优化流水线测试失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-01 11:33:34 - __main__ - ERROR - Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/test_streaming.py", line 116, in test_optimized_pipeline
+    for token, timestamp in create_optimized_pipeline_from_wav(
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/pipeline/optimized_streaming_pipeline.py", line 257, in create_optimized_pipeline_from_wav
+    pipeline = OptimizedStreamingPipeline(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/pipeline/optimized_streaming_pipeline.py", line 37, in __init__
+    self.asr_processor = StreamingASRProcessor(
+                         ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/asr/faster_whisper_streamer.py", line 94, in __init__
+    raise e
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/asr/faster_whisper_streamer.py", line 87, in __init__
+    self.model = WhisperModel(model_size, device=device, compute_type=compute_type)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/faster_whisper/transcribe.py", line 641, in __init__
+    model_path = download_model(
+                 ^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/faster_whisper/utils.py", line 107, in download_model
+    return huggingface_hub.snapshot_download(repo_id, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/_snapshot_download.py", line 161, in snapshot_download
+    repo_info = api.repo_info(repo_id=repo_id, repo_type=repo_type, revision=revision, token=token)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/hf_api.py", line 2816, in repo_info
+    return method(
+           ^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/hf_api.py", line 2600, in model_info
+    r = get_session().get(path, headers=headers, timeout=timeout, params=params)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 600, in get
+    return self.request("GET", url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 573, in request
+    prep = self.prepare_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 484, in prepare_request
+    p.prepare(
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/models.py", line 368, in prepare
+    self.prepare_url(url, params)
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/models.py", line 439, in prepare_url
+    raise MissingSchema(
+requests.exceptions.MissingSchema: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+
+2025-08-01 11:33:34 - __main__ - INFO - ============================================================
+2025-08-01 11:33:34 - __main__ - INFO - 测试原始流水线
+2025-08-01 11:33:34 - __main__ - INFO - ============================================================
+2025-08-01 11:33:34 - __main__ - INFO - 开始生成音频
+2025-08-01 11:33:34 - __main__ - INFO - 开始创建ASR处理器
+2025-08-01 11:33:34 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-01 11:33:34 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-01 11:33:34 - __main__ - ERROR - 测试失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-01 11:33:34 - __main__ - ERROR - Traceback (most recent call last):
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/test_streaming.py", line 148, in test_original_pipeline
+    asr_processor=StreamingASRProcessor(
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/asr/faster_whisper_streamer.py", line 94, in __init__
+    raise e
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/src/asr/faster_whisper_streamer.py", line 87, in __init__
+    self.model = WhisperModel(model_size, device=device, compute_type=compute_type)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/faster_whisper/transcribe.py", line 641, in __init__
+    model_path = download_model(
+                 ^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/faster_whisper/utils.py", line 107, in download_model
+    return huggingface_hub.snapshot_download(repo_id, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/_snapshot_download.py", line 161, in snapshot_download
+    repo_info = api.repo_info(repo_id=repo_id, repo_type=repo_type, revision=revision, token=token)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/hf_api.py", line 2816, in repo_info
+    return method(
+           ^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 114, in _inner_fn
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/huggingface_hub/hf_api.py", line 2600, in model_info
+    r = get_session().get(path, headers=headers, timeout=timeout, params=params)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 600, in get
+    return self.request("GET", url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 573, in request
+    prep = self.prepare_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/sessions.py", line 484, in prepare_request
+    p.prepare(
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/models.py", line 368, in prepare
+    self.prepare_url(url, params)
+  File "/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.12/site-packages/requests/models.py", line 439, in prepare_url
+    raise MissingSchema(
+requests.exceptions.MissingSchema: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+
+2025-08-01 11:33:41 - src.utils.audio2stream - INFO - 音频加载成功: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav, 时长 32.14s, 采样率 16000Hz
+2025-08-01 11:33:41 - src.utils.audio2stream - INFO - 开始生成音频流，每个chunk 0.3s (4800样本), 无延迟
+2025-08-01 11:58:28 - __main__ - INFO - 🚀 流式语音对话系统测试程序
+2025-08-01 11:58:28 - __main__ - INFO - 音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav
+2025-08-01 11:58:28 - __main__ - INFO - 音频块时长: 0.3s
+2025-08-01 11:58:28 - __main__ - INFO - 模拟延迟: False
+2025-08-01 11:58:28 - __main__ - INFO - 日志级别: INFO
+2025-08-01 11:58:28 - __main__ - INFO - 测试模式: all
+2025-08-01 11:58:28 - __main__ - INFO - ============================================================
+2025-08-01 11:58:28 - __main__ - INFO - 测试超低延迟流水线
+2025-08-01 11:58:28 - __main__ - INFO - ============================================================
+2025-08-01 11:58:28 - __main__ - INFO - 音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav
+2025-08-01 11:58:28 - __main__ - INFO - 音频块时长: 0.3s
+2025-08-01 11:58:28 - __main__ - INFO - 模拟延迟: False
+2025-08-01 11:58:28 - __main__ - INFO - ------------------------------------------------------------
+2025-08-01 11:58:28 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-01 11:58:28 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-01 11:58:34 - src.asr.audio_segmenter - INFO - 已加载 Silero VAD 模型 (pip版本)
+2025-08-01 11:58:34 - src.asr.faster_whisper_streamer - INFO - ASR模型加载完成
+2025-08-01 11:58:34 - src.llm.stream_llm_inference - INFO - 正在加载LLM模型 Qwen/Qwen1.5-0.5B-Chat 到 cpu...
+2025-08-01 11:58:34 - src.llm.stream_llm_inference - INFO - HF_HOME: /usr/local/app/jupyterlab/model/hfhome, HF_ENDPOINT: https://huggingface.co
+2025-08-01 11:58:44 - src.llm.stream_llm_inference - WARNING - 在线加载tokenizer失败: (MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/Qwen/Qwen1.5-0.5B-Chat/tree/main/additional_chat_templates?recursive=False&expand=False (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))"), '(Request ID: f22292cb-768f-4ce7-9c8f-3aed4b2e2b28)')
+2025-08-01 11:58:44 - src.llm.stream_llm_inference - INFO - 尝试离线模式加载tokenizer...
+2025-08-01 11:59:23 - src.llm.stream_llm_inference - INFO - LLM模型加载完成。
+2025-08-01 11:59:23 - src.pipeline.ultra_low_latency_pipeline - INFO - 预计算常见回复的KV缓存...
+2025-08-01 11:59:23 - src.llm.stream_llm_inference - INFO - 为输入预计算KV缓存: User: 你好...
+2025-08-01 11:59:53 - src.llm.stream_llm_inference - INFO - KV缓存预计算完成，耗时: 29274.40 ms
+2025-08-01 11:59:53 - src.llm.stream_llm_inference - INFO - 为输入预计算KV缓存: User: 你是谁...
+2025-08-01 11:59:53 - src.llm.stream_llm_inference - INFO - KV缓存预计算完成，耗时: 143.80 ms
+2025-08-01 11:59:53 - src.llm.stream_llm_inference - INFO - 为输入预计算KV缓存: User: 你能做什么...
+2025-08-01 11:59:53 - src.llm.stream_llm_inference - INFO - KV缓存预计算完成，耗时: 143.49 ms
+2025-08-01 11:59:53 - src.llm.stream_llm_inference - INFO - 为输入预计算KV缓存: User: 帮我...
+2025-08-01 11:59:53 - src.llm.stream_llm_inference - INFO - KV缓存预计算完成，耗时: 143.01 ms
+2025-08-01 11:59:53 - src.llm.stream_llm_inference - INFO - 为输入预计算KV缓存: User: 请问...
+2025-08-01 11:59:53 - src.llm.stream_llm_inference - INFO - KV缓存预计算完成，耗时: 136.09 ms
+2025-08-01 11:59:53 - src.pipeline.ultra_low_latency_pipeline - INFO - 预计算完成，缓存了5个常见模式
+2025-08-01 11:59:53 - src.pipeline.ultra_low_latency_pipeline - INFO - 超低延迟流水线初始化完成
+2025-08-01 11:59:53 - src.pipeline.ultra_low_latency_pipeline - INFO - 开始超低延迟音频处理
+2025-08-01 11:59:59 - src.utils.audio2stream - INFO - 音频加载成功: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav, 时长 32.14s, 采样率 16000Hz
+2025-08-01 11:59:59 - src.utils.audio2stream - INFO - 开始生成音频流，每个chunk 0.3s (4800样本), 无延迟
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 11:59:59 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 12:00:00.098  ✓ 输出文本: index[0] [0.00s-1.23s] 'TextOutput(segment_id='seg_0001', text='今天', start_time=0.0, end_time=1.232, timestamp=1754049600.0982616)'
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.68s, 生成文本: [TextOutput(segment_id='seg_0001', text='今天', start_time=0.0, end_time=1.232, timestamp=1754049600.0982616)]
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 12:00:00.445  ✓ 输出文本: index[0] [1.23s-4.23s] 'TextOutput(segment_id='seg_0002', text='我們去醫院看病了', start_time=1.232, end_time=4.232, timestamp=1754049600.445639)'
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.31s, 生成文本: [TextOutput(segment_id='seg_0002', text='我們去醫院看病了', start_time=1.232, end_time=4.232, timestamp=1754049600.445639)]
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.pipeline.ultra_low_latency_pipeline - INFO - 触发首Token生成: 词数触发(2词)
+2025-08-01 12:00:00 - src.llm.stream_llm_inference - INFO - 为输入预计算KV缓存: User: 今天 我們去醫院看病了...
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.llm.stream_llm_inference - INFO - KV缓存预计算完成，耗时: 200.22 ms
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 12:00:00.776  ✓ 输出文本: index[0] [4.23s-7.76s] 'TextOutput(segment_id='seg_0003', text='醫生說我們兩個嗓子', start_time=4.232, end_time=7.756, timestamp=1754049600.7764428)'
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.31s, 生成文本: [TextOutput(segment_id='seg_0003', text='醫生說我們兩個嗓子', start_time=4.232, end_time=7.756, timestamp=1754049600.7764428)]
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:00 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.llm.stream_llm_inference - INFO - 生成token: '好的', 耗时: 0.3614秒, 是否EOS: False
+2025-08-01 12:00:01 - src.pipeline.ultra_low_latency_pipeline - INFO - 首Token: '好的', 总延迟: 563.0ms
+2025-08-01 12:00:01 - __main__ - INFO - [92.30s] ⚡ Token: '好的' | 延迟: 563.0ms | 触发: 词数触发(2词)
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 12:00:01.127  ✓ 输出文本: index[0] [7.76s-9.63s] 'TextOutput(segment_id='seg_0004', text='都有問題', start_time=7.756, end_time=9.632, timestamp=1754049601.1270595)'
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.31s, 生成文本: [TextOutput(segment_id='seg_0004', text='都有問題', start_time=7.756, end_time=9.632, timestamp=1754049601.1270595)]
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 12:00:01.501  ✓ 输出文本: index[0] [9.63s-12.66s] 'TextOutput(segment_id='seg_0005', text='后来说我儿子回来', start_time=9.632, end_time=12.664, timestamp=1754049601.5018327)'
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.34s, 生成文本: [TextOutput(segment_id='seg_0005', text='后来说我儿子回来', start_time=9.632, end_time=12.664, timestamp=1754049601.5018327)]
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 12:00:01.994  ✓ 输出文本: index[0] [12.66s-15.79s] 'TextOutput(segment_id='seg_0006', text='也說嗓子有問題', start_time=12.664, end_time=15.792, timestamp=1754049601.9945323)'
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.41s, 生成文本: [TextOutput(segment_id='seg_0006', text='也說嗓子有問題', start_time=12.664, end_time=15.792, timestamp=1754049601.9945323)]
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:01 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 12:00:02.401  ✓ 输出文本: index[0] [15.79s-22.60s] 'TextOutput(segment_id='seg_0007', text='然後就買了一個誤化器我們做了誤化吸入才造成的', start_time=15.792, end_time=22.596, timestamp=1754049602.4016216)'
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.37s, 生成文本: [TextOutput(segment_id='seg_0007', text='然後就買了一個誤化器我們做了誤化吸入才造成的', start_time=15.792, end_time=22.596, timestamp=1754049602.4016216)]
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 12:00:02.763  ✓ 输出文本: index[0] [22.60s-26.53s] 'TextOutput(segment_id='seg_0008', text='我这好心好意给他们买的物化器他们就开始', start_time=22.596, end_time=26.528, timestamp=1754049602.7629936)'
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.33s, 生成文本: [TextOutput(segment_id='seg_0008', text='我这好心好意给他们买的物化器他们就开始', start_time=22.596, end_time=26.528, timestamp=1754049602.7629936)]
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:02 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:03 - src.asr.faster_whisper_streamer - INFO - 12:00:03.115  ✓ 输出文本: index[0] [26.53s-29.86s] 'TextOutput(segment_id='seg_0009', text='還是沒有完美了的說物', start_time=26.528, end_time=29.86, timestamp=1754049603.115445)'
+2025-08-01 12:00:03 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.33s, 生成文本: [TextOutput(segment_id='seg_0009', text='還是沒有完美了的說物', start_time=26.528, end_time=29.86, timestamp=1754049603.115445)]
+2025-08-01 12:00:03 - src.asr.faster_whisper_streamer - INFO - 添加音频块: True
+2025-08-01 12:00:03 - src.asr.faster_whisper_streamer - INFO - 🎉 检测到最后一个音频块，流结束
+2025-08-01 12:00:03 - src.asr.faster_whisper_streamer - INFO - 12:00:03.395  ✓ 输出文本: index[0] [29.86s-32.02s] 'TextOutput(segment_id='seg_0010', text='還是我亂花情', start_time=29.86, end_time=32.024, timestamp=1754049603.3957283)'
+2025-08-01 12:00:03 - src.pipeline.ultra_low_latency_pipeline - ERROR - ASR线程错误: list index out of range
+2025-08-01 12:00:03 - __main__ - INFO - 超低延迟流水线总耗时: 94.81s
+2025-08-01 12:00:03 - __main__ - INFO - ============================================================
+2025-08-01 12:00:03 - __main__ - INFO - 测试优化流式流水线
+2025-08-01 12:00:03 - __main__ - INFO - ============================================================
+2025-08-01 12:00:03 - __main__ - INFO - 音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav
+2025-08-01 12:00:03 - __main__ - INFO - 音频块时长: 0.3s
+2025-08-01 12:00:03 - __main__ - INFO - 模拟延迟: False
+2025-08-01 12:00:03 - __main__ - INFO - ------------------------------------------------------------
+2025-08-01 12:00:03 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-01 12:00:03 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-01 12:00:09 - src.asr.audio_segmenter - INFO - 已加载 Silero VAD 模型 (pip版本)
+2025-08-01 12:00:09 - src.asr.faster_whisper_streamer - INFO - ASR模型加载完成
+2025-08-01 12:00:09 - src.llm.stream_llm_inference - INFO - 正在加载LLM模型 Qwen/Qwen1.5-0.5B-Chat 到 cpu...
+2025-08-01 12:00:09 - src.llm.stream_llm_inference - INFO - HF_HOME: /usr/local/app/jupyterlab/model/hfhome, HF_ENDPOINT: https://huggingface.co
+2025-08-01 12:00:19 - src.llm.stream_llm_inference - WARNING - 在线加载tokenizer失败: (MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/Qwen/Qwen1.5-0.5B-Chat/tree/main/additional_chat_templates?recursive=False&expand=False (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))"), '(Request ID: dea73cae-ef40-402b-ba0b-a2320a2b236f)')
+2025-08-01 12:00:19 - src.llm.stream_llm_inference - INFO - 尝试离线模式加载tokenizer...
+2025-08-01 12:00:36 - src.llm.stream_llm_inference - INFO - LLM模型加载完成。
+2025-08-01 12:00:36 - src.pipeline.optimized_streaming_pipeline - INFO - 优化流式流水线初始化完成
+2025-08-01 12:00:36 - src.pipeline.optimized_streaming_pipeline - INFO - 开始优化流式音频处理
+2025-08-01 12:00:36 - src.pipeline.optimized_streaming_pipeline - INFO - ASR处理线程启动
+2025-08-01 12:00:36 - src.pipeline.optimized_streaming_pipeline - INFO - LLM预处理线程启动
+2025-08-01 12:00:36 - src.pipeline.optimized_streaming_pipeline - INFO - 预计算系统消息KV缓存
+2025-08-01 12:00:36 - src.llm.stream_llm_inference - INFO - 为输入预计算KV缓存: <|im_start|>system
+You are a helpful assistant responding in Chinese.<|im_end|>
+...
+2025-08-01 12:00:36 - src.utils.audio2stream - INFO - 音频加载成功: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav, 时长 32.14s, 采样率 16000Hz
+2025-08-01 12:00:36 - src.utils.audio2stream - INFO - 开始生成音频流，每个chunk 0.3s (4800样本), 无延迟
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 12:00:36.706  ✓ 输出文本: index[0] [0.00s-1.23s] 'TextOutput(segment_id='seg_0001', text='今天', start_time=0.0, end_time=1.232, timestamp=1754049636.70625)'
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 12:00:36.706  ✓ 输出文本: index[1] [1.23s-4.23s] 'TextOutput(segment_id='seg_0002', text='我們去醫院看病了', start_time=1.232, end_time=4.232, timestamp=1754049636.7062624)'
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.38s, 生成文本: [TextOutput(segment_id='seg_0001', text='今天', start_time=0.0, end_time=1.232, timestamp=1754049636.70625), TextOutput(segment_id='seg_0002', text='我們去醫院看病了', start_time=1.232, end_time=4.232, timestamp=1754049636.7062624)]
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:36 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 12:00:37.048  ✓ 输出文本: index[1] [4.23s-7.76s] 'TextOutput(segment_id='seg_0003', text='了醫生說我們兩個嗓子', start_time=4.232, end_time=7.756, timestamp=1754049637.048756)'
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.32s, 生成文本: [TextOutput(segment_id='seg_0003', text='了醫生說我們兩個嗓子', start_time=4.232, end_time=7.756, timestamp=1754049637.048756)]
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 12:00:37.401  ✓ 输出文本: index[1] [7.76s-9.63s] 'TextOutput(segment_id='seg_0004', text='都有问题', start_time=7.756, end_time=9.632, timestamp=1754049637.4018884)'
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.32s, 生成文本: [TextOutput(segment_id='seg_0004', text='都有问题', start_time=7.756, end_time=9.632, timestamp=1754049637.4018884)]
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 12:00:37.760  ✓ 输出文本: index[1] [9.63s-12.66s] 'TextOutput(segment_id='seg_0005', text='後來送我兒子回來', start_time=9.632, end_time=12.664, timestamp=1754049637.7606895)'
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.32s, 生成文本: [TextOutput(segment_id='seg_0005', text='後來送我兒子回來', start_time=9.632, end_time=12.664, timestamp=1754049637.7606895)]
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:37 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 12:00:38.227  ✓ 输出文本: index[1] [12.66s-15.79s] 'TextOutput(segment_id='seg_0006', text='也说嗓得有问题', start_time=12.664, end_time=15.792, timestamp=1754049638.2279444)'
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.39s, 生成文本: [TextOutput(segment_id='seg_0006', text='也说嗓得有问题', start_time=12.664, end_time=15.792, timestamp=1754049638.2279444)]
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 12:00:38.721  ✓ 输出文本: index[1] [15.79s-22.60s] 'TextOutput(segment_id='seg_0007', text='然後就買院說是因為我前一段買了一個誤化器我們做了誤化吸入才造成的', start_time=15.792, end_time=22.596, timestamp=1754049638.7214718)'
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.45s, 生成文本: [TextOutput(segment_id='seg_0007', text='然後就買院說是因為我前一段買了一個誤化器我們做了誤化吸入才造成的', start_time=15.792, end_time=22.596, timestamp=1754049638.7214718)]
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:38 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - 12:00:39.173  ✓ 输出文本: index[1] [22.60s-26.53s] 'TextOutput(segment_id='seg_0008', text='我這好心好意給他們買的誤化器他們就開始', start_time=22.596, end_time=26.528, timestamp=1754049639.1732223)'
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.42s, 生成文本: [TextOutput(segment_id='seg_0008', text='我這好心好意給他們買的誤化器他們就開始', start_time=22.596, end_time=26.528, timestamp=1754049639.1732223)]
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - 12:00:39.572  ✓ 输出文本: index[1] [26.53s-29.86s] 'TextOutput(segment_id='seg_0009', text='还是没完没了的说物', start_time=26.528, end_time=29.86, timestamp=1754049639.5724351)'
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.38s, 生成文本: [TextOutput(segment_id='seg_0009', text='还是没完没了的说物', start_time=26.528, end_time=29.86, timestamp=1754049639.5724351)]
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - 添加音频块: True
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - 🎉 检测到最后一个音频块，流结束
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - 12:00:39.881  ✓ 输出文本: index[1] [29.86s-32.02s] 'TextOutput(segment_id='seg_0010', text='還是我亂花錢', start_time=29.86, end_time=32.024, timestamp=1754049639.8818643)'
+2025-08-01 12:00:39 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.31s, 生成文本: [TextOutput(segment_id='seg_0010', text='還是我亂花錢', start_time=29.86, end_time=32.024, timestamp=1754049639.8818643)]
+2025-08-01 12:00:39 - src.pipeline.optimized_streaming_pipeline - INFO - 语音输入结束
+2025-08-01 12:00:59 - src.llm.stream_llm_inference - INFO - KV缓存预计算完成，耗时: 23317.05 ms
+2025-08-01 12:00:59 - src.llm.stream_llm_inference - INFO - 生成token: '', 耗时: 0.1903秒, 是否EOS: True
+2025-08-01 12:00:59 - src.llm.stream_llm_inference - INFO - 生成token: '', 耗时: 0.1433秒, 是否EOS: True
+2025-08-01 12:01:00 - src.llm.stream_llm_inference - INFO - 生成token: '都', 耗时: 0.1432秒, 是否EOS: False
+2025-08-01 12:01:00 - src.llm.stream_llm_inference - INFO - 生成token: '', 耗时: 0.1311秒, 是否EOS: True
+2025-08-01 12:01:00 - src.llm.stream_llm_inference - INFO - 生成token: '', 耗时: 0.1404秒, 是否EOS: True
+2025-08-01 12:01:00 - src.llm.stream_llm_inference - INFO - 生成token: '', 耗时: 0.1387秒, 是否EOS: True
+2025-08-01 12:01:00 - src.llm.stream_llm_inference - INFO - 生成token: '', 耗时: 0.2020秒, 是否EOS: True
+2025-08-01 12:01:00 - src.llm.stream_llm_inference - INFO - 生成token: '說', 耗时: 0.1812秒, 是否EOS: False
+2025-08-01 12:01:01 - src.llm.stream_llm_inference - INFO - 生成token: '有所', 耗时: 0.1545秒, 是否EOS: False
+2025-08-01 12:01:01 - src.llm.stream_llm_inference - INFO - 生成token: '', 耗时: 0.1453秒, 是否EOS: True
+2025-08-01 12:01:01 - src.pipeline.optimized_streaming_pipeline - INFO - 收到ASR结束信号，开始最终生成
+2025-08-01 12:01:01 - src.pipeline.optimized_streaming_pipeline - INFO - 开始生成最终响应，用户输入: 今天 我們去醫院看病了 了醫生說我們兩個嗓子 都有问题 後來送我兒子回來 也说嗓得有问题 然後就買院說是因為我前一段買了一個誤化器我們做了誤化吸入才造成的 我這好心好意給他們買的誤化器他們就開始 还是没完没了的说物 還是我亂花錢
+2025-08-01 12:01:01 - src.llm.stream_llm_inference - INFO - 生成token: '我', 耗时: 0.1449秒, 是否EOS: False
+2025-08-01 12:01:01 - src.pipeline.optimized_streaming_pipeline - INFO - 首Token生成: '我', 延迟: 144.91ms
+2025-08-01 12:01:01 - __main__ - INFO - [57.85s] 🤖 LLM回复: '我'
+2025-08-01 12:01:01 - src.pipeline.optimized_streaming_pipeline - INFO - 流式处理完成
+2025-08-01 12:01:01 - __main__ - INFO - 优化流水线总耗时: 58.00s
+2025-08-01 12:01:01 - __main__ - INFO - ============================================================
+2025-08-01 12:01:01 - __main__ - INFO - 测试原始流水线
+2025-08-01 12:01:01 - __main__ - INFO - ============================================================
+2025-08-01 12:01:01 - __main__ - INFO - 开始生成音频
+2025-08-01 12:01:01 - __main__ - INFO - 开始创建ASR处理器
+2025-08-01 12:01:01 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-01 12:01:01 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-01 12:01:01 - src.utils.audio2stream - INFO - 音频加载成功: /usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav, 时长 32.14s, 采样率 16000Hz
+2025-08-01 12:01:01 - src.utils.audio2stream - INFO - 开始生成音频流，每个chunk 0.3s (4800样本), 无延迟
+2025-08-01 12:01:07 - src.asr.audio_segmenter - INFO - 已加载 Silero VAD 模型 (pip版本)
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR模型加载完成
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR处理器状态已重置
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 开始添加音频块生成器
+2025-08-01 12:01:07 - __main__ - INFO - 开始创建LLM处理器
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.llm.stream_llm_inference - INFO - 正在加载LLM模型 Qwen/Qwen1.5-0.5B-Chat 到 cpu...
+2025-08-01 12:01:07 - src.llm.stream_llm_inference - INFO - HF_HOME: /usr/local/app/jupyterlab/model/hfhome, HF_ENDPOINT: https://huggingface.co
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:07 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 12:01:08.181  ✓ 输出文本: index[0] [0.00s-1.23s] 'TextOutput(segment_id='seg_0001', text='今天', start_time=0.0, end_time=1.232, timestamp=1754049668.1809819)'
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 12:01:08.181  ✓ 输出文本: index[1] [1.23s-4.23s] 'TextOutput(segment_id='seg_0002', text='我們去醫院看病了', start_time=1.232, end_time=4.232, timestamp=1754049668.1809943)'
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.32s, 生成文本: [TextOutput(segment_id='seg_0001', text='今天', start_time=0.0, end_time=1.232, timestamp=1754049668.1809819), TextOutput(segment_id='seg_0002', text='我們去醫院看病了', start_time=1.232, end_time=4.232, timestamp=1754049668.1809943)]
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 12:01:08.505  ✓ 输出文本: index[1] [4.23s-7.76s] 'TextOutput(segment_id='seg_0003', text='了醫生說我們兩個嗓子', start_time=4.232, end_time=7.756, timestamp=1754049668.5058625)'
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.30s, 生成文本: [TextOutput(segment_id='seg_0003', text='了醫生說我們兩個嗓子', start_time=4.232, end_time=7.756, timestamp=1754049668.5058625)]
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 12:01:08.847  ✓ 输出文本: index[1] [7.76s-9.63s] 'TextOutput(segment_id='seg_0004', text='都有问题', start_time=7.756, end_time=9.632, timestamp=1754049668.847243)'
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.31s, 生成文本: [TextOutput(segment_id='seg_0004', text='都有问题', start_time=7.756, end_time=9.632, timestamp=1754049668.847243)]
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:08 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 12:01:09.185  ✓ 输出文本: index[1] [9.63s-12.66s] 'TextOutput(segment_id='seg_0005', text='後來送我兒子回來', start_time=9.632, end_time=12.664, timestamp=1754049669.1859415)'
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.31s, 生成文本: [TextOutput(segment_id='seg_0005', text='後來送我兒子回來', start_time=9.632, end_time=12.664, timestamp=1754049669.1859415)]
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 12:01:09.618  ✓ 输出文本: index[1] [12.66s-15.79s] 'TextOutput(segment_id='seg_0006', text='也说嗓得有问题', start_time=12.664, end_time=15.792, timestamp=1754049669.6185098)'
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.36s, 生成文本: [TextOutput(segment_id='seg_0006', text='也说嗓得有问题', start_time=12.664, end_time=15.792, timestamp=1754049669.6185098)]
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:09 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 12:01:10.087  ✓ 输出文本: index[1] [15.79s-22.60s] 'TextOutput(segment_id='seg_0007', text='然後就買院說是因為我前一段買了一個誤化器我們做了誤化吸入才造成的', start_time=15.792, end_time=22.596, timestamp=1754049670.0878265)'
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.43s, 生成文本: [TextOutput(segment_id='seg_0007', text='然後就買院說是因為我前一段買了一個誤化器我們做了誤化吸入才造成的', start_time=15.792, end_time=22.596, timestamp=1754049670.0878265)]
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 12:01:10.532  ✓ 输出文本: index[1] [22.60s-26.53s] 'TextOutput(segment_id='seg_0008', text='我這好心好意給他們買的誤化器他們就開始', start_time=22.596, end_time=26.528, timestamp=1754049670.5322206)'
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.41s, 生成文本: [TextOutput(segment_id='seg_0008', text='我這好心好意給他們買的誤化器他們就開始', start_time=22.596, end_time=26.528, timestamp=1754049670.5322206)]
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.00s, 生成文本: []
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: False
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 12:01:10.925  ✓ 输出文本: index[1] [26.53s-29.86s] 'TextOutput(segment_id='seg_0009', text='还是没完没了的说物', start_time=26.528, end_time=29.86, timestamp=1754049670.925366)'
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.37s, 生成文本: [TextOutput(segment_id='seg_0009', text='还是没完没了的说物', start_time=26.528, end_time=29.86, timestamp=1754049670.925366)]
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 添加音频块: True
+2025-08-01 12:01:10 - src.asr.faster_whisper_streamer - INFO - 🎉 检测到最后一个音频块，流结束
+2025-08-01 12:01:11 - src.asr.faster_whisper_streamer - INFO - 12:01:11.236  ✓ 输出文本: index[1] [29.86s-32.02s] 'TextOutput(segment_id='seg_0010', text='還是我亂花錢', start_time=29.86, end_time=32.024, timestamp=1754049671.236547)'
+2025-08-01 12:01:11 - src.asr.faster_whisper_streamer - INFO - ASR队列处理时间: 0.31s, 生成文本: [TextOutput(segment_id='seg_0010', text='還是我亂花錢', start_time=29.86, end_time=32.024, timestamp=1754049671.236547)]
+2025-08-01 12:01:17 - src.llm.stream_llm_inference - WARNING - 在线加载tokenizer失败: (MaxRetryError("HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /api/models/Qwen/Qwen1.5-0.5B-Chat/tree/main/additional_chat_templates?recursive=False&expand=False (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)')))"), '(Request ID: 64f873ee-2dca-445b-a20a-91a55444ce07)')
+2025-08-01 12:01:17 - src.llm.stream_llm_inference - INFO - 尝试离线模式加载tokenizer...
+2025-08-01 12:01:34 - src.llm.stream_llm_inference - INFO - LLM模型加载完成。
+2025-08-01 12:01:34 - src.llm.stream_llm_inference - INFO - first_text: ('今天 我們去醫院看病了', False)
+2025-08-01 12:01:57 - src.llm.stream_llm_inference - INFO - 流式添加提示词: 了醫生說我們兩個嗓子, 是否结束: False
+2025-08-01 12:01:57 - src.llm.stream_llm_inference - INFO - 流式添加提示词: 都有问题, 是否结束: False
+2025-08-01 12:01:57 - src.llm.stream_llm_inference - INFO - 流式添加提示词: 後來送我兒子回來, 是否结束: False
+2025-08-01 12:01:57 - src.llm.stream_llm_inference - INFO - 流式添加提示词: 也说嗓得有问题, 是否结束: False
+2025-08-01 12:01:57 - src.llm.stream_llm_inference - INFO - 流式添加提示词: 然後就買院說是因為我前一段買了一個誤化器我們做了誤化吸入才造成的, 是否结束: False
+2025-08-01 12:01:57 - src.llm.stream_llm_inference - INFO - 流式添加提示词: 我這好心好意給他們買的誤化器他們就開始, 是否结束: False
+2025-08-01 12:01:57 - src.llm.stream_llm_inference - INFO - 流式添加提示词: 还是没完没了的说物, 是否结束: False
+2025-08-01 12:01:57 - src.llm.stream_llm_inference - INFO - 流式添加提示词: 還是我亂花錢, 是否结束: True
+2025-08-01 12:01:57 - src.llm.stream_llm_inference - INFO - 流式添加提示词结束生成提示符: 還是我亂花錢<|im_start|>assistant
+
+2025-08-01 12:01:57 - src.llm.stream_llm_inference - INFO - 流式生成token
+2025-08-01 12:01:57 - src.llm.stream_llm_inference - INFO - is eval mode: True
+2025-08-01 12:01:57 - __main__ - INFO - LLM输出: tensor([[35946]])
+2025-08-01 12:01:57 - __main__ - INFO - 消费者线程已完成。
+2025-08-04 00:18:56 - experiment.length_impact_experiment - INFO - 初始化实验: length_impact_experiment
+2025-08-04 00:18:56 - experiment.length_impact_experiment - INFO - 配置: {'experiment_name': 'length_impact_experiment', 'version': '1.0', 'num_runs': 1, 'asr_model_size': 'base', 'llm_model_name': 'Qwen/Qwen1.5-0.5B-Chat', 'chunk_duration': 0.3, 'simulate_delay': True, 'output_dir': 'experiments/results', 'log_level': 'INFO'}
+2025-08-04 00:18:56 - experiment.length_impact_experiment - WARNING - 未找到长度为 5s 的音频目录
+2025-08-04 00:18:56 - experiment.length_impact_experiment - INFO - 准备了 4 个测试样本
+2025-08-04 00:19:52 - experiment.length_impact_experiment - INFO - 初始化实验: length_impact_experiment
+2025-08-04 00:19:52 - experiment.length_impact_experiment - INFO - 配置: {'experiment_name': 'length_impact_experiment', 'version': '1.0', 'num_runs': 1, 'asr_model_size': 'base', 'llm_model_name': 'Qwen/Qwen1.5-0.5B-Chat', 'chunk_duration': 0.3, 'simulate_delay': True, 'output_dir': 'experiments/results', 'log_level': 'INFO'}
+2025-08-04 00:19:52 - experiment.length_impact_experiment - INFO - 开始执行实验: length_impact_experiment
+2025-08-04 00:19:52 - experiment.length_impact_experiment - WARNING - 未找到长度为 5s 的音频目录
+2025-08-04 00:19:52 - experiment.length_impact_experiment - INFO - 准备了 4 个测试样本
+2025-08-04 00:19:52 - experiment.length_impact_experiment - INFO - 准备了 4 个测试样本
+2025-08-04 00:19:52 - experiment.length_impact_experiment - INFO - 正在处理样本 1/4: length_10s_sample_1
+2025-08-04 00:20:06 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-04 00:20:06 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-04 00:20:06 - experiment.length_impact_experiment - ERROR - 样本 length_10s_sample_1 处理失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-04 00:20:06 - experiment.length_impact_experiment - INFO - 正在处理样本 2/4: length_10s_sample_2
+2025-08-04 00:20:09 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-04 00:20:09 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-04 00:20:09 - experiment.length_impact_experiment - ERROR - 样本 length_10s_sample_2 处理失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-04 00:20:09 - experiment.length_impact_experiment - INFO - 正在处理样本 3/4: length_20s_sample_1
+2025-08-04 00:20:21 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-04 00:20:21 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-04 00:20:21 - experiment.length_impact_experiment - ERROR - 样本 length_20s_sample_1 处理失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-04 00:20:21 - experiment.length_impact_experiment - INFO - 正在处理样本 4/4: length_20s_sample_2
+2025-08-04 00:20:37 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-04 00:20:37 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-04 00:20:37 - experiment.length_impact_experiment - ERROR - 样本 length_20s_sample_2 处理失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-04 00:20:37 - experiment.length_impact_experiment - INFO - 实验结果已保存到: experiments/results/length_impact_experiment/experiment_results.json
+2025-08-04 00:20:37 - experiment.length_impact_experiment - INFO - 实验摘要已保存到: experiments/results/length_impact_experiment/experiment_summary.txt
+2025-08-04 00:20:37 - experiment.length_impact_experiment - INFO - 长度分析数据已保存到: experiments/results/length_impact_experiment/length_analysis.json
+2025-08-04 00:20:37 - experiment.length_impact_experiment - INFO - 实验完成，总耗时: 45.12秒
+2025-08-04 00:20:37 - experiment.length_impact_experiment - INFO - 平均优化比例: 0.0%
+2025-08-04 00:21:39 - experiment.ablation_experiment - INFO - 初始化实验: ablation_experiment
+2025-08-04 00:21:39 - experiment.ablation_experiment - INFO - 配置: {'experiment_name': 'ablation_experiment', 'version': '1.0', 'num_runs': 1, 'asr_model_size': 'base', 'llm_model_name': 'Qwen/Qwen1.5-0.5B-Chat', 'chunk_duration': 0.3, 'simulate_delay': True, 'output_dir': 'experiments/results', 'log_level': 'INFO'}
+2025-08-04 00:21:39 - experiment.ablation_experiment - INFO - 开始执行实验: ablation_experiment
+2025-08-04 00:21:39 - experiment.ablation_experiment - INFO - 准备了 8 个测试样本，4 种配置
+2025-08-04 00:21:39 - experiment.ablation_experiment - INFO - 准备了 8 个测试样本
+2025-08-04 00:21:39 - experiment.ablation_experiment - INFO - 正在处理样本 1/8: baseline_trial_1
+2025-08-04 00:21:47 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-04 00:21:47 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-04 00:21:47 - experiment.ablation_experiment - ERROR - 配置测试失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-04 00:21:47 - experiment.ablation_experiment - INFO - 样本 baseline_trial_1 完成，优化比例: 0.0%
+2025-08-04 00:21:47 - experiment.ablation_experiment - INFO - 正在处理样本 2/8: baseline_trial_2
+2025-08-04 00:21:48 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-04 00:21:48 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-04 00:21:48 - experiment.ablation_experiment - ERROR - 配置测试失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-04 00:21:48 - experiment.ablation_experiment - INFO - 样本 baseline_trial_2 完成，优化比例: 0.0%
+2025-08-04 00:21:48 - experiment.ablation_experiment - INFO - 正在处理样本 3/8: asr_only_trial_1
+2025-08-04 00:21:48 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-04 00:21:48 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-04 00:21:48 - experiment.ablation_experiment - ERROR - 配置测试失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-04 00:21:48 - experiment.ablation_experiment - INFO - 样本 asr_only_trial_1 完成，优化比例: 0.0%
+2025-08-04 00:21:48 - experiment.ablation_experiment - INFO - 正在处理样本 4/8: asr_only_trial_2
+2025-08-04 00:21:49 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-04 00:21:49 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-04 00:21:49 - experiment.ablation_experiment - ERROR - 配置测试失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-04 00:21:49 - experiment.ablation_experiment - INFO - 样本 asr_only_trial_2 完成，优化比例: 0.0%
+2025-08-04 00:21:49 - experiment.ablation_experiment - INFO - 正在处理样本 5/8: llm_only_trial_1
+2025-08-04 00:21:50 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-04 00:21:50 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-04 00:21:50 - experiment.ablation_experiment - ERROR - 配置测试失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-04 00:21:50 - experiment.ablation_experiment - INFO - 样本 llm_only_trial_1 完成，优化比例: 0.0%
+2025-08-04 00:21:50 - experiment.ablation_experiment - INFO - 正在处理样本 6/8: llm_only_trial_2
+2025-08-04 00:21:51 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-04 00:21:51 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-04 00:21:51 - experiment.ablation_experiment - ERROR - 配置测试失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-04 00:21:51 - experiment.ablation_experiment - INFO - 样本 llm_only_trial_2 完成，优化比例: 0.0%
+2025-08-04 00:21:51 - experiment.ablation_experiment - INFO - 正在处理样本 7/8: full_optimization_trial_1
+2025-08-04 00:21:51 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-04 00:21:51 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-04 00:21:51 - experiment.ablation_experiment - ERROR - 配置测试失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-04 00:21:51 - experiment.ablation_experiment - INFO - 样本 full_optimization_trial_1 完成，优化比例: 0.0%
+2025-08-04 00:21:51 - experiment.ablation_experiment - INFO - 正在处理样本 8/8: full_optimization_trial_2
+2025-08-04 00:21:51 - src.asr.faster_whisper_streamer - INFO - 正在加载ASR模型: base 设备: cpu
+2025-08-04 00:21:51 - src.asr.faster_whisper_streamer - INFO - CPU设备自动选择计算类型: int8
+2025-08-04 00:21:51 - experiment.ablation_experiment - ERROR - 配置测试失败: Invalid URL '/api/models/Systran/faster-whisper-base/revision/main': No scheme supplied. Perhaps you meant http:///api/models/Systran/faster-whisper-base/revision/main?
+2025-08-04 00:21:51 - experiment.ablation_experiment - INFO - 样本 full_optimization_trial_2 完成，优化比例: 0.0%
+2025-08-04 00:21:51 - experiment.ablation_experiment - INFO - 实验结果已保存到: experiments/results/ablation_experiment/experiment_results.json
+2025-08-04 00:21:51 - experiment.ablation_experiment - INFO - 实验摘要已保存到: experiments/results/ablation_experiment/experiment_summary.txt
+2025-08-04 00:21:51 - experiment.ablation_experiment - INFO - 消融分析数据已保存到: experiments/results/ablation_experiment/ablation_analysis.json
+2025-08-04 00:21:51 - experiment.ablation_experiment - INFO - 配置对比表格已保存到: experiments/results/ablation_experiment/configuration_comparison_table.txt
+2025-08-04 00:21:51 - experiment.ablation_experiment - INFO - 实验完成，总耗时: 12.42秒
+2025-08-04 00:21:51 - experiment.ablation_experiment - INFO - 平均优化比例: 0.0%
