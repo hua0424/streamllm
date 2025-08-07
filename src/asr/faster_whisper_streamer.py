@@ -123,6 +123,110 @@ class StreamingASRProcessor:
         self.is_stream_finished = False
         
         logger.info('ASR model loaded successfully')
+    
+    def transcribe_complete_audio(self, audio_path: str) -> Dict:
+        """
+        完整音频文件转录（用于基线系统）
+        
+        Args:
+            audio_path: 音频文件路径
+            
+        Returns:
+            转录结果字典，包含文本和时序信息
+        """
+        try:
+            import librosa
+            
+            # 加载音频文件
+            start_time = time.time()
+            audio_data, sr = librosa.load(audio_path, sr=self.sample_rate)
+            audio_duration = len(audio_data) / sr
+            load_time = time.time() - start_time
+            
+            logger.info(f"加载音频文件: {audio_path}, 时长: {audio_duration:.2f}s")
+            
+            # 使用Whisper进行完整转录
+            transcription_start = time.time()
+            segments_result, info = self.model.transcribe(
+                audio_data,
+                beam_size=5,  # 基线系统使用较高beam size以获得更好质量
+                language="zh",
+                word_timestamps=True,
+                vad_filter=True,
+                temperature=0.0,
+                compression_ratio_threshold=2.4,
+                log_prob_threshold=-1.0,
+                no_speech_threshold=0.6
+            )
+            
+            transcription_time = time.time() - transcription_start
+            
+            # 整理转录结果
+            full_text = ""
+            segments = []
+            
+            for segment in segments_result:
+                segment_text = segment.text.strip()
+                full_text += segment_text
+                segments.append({
+                    'text': segment_text,
+                    'start': segment.start,
+                    'end': segment.end,
+                    'words': [
+                        {
+                            'text': word.word,
+                            'start': word.start,
+                            'end': word.end,
+                            'probability': word.probability
+                        }
+                        for word in (segment.words or [])
+                    ]
+                })
+            
+            result = {
+                'text': full_text.strip(),
+                'segments': segments,
+                'timing': {
+                    'audio_duration': audio_duration,
+                    'load_time': load_time,
+                    'transcription_time': transcription_time,
+                    'total_time': time.time() - start_time
+                },
+                'info': {
+                    'language': info.language,
+                    'language_probability': info.language_probability,
+                    'duration': info.duration
+                }
+            }
+            
+            logger.info(f"完整转录完成: '{full_text}', 耗时: {transcription_time:.2f}s")
+            return result
+            
+        except ImportError:
+            logger.error("librosa未安装，无法加载音频文件")
+            return self._create_error_result("librosa未安装")
+        except Exception as e:
+            logger.error(f"音频转录失败: {e}")
+            return self._create_error_result(str(e))
+    
+    def _create_error_result(self, error_msg: str) -> Dict:
+        """创建错误结果"""
+        return {
+            'text': f"转录失败: {error_msg}",
+            'segments': [],
+            'timing': {
+                'audio_duration': 0.0,
+                'load_time': 0.0,
+                'transcription_time': 0.0,
+                'total_time': 0.0
+            },
+            'info': {
+                'language': 'unknown',
+                'language_probability': 0.0,
+                'duration': 0.0
+            },
+            'error': error_msg
+        }
 
     def _generate_segment_id(self) -> str:
         """生成音频段ID"""

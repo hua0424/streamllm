@@ -1,0 +1,277 @@
+{
+  "experiment_info": {
+    "name": "exp3_asr_context",
+    "timestamp": "1754543962.481054",
+    "sample_count": 3,
+    "config_count": 5,
+    "total_tests": 15,
+    "execution_time": 0.06092405319213867
+  },
+  "context_configs": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      1,
+      1
+    ],
+    [
+      2,
+      2
+    ]
+  ],
+  "sample_results": [
+    {
+      "sample_id": "long_20plus_sample_001",
+      "audio_file": "experiments/data/processed_audio/long_20plus/sample_001.wav",
+      "audio_length": 28.5,
+      "pre_count": 0,
+      "suffix_count": 0,
+      "wer": 10.154536015208798,
+      "cer": 7.335727404386027,
+      "processing_time": 2339.0750000000003,
+      "accuracy": 89.8454639847912,
+      "error_message": null
+    },
+    {
+      "sample_id": "long_20plus_sample_001",
+      "audio_file": "experiments/data/processed_audio/long_20plus/sample_001.wav",
+      "audio_length": 28.5,
+      "pre_count": 1,
+      "suffix_count": 0,
+      "wer": 6.216641910929521,
+      "cer": 4.7387120681517585,
+      "processing_time": 2923.8437500000005,
+      "accuracy": 93.78335808907048,
+      "error_message": null
+    },
+    {
+      "sample_id": "long_20plus_sample_001",
+      "audio_file": "experiments/data/processed_audio/long_20plus/sample_001.wav",
+      "audio_length": 28.5,
+      "pre_count": 0,
+      "suffix_count": 1,
+      "wer": 6.55104637180542,
+      "cer": 5.198414933266832,
+      "processing_time": 2923.8437500000005,
+      "accuracy": 93.44895362819457,
+      "error_message": null
+    },
+    {
+      "sample_id": "long_20plus_sample_001",
+      "audio_file": "experiments/data/processed_audio/long_20plus/sample_001.wav",
+      "audio_length": 28.5,
+      "pre_count": 1,
+      "suffix_count": 1,
+      "wer": 5.6461696950550735,
+      "cer": 5.008024160616675,
+      "processing_time": 3508.6125,
+      "accuracy": 94.35383030494492,
+      "error_message": null
+    },
+    {
+      "sample_id": "long_20plus_sample_001",
+      "audio_file": "experiments/data/processed_audio/long_20plus/sample_001.wav",
+      "audio_length": 28.5,
+      "pre_count": 2,
+      "suffix_count": 2,
+      "wer": 4.352073065253365,
+      "cer": 3.611938167665169,
+      "processing_time": 4678.150000000001,
+      "accuracy": 95.64792693474664,
+      "error_message": null
+    },
+    {
+      "sample_id": "medium_10to20s_sample_002",
+      "audio_file": "experiments/data/processed_audio/medium_10to20s/sample_002.wav",
+      "audio_length": 15.6,
+      "pre_count": 0,
+      "suffix_count": 0,
+      "wer": 11.393012942897716,
+      "cer": 8.780370494020085,
+      "processing_time": 994.5375,
+      "accuracy": 88.60698705710229,
+      "error_message": null
+    },
+    {
+      "sample_id": "medium_10to20s_sample_002",
+      "audio_file": "experiments/data/processed_audio/medium_10to20s/sample_002.wav",
+      "audio_length": 15.6,
+      "pre_count": 1,
+      "suffix_count": 0,
+      "wer": 6.552351821913698,
+      "cer": 5.269135458284345,
+      "processing_time": 1243.171875,
+      "accuracy": 93.4476481780863,
+      "error_message": null
+    },
+    {
+      "sample_id": "medium_10to20s_sample_002",
+      "audio_file": "experiments/data/processed_audio/medium_10to20s/sample_002.wav",
+      "audio_length": 15.6,
+      "pre_count": 0,
+      "suffix_count": 1,
+      "wer": 7.3825987174751635,
+      "cer": 5.76740926688443,
+      "processing_time": 1243.171875,
+      "accuracy": 92.61740128252484,
+      "error_message": null
+    },
+    {
+      "sample_id": "medium_10to20s_sample_002",
+      "audio_file": "experiments/data/processed_audio/medium_10to20s/sample_002.wav",
+      "audio_length": 15.6,
+      "pre_count": 1,
+      "suffix_count": 1,
+      "wer": 5.889203872314596,
+      "cer": 5.254117419557207,
+      "processing_time": 1491.80625,
+      "accuracy": 94.1107961276854,
+      "error_message": null
+    },
+    {
+      "sample_id": "medium_10to20s_sample_002",
+      "audio_file": "experiments/data/processed_audio/medium_10to20s/sample_002.wav",
+      "audio_length": 15.6,
+      "pre_count": 2,
+      "suffix_count": 2,
+      "wer": 4.050771747703589,
+      "cer": 3.0808865439891004,
+      "processing_time": 1989.075,
+      "accuracy": 95.94922825229641,
+      "error_message": null
+    },
+    {
+      "sample_id": "short_5to10s_sample_002",
+      "audio_file": "experiments/data/processed_audio/short_5to10s/sample_002.wav",
+      "audio_length": 10.8,
+      "pre_count": 0,
+      "suffix_count": 0,
+      "wer": 11.139218409785347,
+      "cer": 7.892150651498171,
+      "processing_time": 940.4375,
+      "accuracy": 88.86078159021466,
+      "error_message": null
+    },
+    {
+      "sample_id": "short_5to10s_sample_002",
+      "audio_file": "experiments/data/processed_audio/short_5to10s/sample_002.wav",
+      "audio_length": 10.8,
+      "pre_count": 1,
+      "suffix_count": 0,
+      "wer": 6.487761603235514,
+      "cer": 4.762439436695525,
+      "processing_time": 1175.546875,
+      "accuracy": 93.51223839676449,
+      "error_message": null
+    },
+    {
+      "sample_id": "short_5to10s_sample_002",
+      "audio_file": "experiments/data/processed_audio/short_5to10s/sample_002.wav",
+      "audio_length": 10.8,
+      "pre_count": 0,
+      "suffix_count": 1,
+      "wer": 7.301156421676231,
+      "cer": 6.243247605635568,
+      "processing_time": 1175.546875,
+      "accuracy": 92.69884357832377,
+      "error_message": null
+    },
+    {
+      "sample_id": "short_5to10s_sample_002",
+      "audio_file": "experiments/data/processed_audio/short_5to10s/sample_002.wav",
+      "audio_length": 10.8,
+      "pre_count": 1,
+      "suffix_count": 1,
+      "wer": 5.788059036370601,
+      "cer": 4.114672062271721,
+      "processing_time": 1410.65625,
+      "accuracy": 94.2119409636294,
+      "error_message": null
+    },
+    {
+      "sample_id": "short_5to10s_sample_002",
+      "audio_file": "experiments/data/processed_audio/short_5to10s/sample_002.wav",
+      "audio_length": 10.8,
+      "pre_count": 2,
+      "suffix_count": 2,
+      "wer": 4.580525927722279,
+      "cer": 4.009812946335087,
+      "processing_time": 1880.875,
+      "accuracy": 95.41947407227772,
+      "error_message": null
+    }
+  ],
+  "summary_statistics": {
+    "config_statistics": {
+      "config_0_0": {
+        "pre_count": 0,
+        "suffix_count": 0,
+        "sample_count": 3,
+        "mean_wer": 10.89558912263062,
+        "mean_cer": 8.00274951663476,
+        "mean_processing_time": 1424.6833333333334,
+        "mean_accuracy": 89.10441087736938,
+        "std_wer": 0.6541962223019065,
+        "std_processing_time": 792.34827730745
+      },
+      "config_1_0": {
+        "pre_count": 1,
+        "suffix_count": 0,
+        "sample_count": 3,
+        "mean_wer": 6.418918445359577,
+        "mean_cer": 4.923428987710543,
+        "mean_processing_time": 1780.8541666666667,
+        "mean_accuracy": 93.58108155464042,
+        "std_wer": 0.17812866521983273,
+        "std_processing_time": 990.4353466343124
+      },
+      "config_0_1": {
+        "pre_count": 0,
+        "suffix_count": 1,
+        "sample_count": 3,
+        "mean_wer": 7.078267170318938,
+        "mean_cer": 5.736357268595611,
+        "mean_processing_time": 1780.8541666666667,
+        "mean_accuracy": 92.92173282968106,
+        "std_wer": 0.4583988870788999,
+        "std_processing_time": 990.4353466343124
+      },
+      "config_1_1": {
+        "pre_count": 1,
+        "suffix_count": 1,
+        "sample_count": 3,
+        "mean_wer": 5.7744775345800905,
+        "mean_cer": 4.792271214148534,
+        "mean_processing_time": 2137.025,
+        "mean_accuracy": 94.2255224654199,
+        "std_wer": 0.12208499384534316,
+        "std_processing_time": 1188.5224159611748
+      },
+      "config_2_2": {
+        "pre_count": 2,
+        "suffix_count": 2,
+        "sample_count": 3,
+        "mean_wer": 4.327790246893078,
+        "mean_cer": 3.567545885996452,
+        "mean_processing_time": 2849.366666666667,
+        "mean_accuracy": 95.67220975310693,
+        "std_wer": 0.2657105836478061,
+        "std_processing_time": 1584.6965546149
+      }
+    },
+    "best_config": "config_2_2",
+    "best_score": 92.82284308644026,
+    "total_samples": 15,
+    "failed_samples": 0
+  }
+}

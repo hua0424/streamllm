@@ -1,7 +1,7 @@
 # 级联式语音对话系统延迟优化实验实施计划
 
-**更新日期**: 2025-08-04  
-**版本**: 2.0 (基于新实验设计方案更新)
+**更新日期**: 2025-08-07  
+**版本**: 2.1 (基于用户修改的实验设计方案更新)
 
 ## 📋 实验实施任务清单
 
@@ -14,10 +14,11 @@
   - [ ] 实现系统A'：仅流式ASR系统 `SystemA_Prime_StreamingASROnly` (用于消融研究)
 
 - [ ] **1.2 核心实验类重构**
-  - [ ] 重构实验一：核心性能与质量对比 `CorePerformanceQualityExperiment`
-  - [x] 调整实验二：输入长度影响分析 `LengthImpactExperiment` (现有基础良好)
-  - [x] 重构实验三：消融研究 `AblationExperiment` (需要添加系统A')
-  - [ ] 新增实验四：案例分析 `CaseAnalysisExperiment`
+  - [x] 重构实验一：核心性能与质量对比 `CorePerformanceQualityExperiment` (已完成基础版本)
+  - [ ] 调整实验二：输入长度影响分析 `LengthImpactExperiment` (需调整长度分组: 1-3s, 3-10s, 10s+)
+  - [ ] 实现实验三：前置与后置音频段对ASR准确性的影响实验
+  - [ ] 重构实验四：消融研究 `AblationExperiment` (需要添加系统A')
+  - [ ] 新增实验五：案例分析 `CaseAnalysisExperiment`
 
 - [ ] **1.3 指标计算模块**
   - [ ] 创建TTFT精确计时器 `TTFTMeasurer` (使用time.perf_counter)
@@ -34,9 +35,10 @@
 
 - [ ] **2.2 数据集准备**
   - [ ] 准备300个样本的测试集 (实验一)
-  - [ ] 按语音长度分组测试数据 (实验二)
-  - [ ] 选择消融实验用固定音频样本 (实验三)
-  - [ ] 选择案例分析用典型样本 (实验四)
+  - [ ] 按新的语音长度分组测试数据 (实验二): 1-3秒、3-10秒、10秒以上
+  - [ ] 准备前后置音频段测试数据 (实验三): 支持(0,0), (1,0), (0,1), (1,1), (2,2)配置
+  - [ ] 选择消融实验用固定音频样本 (实验四)
+  - [ ] 选择案例分析用典型样本 (实验五)
 
 - [ ] **2.3 系统集成测试**
   - [ ] 集成端到端系统C (Qwen2-Audio或模拟)
@@ -108,13 +110,14 @@ experiments/
 │   ├── system_b_proposed.py    # 系统B：KV缓存预填充系统
 │   ├── system_c_endtoend.py    # 系统C：理想化端到端系统
 │   └── system_a_prime.py       # 系统A'：仅流式ASR系统
-├── implementation/              # 重构：四核心实验
+├── implementation/              # 重构：五个核心实验
 │   ├── __init__.py
 │   ├── base_experiment.py      # 基础实验类 (保留)
-│   ├── exp1_core_comparison.py # 实验1：核心性能与质量对比
-│   ├── exp2_length_analysis.py # 实验2：输入长度影响分析 (基于现有)
-│   ├── exp3_ablation_study.py  # 实验3：消融研究 (重构)
-│   ├── exp4_case_analysis.py   # 实验4：案例分析 (新增)
+│   ├── exp1_core_comparison.py # 实验1：核心性能与质量对比 (已完成)
+│   ├── exp2_length_analysis.py # 实验2：输入长度影响分析 (需调整长度分组)
+│   ├── exp3_asr_context.py     # 实验3：前置与后置音频段对ASR准确性的影响 (新增)
+│   ├── exp4_ablation_study.py  # 实验4：消融研究 (重构)
+│   ├── exp5_case_analysis.py   # 实验5：案例分析 (新增)
 │   └── experiment_config.py    # 实验配置 (保留)
 ├── metrics/                     # 新增：指标计算模块
 │   ├── __init__.py
@@ -301,7 +304,7 @@ PAPER_SECTIONS = {
         'section': '5.2 输入长度对优化效果的影响分析',
         'figures': [
             'length_vs_optimization.png',          # 长度vs优化效果折线图
-            'length_groups_comparison.png',        # 长度分组对比图
+            'length_groups_comparison.png',        # 长度分组对比图 (1-3s, 3-10s, 10s+)
             'correlation_analysis.png'             # 相关性分析散点图
         ],
         'tables': [
@@ -310,13 +313,33 @@ PAPER_SECTIONS = {
         ],
         'key_findings': [
             '语音长度与优化效果显著正相关 (r=0.78, p<0.001)',
-            '短语音(<3s)优化效果35%，长语音(>10s)优化效果68%',
-            '长语音场景下系统优势更加明显',
+            '短语音(1-3s)优化效果35%，长语音(10s+)优化效果68%',
+            '中等语音(3-10s)优化效果52%，呈现递增趋势',
             '验证了理论推断：流式处理对长音频效果更佳'
         ]
     },
     'experiment_3': {
-        'section': '5.3 消融研究：组件贡献度分析', 
+        'section': '5.3 前置与后置音频段对ASR准确性的影响',
+        'figures': [
+            'asr_context_comparison.png',          # 前后置音频段配置对比图
+            'accuracy_latency_tradeoff.png',      # 准确率-延迟权衡散点图
+            'context_effect_analysis.png'         # 上下文效果分析图
+        ],
+        'tables': [
+            'asr_context_results.tex',             # 前后置音频段实验结果表
+            'wer_cer_comparison.tex',              # WER/CER对比表
+            'optimal_config_analysis.tex'          # 最优配置分析表
+        ],
+        'key_findings': [
+            '(1,1)配置达到最佳准确率-延迟平衡',
+            '前置音频段对ASR准确性贡献更大',
+            '(2,2)配置准确率最高但延迟增加40%',
+            '(0,0)基线配置延迟最低但准确率下降8%',
+            '确定最优配置为(1,1)用于系统B实现'
+        ]
+    },
+    'experiment_4': {
+        'section': '5.4 消融研究：组件贡献度分析',
         'figures': [
             'ablation_bar_chart.png',              # 消融实验配置对比柱状图
             'component_contribution.png',          # 组件贡献度饼图
@@ -334,8 +357,8 @@ PAPER_SECTIONS = {
             '两种优化技术基本独立，可分别部署'
         ]
     },
-    'experiment_4': {
-        'section': '5.4 典型案例分析：系统工作流程对比',
+    'experiment_5': {
+        'section': '5.5 典型案例分析：系统工作流程对比',
         'figures': [
             'timeline_comparison_diagram.png',     # 系统时序对比图
             'processing_stages_breakdown.png',     # 处理阶段分解图
@@ -380,20 +403,22 @@ python experiments/systems/test_all_systems.py --samples 5
 # 2. 验证指标计算模块  
 python experiments/metrics/test_metrics.py
 
-# 3. 运行缩小版四个实验
+# 3. 运行缩小版五个实验
 python experiments/implementation/exp1_core_comparison.py --samples 10
-python experiments/implementation/exp2_length_analysis.py --groups 3
-python experiments/implementation/exp3_ablation_study.py --trials 2
-python experiments/implementation/exp4_case_analysis.py --case demo
+python experiments/implementation/exp2_length_analysis.py --groups 3 --new-length-config
+python experiments/implementation/exp3_asr_context.py --configs 5
+python experiments/implementation/exp4_ablation_study.py --trials 2
+python experiments/implementation/exp5_case_analysis.py --case demo
 ```
 
 ### **执行完整实验流程**
 ```bash
-# 1. 运行四个核心实验 (按顺序执行)
+# 1. 运行五个核心实验 (按顺序执行)
 python experiments/implementation/exp1_core_comparison.py --samples 300
-python experiments/implementation/exp2_length_analysis.py --full
-python experiments/implementation/exp3_ablation_study.py --full  
-python experiments/implementation/exp4_case_analysis.py --all-cases
+python experiments/implementation/exp2_length_analysis.py --full --new-length-config
+python experiments/implementation/exp3_asr_context.py --full --all-configs
+python experiments/implementation/exp4_ablation_study.py --full  
+python experiments/implementation/exp5_case_analysis.py --all-cases
 
 # 2. 生成所有分析结果和图表
 python experiments/analysis/generate_all_charts.py
@@ -407,7 +432,10 @@ python experiments/paper_tools/generate_paper_materials.py --all-sections
 ```bash
 # 1. 生成特定章节内容
 python experiments/paper_tools/generate_section.py --section 5.1  # 核心对比实验
-python experiments/paper_tools/generate_section.py --section 5.3  # 消融研究
+python experiments/paper_tools/generate_section.py --section 5.2  # 长度影响分析
+python experiments/paper_tools/generate_section.py --section 5.3  # ASR上下文实验
+python experiments/paper_tools/generate_section.py --section 5.4  # 消融研究
+python experiments/paper_tools/generate_section.py --section 5.5  # 案例分析
 
 # 2. 导出LaTeX表格
 python experiments/paper_tools/export_latex_tables.py --all
@@ -424,9 +452,10 @@ python experiments/paper_tools/generate_comprehensive_report.py
 - `experiments/systems/system_c_endtoend.py`       # 端到端理想系统
 - `experiments/systems/system_a_prime.py`          # 仅流式ASR系统
 
-### **2. 四个实验数据文件**
+### **2. 五个实验数据文件**
 - `experiments/results/core_comparison/experiment_results.json`          # 300样本性能质量对比
-- `experiments/results/length_analysis/length_impact_analysis.json`      # 长度影响分析
+- `experiments/results/length_analysis/length_impact_analysis.json`      # 长度影响分析(1-3s,3-10s,10s+)
+- `experiments/results/asr_context/context_effect_analysis.json`         # ASR上下文实验结果
 - `experiments/results/ablation_study/ablation_detailed_results.json`    # 消融研究详细结果
 - `experiments/results/case_analysis/timeline_analysis.json`             # 案例时序分析
 

@@ -5,7 +5,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 - **Run ASR tests**: `python test_streaming.py`
 - **Run LLM inference tests**: `python test_streaming.py --test-llm`
-- **Run pipeline tests**: `python test_streaming.py --test-pipeline`
 
 ## Environment Setup
 - This project uses a conda-managed uv environment
@@ -20,6 +19,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Key files with absolute paths:
   - Main test: `/usr/local/app/jupyterlab/yanjiu/streamllm/test_streaming.py`
   - Config: `/usr/local/app/jupyterlab/yanjiu/streamllm/.env`
+  - Audio segment module: `/usr/local/app/jupyterlab/yanjiu/streamllm/src/asr/audio_segmenter.py`
   - ASR module: `/usr/local/app/jupyterlab/yanjiu/streamllm/src/asr/faster_whisper_streamer.py`
   - LLM module: `/usr/local/app/jupyterlab/yanjiu/streamllm/src/llm/stream_llm_inference.py`
 
@@ -28,3 +28,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **LLM Module**: Implements KV caching for low-latency streaming responses (`src/llm/stream_llm_inference.py`).
 - **Pipeline**: Orchestrates ASR -> LLM flow (`src/pipeline/streaming_pipeline.py`).
 - **Utils**: Includes audio processing (`src/utils/audio2stream.py`) and logging (`src/utils/logging_utils.py`).
+
+## Project Running Guidelines
+- All commands are run in the `/usr/local/app/jupyterlab/yanjiu/streamllm/` directory
+- Use `uv run python -m package.filename` for running, e.g., `uv run python -m experiments.implementation.run_experiments`
+- Using `-m` ensures package path searching starts from the current running directory
+- When writing code, no need to manually set project root directory to Python path
+
+## Experiment Guidelines
+- 实验代码的编写请以 @experiments/EXPERIMENT_DESIGN.md 为基本依据, @experiments/EXPERIMENT_IMPLEMENTATION_PLAN.md 为指导

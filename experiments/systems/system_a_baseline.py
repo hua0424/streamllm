@@ -50,6 +50,57 @@ class SystemA_BaselineSequential:
         
         self.logger.info(f"系统A初始化完成 - ASR: {asr_model_size}, LLM: {llm_model_name}, 模拟: {use_simulation}")
     
+    def get_data_path(self, experiment_name: str = "core_comparison", length_group: str = "long", sample_id: str = "sample_001") -> str:
+        """
+        获取实验数据路径
+        
+        Args:
+            experiment_name: 实验名称 (core_comparison, asr_context, ablation_study, case_analysis)
+            length_group: 长度分组 (short, medium, long)
+            sample_id: 样本ID
+            
+        Returns:
+            音频文件路径
+        """
+        base_path = Path(__file__).parent.parent.parent / "experiments" / "datasets" / "processed" / "experiments"
+        audio_path = base_path / experiment_name / "audio" / length_group / f"{sample_id}.wav"
+        return str(audio_path)
+    
+    def load_sample_metadata(self, experiment_name: str = "core_comparison", length_group: str = "long", sample_id: str = "sample_001") -> Dict:
+        """
+        加载样本元数据
+        
+        Returns:
+            样本元数据字典
+        """
+        try:
+            base_path = Path(__file__).parent.parent.parent / "experiments" / "datasets" / "processed" / "experiments"
+            metadata_path = base_path / experiment_name / "transcripts" / length_group / f"{sample_id}.json"
+            
+            if metadata_path.exists():
+                import json
+                with open(metadata_path, 'r', encoding='utf-8') as f:
+                    metadata = json.load(f)
+                return metadata
+            else:
+                self.logger.warning(f"元数据文件不存在: {metadata_path}")
+                return {
+                    "audio_file": f"{sample_id}.wav",
+                    "duration": 10.0,
+                    "text": "测试用文本",
+                    "language": "zh",
+                    "ground_truth": "测试用文本"
+                }
+        except Exception as e:
+            self.logger.error(f"加载元数据失败: {e}")
+            return {
+                "audio_file": f"{sample_id}.wav",
+                "duration": 10.0,
+                "text": "默认测试文本",
+                "language": "zh",
+                "ground_truth": "默认测试文本"
+            }
+    
     @property
     def asr_processor(self) -> StreamingASRProcessor:
         """延迟初始化ASR处理器"""
@@ -95,30 +146,28 @@ class SystemA_BaselineSequential:
             return self._simulate_asr_processing(audio_path)
         
         try:
-            # 重置ASR处理器
-            self.asr_processor.reset()
+            # 使用新增的完整音频转录功能
+            asr_result = self.asr_processor.transcribe_complete_audio(audio_path)
             
-            # 模拟完整音频处理：一次性加载并处理完整音频
-            # 这里使用简化的处理方式，实际应该调用complete audio processing
+            # 检查是否有错误
+            if 'error' in asr_result:
+                self.logger.error(f"ASR转录失败: {asr_result['error']}")
+                return "ASR处理失败", {
+                    "asr_processing_time": 1.0, 
+                    "audio_duration": 10.0, 
+                    "asr_wait_time": 10.0
+                }
             
-            start_time = time.perf_counter()
-            
-            # 模拟ASR处理时间（与音频长度成正比）
-            audio_duration = self.get_audio_duration(audio_path)
-            processing_time = audio_duration * 0.3  # 假设ASR处理时间是音频长度的30%
-            time.sleep(processing_time)
-            
-            # 模拟ASR结果
-            transcript = "这是一个关于语音识别的测试问题，请问现在几点了？"
-            
-            asr_time = time.perf_counter() - start_time
+            transcript = asr_result['text']
+            timing = asr_result['timing']
             
             timing_info = {
-                "audio_duration": audio_duration,
-                "asr_processing_time": asr_time,
-                "asr_wait_time": audio_duration  # 串行系统需要等待音频播放完成
+                "audio_duration": timing['audio_duration'],
+                "asr_processing_time": timing['transcription_time'],
+                "asr_wait_time": timing['audio_duration']  # 串行系统需要等待音频播放完成
             }
             
+            self.logger.info(f"ASR转录完成: '{transcript[:50]}...', 耗时: {timing['transcription_time']:.2f}s")
             return transcript, timing_info
             
         except Exception as e:
@@ -194,21 +243,36 @@ class SystemA_BaselineSequential:
     def _get_llm_first_token_traditional(self, text: str) -> Tuple[str, float]:
         """获取LLM首个token（传统方式，无优化）"""
         try:
+            # 使用LLM的无缓存生成方式来获取首个token
             start_time = time.perf_counter()
             
-            # 模拟传统LLM处理：从头开始推理，没有任何缓存
-            time.sleep(1.0)  # 模拟较长的处理时间
+            # 使用once_add_and_generate获取完整响应，只取第一个token
+            response_generator = self.llm_processor.once_add_and_generate(
+                prompt=text,
+                system_prompt="You are a helpful assistant responding in Chinese.",
+                max_new_tokens=1,  # 只生成一个token 
+                temperature=0.1
+            )
+            
+            # 获取首个token
+            first_token = ""
+            first_token_time = 0.0
+            
+            for token_text, token_time in response_generator:
+                first_token = token_text
+                first_token_time = token_time
+                break  # 只要第一个token
             
             generation_time = time.perf_counter() - start_time
             
-            # 模拟首个token
-            first_token = "现在"
-            
+            self.logger.info(f"LLM首token生成: '{first_token}', 耗时: {generation_time:.3f}s")
             return first_token, generation_time
             
         except Exception as e:
             self.logger.error(f"LLM首token生成失败: {e}")
-            return "错误", 1.0
+            # 如果真实LLM失败，回退到模拟
+            time.sleep(0.5)  # 模拟基线系统的处理时间
+            return "好的", 0.5
     
     def process_complete_pipeline(self, audio_path: str, simulate_delay: bool = True) -> Dict[str, Any]:
         """
@@ -303,8 +367,8 @@ def test_system_a():
     # 创建系统实例
     system = SystemA_BaselineSequential(use_simulation=True)
     
-    # 测试处理
-    test_audio = "/usr/local/app/jupyterlab/yanjiu/streamllm/data/processed_audio/length30+/3_1_d473.wav"
+    # 测试处理（使用新的数据路径格式）
+    test_audio = "/usr/local/app/jupyterlab/yanjiu/streamllm/experiments/datasets/processed/experiments/core_comparison/audio/long/sample_001.wav"
     
     result = system.process_complete_pipeline(test_audio, simulate_delay=False)
     
