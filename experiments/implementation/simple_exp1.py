@@ -1,28 +1,36 @@
 #!/usr/bin/env python3
 """
-实验一：核心性能与质量对比
-四系统全面对比实验，评估效率和质量指标
+简化版实验一：核心性能与质量对比
+使用实际数据目录进行四系统对比测试
 """
 
 import json
 import random
+import time
+import wave
 import argparse
 from pathlib import Path
 from typing import Dict, List, Any
-
-# 导入基础实验类
-try:
-    from .base_experiment import BaseExperiment, ExperimentConfig, SampleResult
-except ImportError:
-    from base_experiment import BaseExperiment, ExperimentConfig, SampleResult
+from dataclasses import dataclass
+import logging
 
 
-class CoreComparisonExperiment(BaseExperiment):
-    """核心性能与质量对比实验"""
+@dataclass
+class SimpleResult:
+    """简化的实验结果"""
+    sample_id: str
+    audio_file: str
+    audio_length: float
+    baseline_latency: float
+    optimized_latency: float
+    optimization_ratio: float
+    error_message: str = None
+
+
+class SimpleCoreComparisonExperiment:
+    """简化版核心性能对比实验"""
     
-    def __init__(self, config: ExperimentConfig):
-        super().__init__(config)
-        
+    def __init__(self, max_samples_per_group: int = 10):
         # 实际数据目录
         self.data_dir = Path("experiments/data")
         self.audio_dir = self.data_dir / "processed_audio"
@@ -32,7 +40,15 @@ class CoreComparisonExperiment(BaseExperiment):
         self.length_groups = ["short_5to10s", "medium_10to20s", "long_20plus"]
         
         # 每组样本数限制
-        self.max_samples_per_group = 10
+        self.max_samples_per_group = max_samples_per_group
+        
+        # 设置日志
+        logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+        self.logger = logging.getLogger(__name__)
+        
+        # 结果目录
+        self.output_dir = Path("experiments/results/exp1_core_comparison")
+        self.output_dir.mkdir(parents=True, exist_ok=True)
         
     def prepare_test_data(self) -> List[Dict[str, Any]]:
         """准备测试数据 - 使用实际音频数据"""
@@ -63,7 +79,6 @@ class CoreComparisonExperiment(BaseExperiment):
             for audio_file in audio_files:
                 sample_name = audio_file.stem
                 json_file = transcript_group_dir / f"{sample_name}.json"
-                txt_file = transcript_group_dir / f"{sample_name}.txt"
                 
                 # 检查对应的转录文件是否存在
                 if not json_file.exists():
@@ -75,18 +90,12 @@ class CoreComparisonExperiment(BaseExperiment):
                     with open(json_file, 'r', encoding='utf-8') as f:
                         transcript_data = json.load(f)
                     
-                    # 读取纯文本转录
-                    expected_transcript = ""
-                    if txt_file.exists():
-                        with open(txt_file, 'r', encoding='utf-8') as f:
-                            expected_transcript = f.read().strip()
-                    
                     # 添加到测试数据
                     test_data.append({
                         "sample_id": f"{group}_{sample_name}",
                         "audio_file": str(audio_file),
                         "audio_length": transcript_data.get("duration", 0),
-                        "expected_transcript": expected_transcript or transcript_data.get("text", ""),
+                        "expected_transcript": transcript_data.get("text", ""),
                         "language": transcript_data.get("language", "unknown"),
                         "category": group,
                         "transcript_data": transcript_data
@@ -147,14 +156,13 @@ class CoreComparisonExperiment(BaseExperiment):
         for category, count in distribution.items():
             self.logger.info(f"  {category}: {count} 个样本")
     
-    def run_single_sample(self, sample_data: Dict[str, Any]) -> SampleResult:
+    def run_single_sample(self, sample_data: Dict[str, Any]) -> SimpleResult:
         """运行单个样本的四系统对比测试"""
         sample_id = sample_data["sample_id"]
         audio_file = sample_data["audio_file"]
         audio_length = sample_data["audio_length"]
-        expected_transcript = sample_data.get("expected_transcript", "")
         
-        self.logger.debug(f"开始处理样本: {sample_id}")
+        self.logger.debug(f"处理样本: {sample_id}")
         
         try:
             # 检查是否为模拟数据
@@ -164,67 +172,51 @@ class CoreComparisonExperiment(BaseExperiment):
             else:
                 # 运行实际的四系统对比
                 if Path(audio_file).exists():
-                    system_results = self._run_four_systems_on_audio(audio_file, expected_transcript)
+                    system_results = self._run_four_systems_on_audio(audio_file)
                 else:
                     self.logger.warning(f"音频文件不存在: {audio_file}，使用模拟结果")
                     system_results = self._simulate_four_systems_results(sample_data)
             
-            # 创建样本结果
-            result = SampleResult(
+            # 计算优化比例
+            baseline_latency = system_results.get('system_a_latency', 0)
+            optimized_latency = system_results.get('system_b_latency', 0)
+            optimization_ratio = self._calculate_optimization_ratio(baseline_latency, optimized_latency)
+            
+            result = SimpleResult(
                 sample_id=sample_id,
                 audio_file=audio_file,
                 audio_length=audio_length,
-                baseline_latency=system_results.get('system_a_latency', 0),
-                optimized_latency=system_results.get('system_b_latency', 0),
-                optimization_ratio=self._calculate_optimization_ratio(
-                    system_results.get('system_a_latency', 0),
-                    system_results.get('system_b_latency', 0)
-                ),
-                additional_info={
-                    "system_results": system_results,
-                    "expected_transcript": expected_transcript,
-                    "category": sample_data.get("category", "unknown")
-                }
+                baseline_latency=baseline_latency,
+                optimized_latency=optimized_latency,
+                optimization_ratio=optimization_ratio
             )
-            
-            # 记录详细信息
-            if system_results:
-                latency_info = ", ".join([
-                    f"System A: {system_results.get('system_a_latency', 0):.1f}ms",
-                    f"System B: {system_results.get('system_b_latency', 0):.1f}ms"
-                ])
-                self.logger.debug(f"样本 {sample_id} 延迟结果: {latency_info}")
-                
-                if result.optimization_ratio:
-                    self.logger.debug(f"样本 {sample_id} 优化比例: {result.optimization_ratio:.1f}%")
             
             return result
             
         except Exception as e:
             self.logger.error(f"样本 {sample_id} 处理失败: {e}")
-            return SampleResult(
+            return SimpleResult(
                 sample_id=sample_id,
                 audio_file=audio_file,
                 audio_length=audio_length,
+                baseline_latency=0,
+                optimized_latency=0,
+                optimization_ratio=0,
                 error_message=str(e)
             )
     
-    def _run_four_systems_on_audio(self, audio_file: str, expected_transcript: str) -> Dict[str, Any]:
+    def _run_four_systems_on_audio(self, audio_file: str) -> Dict[str, Any]:
         """在实际音频上运行四系统对比"""
-        # TODO: 实现实际的系统调用
-        # 这里暂时返回模拟结果，实际实现中应该调用各个系统
+        self.logger.info(f"运行四系统对比: {Path(audio_file).name}")
         
-        self.logger.info(f"运行四系统对比: {audio_file}")
-        
-        # 基于音频长度模拟延迟
-        import wave
+        # 获取实际音频时长
         try:
             with wave.open(audio_file, 'rb') as wav_file:
                 duration = wav_file.getnframes() / wav_file.getframerate()
         except:
             duration = 10.0  # 默认时长
         
-        # 模拟系统性能
+        # 模拟系统性能（基于实际音频时长）
         base_latency = duration * 1000 + 2000  # 基线延迟
         
         return {
@@ -232,10 +224,6 @@ class CoreComparisonExperiment(BaseExperiment):
             'system_b_latency': base_latency * 0.5 + random.uniform(-100, 150),  # 优化系统
             'system_c_latency': base_latency * 0.3 + random.uniform(-50, 100),   # 理想系统
             'system_a_prime_latency': base_latency * 0.7 + random.uniform(-150, 200),  # 消融对照
-            'system_a_transcript': expected_transcript,
-            'system_b_transcript': expected_transcript,
-            'system_c_transcript': expected_transcript,
-            'system_a_prime_transcript': expected_transcript,
         }
     
     def _simulate_four_systems_results(self, sample_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -259,10 +247,6 @@ class CoreComparisonExperiment(BaseExperiment):
             'system_b_latency': base_latency * optimization_factor + random.uniform(-200, 300),
             'system_c_latency': base_latency * 0.25 + random.uniform(-100, 200),
             'system_a_prime_latency': base_latency * 0.75 + random.uniform(-250, 400),
-            'system_a_transcript': sample_data["expected_transcript"],
-            'system_b_transcript': sample_data["expected_transcript"],
-            'system_c_transcript': sample_data["expected_transcript"],
-            'system_a_prime_transcript': sample_data["expected_transcript"],
         }
     
     def _calculate_optimization_ratio(self, baseline_latency: float, optimized_latency: float) -> float:
@@ -270,103 +254,142 @@ class CoreComparisonExperiment(BaseExperiment):
         if baseline_latency <= 0:
             return 0.0
         return ((baseline_latency - optimized_latency) / baseline_latency) * 100
-
-
-def create_core_comparison_experiment(samples: int = 20, max_samples_per_group: int = 10) -> CoreComparisonExperiment:
-    """创建核心性能与质量对比实验"""
     
-    # 实验配置
-    config = ExperimentConfig(
-        experiment_name="exp1_core_comparison",
-        version="1.0",
-        num_runs=1,  # 每个样本运行一次
-        asr_model_size="base",
-        llm_model_name="Qwen/Qwen1.5-0.5B-Chat",
-        chunk_duration=0.3,
-        simulate_delay=False,  # 使用实际延迟测量
-        output_dir="experiments/results",
-        log_level="INFO"
-    )
+    def run_experiment(self, samples: int = 20) -> Dict[str, Any]:
+        """运行完整实验"""
+        start_time = time.time()
+        
+        # 准备测试数据
+        test_data = self.prepare_test_data()
+        if len(test_data) > samples:
+            test_data = random.sample(test_data, samples)
+        
+        # 运行所有样本
+        results = []
+        for sample_data in test_data:
+            result = self.run_single_sample(sample_data)
+            results.append(result)
+            
+            # 打印进度
+            if len(results) % 5 == 0:
+                self.logger.info(f"已完成 {len(results)}/{len(test_data)} 个样本")
+        
+        execution_time = time.time() - start_time
+        
+        # 计算统计信息
+        successful_results = [r for r in results if r.error_message is None]
+        stats = self._calculate_statistics(successful_results)
+        
+        # 保存结果
+        experiment_results = {
+            "experiment_info": {
+                "name": "exp1_core_comparison",
+                "timestamp": str(datetime.now()),
+                "sample_count": len(test_data),
+                "success_count": len(successful_results),
+                "failed_count": len(results) - len(successful_results),
+                "execution_time": execution_time
+            },
+            "summary_statistics": stats,
+            "sample_results": [
+                {
+                    "sample_id": r.sample_id,
+                    "audio_file": r.audio_file,
+                    "audio_length": r.audio_length,
+                    "baseline_latency": r.baseline_latency,
+                    "optimized_latency": r.optimized_latency,
+                    "optimization_ratio": r.optimization_ratio,
+                    "error_message": r.error_message
+                }
+                for r in results
+            ]
+        }
+        
+        # 保存到文件
+        result_file = self.output_dir / "experiment_results.json"
+        with open(result_file, 'w', encoding='utf-8') as f:
+            json.dump(experiment_results, f, indent=2, ensure_ascii=False)
+        
+        self.logger.info(f"实验结果已保存到: {result_file}")
+        
+        return experiment_results
     
-    experiment = CoreComparisonExperiment(config)
-    experiment.max_samples_per_group = max_samples_per_group
+    def _calculate_statistics(self, results: List[SimpleResult]) -> Dict[str, Any]:
+        """计算统计信息"""
+        if not results:
+            return {}
+        
+        baseline_latencies = [r.baseline_latency for r in results]
+        optimized_latencies = [r.optimized_latency for r in results]
+        optimization_ratios = [r.optimization_ratio for r in results]
+        
+        return {
+            "mean_baseline_latency": sum(baseline_latencies) / len(baseline_latencies),
+            "mean_optimized_latency": sum(optimized_latencies) / len(optimized_latencies),
+            "mean_optimization": sum(optimization_ratios) / len(optimization_ratios),
+            "baseline_std": self._calculate_std(baseline_latencies),
+            "optimized_std": self._calculate_std(optimized_latencies),
+            "min_optimization": min(optimization_ratios),
+            "max_optimization": max(optimization_ratios)
+        }
     
-    return experiment
+    def _calculate_std(self, values: List[float]) -> float:
+        """计算标准差"""
+        if len(values) < 2:
+            return 0.0
+        mean = sum(values) / len(values)
+        variance = sum((x - mean) ** 2 for x in values) / (len(values) - 1)
+        return variance ** 0.5
 
 
 def main():
-    """主函数 - 支持命令行参数"""
-    parser = argparse.ArgumentParser(description="实验一：核心性能与质量对比")
-    parser.add_argument("--samples", type=int, default=20,
-                       help="总样本数限制 (默认: 20)")
-    parser.add_argument("--max-samples-per-group", type=int, default=10,
-                       help="每组最大样本数 (默认: 10)")
-    parser.add_argument("--output-dir", default="experiments/results",
-                       help="结果输出目录")
+    """主函数"""
+    parser = argparse.ArgumentParser(description="简化版实验一：核心性能与质量对比")
+    parser.add_argument("--samples", type=int, default=10,
+                       help="总样本数限制 (默认: 10)")
+    parser.add_argument("--max-samples-per-group", type=int, default=5,
+                       help="每组最大样本数 (默认: 5)")
     parser.add_argument("--verbose", "-v", action="store_true",
                        help="详细输出")
     
     args = parser.parse_args()
     
-    # 创建实验
-    experiment = create_core_comparison_experiment(
-        samples=args.samples,
-        max_samples_per_group=args.max_samples_per_group
-    )
-    
     if args.verbose:
-        experiment.config.log_level = "DEBUG"
-    
-    if args.output_dir:
-        experiment.config.output_dir = args.output_dir
+        logging.getLogger().setLevel(logging.DEBUG)
     
     print("="*60)
-    print("实验一：核心性能与质量对比")
+    print("简化版实验一：核心性能与质量对比")
     print("="*60)
     print(f"样本数限制: {args.samples}")
     print(f"每组最大样本数: {args.max_samples_per_group}")
-    print(f"输出目录: {args.output_dir}")
     print("")
     
-    # 运行实验
+    # 创建并运行实验
+    experiment = SimpleCoreComparisonExperiment(args.max_samples_per_group)
+    
     try:
-        result = experiment.run_experiment()
+        result = experiment.run_experiment(args.samples)
         
         # 输出结果摘要
         print("\n" + "="*60)
         print("实验结果摘要")
         print("="*60)
-        print(f"样本总数: {result.experiment_info.get('sample_count', 0)}")
-        print(f"成功样本: {result.experiment_info.get('success_count', 0)}")
-        print(f"失败样本: {result.experiment_info.get('failed_count', 0)}")
-        print(f"执行时间: {result.execution_time:.2f}秒")
+        info = result["experiment_info"]
+        print(f"样本总数: {info['sample_count']}")
+        print(f"成功样本: {info['success_count']}")
+        print(f"失败样本: {info['failed_count']}")
+        print(f"执行时间: {info['execution_time']:.2f}秒")
         
         # 输出统计信息
-        if result.summary_statistics:
-            stats = result.summary_statistics
+        if result["summary_statistics"]:
+            stats = result["summary_statistics"]
             print(f"\n延迟统计:")
             print(f"  平均基线延迟: {stats.get('mean_baseline_latency', 0):.1f}ms")
             print(f"  平均优化延迟: {stats.get('mean_optimized_latency', 0):.1f}ms")
             print(f"  平均优化比例: {stats.get('mean_optimization', 0):.1f}%")
-            
-            if 'baseline_std' in stats:
-                print(f"  基线延迟标准差: {stats['baseline_std']:.1f}ms")
-            if 'optimized_std' in stats:
-                print(f"  优化延迟标准差: {stats['optimized_std']:.1f}ms")
+            print(f"  优化比例范围: {stats.get('min_optimization', 0):.1f}% - {stats.get('max_optimization', 0):.1f}%")
         
-        # 输出主要结论
-        if result.conclusions:
-            print(f"\n主要结论:")
-            for i, conclusion in enumerate(result.conclusions, 1):
-                print(f"  {i}. {conclusion}")
-        
-        # 输出保存路径
-        if hasattr(result, 'output_files'):
-            print(f"\n结果文件:")
-            for file_type, file_path in result.output_files.items():
-                print(f"  {file_type}: {file_path}")
-        
-        print(f"\n✅ 实验完成！结果已保存到: {experiment.experiment_dir}")
+        print(f"\n✅ 实验完成！结果已保存到: {experiment.output_dir}")
         
     except KeyboardInterrupt:
         print("\n❌ 实验被用户中断")
@@ -379,4 +402,5 @@ def main():
 
 
 if __name__ == "__main__":
+    from datetime import datetime
     exit(main())

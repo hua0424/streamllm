@@ -8,8 +8,13 @@
   "data_config": {
     "base_data_dir": "data/processed_audio",
     "transcript_dir": "data/transcripts",
-    "test_audio_lengths": [3, 5, 10, 15, 20, 30],
-    "samples_per_length": 10,
+    "length_groups": ["short_5to10s", "medium_10to20s", "long_20plus"],
+    "length_ranges": {
+      "short_5to10s": [5, 10],
+      "medium_10to20s": [10, 20],
+      "long_20plus": [20, 30]
+    },
+    "samples_per_group": 10,
     "audio_format": "wav",
     "sample_rate": 16000
   },
@@ -23,7 +28,7 @@
   },
   "experiment_1_length_impact": {
     "enabled": true,
-    "audio_lengths": [3, 5, 10, 15, 20, 30],
+    "length_groups": ["short_5to10s", "medium_10to20s", "long_20plus"],
     "chunk_duration": 0.3,
     "simulate_delay": true,
     "recognition_threshold": 2.0
@@ -41,13 +46,13 @@
       "llm_only": {"streaming_asr": false, "kv_cache": true},
       "full_opt": {"streaming_asr": true, "kv_cache": true}
     },
-    "test_audio": "data/processed_audio/length_10s/sample_001.wav",
+    "test_audio": "data/processed_audio/medium_10to20s/sample_001.wav",
     "num_trials": 10
   },
   "experiment_4_asr_model_scale": {
     "enabled": true,
     "model_sizes": ["tiny", "base", "small", "medium"],
-    "test_set": "data/processed_audio/length_10s",
+    "test_set": "data/processed_audio/medium_10to20s",
     "metrics": ["latency", "accuracy", "memory_usage", "model_size"]
   },
   "experiment_5_audio_quality": {

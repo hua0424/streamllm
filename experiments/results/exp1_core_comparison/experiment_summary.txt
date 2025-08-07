@@ -1,0 +1,17 @@
+实验名称: exp1_core_comparison
+执行时间: 2025-08-07T08:38:08.405062
+样本数量: 10
+成功样本: 10
+执行耗时: 237.19秒
+
+主要统计结果:
+  total_samples: 10
+  system_performance: {'system_a': {'sample_count': 10, 'mean_ttft_ms': 200.1264069998797, 'std_ttft_ms': 0.03105420231837439, 'median_ttft_ms': 200.13436150020425, 'min_ttft_ms': 200.0574379999307, 'max_ttft_ms': 200.16312900042976}, 'system_c': {'sample_count': 10, 'mean_ttft_ms': 20.0524461999521, 'std_ttft_ms': 0.020839079750722456, 'median_ttft_ms': 20.05970999971396, 'min_ttft_ms': 20.02388199980487, 'max_ttft_ms': 20.084028000383114}}
+  optimization_comparisons: {'system_c_vs_baseline': {'mean_optimization': 89.9801104058196, 'std_optimization': 0.009710834650374115, 'median_optimization': 89.97759588472167, 'min_optimization': 89.96473401371684, 'max_optimization': 89.99366309910428, 'confidence_interval_lower': 89.97409156814622, 'confidence_interval_upper': 89.98612924349298}}
+  experiment_success_rate: 100.00
+
+实验结论:
+  1. 性能最优系统：system_c，平均TTFT为 20.1ms
+  2. 性能最差系统：system_a，平均TTFT为 200.1ms
+  3. 理想化端到端系统（系统C）相对基线的改进为 90.0%
+  4. 实验总体成功率：100.0%

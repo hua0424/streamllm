@@ -18,8 +18,13 @@ class LengthImpactExperiment(BaseExperiment):
     def __init__(self, config: ExperimentConfig):
         super().__init__(config)
         
-        # 目标长度分组
-        self.length_groups = [3, 5, 10, 15, 20, 30]  # 秒
+        # 目标长度分组 - 精简为3组
+        self.length_groups = ["short_5to10s", "medium_10to20s", "long_20plus"]
+        self.length_map = {
+            "short_5to10s": (5, 10),
+            "medium_10to20s": (10, 20), 
+            "long_20plus": (20, 30)
+        }
         self.samples_per_group = 5  # 每组样本数（可以先用小数据验证）
         
     def prepare_test_data(self) -> List[Dict[str, Any]]:
@@ -43,24 +48,11 @@ class LengthImpactExperiment(BaseExperiment):
         test_data = []
         audio_dir = Path("data/processed_audio")
         
-        # 遍历不同长度的音频目录
-        for target_length in self.length_groups:
-            length_dir = audio_dir / f"length{target_length}"
-            if not length_dir.exists():
-                # 尝试其他可能的目录名
-                possible_dirs = [
-                    audio_dir / f"length_{target_length}s",
-                    audio_dir / f"length{target_length}+",
-                    audio_dir / f"length{target_length}"
-                ]
-                
-                length_dir = None
-                for dir_path in possible_dirs:
-                    if dir_path.exists():
-                        length_dir = dir_path
-                        break
+        # 遍历不同长度分组的音频目录
+        for length_group in self.length_groups:
+            length_dir = audio_dir / length_group
             
-            if length_dir and length_dir.exists():
+            if length_dir.exists():
                 # 获取该目录下的音频文件
                 audio_files = list(length_dir.glob("*.wav"))
                 
@@ -68,16 +60,19 @@ class LengthImpactExperiment(BaseExperiment):
                 selected_files = random.sample(audio_files, 
                                              min(len(audio_files), self.samples_per_group))
                 
+                # 获取该分组的长度范围
+                min_length, max_length = self.length_map[length_group]
+                
                 for i, audio_file in enumerate(selected_files):
                     test_data.append({
-                        "sample_id": f"length_{target_length}s_sample_{i+1}",
+                        "sample_id": f"{length_group}_sample_{i+1}",
                         "audio_file": str(audio_file),
-                        "target_length": target_length,
-                        "audio_length": self._estimate_audio_length(target_length),
-                        "length_group": f"{target_length}s"
+                        "target_length": (min_length + max_length) / 2,  # 使用中位数
+                        "audio_length": self._estimate_audio_length((min_length + max_length) / 2),
+                        "length_group": length_group
                     })
             else:
-                self.logger.warning(f"未找到长度为 {target_length}s 的音频目录")
+                self.logger.warning(f"未找到长度分组 {length_group} 的音频目录")
         
         return test_data
     
@@ -85,14 +80,20 @@ class LengthImpactExperiment(BaseExperiment):
         """准备模拟数据（用于代码验证）"""
         test_data = []
         
-        for target_length in self.length_groups:
+        for length_group in self.length_groups:
+            min_length, max_length = self.length_map[length_group]
+            avg_length = (min_length + max_length) / 2
+            
             for i in range(self.samples_per_group):
+                # 在该分组范围内随机生成长度
+                simulated_length = random.uniform(min_length, max_length)
+                
                 test_data.append({
-                    "sample_id": f"sim_length_{target_length}s_sample_{i+1}",
-                    "audio_file": f"simulated_audio_{target_length}s_{i+1}.wav",
-                    "target_length": target_length,
-                    "audio_length": target_length + random.uniform(-0.5, 0.5),  # 加一点随机性
-                    "length_group": f"{target_length}s",
+                    "sample_id": f"sim_{length_group}_sample_{i+1}",
+                    "audio_file": f"simulated_audio_{length_group}_{i+1}.wav",
+                    "target_length": avg_length,
+                    "audio_length": simulated_length,
+                    "length_group": length_group,
                     "simulated": True
                 })
         
@@ -192,20 +193,23 @@ class LengthImpactExperiment(BaseExperiment):
         for result in self.sample_results:
             if result.error_message is None:
                 # 从sample_id中提取长度信息
-                for target_length in self.length_groups:
-                    if f"length_{target_length}s" in result.sample_id:
-                        if target_length not in length_groups:
-                            length_groups[target_length] = []
-                        length_groups[target_length].append(result.optimization_ratio)
+                for length_group in self.length_groups:
+                    if length_group in result.sample_id:
+                        if length_group not in length_groups:
+                            length_groups[length_group] = []
+                        length_groups[length_group].append(result.optimization_ratio)
                         break
         
         if len(length_groups) >= 2:
             # 计算各长度组的平均优化比例
             length_optimizations = []
-            for length in sorted(length_groups.keys()):
-                if length_groups[length]:
-                    avg_opt = sum(length_groups[length]) / len(length_groups[length])
-                    length_optimizations.append((length, avg_opt))
+            
+            # 按预定义顺序排序
+            ordered_groups = ["short_5to10s", "medium_10to20s", "long_20plus"]
+            for length_group in ordered_groups:
+                if length_group in length_groups and length_groups[length_group]:
+                    avg_opt = sum(length_groups[length_group]) / len(length_groups[length_group])
+                    length_optimizations.append((length_group, avg_opt))
             
             if len(length_optimizations) >= 2:
                 # 检查是否存在正相关关系
@@ -213,19 +217,23 @@ class LengthImpactExperiment(BaseExperiment):
                 long_opt = length_optimizations[-1][1]
                 
                 if long_opt > short_opt + 10:  # 长音频比短音频优化效果好10%以上
-                    conclusions.append(f"语音长度与优化效果呈正相关：{length_optimizations[0][0]}秒音频优化{short_opt:.1f}%，{length_optimizations[-1][0]}秒音频优化{long_opt:.1f}%")
+                    conclusions.append(f"语音长度与优化效果呈正相关：{length_optimizations[0][0]}优化{short_opt:.1f}%，{length_optimizations[-1][0]}优化{long_opt:.1f}%")
                 
-                # 计算相关系数
+                # 计算相关系数 - 使用数值编码
                 try:
                     import numpy as np
-                    lengths = [x[0] for x in length_optimizations]
+                    # 将长度组映射为数值
+                    group_to_num = {"short_5to10s": 7.5, "medium_10to20s": 15, "long_20plus": 25}
+                    lengths = [group_to_num[x[0]] for x in length_optimizations]
                     optimizations = [x[1] for x in length_optimizations]
-                    correlation = np.corrcoef(lengths, optimizations)[0, 1]
                     
-                    if correlation > 0.5:
-                        conclusions.append(f"语音长度与优化效果存在强正相关关系 (r={correlation:.3f})")
-                    elif correlation > 0.3:
-                        conclusions.append(f"语音长度与优化效果存在中等正相关关系 (r={correlation:.3f})")
+                    if len(lengths) >= 2:
+                        correlation = np.corrcoef(lengths, optimizations)[0, 1]
+                        
+                        if correlation > 0.5:
+                            conclusions.append(f"语音长度与优化效果存在强正相关关系 (r={correlation:.3f})")
+                        elif correlation > 0.3:
+                            conclusions.append(f"语音长度与优化效果存在中等正相关关系 (r={correlation:.3f})")
                 except ImportError:
                     pass
         
@@ -244,28 +252,28 @@ class LengthImpactExperiment(BaseExperiment):
         for sample_result in result.sample_results:
             if sample_result.error_message is None:
                 # 从sample_id中提取长度信息
-                for target_length in self.length_groups:
-                    if f"length_{target_length}s" in sample_result.sample_id:
-                        if target_length not in length_groups:
-                            length_groups[target_length] = {
+                for length_group in self.length_groups:
+                    if length_group in sample_result.sample_id:
+                        if length_group not in length_groups:
+                            length_groups[length_group] = {
                                 "samples": [],
                                 "optimizations": [],
                                 "baseline_latencies": [],
                                 "optimized_latencies": []
                             }
                         
-                        length_groups[target_length]["samples"].append(sample_result.sample_id)
-                        length_groups[target_length]["optimizations"].append(sample_result.optimization_ratio)
-                        length_groups[target_length]["baseline_latencies"].append(sample_result.baseline_latency)
-                        length_groups[target_length]["optimized_latencies"].append(sample_result.optimized_latency)
+                        length_groups[length_group]["samples"].append(sample_result.sample_id)
+                        length_groups[length_group]["optimizations"].append(sample_result.optimization_ratio)
+                        length_groups[length_group]["baseline_latencies"].append(sample_result.baseline_latency)
+                        length_groups[length_group]["optimized_latencies"].append(sample_result.optimized_latency)
                         break
         
         # 计算每组的统计信息
         length_statistics = {}
-        for length, data in length_groups.items():
+        for length_group, data in length_groups.items():
             if data["optimizations"]:
                 import numpy as np
-                length_statistics[f"{length}s"] = {
+                length_statistics[length_group] = {
                     "sample_count": len(data["optimizations"]),
                     "mean_optimization": float(np.mean(data["optimizations"])),
                     "std_optimization": float(np.std(data["optimizations"])),
@@ -339,7 +347,7 @@ def create_length_impact_experiment(use_small_data: bool = True) -> LengthImpact
     # 如果使用小数据，减少每组样本数
     if use_small_data:
         experiment.samples_per_group = 2  # 每组只用2个样本进行快速验证
-        experiment.length_groups = [5, 10, 20]  # 只测试3个长度组
+        # 3个长度组已经是精简后的配置，无需进一步简化
     
     return experiment
 
