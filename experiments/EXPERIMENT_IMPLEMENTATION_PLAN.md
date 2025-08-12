@@ -6,16 +6,16 @@
 ## 📋 实验实施任务清单
 
 ### **阶段1: 系统架构和核心框架建设 (第1-2天)**
-- [ ] **1.1 三系统架构实现**
+- [ ] **1.1 四系统架构实现**
   - [x] 保留基础实验类 `BaseExperiment` (已存在)
-  - [ ] 实现系统A：基线串行系统 `SystemA_BaselineSequential`
+  - [x] 实现系统A：基线串行系统 `SystemA_BaselineSequential`
   - [ ] 完善系统B：KV缓存预填充系统 `SystemB_ProposedKVCache` (基于现有代码)
   - [ ] 实现系统C：理想化端到端系统 `SystemC_EndToEndOracle`
   - [ ] 实现系统A'：仅流式ASR系统 `SystemA_Prime_StreamingASROnly` (用于消融研究)
 
 - [ ] **1.2 核心实验类重构**
   - [x] 重构实验一：核心性能与质量对比 `CorePerformanceQualityExperiment` (已完成基础版本)
-  - [ ] 调整实验二：输入长度影响分析 `LengthImpactExperiment` (需调整长度分组: 1-3s, 3-10s, 10s+)
+  - [ ] 调整实验二：输入长度影响分析 `LengthImpactExperiment` (采用标准长度分组: 1-3s, 3-10s, 10s+)
   - [ ] 实现实验三：前置与后置音频段对ASR准确性的影响实验
   - [ ] 重构实验四：消融研究 `AblationExperiment` (需要添加系统A')
   - [ ] 新增实验五：案例分析 `CaseAnalysisExperiment`
@@ -35,7 +35,7 @@
 
 - [ ] **2.2 数据集准备**
   - [ ] 准备300个样本的测试集 (实验一)
-  - [ ] 按新的语音长度分组测试数据 (实验二): 1-3秒、3-10秒、10秒以上
+  - [ ] 按统一语音长度分组测试数据 (实验二): 短语音(1-3秒)、中等语音(3-10秒)、长语音(10秒以上)
   - [ ] 准备前后置音频段测试数据 (实验三): 支持(0,0), (1,0), (0,1), (1,1), (2,2)配置
   - [ ] 选择消融实验用固定音频样本 (实验四)
   - [ ] 选择案例分析用典型样本 (实验五)
@@ -304,7 +304,7 @@ PAPER_SECTIONS = {
         'section': '5.2 输入长度对优化效果的影响分析',
         'figures': [
             'length_vs_optimization.png',          # 长度vs优化效果折线图
-            'length_groups_comparison.png',        # 长度分组对比图 (1-3s, 3-10s, 10s+)
+            'length_groups_comparison.png',        # 长度分组对比图 (短语音1-3s, 中等语音3-10s, 长语音10s+)
             'correlation_analysis.png'             # 相关性分析散点图
         ],
         'tables': [
@@ -454,7 +454,7 @@ python experiments/paper_tools/generate_comprehensive_report.py
 
 ### **2. 五个实验数据文件**
 - `experiments/results/core_comparison/experiment_results.json`          # 300样本性能质量对比
-- `experiments/results/length_analysis/length_impact_analysis.json`      # 长度影响分析(1-3s,3-10s,10s+)
+- `experiments/results/length_analysis/length_impact_analysis.json`      # 长度影响分析(短语音1-3s,中等语音3-10s,长语音10s+)
 - `experiments/results/asr_context/context_effect_analysis.json`         # ASR上下文实验结果
 - `experiments/results/ablation_study/ablation_detailed_results.json`    # 消融研究详细结果
 - `experiments/results/case_analysis/timeline_analysis.json`             # 案例时序分析

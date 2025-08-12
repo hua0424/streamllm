@@ -2893,3 +2893,67 @@ You are a helpful assistant responding in Chinese.<|im_end|>
 2025-08-07 08:38:08 - exp1_core_comparison - INFO - 参与对比的系统数量: 2
 2025-08-07 08:38:08 - exp1_core_comparison - INFO -   system_a: 平均TTFT 200.1ms
 2025-08-07 08:38:08 - exp1_core_comparison - INFO -   system_c: 平均TTFT 20.1ms
+2025-08-12 15:18:01 - SystemA_Baseline - INFO - 系统A初始化完成 - ASR: base, LLM: Qwen/Qwen1.5-0.5B-Chat, 模拟: True
+2025-08-12 15:18:06 - SystemA_Baseline - ERROR - 获取音频时长失败: [Errno 2] No such file or directory: '/usr/local/app/jupyterlab/yanjiu/streamllm/experiments/datasets/processed/experiments/core_comparison/audio/long/sample_001.wav'
+2025-08-12 15:18:07 - SystemA_Baseline - INFO - 基线系统处理完成 - TTFT: 200.2ms
+2025-08-12 15:19:25 - SystemA_Baseline - INFO - 系统A初始化完成 - ASR: base, LLM: Qwen/Qwen1.5-0.5B-Chat, 模拟: True
+2025-08-12 15:19:31 - SystemA_Baseline - ERROR - 获取音频时长失败: [Errno 2] No such file or directory: '/usr/local/app/jupyterlab/yanjiu/streamllm/experiments/datasets/processed/experiments/core_comparison/audio/short/sample_001.wav'
+2025-08-12 15:19:31 - SystemA_Baseline - INFO - 基线系统处理完成 - TTFT: 200.1ms
+2025-08-12 15:19:31 - SystemA_Baseline - ERROR - 获取音频时长失败: [Errno 2] No such file or directory: '/usr/local/app/jupyterlab/yanjiu/streamllm/experiments/datasets/processed/experiments/core_comparison/audio/medium/sample_001.wav'
+2025-08-12 15:19:31 - SystemA_Baseline - INFO - 基线系统处理完成 - TTFT: 200.2ms
+2025-08-12 15:19:32 - SystemA_Baseline - ERROR - 获取音频时长失败: [Errno 2] No such file or directory: '/usr/local/app/jupyterlab/yanjiu/streamllm/experiments/datasets/processed/experiments/core_comparison/audio/long/sample_001.wav'
+2025-08-12 15:19:32 - SystemA_Baseline - INFO - 基线系统处理完成 - TTFT: 200.1ms
+2025-08-12 15:20:25 - SystemA_Baseline - INFO - 系统A初始化完成 - ASR: base, LLM: Qwen/Qwen1.5-0.5B-Chat, 模拟: True
+2025-08-12 15:20:26 - SystemA_Baseline - INFO - 基线系统处理完成 - TTFT: 200.2ms
+2025-08-12 15:20:26 - SystemA_Baseline - INFO - 基线系统处理完成 - TTFT: 200.2ms
+2025-08-12 15:20:27 - SystemA_Baseline - INFO - 基线系统处理完成 - TTFT: 200.1ms
+2025-08-12 15:33:54 - SystemA_Baseline - INFO - 系统A初始化完成 - ASR: base, LLM: Qwen/Qwen1.5-0.5B-Chat, 模拟: False
+2025-08-12 15:34:02 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: base on cpu
+2025-08-12 15:34:03 - src.asr.audio_segmenter - INFO - 已加载 Silero VAD 模型 (pip版本)
+2025-08-12 15:34:03 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-08-12 15:34:03 - src.asr.faster_whisper_streamer - INFO - 加载音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/experiments/datasets/processed/experiments/core_comparison/audio/short/sample_001.wav, 时长: 1.79s
+2025-08-12 15:34:04 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: 'How about you?', 耗时: 0.31s
+2025-08-12 15:34:04 - SystemA_Baseline - INFO - ASR转录完成: 'How about you?...', 耗时: 0.31s
+2025-08-12 15:34:04 - src.llm.stream_llm_inference - INFO - Loading LLM model Qwen/Qwen1.5-0.5B-Chat on cpu
+2025-08-12 15:34:05 - src.llm.stream_llm_inference - WARNING - 在线加载tokenizer失败: There was a specific connection error when trying to load Qwen/Qwen1.5-0.5B-Chat:
+401 Client Error: Unauthorized for url: https://huggingface.co/Qwen/Qwen1.5-0.5B-Chat/resolve/main/config.json (Request ID: Root=1-689b189e-45f55bb700ca666324ff5e7a;890cc9ba-3686-487d-8991-581f4046d185)
+
+Invalid credentials in Authorization header
+2025-08-12 15:34:05 - src.llm.stream_llm_inference - INFO - 尝试离线模式加载tokenizer...
+2025-08-12 15:34:05 - src.llm.stream_llm_inference - ERROR - 离线加载也失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
+2025-08-12 15:34:05 - SystemA_Baseline - ERROR - LLM首token生成失败: 无法加载tokenizer，在线和离线模式都失败: There was a specific connection error when trying to load Qwen/Qwen1.5-0.5B-Chat:
+401 Client Error: Unauthorized for url: https://huggingface.co/Qwen/Qwen1.5-0.5B-Chat/resolve/main/config.json (Request ID: Root=1-689b189e-45f55bb700ca666324ff5e7a;890cc9ba-3686-487d-8991-581f4046d185)
+
+Invalid credentials in Authorization header, We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
+2025-08-12 15:34:05 - SystemA_Baseline - INFO - 基线系统处理完成 - TTFT: 3363.3ms
+2025-08-12 15:34:51 - SystemA_Baseline - INFO - 系统A初始化完成 - ASR: base, LLM: Qwen/Qwen1.5-0.5B-Chat, 模拟: True
+2025-08-12 15:34:53 - SystemA_Baseline - INFO - 基线系统处理完成 - TTFT: 200.2ms
+2025-08-12 15:34:59 - SystemA_Baseline - INFO - 基线系统处理完成 - TTFT: 200.2ms
+2025-08-12 15:35:13 - SystemA_Baseline - INFO - 基线系统处理完成 - TTFT: 200.1ms
+2025-08-12 15:57:44 - SystemA_Baseline - INFO - 系统A初始化完成 - ASR: base, LLM: Qwen/Qwen1.5-0.5B-Chat
+2025-08-12 15:57:52 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: base on cpu
+2025-08-12 15:57:53 - src.asr.audio_segmenter - INFO - 已加载 Silero VAD 模型 (pip版本)
+2025-08-12 15:57:53 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-08-12 15:57:53 - src.asr.faster_whisper_streamer - INFO - 加载音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/experiments/datasets/processed/experiments/core_comparison/audio/short/sample_001.wav, 时长: 1.79s
+2025-08-12 15:57:53 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: 'How about you?', 耗时: 0.13s
+2025-08-12 15:57:53 - SystemA_Baseline - INFO - ASR转录完成: 'How about you?...', 耗时: 0.13s
+2025-08-12 15:57:53 - src.llm.stream_llm_inference - INFO - Loading LLM model Qwen/Qwen1.5-0.5B-Chat on cpu
+2025-08-12 15:57:54 - src.llm.stream_llm_inference - WARNING - 在线加载tokenizer失败: There was a specific connection error when trying to load Qwen/Qwen1.5-0.5B-Chat:
+401 Client Error: Unauthorized for url: https://huggingface.co/Qwen/Qwen1.5-0.5B-Chat/resolve/main/config.json (Request ID: Root=1-689b1e32-2f7cc30536871ac05a5c65a3;fc0612d7-20ed-45d7-8757-f7ef3b611800)
+
+Invalid credentials in Authorization header
+2025-08-12 15:57:54 - src.llm.stream_llm_inference - INFO - 尝试离线模式加载tokenizer...
+2025-08-12 15:57:54 - src.llm.stream_llm_inference - ERROR - 离线加载也失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
+2025-08-12 15:57:54 - SystemA_Baseline - ERROR - LLM首token生成失败: 无法加载tokenizer，在线和离线模式都失败: There was a specific connection error when trying to load Qwen/Qwen1.5-0.5B-Chat:
+401 Client Error: Unauthorized for url: https://huggingface.co/Qwen/Qwen1.5-0.5B-Chat/resolve/main/config.json (Request ID: Root=1-689b1e32-2f7cc30536871ac05a5c65a3;fc0612d7-20ed-45d7-8757-f7ef3b611800)
+
+Invalid credentials in Authorization header, We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
+2025-08-12 15:57:54 - SystemA_Baseline - ERROR - LLM处理失败: 无法加载tokenizer，在线和离线模式都失败: There was a specific connection error when trying to load Qwen/Qwen1.5-0.5B-Chat:
+401 Client Error: Unauthorized for url: https://huggingface.co/Qwen/Qwen1.5-0.5B-Chat/resolve/main/config.json (Request ID: Root=1-689b1e32-2f7cc30536871ac05a5c65a3;fc0612d7-20ed-45d7-8757-f7ef3b611800)
+
+Invalid credentials in Authorization header, We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.

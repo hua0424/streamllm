@@ -29,26 +29,23 @@ class SystemA_BaselineSequential:
     
     def __init__(self, 
                  asr_model_size: str = "base",
-                 llm_model_name: str = "Qwen/Qwen1.5-0.5B-Chat",
-                 use_simulation: bool = False):
+                 llm_model_name: str = "Qwen/Qwen1.5-0.5B-Chat"):
         """
         初始化基线串行系统
         
         Args:
             asr_model_size: ASR模型大小
             llm_model_name: LLM模型名称
-            use_simulation: 是否使用模拟模式（用于快速测试）
         """
         self.asr_model_size = asr_model_size
         self.llm_model_name = llm_model_name
-        self.use_simulation = use_simulation
         self.logger = get_logger(f"SystemA_Baseline")
         
         # 延迟初始化组件
         self._asr_processor = None
         self._llm_processor = None
         
-        self.logger.info(f"系统A初始化完成 - ASR: {asr_model_size}, LLM: {llm_model_name}, 模拟: {use_simulation}")
+        self.logger.info(f"系统A初始化完成 - ASR: {asr_model_size}, LLM: {llm_model_name}")
     
     def get_data_path(self, experiment_name: str = "core_comparison", length_group: str = "long", sample_id: str = "sample_001") -> str:
         """
@@ -56,7 +53,7 @@ class SystemA_BaselineSequential:
         
         Args:
             experiment_name: 实验名称 (core_comparison, asr_context, ablation_study, case_analysis)
-            length_group: 长度分组 (short, medium, long)
+            length_group: 长度分组 (short: 1-3s, medium: 3-10s, long: 10s+)
             sample_id: 样本ID
             
         Returns:
@@ -126,14 +123,18 @@ class SystemA_BaselineSequential:
         try:
             import librosa
             y, sr = librosa.load(audio_path, sr=None)
-            return len(y) / sr
+            duration = len(y) / sr
+            self.logger.debug(f"音频 {audio_path} 时长: {duration:.2f}秒")
+            return duration
         except ImportError:
-            # 如果没有librosa，使用简单估算
-            self.logger.warning("librosa未安装，使用默认时长")
-            return 10.0
+            self.logger.error("librosa未安装，无法获取音频时长")
+            raise ImportError("请安装librosa库: uv add librosa")
+        except FileNotFoundError:
+            self.logger.error(f"音频文件不存在: {audio_path}")
+            raise FileNotFoundError(f"音频文件不存在: {audio_path}")
         except Exception as e:
             self.logger.error(f"获取音频时长失败: {e}")
-            return 10.0
+            raise
     
     def process_audio_complete(self, audio_path: str) -> Tuple[str, Dict[str, float]]:
         """
@@ -142,9 +143,6 @@ class SystemA_BaselineSequential:
         Returns:
             (transcript, timing_info)
         """
-        if self.use_simulation:
-            return self._simulate_asr_processing(audio_path)
-        
         try:
             # 使用新增的完整音频转录功能
             asr_result = self.asr_processor.transcribe_complete_audio(audio_path)
@@ -152,11 +150,7 @@ class SystemA_BaselineSequential:
             # 检查是否有错误
             if 'error' in asr_result:
                 self.logger.error(f"ASR转录失败: {asr_result['error']}")
-                return "ASR处理失败", {
-                    "asr_processing_time": 1.0, 
-                    "audio_duration": 10.0, 
-                    "asr_wait_time": 10.0
-                }
+                raise RuntimeError(f"ASR转录失败: {asr_result['error']}")
             
             transcript = asr_result['text']
             timing = asr_result['timing']
@@ -172,26 +166,7 @@ class SystemA_BaselineSequential:
             
         except Exception as e:
             self.logger.error(f"ASR处理失败: {e}")
-            # 返回默认结果
-            return "ASR处理失败", {"asr_processing_time": 1.0, "audio_duration": 10.0, "asr_wait_time": 10.0}
-    
-    def _simulate_asr_processing(self, audio_path: str) -> Tuple[str, Dict[str, float]]:
-        """模拟ASR处理（用于快速测试）"""
-        audio_duration = 10.0  # 默认音频长度
-        asr_processing_time = audio_duration * 0.3  # ASR处理时间
-        
-        # 模拟处理延迟
-        time.sleep(0.1)
-        
-        transcript = "这是一个模拟的ASR识别结果，用于测试系统性能。"
-        
-        timing_info = {
-            "audio_duration": audio_duration,
-            "asr_processing_time": asr_processing_time,
-            "asr_wait_time": audio_duration
-        }
-        
-        return transcript, timing_info
+            raise
     
     def process_llm_inference(self, text: str) -> Tuple[str, Dict[str, float]]:
         """
@@ -200,14 +175,10 @@ class SystemA_BaselineSequential:
         Returns:
             (first_token, timing_info)
         """
-        if self.use_simulation:
-            return self._simulate_llm_processing(text)
-        
         try:
             start_time = time.perf_counter()
             
             # 传统LLM处理：从零开始，没有预填充的KV缓存
-            # 模拟LLM推理过程
             first_token, generation_time = self._get_llm_first_token_traditional(text)
             
             llm_time = time.perf_counter() - start_time
@@ -218,27 +189,12 @@ class SystemA_BaselineSequential:
                 "kv_cache_time": 0.0  # 基线系统没有KV缓存
             }
             
+            self.logger.info(f"LLM推理完成，首token: '{first_token}'，耗时: {llm_time:.3f}s")
             return first_token, timing_info
             
         except Exception as e:
             self.logger.error(f"LLM处理失败: {e}")
-            return "错误", {"llm_processing_time": 1.0, "first_token_generation_time": 1.0, "kv_cache_time": 0.0}
-    
-    def _simulate_llm_processing(self, text: str) -> Tuple[str, Dict[str, float]]:
-        """模拟LLM处理（用于快速测试）"""
-        # 模拟LLM处理时间
-        llm_processing_time = 1.0  # 基线系统LLM处理较慢
-        time.sleep(0.1)
-        
-        first_token = "现在"
-        
-        timing_info = {
-            "llm_processing_time": llm_processing_time,
-            "first_token_generation_time": llm_processing_time,
-            "kv_cache_time": 0.0
-        }
-        
-        return first_token, timing_info
+            raise
     
     def _get_llm_first_token_traditional(self, text: str) -> Tuple[str, float]:
         """获取LLM首个token（传统方式，无优化）"""
@@ -246,33 +202,39 @@ class SystemA_BaselineSequential:
             # 使用LLM的无缓存生成方式来获取首个token
             start_time = time.perf_counter()
             
+            # 根据文本语言选择合适的提示
+            if any(ord(c) > 127 for c in text):  # 包含非ASCII字符，可能是中文
+                system_prompt = "You are a helpful assistant responding in Chinese."
+            else:
+                system_prompt = "You are a helpful assistant."
+            
             # 使用once_add_and_generate获取完整响应，只取第一个token
             response_generator = self.llm_processor.once_add_and_generate(
                 prompt=text,
-                system_prompt="You are a helpful assistant responding in Chinese.",
+                system_prompt=system_prompt,
                 max_new_tokens=1,  # 只生成一个token 
                 temperature=0.1
             )
             
             # 获取首个token
             first_token = ""
-            first_token_time = 0.0
             
             for token_text, token_time in response_generator:
                 first_token = token_text
-                first_token_time = token_time
+                # token_time来自LLM内部计时，我们使用整体计时
                 break  # 只要第一个token
             
             generation_time = time.perf_counter() - start_time
+            
+            if not first_token:
+                raise RuntimeError("LLM未能生成任何token")
             
             self.logger.info(f"LLM首token生成: '{first_token}', 耗时: {generation_time:.3f}s")
             return first_token, generation_time
             
         except Exception as e:
             self.logger.error(f"LLM首token生成失败: {e}")
-            # 如果真实LLM失败，回退到模拟
-            time.sleep(0.5)  # 模拟基线系统的处理时间
-            return "好的", 0.5
+            raise
     
     def process_complete_pipeline(self, audio_path: str, simulate_delay: bool = True) -> Dict[str, Any]:
         """
@@ -358,25 +320,145 @@ class SystemA_BaselineSequential:
             self._asr_processor.reset()
         # LLM不需要特殊重置
         self.logger.debug("系统A已重置")
+    
+    def process_sample(self, audio_path: str, ground_truth: str = None) -> Dict[str, Any]:
+        """
+        处理单个样本的标准接口（供实验调用）
+        
+        Args:
+            audio_path: 音频文件路径
+            ground_truth: 真实转录文本（可选，用于质量评估）
+            
+        Returns:
+            标准化的处理结果
+        """
+        try:
+            # 执行完整流水线
+            result = self.process_complete_pipeline(audio_path, simulate_delay=True)
+            
+            # 添加质量评估信息
+            if ground_truth:
+                # 这里可以计算WER等质量指标
+                result['quality_metrics'] = {
+                    'ground_truth': ground_truth,
+                    'transcript_match': result['transcript'].strip() == ground_truth.strip()
+                }
+            
+            # 标准化输出格式
+            standardized_result = {
+                'sample_id': Path(audio_path).stem,
+                'system_name': 'SystemA_BaselineSequential',
+                'audio_path': audio_path,
+                'transcript': result['transcript'],
+                'first_token': result['first_token'],
+                
+                # 核心性能指标
+                'ttft_ms': result['performance_metrics']['ttft_ms'],
+                'asr_time_ms': result['performance_metrics']['asr_processing_time_ms'],
+                'llm_time_ms': result['performance_metrics']['llm_processing_time_ms'],
+                'total_time_ms': result['performance_metrics']['total_processing_time_ms'],
+                
+                # 音频信息
+                'audio_duration_s': result['timing']['audio_duration'],
+                
+                # 系统特征
+                'has_streaming_asr': False,
+                'has_kv_cache': False,
+                'processing_type': 'sequential',
+                
+                # 完整原始结果
+                'raw_result': result
+            }
+            
+            if ground_truth:
+                standardized_result['quality_metrics'] = result.get('quality_metrics', {})
+            
+            return standardized_result
+            
+        except Exception as e:
+            self.logger.error(f"处理样本失败 {audio_path}: {e}")
+            return {
+                'sample_id': Path(audio_path).stem,
+                'system_name': 'SystemA_BaselineSequential',
+                'audio_path': audio_path,
+                'transcript': 'ERROR',
+                'first_token': 'ERROR',
+                'ttft_ms': -1,
+                'error': str(e)
+            }
 
 
 def test_system_a():
     """测试系统A"""
     print("测试系统A：基线串行系统")
+    print("使用真实ASR和LLM处理\n")
     
-    # 创建系统实例
-    system = SystemA_BaselineSequential(use_simulation=True)
+    # 创建系统实例（不再需要use_simulation参数）
+    system = SystemA_BaselineSequential(
+        asr_model_size="base",
+        llm_model_name="Qwen/Qwen1.5-0.5B-Chat"
+    )
     
-    # 测试处理（使用新的数据路径格式）
-    test_audio = "/usr/local/app/jupyterlab/yanjiu/streamllm/experiments/datasets/processed/experiments/core_comparison/audio/long/sample_001.wav"
+    # 测试不同长度组的样本
+    test_cases = [
+        ("core_comparison", "short", "sample_001"),
+        ("core_comparison", "medium", "sample_001"),
+        ("core_comparison", "long", "sample_001")
+    ]
     
-    result = system.process_complete_pipeline(test_audio, simulate_delay=False)
+    for exp_name, length_group, sample_id in test_cases:
+        print(f"\n测试 {length_group} 长度组:")
+        print("="*50)
+        
+        # 获取测试音频路径
+        test_audio = system.get_data_path(
+            experiment_name=exp_name,
+            length_group=length_group,
+            sample_id=sample_id
+        )
+        
+        # 检查文件是否存在
+        from pathlib import Path
+        if not Path(test_audio).exists():
+            print(f"  ⚠️ 音频文件不存在: {test_audio}")
+            print(f"  请先运行 fill_experiments_data.py 准备数据")
+            continue
+        
+        # 加载样本元数据
+        metadata = system.load_sample_metadata(
+            experiment_name=exp_name,
+            length_group=length_group,
+            sample_id=sample_id
+        )
+        
+        print(f"  测试音频: {Path(test_audio).name}")
+        print(f"  预期文本: {metadata.get('text', '未知')[:50]}...")
+        print(f"  语言: {metadata.get('language', '未知')}")
+        print(f"  时长: {metadata.get('duration', 0):.1f}秒")
+        
+        try:
+            # 处理样本（不模拟延迟以加快测试）
+            result = system.process_complete_pipeline(test_audio, simulate_delay=False)
+            
+            print(f"\n  处理结果:")
+            print(f"    转录: {result['transcript'][:50]}...")
+            print(f"    首Token: {result['first_token']}")
+            print(f"    TTFT: {result['performance_metrics']['ttft_ms']:.1f}ms")
+            print(f"    ASR时间: {result['performance_metrics']['asr_processing_time_ms']:.1f}ms")
+            print(f"    LLM时间: {result['performance_metrics']['llm_processing_time_ms']:.1f}ms")
+            print(f"    总处理时间: {result['performance_metrics']['total_processing_time_ms']:.1f}ms")
+            
+            # 验证结果结构
+            assert 'system_name' in result
+            assert 'performance_metrics' in result
+            assert 'ttft_ms' in result['performance_metrics']
+            print(f"  ✅ {length_group} 测试通过")
+            
+        except Exception as e:
+            print(f"  ❌ 处理失败: {e}")
+            print(f"  提示: 请确保ASR和LLM模型已正确安装并可访问")
     
-    print(f"处理结果:")
-    print(f"  转录: {result['transcript']}")
-    print(f"  首Token: {result['first_token']}")
-    print(f"  TTFT: {result['performance_metrics']['ttft_ms']:.1f}ms")
-    print(f"  总处理时间: {result['performance_metrics']['total_processing_time_ms']:.1f}ms")
+    print(f"\n✅ 系统A测试完成")
 
 
 if __name__ == "__main__":

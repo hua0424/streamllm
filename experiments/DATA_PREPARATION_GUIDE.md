@@ -120,8 +120,7 @@ experiments/datasets/
   "duration": 10.5,
   "text": "播放周杰伦的演唱会视频",
   "language": "zh",
-  "speaker": "user",
-  "ground_truth": "播放周杰伦的演唱会视频"
+  "word_count": 11,
 }
 ```
 
