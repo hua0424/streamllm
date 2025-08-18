@@ -15,37 +15,54 @@ import numpy as np
 from typing import Dict, Any, Tuple, Optional
 from pathlib import Path
 import sys
+import torch
 
 # 添加项目根目录到Python路径
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.asr.faster_whisper_streamer import StreamingASRProcessor
-from src.utils.logging_utils import get_logger
+from src.utils.logging_utils import get_logger, set_global_log_level
 
 
 class SystemA_BaselineSequential:
     """系统A：基线串行系统"""
     
     def __init__(self, 
-                 asr_model_size: str = "base",
-                 llm_model_name: str = "Qwen/Qwen1.5-0.5B-Chat"):
+                 asr_model_size: str = "large-v3",
+                 llm_model_name: str = "Qwen/Qwen2-7B-Instruct",
+                 llm_device: Optional[str] = None):
         """
         初始化基线串行系统
         
         Args:
             asr_model_size: ASR模型大小
             llm_model_name: LLM模型名称
+            llm_device: LLM计算设备（'cuda'、'cpu'或None自动检测）
         """
         self.asr_model_size = asr_model_size
         self.llm_model_name = llm_model_name
+        
+        # ASR始终使用CPU
+        self.asr_device = "cpu"
+        
+        # LLM使用CUDA（如果可用）
+        if llm_device is None:
+            self.llm_device = "cuda" if torch.cuda.is_available() else "cpu"
+        else:
+            self.llm_device = llm_device
+            
         self.logger = get_logger(f"SystemA_Baseline")
         
         # 延迟初始化组件
         self._asr_processor = None
         self._llm_processor = None
         
-        self.logger.info(f"系统A初始化完成 - ASR: {asr_model_size}, LLM: {llm_model_name}")
+        self.logger.info(f"系统A初始化完成 - ASR: {asr_model_size}(CPU), LLM: {llm_model_name}({self.llm_device})")
+        if self.llm_device == "cuda":
+            self.logger.info(f"LLM使用GPU加速 - GPU: {torch.cuda.get_device_name(0)}")
+        else:
+            self.logger.info(f"LLM使用CPU运行")
     
     def get_data_path(self, experiment_name: str = "core_comparison", length_group: str = "long", sample_id: str = "sample_001") -> str:
         """
@@ -102,10 +119,12 @@ class SystemA_BaselineSequential:
     def asr_processor(self) -> StreamingASRProcessor:
         """延迟初始化ASR处理器"""
         if self._asr_processor is None:
+            # ASR模型始终使用CPU
             self._asr_processor = StreamingASRProcessor(
                 model_size=self.asr_model_size,
                 recognition_threshold=2.0,  # 较长的阈值确保完整处理
-                text_callback=None
+                text_callback=None,
+                device=self.asr_device  # 始终使用CPU
             )
         return self._asr_processor
     
@@ -114,7 +133,8 @@ class SystemA_BaselineSequential:
         """延迟初始化LLM处理器"""
         if self._llm_processor is None:
             self._llm_processor = StreamLLMInference(
-                model_name=self.llm_model_name
+                model_name=self.llm_model_name,
+                device=self.llm_device  # LLM使用CUDA加速
             )
         return self._llm_processor
     
@@ -155,13 +175,15 @@ class SystemA_BaselineSequential:
             transcript = asr_result['text']
             timing = asr_result['timing']
             
+            # 修复：使用total_time包含模型加载等所有处理时间
             timing_info = {
                 "audio_duration": timing['audio_duration'],
-                "asr_processing_time": timing['transcription_time'],
+                "asr_processing_time": timing['total_time'],  # 使用总时间，包含模型加载
+                "asr_transcription_only": timing['transcription_time'],  # 仅转录时间
                 "asr_wait_time": timing['audio_duration']  # 串行系统需要等待音频播放完成
             }
             
-            self.logger.info(f"ASR转录完成: '{transcript[:50]}...', 耗时: {timing['transcription_time']:.2f}s")
+            self.logger.info(f"ASR转录完成: '{transcript[:50]}...', 总耗时: {timing['total_time']:.3f}s (转录: {timing['transcription_time']:.3f}s)")
             return transcript, timing_info
             
         except Exception as e:
@@ -202,16 +224,9 @@ class SystemA_BaselineSequential:
             # 使用LLM的无缓存生成方式来获取首个token
             start_time = time.perf_counter()
             
-            # 根据文本语言选择合适的提示
-            if any(ord(c) > 127 for c in text):  # 包含非ASCII字符，可能是中文
-                system_prompt = "You are a helpful assistant responding in Chinese."
-            else:
-                system_prompt = "You are a helpful assistant."
-            
             # 使用once_add_and_generate获取完整响应，只取第一个token
             response_generator = self.llm_processor.once_add_and_generate(
                 prompt=text,
-                system_prompt=system_prompt,
                 max_new_tokens=1,  # 只生成一个token 
                 temperature=0.1
             )
@@ -219,10 +234,10 @@ class SystemA_BaselineSequential:
             # 获取首个token
             first_token = ""
             
-            for token_text, token_time in response_generator:
+            for token_text, _ in response_generator:
                 first_token = token_text
-                # token_time来自LLM内部计时，我们使用整体计时
-                break  # 只要第一个token
+                # 只要第一个token
+                break
             
             generation_time = time.perf_counter() - start_time
             
@@ -256,21 +271,34 @@ class SystemA_BaselineSequential:
             time.sleep(audio_duration)  # 模拟等待用户说完
         
         speech_end_time = time.perf_counter()
+        self.logger.debug(f"⏱️  语音结束时间基准: {speech_end_time:.6f}")
         
         # 步骤2：完整音频ASR处理
         self.logger.debug("开始ASR处理...")
+        asr_start_time = time.perf_counter()
         transcript, asr_timing = self.process_audio_complete(audio_path)
         
         asr_complete_time = time.perf_counter()
+        actual_asr_duration = (asr_complete_time - asr_start_time) * 1000
+        self.logger.debug(f"⏱️  实际ASR耗时: {actual_asr_duration:.1f}ms，报告ASR耗时: {asr_timing['asr_processing_time']*1000:.1f}ms")
         
         # 步骤3：LLM推理
         self.logger.debug("开始LLM推理...")
+        llm_start_time = time.perf_counter()
         first_token, llm_timing = self.process_llm_inference(transcript)
         
         first_token_time = time.perf_counter()
+        actual_llm_duration = (first_token_time - llm_start_time) * 1000
+        self.logger.debug(f"⏱️  实际LLM耗时: {actual_llm_duration:.1f}ms，报告LLM耗时: {llm_timing['llm_processing_time']*1000:.1f}ms")
         
         # 计算关键延迟指标
         ttft = (first_token_time - speech_end_time) * 1000  # 转换为毫秒
+        expected_ttft = actual_asr_duration + actual_llm_duration
+        self.logger.debug(f"⏱️  计算TTFT: {ttft:.1f}ms，预期TTFT: {expected_ttft:.1f}ms")
+        
+        # 验证时序一致性
+        if abs(ttft - expected_ttft) > 100:  # 允许100ms误差
+            self.logger.warning(f"⚠️  TTFT计算异常! TTFT={ttft:.1f}ms, 预期={expected_ttft:.1f}ms, 差异={abs(ttft-expected_ttft):.1f}ms")
         
         # 组装结果
         result = {
@@ -314,26 +342,66 @@ class SystemA_BaselineSequential:
         self.logger.info(f"基线系统处理完成 - TTFT: {ttft:.1f}ms")
         return result
     
+    def warmup(self):
+        """
+        预热系统，确保所有模型都已加载完成
+        这个方法应该在正式实验前调用，其耗时不计入TTFT
+        """
+        self.logger.info("开始系统A预热，加载模型...")
+        
+        # 预热ASR模型
+        warmup_start = time.perf_counter()
+        _ = self.asr_processor  # 触发ASR模型加载
+        asr_warmup_time = time.perf_counter() - warmup_start
+        self.logger.debug(f"ASR模型加载完成，耗时: {asr_warmup_time:.2f}s")
+        
+        # 预热LLM模型
+        llm_warmup_start = time.perf_counter()
+        _ = self.llm_processor  # 触发LLM模型加载
+        llm_warmup_time = time.perf_counter() - llm_warmup_start
+        self.logger.debug(f"LLM模型加载完成，耗时: {llm_warmup_time:.2f}s")
+        
+        # 进行一次虚拟推理以确保模型完全就绪
+        try:
+            dummy_generator = self.llm_processor.once_add_and_generate(
+                prompt="测试",
+                max_new_tokens=1,
+                temperature=0.1
+            )
+            for _ in dummy_generator:
+                break  # 只需要第一个token
+            self.logger.debug("LLM虚拟推理完成")
+        except Exception as e:
+            self.logger.warning(f"LLM虚拟推理失败: {e}")
+        
+        total_warmup_time = time.perf_counter() - warmup_start
+        self.logger.info(f"系统A预热完成，总耗时: {total_warmup_time:.2f}s")
+    
     def reset(self):
-        """重置系统状态"""
+        """重置系统状态（不重新加载模型）"""
         if self._asr_processor:
             self._asr_processor.reset()
         # LLM不需要特殊重置
         self.logger.debug("系统A已重置")
     
-    def process_sample(self, audio_path: str, ground_truth: str = None) -> Dict[str, Any]:
+    def process_sample(self, audio_path: str, ground_truth: Optional[str] = None, skip_warmup: bool = False) -> Dict[str, Any]:
         """
         处理单个样本的标准接口（供实验调用）
         
         Args:
             audio_path: 音频文件路径
             ground_truth: 真实转录文本（可选，用于质量评估）
+            skip_warmup: 是否跳过预热（如果已经预热过则可以跳过）
             
         Returns:
             标准化的处理结果
         """
         try:
-            # 执行完整流水线
+            # 确保模型已预热（排除模型加载时间）
+            if not skip_warmup:
+                self.warmup()
+            
+            # 执行完整流水线（此时TTFT不包含模型加载时间）
             result = self.process_complete_pipeline(audio_path, simulate_delay=True)
             
             # 添加质量评估信息
@@ -393,16 +461,32 @@ def test_system_a():
     print("测试系统A：基线串行系统")
     print("使用真实ASR和LLM处理\n")
     
-    # 创建系统实例（不再需要use_simulation参数）
+    # 设置日志级别为DEBUG以显示详细日志
+    set_global_log_level("DEBUG")
+    print("日志级别已设置为DEBUG\n")
+    
+    # 检测CUDA可用性
+    if torch.cuda.is_available():
+        print(f"CUDA可用 - GPU: {torch.cuda.get_device_name(0)}")
+        print(f"LLM将使用GPU加速")
+        llm_device = "cuda"
+    else:
+        print("CUDA不可用，使用CPU")
+        llm_device = "cpu"
+    
+    print(f"ASR使用CPU，LLM使用{llm_device}\n")
+    
+    # 创建系统实例
     system = SystemA_BaselineSequential(
-        asr_model_size="base",
-        llm_model_name="Qwen/Qwen1.5-0.5B-Chat"
+        asr_model_size="base",  # 使用更小模型进行测试，避免CPU上large-v3过慢
+        llm_model_name="Qwen/Qwen2-7B-Instruct",
+        llm_device=llm_device
     )
     
     # 测试不同长度组的样本
     test_cases = [
-        ("core_comparison", "short", "sample_001"),
-        ("core_comparison", "medium", "sample_001"),
+        # ("core_comparison", "short", "sample_001"),
+        # ("core_comparison", "medium", "sample_001"),
         ("core_comparison", "long", "sample_001")
     ]
     
@@ -437,7 +521,11 @@ def test_system_a():
         print(f"  时长: {metadata.get('duration', 0):.1f}秒")
         
         try:
-            # 处理样本（不模拟延迟以加快测试）
+            # 先进行预热（排除模型加载时间）
+            print(f"  🔥 预热模型...")
+            system.warmup()
+            
+            # 处理样本（不模拟延迟以加快测试，此时TTFT不包含模型加载时间）
             result = system.process_complete_pipeline(test_audio, simulate_delay=False)
             
             print(f"\n  处理结果:")

@@ -5,9 +5,10 @@ import torch
 import time
 import traceback
 import logging
-from typing import Generator, Tuple
+from typing import Generator, Tuple, Dict, Any, List
 from threading import Thread
 import queue
+from enum import Enum, auto
 
 # 从配置导入
 from src.config import LLM_MODEL_NAME, DEVICE, HF_HOME, HF_ENDPOINT, HF_TOKEN
@@ -19,6 +20,18 @@ from dotenv import load_dotenv
 load_dotenv()  # 加载 .env 文件中的环境变量
 
 class StreamLLMInference:
+    class TimingEventType(Enum):
+        """
+        时间事件类型枚举类
+        """
+        START_FUNCTION = auto() # 函数调用开始时间
+        END_FUNCTION = auto() # 函数调用结束时间
+        START_KV_CACHE = auto() # KV缓存计算起始时间
+        END_KV_CACHE = auto() # KV缓存计算结束时间
+        START_INFERENCE = auto() # 模型推理开始时间
+        RETURN_LOGITS = auto() # 模型推理返回logits时间
+        DECODE_TOKEN = auto() # 模型推理decode token时间
+
     def __init__(
         self,
         model_name=LLM_MODEL_NAME,
@@ -52,68 +65,31 @@ class StreamLLMInference:
                 local_files_only=False  # 先尝试在线加载
             )
         except Exception as e:
-            logger.warning(f"在线加载tokenizer失败: {e}")
-            logger.info("尝试离线模式加载tokenizer...")
-            try:
-                self.tokenizer = AutoTokenizer.from_pretrained(
-                    model_name, 
-                    cache_dir=hf_home, 
-                    token=hf_token,
-                    trust_remote_code=True,
-                    local_files_only=True  # 离线模式
-                )
-            except Exception as e2:
-                logger.error(f"离线加载也失败: {e2}")
-                raise RuntimeError(f"无法加载tokenizer，在线和离线模式都失败: {e}, {e2}")
+            raise RuntimeError(f"无法加载tokenizer: {e}")
         try:
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 torch_dtype="auto",
-                device_map=device if device == "auto" else None, # device_map="auto" or device_map=device for single GPU
+                device_map= "auto", #device if device == "auto" else device, # device_map="auto" or device_map=device for single GPU
                 cache_dir=hf_home,
                 token=hf_token,
                 trust_remote_code=True, # 对于某些模型如Qwen是必要的
                 local_files_only=False  # 先尝试在线加载
             )
         except Exception as e:
-            logger.warning(f"在线加载模型失败: {e}")
-            logger.info("尝试离线模式加载模型...")
-            try:
-                self.model = AutoModelForCausalLM.from_pretrained(
-                    model_name,
-                    torch_dtype="auto",
-                    device_map=device if device == "auto" else None,
-                    cache_dir=hf_home,
-                    token=hf_token,
-                    trust_remote_code=True,
-                    local_files_only=True  # 离线模式
-                )
-            except Exception as e2:
-                logger.error(f"离线加载也失败: {e2}")
-                raise RuntimeError(f"无法加载模型，在线和离线模式都失败: {e}, {e2}")
-        if device != "auto": # 如果不是自动分配，则手动移到指定设备
-            self.model.to(device)
-        
-        self.model.eval() # 设置为评估模式
-        self.past_key_values = None
-        self.current_input_ids = None
-        self.current_attention_mask = None
+            raise RuntimeError(f"无法加载模型: {e}")
+        logger.info("LLM模型加载完成。")       
+
+        self.model.eval() # 模型设置为推理模式
+
         self.eval_mode = eval_mode
-        
-        # 用于记录详细延迟的变量
-        self.timings = {
-            "last_token_gen_time_ms": 0.0,
-            "last_kv_update_time_ms": 0.0,
-            "last_precompute_time_ms": 0.0,
-            "events": [] # (event_name, timestamp, duration_ms)
-        }
-        logger.info("LLM模型加载完成。")
 
         # 提取生成提示符
         # 为了获取正确的生成提示符，我们使用一个临时的messages
+        init_user_text = "提取提示符"
         temp_messages = [
             {"role": "system", "content": "You are a helpful assistant responding in Chinese."},
-            {"role": "user", "content": "temp"}  # 临时内容
+            {"role": "user", "content": "提取提示符"}  # 临时内容
         ]
         
         # 获取带生成提示符的完整模板
@@ -123,42 +99,120 @@ class StreamLLMInference:
             add_generation_prompt=True
         )
         
-        # 获取不带生成提示符的模板
-        no_gen_template = self.tokenizer.apply_chat_template(
-            temp_messages,
-            tokenize=False,
-            add_generation_prompt=False
-        )
-        
-        # 提取生成提示符部分
-        generation_prompt = full_template.replace(no_gen_template, "")
-        self.generation_prompt = generation_prompt
-        logger.debug(f"生成提示符: '{generation_prompt}'")
+        index = full_template.find(init_user_text)
+        self.generation_prompt = full_template[index + len(init_user_text):]
+        logger.debug(f"generator_text:{self.generation_prompt}")
 
-    def _record_timing(self, event_name, start_time, end_time=None):
-        if end_time is None:
-            end_time = time.perf_counter()
-        duration_ms = (end_time - start_time) * 1000
-        self.timings['events'].append((event_name, time.time(), duration_ms))
-        if "precompute" in event_name:
-            self.timings['last_precompute_time_ms'] = duration_ms
-        elif "kv_update" in event_name:
-            self.timings['last_kv_update_time_ms'] = duration_ms
-        elif "token_gen" in event_name:
-            self.timings['last_token_gen_time_ms'] = duration_ms
-        logger.debug(f"Timing: {event_name} - {duration_ms:.2f} ms")
+        # 用于记录详细延迟的变量
+        self.timing_events:Dict[StreamLLMInference.TimingEventType, float] = {}
+
+
+    class KVCache:
+        def __init__(self, past_key_values:torch.Tensor, pre_input_ids:torch.Tensor, pre_attention_mask:torch.Tensor):
+            self.past_key_values = past_key_values
+            self.pre_input_ids = pre_input_ids
+            self.pre_attention_mask = pre_attention_mask
 
     def get_last_timings(self):
-        return {
-            "last_token_gen_time_ms": self.timings['last_token_gen_time_ms'],
-            "last_kv_update_time_ms": self.timings['last_kv_update_time_ms'],
-            "last_precompute_time_ms": self.timings['last_precompute_time_ms'],
-        }
+        return self.timing_events
 
-    def get_all_timing_events(self):
-        return self.timings['events']
+    def reset_timings(self):
+        return self.timing_events.clear
     
-    def stream_add_and_generate(self, prompt:Generator[tuple[str, bool], None, None], system_prompt:str="You are a helpful assistant responding in Chinese.", max_new_tokens=50, temperature=0.1, top_p=0.9, repetition_penalty=1.1) -> Generator[tuple[str, float], None, None]:
+    def cache_prompt(self, prompt:str, pre_cache:KVCache | None = None, is_end:bool = False, system_prompt:str = "You are a helpful assistant responding in Chinese.") -> KVCache:
+        """
+        对prompt计算缓存，返回缓存计算的中间值
+        pre_cache传入上一次返回的缓存值，首次可不传
+        """
+        self.reset_timings()
+        self.timing_events[self.TimingEventType.START_FUNCTION] = time.perf_counter()
+        if pre_cache is None:
+            # 首次计算
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": ""}  # 临时内容
+            ]
+            full_prompt_text = self.tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True
+            )
+            # 截取prompt部分，便于后续流式添加prompt
+            init_prompt_text = full_prompt_text.replace(self.generation_prompt, "") + prompt
+            logger.debug(f"init prompt text:{init_prompt_text}")
+
+            if is_end:
+                init_prompt_text+=self.generation_prompt    
+            result = self._init_kv_cache(init_prompt_text)
+        
+        else:
+            # 非首次，只追加新文本即可
+            logger.debug(f"流式添加提示词: {prompt}")
+            if is_end:
+                prompt += self.generation_prompt
+            result = self._add_stream_prompt(pre_cache, prompt)
+
+        self.timing_events[self.TimingEventType.END_FUNCTION] = time.perf_counter()
+        return result
+    
+    def generate(self, pre_cache:KVCache | None, eval:bool = False, max_new_tokens=50, temperature=0.1, top_p=0.9, repetition_penalty=1.1) -> Generator[str, None, None]:
+        """
+        使用预计算缓存生成回复
+        @eval 是否评估模式，True=评估模式，只生成首个token
+        """
+        if pre_cache is None:
+            raise Exception("未进行kv缓存初始化")
+        
+        self.timing_events[self.TimingEventType.START_FUNCTION] = time.perf_counter()
+        # 使用最后一个token作为输入
+        gen_input_ids = pre_cache.pre_input_ids[:, -1:]
+        gen_attention_mask = pre_cache.pre_attention_mask
+        past_key_values = pre_cache.past_key_values
+
+        for i in range(max_new_tokens):
+            self.timing_events[self.TimingEventType.START_INFERENCE] = time.perf_counter()
+            # 使用模型生成下一个token
+            with torch.no_grad():
+                outputs = self.model(
+                    input_ids=gen_input_ids,
+                    attention_mask=gen_attention_mask,
+                    past_key_values=past_key_values,
+                    use_cache=True,
+                    return_dict=True
+                )
+            
+            # 获取logits并生成下一个token
+            next_token_logits = outputs.logits[:, -1, :]
+            self.timing_events[self.TimingEventType.RETURN_LOGITS] = time.perf_counter()
+            next_token_id = self._decode_logits(next_token_logits, temperature, top_p, repetition_penalty)
+            # 检查是否是EOS token
+            is_eos = next_token_id.item() == self.tokenizer.eos_token_id
+            # 解码生成的token
+            generated_token_text = self.tokenizer.decode(next_token_id[0], skip_special_tokens=True) 
+            self.timing_events[self.TimingEventType.DECODE_TOKEN] = time.perf_counter()
+           
+            # 更新KV缓存和输入ID序列
+            past_key_values = outputs.past_key_values
+            gen_input_ids = next_token_id
+            
+            # 更新attention_mask
+            # attention_mask需要小心处理，因为它需要覆盖整个序列的长度
+            # 包括缓存的部分和新的部分
+            gen_attention_mask = torch.cat(
+                [gen_attention_mask, torch.ones(next_token_id.shape, device=self.device)], 
+                dim=-1
+            )
+            self.timing_events[self.TimingEventType.END_FUNCTION] = time.perf_counter()
+            yield generated_token_text
+
+            # 如果生成结束，则返回
+            if eval or is_eos:
+                break
+
+        return None
+
+    
+    def stream_add_and_generate(self, prompt:Generator[tuple[str, bool], None, None], system_prompt:str="You are a helpful assistant responding in Chinese.", max_new_tokens=50, temperature=0.1, top_p=0.9, repetition_penalty=1.1) -> Generator[tuple[str, float, float], None, None]:
         """
         通过文本生成器流式添加提示词并生成下一个token。
         prompt: 文本生成器，每个元素为tuple[str, bool]，其中str为文本片段，bool为是否结束。
@@ -173,32 +227,47 @@ class StreamLLMInference:
             {"role": "user", "content": init_user_text}
         ]
 
-        # 初始化KV缓存
-        past_key_values, current_input_ids, current_attention_mask = self._init_kv_cache(messages)
+        prompt_text = self.tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True
+        )
+        logger.debug(f"init prompt:{prompt_text}")
 
+        # 截取用户信息之后的内容
+        index = prompt_text.find(init_user_text)
+        generator_text = prompt_text[index + len(init_user_text):]
+        init_prompt = prompt_text[:index + len(init_user_text)]
+        logger.debug(f"generator_text:{generator_text}")
+        logger.debug(f"init_prompt:{init_prompt}")
+
+        # 初始化KV缓存
+        past_key_values, current_input_ids, current_attention_mask = self._init_kv_cache(init_prompt)
         # 如果生成结束，直接生成token，并返回
         if first_text[1]:
             logger.info(f"生成结束，直接生成token")
-            text = first_text + self.generation_prompt
+            text = first_text + generator_text
             logger.info(f"流式添加提示词结束生成提示符: {text}")
+            start_inference_time = time.perf_counter()
             for token, token_time in self._stream_generate_tokens(past_key_values, current_input_ids, current_attention_mask, max_new_tokens, temperature, top_p, repetition_penalty):
-                yield token, token_time
+                yield token, token_time, start_inference_time
             return
 
         # 如果生成未结束，则流式添加提示词
         for text, is_end in prompt:
             logger.info(f"流式添加提示词: {text}, 是否结束: {is_end}")
             if is_end:            
-                text += self.generation_prompt
+                text += generator_text
                 logger.info(f"流式添加提示词结束生成提示符: {text}")
-            past_key_values, current_input_ids, current_attention_mask = self._add_stream_prompt(past_key_values, current_input_ids, current_attention_mask, text)
+            past_key_values, new_input_ids, current_attention_mask = self._add_stream_prompt(past_key_values, current_attention_mask, text)
 
         
         # 流式生成token
+        start_inference_time = time.perf_counter()
         logger.info(f"流式生成token")
         logger.info(f"is eval mode: {self.eval_mode}")
-        for token, token_time in self._stream_generate_tokens(past_key_values, current_input_ids, current_attention_mask, max_new_tokens, temperature, top_p, repetition_penalty):
-            yield token, token_time
+        for token, token_time in self._stream_generate_tokens(past_key_values, new_input_ids, current_attention_mask, max_new_tokens, temperature, top_p, repetition_penalty):
+            yield token, token_time, start_inference_time
             
     def stream_add_and_generate_queue(self, prompt_queue: queue.Queue[Tuple[str, bool]], system_prompt:str="You are a helpful assistant responding in Chinese.", max_new_tokens=50, temperature=0.1, top_p=0.9, repetition_penalty=1.1) -> Generator[tuple[str, bool], None, None]:
         """
@@ -246,17 +315,37 @@ class StreamLLMInference:
         for token, token_time in self._stream_generate_tokens(past_key_values, current_input_ids, current_attention_mask, max_new_tokens, temperature, top_p, repetition_penalty):
             yield token, token_time
 
-    def _init_kv_cache(self, messages) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def _init_kv_cache(self, prompt_text) -> KVCache:
         """
         使用初始化prompt进行KV缓存首次计算
         Returns:
             tuple: (past_key_values, input_ids, attention_mask)
         """
-        prompt_text = self.tokenizer.apply_chat_template(
-                messages,
-                tokenize=False,
-                add_generation_prompt=False
+        self.timing_events[self.TimingEventType.START_KV_CACHE] = time.perf_counter()
+        model_inputs = self.tokenizer([prompt_text], return_tensors="pt", padding=True).to(self.device)
+        with torch.no_grad():
+            outputs = self.model(
+                input_ids=model_inputs.input_ids,
+                attention_mask=model_inputs.attention_mask,
+                use_cache=True,
+                return_dict=True
             )
+        
+        self.timing_events[self.TimingEventType.END_KV_CACHE] = time.perf_counter()
+        return self.KVCache(outputs.past_key_values, model_inputs.input_ids, model_inputs.attention_mask)
+
+    def _init_kv_cache_streaming(self, system_prompt: str, initial_user_text: str) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """
+        为流式输入初始化KV缓存，只包含system prompt和初始用户文本，不包含结束标记
+        Returns:
+            tuple: (past_key_values, input_ids, attention_mask)
+        """
+        # 手动构建prompt，避免添加 <|im_end|> 结束标记
+        # 对于Qwen模型，格式通常是: <|im_start|>system\n{content}<|im_end|>\n<|im_start|>user\n{content}
+        prompt_text = f"<|im_start|>system\n{system_prompt}<|im_end|>\n<|im_start|>user\n{initial_user_text}"
+        
+        logger.debug(f"初始化流式KV缓存，prompt: '{prompt_text}'")
+        
         model_inputs = self.tokenizer([prompt_text], return_tensors="pt", padding=True).to(self.device)
         with torch.no_grad():
             outputs = self.model(
@@ -267,41 +356,108 @@ class StreamLLMInference:
             )
         return outputs.past_key_values, model_inputs.input_ids, model_inputs.attention_mask
         
-    def _add_stream_prompt(self, past_key_values, current_input_ids, current_attention_mask, text_fragments) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def _add_stream_prompt(self, pre_cache:KVCache, text_fragments) -> KVCache:
         """
         流式添加提示词，并更新KV缓存。
         """
         # 流式添加提示词，并更新KV缓存。
-        # 返回新的past_key_values, current_input_ids, current_attention_mask
+        # 返回新的past_key_values, current_attention_mask
         # 处理新的文本片段（如果存在）
-        if text_fragments:
-            new_fragment_inputs = self.tokenizer(text_fragments, return_tensors="pt", add_special_tokens=False).to(self.device)
-            new_fragment_ids = new_fragment_inputs.input_ids
-            
-            if new_fragment_ids.shape[1] > 0: # 如果新片段有有效token
-                logger.debug(f"处理新的文本片段，token数量: {new_fragment_ids.shape[1]}")
-                
-                # 直接处理新片段，不传递position_ids，让模型自动处理
-                with torch.no_grad():
-                    outputs = self.model(
-                        input_ids=new_fragment_ids,
-                        past_key_values=past_key_values,
-                        use_cache=True,
-                        return_dict=True
-                    )
-                
-                # 更新状态
-                new_past_key_values = outputs.past_key_values
-                new_current_input_ids = torch.cat([current_input_ids, new_fragment_ids], dim=1)
+        if text_fragments == None or len(text_fragments) == 0:
+            raise Exception("要添加的文本为空！")
+        self.timing_events[self.TimingEventType.START_KV_CACHE] = time.perf_counter()
+        new_fragment_inputs = self.tokenizer(text_fragments, return_tensors="pt", add_special_tokens=False).to(self.device)
+        new_fragment_ids = new_fragment_inputs.input_ids
+        
+        if new_fragment_ids.shape[1] == 0: # 如果新片段没有有效token
+            raise Exception("新片段没有有效token！")
+        logger.debug(f"处理新的文本片段，token数量: {new_fragment_ids.shape[1]}")
+        
+        # attention_mask需要小心处理，因为它需要覆盖整个序列的长度
+        # 包括缓存的部分和新的部分
+        attention_mask = torch.cat(
+            [pre_cache.pre_attention_mask, torch.ones(new_fragment_ids.shape, device=self.device)], 
+            dim=-1
+        )
+        with torch.no_grad():
+            outputs = self.model(
+                input_ids=new_fragment_ids,
+                past_key_values=pre_cache.past_key_values,
+                attention_mask=attention_mask, # 传入拼接后的完整 attention mask
+                use_cache=True,
+                return_dict=True
+                )
+        self.timing_events[self.TimingEventType.END_KV_CACHE] = time.perf_counter()
+        return self.KVCache(outputs.past_key_values, new_fragment_ids, attention_mask)
 
-                # 为新片段创建attention_mask
-                new_fragment_attention_mask = torch.ones_like(new_fragment_ids, device=self.device)
-                new_current_attention_mask = torch.cat([
-                    current_attention_mask,
-                    new_fragment_attention_mask
-                ], dim=1)
+    def _update_kv_cache_with_full_text(self, system_prompt: str, past_key_values, current_input_ids, current_attention_mask, full_user_text: str) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """
+        用完整的用户文本更新KV缓存，替换之前的用户文本部分
+        这是为流式ASR场景设计的，需要用累积的完整文本替换之前的部分文本
+        """
+        # 重新构建完整的对话，包含system prompt和完整的用户文本
+        full_prompt = f"<|im_start|>system\n{system_prompt}<|im_end|>\n<|im_start|>user\n{full_user_text}"
+        
+        logger.debug(f"更新KV缓存，使用完整文本: '{full_user_text[:50]}...'")
+        
+        model_inputs = self.tokenizer([full_prompt], return_tensors="pt", padding=True).to(self.device)
+        new_fragment_ids = model_inputs.input_ids
+        with torch.no_grad():
+            outputs = self.model(
+                input_ids=new_fragment_ids,
+                past_key_values=past_key_values,
+                use_cache=True,
+                return_dict=True
+            )
 
+        # 更新状态
+        new_past_key_values = outputs.past_key_values
+        new_current_input_ids = torch.cat([current_input_ids, new_fragment_ids], dim=1)
+
+        # 为新片段创建attention_mask
+        new_fragment_attention_mask = torch.ones_like(new_fragment_ids, device=self.device)
+        new_current_attention_mask = torch.cat([
+            current_attention_mask,
+            new_fragment_attention_mask
+        ], dim=1)
+        
         return new_past_key_values, new_current_input_ids, new_current_attention_mask
+
+    def _finalize_kv_cache_for_generation(self, past_key_values, current_input_ids, current_attention_mask) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        """
+        为生成阶段完成KV缓存，添加用户消息结束标记和生成提示符
+        """
+        # 添加用户消息结束标记和助手开始标记
+        end_tokens = "<|im_end|>\n<|im_start|>assistant\n"
+        
+        logger.debug(f"完成KV缓存，添加生成提示符: '{end_tokens}'")
+        
+        end_inputs = self.tokenizer(end_tokens, return_tensors="pt", add_special_tokens=False).to(self.device)
+        end_ids = end_inputs.input_ids
+        
+        if end_ids.shape[1] > 0:
+            with torch.no_grad():
+                outputs = self.model(
+                    input_ids=end_ids,
+                    past_key_values=past_key_values,
+                    use_cache=True,
+                    return_dict=True
+                )
+            
+            # 更新状态
+            new_past_key_values = outputs.past_key_values
+            new_current_input_ids = torch.cat([current_input_ids, end_ids], dim=1)
+            
+            # 更新attention_mask
+            end_attention_mask = torch.ones_like(end_ids, device=self.device)
+            new_current_attention_mask = torch.cat([
+                current_attention_mask,
+                end_attention_mask
+            ], dim=1)
+            
+            return new_past_key_values, new_current_input_ids, new_current_attention_mask
+        
+        return past_key_values, current_input_ids, current_attention_mask
 
     def _stream_generate_tokens(self, past_key_values, current_input_ids, current_attention_mask, max_new_tokens, temperature, top_p, repetition_penalty) -> Generator[tuple[str, float], None, None]:
         """
@@ -312,26 +468,27 @@ class StreamLLMInference:
             # 使用最后一个token作为输入
             gen_input_ids = current_input_ids[:, -1:]
             
-            # 计算正确的position_ids（参考stream_input_cache.py）
-            seq_length = current_input_ids.shape[1]
-            position_ids = torch.arange(seq_length - 1, seq_length, dtype=torch.long, device=gen_input_ids.device)
-            position_ids = position_ids.unsqueeze(0).expand_as(gen_input_ids)
+            # # 计算正确的position_ids（参考stream_input_cache.py）
+            # seq_length = current_input_ids.shape[1]
+            # position_ids = torch.arange(seq_length - 1, seq_length, dtype=torch.long, device=gen_input_ids.device)
+            # position_ids = position_ids.unsqueeze(0).expand_as(gen_input_ids)
             
-            # 处理attention_mask
-            gen_attention_mask = torch.cat([
-                current_attention_mask, 
-                torch.ones((current_attention_mask.shape[0], 1), 
-                            dtype=current_attention_mask.dtype, 
-                            device=current_attention_mask.device)
-            ], dim=-1)
+            # # 处理attention_mask
+            # gen_attention_mask = torch.cat([
+            #     current_attention_mask, 
+            #     torch.ones((current_attention_mask.shape[0], 1), 
+            #                 dtype=current_attention_mask.dtype, 
+            #                 device=current_attention_mask.device)
+            # ], dim=-1)
             # 如果是评估模式，只需要第一个token的响应时间即可，不需要将token进行转换
             # 使用模型生成下一个token
+            inference_start = time.perf_counter()
             with torch.no_grad():
                 outputs = self.model(
                     input_ids=gen_input_ids,
-                    attention_mask=gen_attention_mask,
+                    attention_mask=current_attention_mask,
                     past_key_values=past_key_values,
-                    position_ids=position_ids,
+                    # position_ids=position_ids,
                     use_cache=True,
                     return_dict=True
                 )
@@ -340,7 +497,10 @@ class StreamLLMInference:
             next_token_logits = outputs.logits[:, -1, :]
 
             # 这里实际token已经生成，可以作为首个token生成的评估时间点
-            yield self._decode_logits(next_token_logits, temperature, top_p, repetition_penalty), time.perf_counter()
+            logger.debug(f'first token generate cost:{time.perf_counter() - inference_start}')
+            next_token_id = self._decode_logits(next_token_logits, temperature, top_p, repetition_penalty)
+            next_str = self.tokenizer.decode(next_token_id[0], skip_special_tokens=True)
+            yield next_str, time.perf_counter()
             return
 
         # 非评估模式，需要完整生成token并解码
@@ -440,7 +600,7 @@ class StreamLLMInference:
         prompt_text = self.tokenizer.apply_chat_template(
                 messages,
                 tokenize=False,
-                add_generation_prompt=False
+                add_generation_prompt=True
             )
         logger.info(f"prompt_text: {prompt_text}")
         model_inputs = self.tokenizer([prompt_text], return_tensors="pt", padding=True).to(self.device)
@@ -457,8 +617,9 @@ class StreamLLMInference:
 
             # 获取logits并生成下一个token
             next_token_logits = outputs.logits[:, -1, :]
+            generated_token_time = time.perf_counter()           
             next_token_id = self._decode_logits(next_token_logits, temperature, top_p, repetition_penalty)
-            generated_token_time = time.perf_counter()
+
             yield self.tokenizer.decode(next_token_id[0], skip_special_tokens=True), generated_token_time
             return
         
