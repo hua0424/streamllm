@@ -10,7 +10,7 @@ import time
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.utils.logging_utils import get_logger, set_global_log_level
 
-llm_streamer = StreamLLMInference(device="auto", eval_mode=True)
+llm_streamer = StreamLLMInference(device="auto", eval_mode=False)
 # 测试文本
 test_text = '''
 安妮，你相信吗？我最近迷上了迷路的孩子，他们简直太令人震撼了，他们最新的回归曲雷震子一直都在我的播放列表里循环。
@@ -57,10 +57,12 @@ def warm_up():
         response_tokens = []
         first_token_time = None
         
-        for token, token_time in llm_streamer.once_add_and_generate(warm_test):
+        for token in llm_streamer.once_add_and_generate(warm_test):
             if first_token_time is None:
-                first_token_time = token_time - start_time
-            
+                first_token_event = llm_streamer.get_last_timings()
+                first_token_time = first_token_event[llm_streamer.TimingEventType.RETURN_LOGITS] - start_time
+                first_decode_time = first_token_event[llm_streamer.TimingEventType.DECODE_TOKEN] - start_time
+             
             logger.info(f"生成Token: '{token}'")
             response_tokens.append(token)
         
@@ -153,9 +155,11 @@ def main_once():
         response_tokens = []
         first_token_time = None
         
-        for token, token_time in llm_streamer.once_add_and_generate(test_text):
+        for token in llm_streamer.once_add_and_generate(test_text):
             if first_token_time is None:
-                first_token_time = token_time - start_time
+                first_token_event = llm_streamer.get_last_timings()
+                first_token_time = first_token_event[llm_streamer.TimingEventType.RETURN_LOGITS] - start_time
+                first_decode_time = first_token_event[llm_streamer.TimingEventType.DECODE_TOKEN] - start_time
             
             logger.info(f"生成Token: '{token}'")
             response_tokens.append(token)
@@ -178,5 +182,5 @@ def main_once():
 
 if __name__ == "__main__":
     warm_up()
+    main_once()    
     main()
-    main_once()
