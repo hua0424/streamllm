@@ -2,7 +2,7 @@ notebooks/logs/experiment.log
 __pycache__/
 **/__pycache__/
 node_modules/
-#experiments/datasets/
+experiments/datasets/
 report/
 logs/
 experiments/datasets/processed

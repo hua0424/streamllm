@@ -9,7 +9,7 @@ import soundfile as sf
 from pathlib import Path
 import logging
 import torch
-from streamaudio_segmenter import StreamAudioSegmenter, StreamState
+from streamaudio_segmenter import StreamAudioSegmenter, StreamState, AudioSegment
 
 # 设置日志
 logging.basicConfig(
@@ -84,26 +84,24 @@ def test_segmenter(audio_path, chunk_duration_ms=100, save_segments=False, save_
     
     for i, chunk in enumerate(chunks):
         # 处理音频块
-        segment, state, metadata = segmenter.process_audio(chunk, state)
+        audio_segment, state = segmenter.process_audio(chunk, state)
         
         # 记录累积的音频
         all_accumulated.append(state.accumulated_audio.copy())
         
         # 如果检测到完整段
-        if segment is not None:
-            segments.append(segment)
-            logger.info(f"Chunk {i+1}/{len(chunks)}: Segment detected! Duration: {metadata.get('segment_duration_s', 0):.2f}s")
+        if audio_segment is not None:
+            segments.append(audio_segment.audio)
+            logger.info(f"Chunk {i+1}/{len(chunks)}: Segment detected! ID: {audio_segment.segment_id}, Duration: {audio_segment.segment_duration_s:.2f}s")
         else:
             if i % 10 == 0:  # 每10个块打印一次状态
-                logger.debug(f"Chunk {i+1}/{len(chunks)}: Processing... "
-                           f"Accumulated: {metadata.get('accumulated_duration_s', 0):.2f}s, "
-                           f"Speaking: {metadata.get('is_speaking', False)}")
+                logger.debug(f"Chunk {i+1}/{len(chunks)}: Processing...")
     
     # 处理剩余数据
-    remaining, state = segmenter.flush(state)
-    if remaining is not None and len(remaining) > 0:
-        segments.append(remaining)
-        logger.info(f"Flushed remaining audio: {len(remaining)/sample_rate:.2f}s")
+    remaining_segment, state = segmenter.flush(state)
+    if remaining_segment is not None and len(remaining_segment.audio) > 0:
+        segments.append(remaining_segment.audio)
+        logger.info(f"Flushed remaining audio: ID: {remaining_segment.segment_id}, Duration: {remaining_segment.segment_duration_s:.2f}s")
     
     # 分析结果
     logger.info("\n" + "="*50)
