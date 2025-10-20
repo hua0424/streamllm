@@ -2,7 +2,8 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv() # 加载 .env 文件中的环境变量
-
+current_ld_path = os.environ.get('LD_LIBRARY_PATH', '')
+os.environ['LD_LIBRARY_PATH'] = f"/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.10/site-packages/nvidia/cudnn/lib/:{current_ld_path}"
 # --- 模型配置 ---
 LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME")
 ASR_MODEL_NAME = os.getenv("ASR_MODEL_NAME") # faster-whisper 模型大小

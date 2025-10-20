@@ -11274,3 +11274,257 @@ You are a helpful assistant responding in Chinese.<|im_end|>
 2025-08-19 07:09:19 - __main__ - INFO - 首Token延迟: 143.39 ms
 2025-08-19 07:09:19 - __main__ - INFO - 总生成时间: 2330.02 ms
 2025-08-19 07:09:19 - __main__ - INFO - 生成Token数量: 50
+2025-10-15 17:19:26 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cpu
+2025-10-15 17:19:27 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-15 17:19:27 - src.asr.faster_whisper_streamer - INFO - 17:19:27.366 开始处理音频队列，包含 2 个段，总时长: 1.79s
+2025-10-15 17:19:27 - src.asr.faster_whisper_streamer - INFO - 17:19:27.843 ✓ 处理完成: 输出文本长度 0 字符，耗时 0.477s
+2025-10-15 17:19:27 - src.asr.faster_whisper_streamer - INFO - 17:19:27.843 性能指标 - 段数: 1, 音频时长: 1.79s
+2025-10-15 17:19:27 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.477s, 实时率: 0.27
+2025-10-15 17:19:27 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.477s
+2025-10-15 17:19:27 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-15 17:22:39 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cpu
+2025-10-15 17:22:39 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-15 17:22:40 - src.asr.faster_whisper_streamer - INFO - 17:22:40.139 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-15 17:22:40 - src.asr.faster_whisper_streamer - INFO - 17:22:40.514 ✓ 处理完成: 输出文本长度 20 字符，耗时 0.375s
+2025-10-15 17:22:40 - src.asr.faster_whisper_streamer - INFO - 17:22:40.514 性能指标 - 段数: 2, 音频时长: 7.32s
+2025-10-15 17:22:40 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.375s, 实时率: 0.05
+2025-10-15 17:22:40 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.376s
+2025-10-15 17:22:40 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-15 17:22:40 - src.asr.faster_whisper_streamer - INFO - 17:22:40.742 开始处理音频队列，包含 3 个段，总时长: 11.96s
+2025-10-15 17:22:41 - src.asr.faster_whisper_streamer - INFO - 17:22:41.033 ✓ 处理完成: 输出文本长度 10 字符，耗时 0.291s
+2025-10-15 17:22:41 - src.asr.faster_whisper_streamer - INFO - 17:22:41.034 性能指标 - 段数: 2, 音频时长: 11.96s
+2025-10-15 17:22:41 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.291s, 实时率: 0.02
+2025-10-15 17:22:41 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.292s
+2025-10-15 17:22:41 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-15 17:22:41 - src.asr.faster_whisper_streamer - INFO - 17:22:41.040 开始处理音频队列，包含 3 个段，总时长: 12.62s
+2025-10-15 17:22:41 - src.asr.faster_whisper_streamer - INFO - 17:22:41.310 ✓ 处理完成: 输出文本长度 25 字符，耗时 0.270s
+2025-10-15 17:22:41 - src.asr.faster_whisper_streamer - INFO - 17:22:41.311 性能指标 - 段数: 2, 音频时长: 12.62s
+2025-10-15 17:22:41 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.270s, 实时率: 0.02
+2025-10-15 17:22:41 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.270s
+2025-10-15 17:22:41 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-15 17:33:16 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: medium on cpu
+2025-10-15 17:35:19 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-15 17:35:19 - src.asr.faster_whisper_streamer - INFO - 17:35:19.442 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-15 17:35:26 - src.asr.faster_whisper_streamer - INFO - 17:35:26.122 ✓ 处理完成: 输出文本长度 19 字符，耗时 5.064s
+2025-10-15 17:35:26 - src.asr.faster_whisper_streamer - INFO - 17:35:26.122 性能指标 - 段数: 2, 音频时长: 7.32s
+2025-10-15 17:35:26 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 5.063s, 实时率: 0.69
+2025-10-15 17:35:26 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 5.064s
+2025-10-15 17:35:26 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-15 17:35:26 - src.asr.faster_whisper_streamer - INFO - 17:35:26.357 开始处理音频队列，包含 3 个段，总时长: 11.96s
+2025-10-15 17:35:31 - src.asr.faster_whisper_streamer - INFO - 17:35:31.334 ✓ 处理完成: 输出文本长度 10 字符，耗时 4.977s
+2025-10-15 17:35:31 - src.asr.faster_whisper_streamer - INFO - 17:35:31.334 性能指标 - 段数: 2, 音频时长: 11.96s
+2025-10-15 17:35:31 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 4.977s, 实时率: 0.42
+2025-10-15 17:35:31 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 4.978s
+2025-10-15 17:35:31 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-15 17:35:31 - src.asr.faster_whisper_streamer - INFO - 17:35:31.342 开始处理音频队列，包含 3 个段，总时长: 12.62s
+2025-10-15 17:35:35 - src.asr.faster_whisper_streamer - INFO - 17:35:35.798 ✓ 处理完成: 输出文本长度 25 字符，耗时 4.455s
+2025-10-15 17:35:35 - src.asr.faster_whisper_streamer - INFO - 17:35:35.798 性能指标 - 段数: 2, 音频时长: 12.62s
+2025-10-15 17:35:35 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 4.455s, 实时率: 0.35
+2025-10-15 17:35:35 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 4.456s
+2025-10-15 17:35:35 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-15 17:58:30 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: medium on cpu
+2025-10-15 17:58:35 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-15 17:58:35 - src.asr.faster_whisper_streamer - INFO - 17:58:35.366 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-15 17:58:40 - src.asr.faster_whisper_streamer - INFO - 17:58:40.304 ✓ 处理完成: 输出文本长度 19 字符，耗时 4.938s
+2025-10-15 17:58:40 - src.asr.faster_whisper_streamer - INFO - 17:58:40.304 性能指标 - 段数: 2, 音频时长: 7.32s
+2025-10-15 17:58:40 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 4.937s, 实时率: 0.67
+2025-10-15 17:58:40 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 4.938s
+2025-10-15 17:58:40 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-15 17:58:40 - src.asr.faster_whisper_streamer - INFO - 17:58:40.548 开始处理音频队列，包含 3 个段，总时长: 11.96s
+2025-10-15 17:58:45 - src.asr.faster_whisper_streamer - INFO - 17:58:45.609 ✓ 处理完成: 输出文本长度 10 字符，耗时 5.060s
+2025-10-15 17:58:45 - src.asr.faster_whisper_streamer - INFO - 17:58:45.610 性能指标 - 段数: 2, 音频时长: 11.96s
+2025-10-15 17:58:45 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 5.060s, 实时率: 0.42
+2025-10-15 17:58:45 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 5.061s
+2025-10-15 17:58:45 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.002s
+2025-10-15 17:58:45 - src.asr.faster_whisper_streamer - INFO - 17:58:45.617 开始处理音频队列，包含 3 个段，总时长: 12.62s
+2025-10-15 17:58:50 - src.asr.faster_whisper_streamer - INFO - 17:58:50.103 ✓ 处理完成: 输出文本长度 25 字符，耗时 4.486s
+2025-10-15 17:58:50 - src.asr.faster_whisper_streamer - INFO - 17:58:50.103 性能指标 - 段数: 2, 音频时长: 12.62s
+2025-10-15 17:58:50 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 4.486s, 实时率: 0.36
+2025-10-15 17:58:50 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 4.487s
+2025-10-15 17:58:50 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-16 08:05:33 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-16 08:05:34 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 08:05:35 - src.asr.faster_whisper_streamer - INFO - 08:05:35.285 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 08:50:37 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-16 08:50:38 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 08:50:39 - src.asr.faster_whisper_streamer - INFO - 08:50:39.481 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 13:02:42 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-16 13:02:43 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 13:02:44 - src.asr.faster_whisper_streamer - INFO - 13:02:44.046 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 13:15:42 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-16 13:15:43 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 13:15:43 - src.asr.faster_whisper_streamer - INFO - 13:15:43.804 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 13:16:19 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-16 13:16:20 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 13:16:21 - src.asr.faster_whisper_streamer - INFO - 13:16:21.067 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 13:34:05 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-16 13:34:10 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 13:34:10 - src.asr.faster_whisper_streamer - INFO - 13:34:10.980 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 13:34:11 - src.asr.faster_whisper_streamer - ERROR - 转录过程中发生错误: cuDNN failed with status CUDNN_STATUS_NOT_INITIALIZED
+2025-10-16 13:34:11 - src.asr.faster_whisper_streamer - INFO - 13:34:11.519 开始处理音频队列，包含 4 个段，总时长: 11.96s
+2025-10-16 13:34:11 - src.asr.faster_whisper_streamer - ERROR - 转录过程中发生错误: cuDNN failed with status CUDNN_STATUS_NOT_INITIALIZED
+2025-10-16 13:34:11 - src.asr.faster_whisper_streamer - INFO - 13:34:11.543 开始处理音频队列，包含 5 个段，总时长: 12.62s
+2025-10-16 13:34:11 - src.asr.faster_whisper_streamer - ERROR - 转录过程中发生错误: cuDNN failed with status CUDNN_STATUS_NOT_INITIALIZED
+2025-10-16 13:35:15 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: large on cuda
+2025-10-16 13:35:21 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 13:35:21 - src.asr.faster_whisper_streamer - INFO - 13:35:21.667 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 13:35:21 - src.asr.faster_whisper_streamer - ERROR - 转录过程中发生错误: cuDNN failed with status CUDNN_STATUS_NOT_INITIALIZED
+2025-10-16 13:35:22 - src.asr.faster_whisper_streamer - INFO - 13:35:22.190 开始处理音频队列，包含 4 个段，总时长: 11.96s
+2025-10-16 13:35:22 - src.asr.faster_whisper_streamer - ERROR - 转录过程中发生错误: cuDNN failed with status CUDNN_STATUS_NOT_INITIALIZED
+2025-10-16 13:35:22 - src.asr.faster_whisper_streamer - INFO - 13:35:22.210 开始处理音频队列，包含 5 个段，总时长: 12.62s
+2025-10-16 13:35:22 - src.asr.faster_whisper_streamer - ERROR - 转录过程中发生错误: cuDNN failed with status CUDNN_STATUS_NOT_INITIALIZED
+2025-10-16 13:56:42 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: large on cuda
+2025-10-16 13:56:49 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 13:56:50 - src.asr.faster_whisper_streamer - INFO - 13:56:50.368 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 13:56:50 - src.asr.faster_whisper_streamer - ERROR - 转录过程中发生错误: cuDNN failed with status CUDNN_STATUS_NOT_INITIALIZED
+2025-10-16 13:56:50 - src.asr.faster_whisper_streamer - INFO - 13:56:50.953 开始处理音频队列，包含 4 个段，总时长: 11.96s
+2025-10-16 13:56:50 - src.asr.faster_whisper_streamer - ERROR - 转录过程中发生错误: cuDNN failed with status CUDNN_STATUS_NOT_INITIALIZED
+2025-10-16 13:56:50 - src.asr.faster_whisper_streamer - INFO - 13:56:50.975 开始处理音频队列，包含 5 个段，总时长: 12.62s
+2025-10-16 13:56:50 - src.asr.faster_whisper_streamer - ERROR - 转录过程中发生错误: cuDNN failed with status CUDNN_STATUS_NOT_INITIALIZED
+2025-10-16 14:00:55 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: medium on cuda
+2025-10-16 14:00:58 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 14:00:59 - src.asr.faster_whisper_streamer - INFO - 14:00:59.273 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 14:00:59 - src.asr.faster_whisper_streamer - ERROR - 转录过程中发生错误: cuDNN failed with status CUDNN_STATUS_NOT_INITIALIZED
+2025-10-16 14:00:59 - src.asr.faster_whisper_streamer - INFO - 14:00:59.869 开始处理音频队列，包含 4 个段，总时长: 11.96s
+2025-10-16 14:00:59 - src.asr.faster_whisper_streamer - ERROR - 转录过程中发生错误: cuDNN failed with status CUDNN_STATUS_NOT_INITIALIZED
+2025-10-16 14:00:59 - src.asr.faster_whisper_streamer - INFO - 14:00:59.890 开始处理音频队列，包含 5 个段，总时长: 12.62s
+2025-10-16 14:00:59 - src.asr.faster_whisper_streamer - ERROR - 转录过程中发生错误: cuDNN failed with status CUDNN_STATUS_NOT_INITIALIZED
+2025-10-16 14:16:43 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: medium on cuda
+2025-10-16 14:16:46 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 14:16:47 - src.asr.faster_whisper_streamer - INFO - 14:16:47.524 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 14:16:47 - src.asr.faster_whisper_streamer - ERROR - 转录过程中发生错误: cuDNN failed with status CUDNN_STATUS_NOT_INITIALIZED
+2025-10-16 14:16:47 - src.asr.faster_whisper_streamer - ERROR - GPU 模式下 cuDNN 初始化失败，无法继续执行
+2025-10-16 14:16:47 - src.asr.faster_whisper_streamer - ERROR - 请检查以下可能的原因：
+2025-10-16 14:16:47 - src.asr.faster_whisper_streamer - ERROR - 1. GPU 内存不足，尝试使用较小的模型（如 base 或 small）
+2025-10-16 14:16:47 - src.asr.faster_whisper_streamer - ERROR - 2. cuDNN 版本不兼容，尝试更新 cuDNN: conda install cudnn -c conda-forge
+2025-10-16 14:16:47 - src.asr.faster_whisper_streamer - ERROR - 3. NVIDIA 驱动程序版本过旧，尝试更新驱动程序
+2025-10-16 14:16:47 - src.asr.faster_whisper_streamer - ERROR - 4. 或者使用 CPU 模式: --device cpu
+2025-10-16 15:36:23 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-16 15:36:25 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 15:36:26 - src.asr.faster_whisper_streamer - INFO - 15:36:26.238 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 12:00:29 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-16 12:00:36 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 12:00:37 - src.asr.faster_whisper_streamer - INFO - 12:00:37.245 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 12:36:52 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-16 12:36:53 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 12:36:54 - src.asr.faster_whisper_streamer - INFO - 12:36:54.310 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 12:50:30 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-16 12:50:31 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 12:50:32 - src.asr.faster_whisper_streamer - INFO - 12:50:32.182 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 13:05:38 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-16 13:05:39 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 13:05:40 - src.asr.faster_whisper_streamer - INFO - 13:05:40.275 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 13:12:51 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-16 13:12:52 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 13:12:52 - src.asr.faster_whisper_streamer - INFO - 13:12:52.721 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 13:12:53 - src.asr.faster_whisper_streamer - INFO - 13:12:53.476 ✓ 处理完成: 输出文本长度 20 字符，耗时 0.685s
+2025-10-16 13:12:53 - src.asr.faster_whisper_streamer - INFO - 13:12:53.476 性能指标 - 段数: 2, 音频时长: 7.32s
+2025-10-16 13:12:53 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.684s, 实时率: 0.09
+2025-10-16 13:12:53 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.685s
+2025-10-16 13:12:53 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-16 13:12:54 - src.asr.faster_whisper_streamer - INFO - 13:12:54.054 开始处理音频队列，包含 3 个段，总时长: 11.96s
+2025-10-16 13:12:54 - src.asr.faster_whisper_streamer - INFO - 13:12:54.233 ✓ 处理完成: 输出文本长度 10 字符，耗时 0.179s
+2025-10-16 13:12:54 - src.asr.faster_whisper_streamer - INFO - 13:12:54.233 性能指标 - 段数: 2, 音频时长: 11.96s
+2025-10-16 13:12:54 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.179s, 实时率: 0.01
+2025-10-16 13:12:54 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.180s
+2025-10-16 13:12:54 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-16 13:12:54 - src.asr.faster_whisper_streamer - INFO - 13:12:54.248 开始处理音频队列，包含 3 个段，总时长: 12.62s
+2025-10-16 13:12:54 - src.asr.faster_whisper_streamer - INFO - 13:12:54.395 ✓ 处理完成: 输出文本长度 25 字符，耗时 0.147s
+2025-10-16 13:12:54 - src.asr.faster_whisper_streamer - INFO - 13:12:54.396 性能指标 - 段数: 2, 音频时长: 12.62s
+2025-10-16 13:12:54 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.146s, 实时率: 0.01
+2025-10-16 13:12:54 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.148s
+2025-10-16 13:12:54 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-16 13:31:13 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: medium on cuda
+2025-10-16 13:31:36 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 13:31:37 - src.asr.faster_whisper_streamer - INFO - 13:31:37.521 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 13:31:38 - src.asr.faster_whisper_streamer - INFO - 13:31:38.461 ✓ 处理完成: 输出文本长度 19 字符，耗时 0.940s
+2025-10-16 13:31:38 - src.asr.faster_whisper_streamer - INFO - 13:31:38.461 性能指标 - 段数: 2, 音频时长: 7.32s
+2025-10-16 13:31:38 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.939s, 实时率: 0.13
+2025-10-16 13:31:38 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.940s
+2025-10-16 13:31:38 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-16 13:31:39 - src.asr.faster_whisper_streamer - INFO - 13:31:39.067 开始处理音频队列，包含 3 个段，总时长: 11.96s
+2025-10-16 13:31:39 - src.asr.faster_whisper_streamer - INFO - 13:31:39.691 ✓ 处理完成: 输出文本长度 10 字符，耗时 0.624s
+2025-10-16 13:31:39 - src.asr.faster_whisper_streamer - INFO - 13:31:39.692 性能指标 - 段数: 2, 音频时长: 11.96s
+2025-10-16 13:31:39 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.624s, 实时率: 0.05
+2025-10-16 13:31:39 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.625s
+2025-10-16 13:31:39 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-16 13:31:39 - src.asr.faster_whisper_streamer - INFO - 13:31:39.709 开始处理音频队列，包含 3 个段，总时长: 12.62s
+2025-10-16 13:31:40 - src.asr.faster_whisper_streamer - INFO - 13:31:40.218 ✓ 处理完成: 输出文本长度 25 字符，耗时 0.509s
+2025-10-16 13:31:40 - src.asr.faster_whisper_streamer - INFO - 13:31:40.218 性能指标 - 段数: 2, 音频时长: 12.62s
+2025-10-16 13:31:40 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.508s, 实时率: 0.04
+2025-10-16 13:31:40 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.509s
+2025-10-16 13:31:40 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-16 13:32:43 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: large on cuda
+2025-10-16 13:34:12 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-16 13:34:13 - src.asr.faster_whisper_streamer - INFO - 13:34:13.255 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-16 13:34:14 - src.asr.faster_whisper_streamer - INFO - 13:34:14.454 ✓ 处理完成: 输出文本长度 19 字符，耗时 1.199s
+2025-10-16 13:34:14 - src.asr.faster_whisper_streamer - INFO - 13:34:14.454 性能指标 - 段数: 2, 音频时长: 7.32s
+2025-10-16 13:34:14 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.198s, 实时率: 0.16
+2025-10-16 13:34:14 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.199s
+2025-10-16 13:34:14 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-16 13:34:15 - src.asr.faster_whisper_streamer - INFO - 13:34:15.085 开始处理音频队列，包含 3 个段，总时长: 11.96s
+2025-10-16 13:34:15 - src.asr.faster_whisper_streamer - INFO - 13:34:15.966 ✓ 处理完成: 输出文本长度 10 字符，耗时 0.881s
+2025-10-16 13:34:15 - src.asr.faster_whisper_streamer - INFO - 13:34:15.966 性能指标 - 段数: 2, 音频时长: 11.96s
+2025-10-16 13:34:15 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.880s, 实时率: 0.07
+2025-10-16 13:34:15 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.881s
+2025-10-16 13:34:15 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-16 13:34:15 - src.asr.faster_whisper_streamer - INFO - 13:34:15.981 开始处理音频队列，包含 3 个段，总时长: 12.62s
+2025-10-16 13:34:16 - src.asr.faster_whisper_streamer - INFO - 13:34:16.687 ✓ 处理完成: 输出文本长度 24 字符，耗时 0.706s
+2025-10-16 13:34:16 - src.asr.faster_whisper_streamer - INFO - 13:34:16.687 性能指标 - 段数: 2, 音频时长: 12.62s
+2025-10-16 13:34:16 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.705s, 实时率: 0.06
+2025-10-16 13:34:16 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.706s
+2025-10-16 13:34:16 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-17 10:55:27 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-17 10:55:28 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-17 10:55:28 - src.asr.faster_whisper_streamer - INFO - 10:55:28.743 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-17 11:06:19 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-17 11:06:27 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-17 11:06:27 - src.asr.faster_whisper_streamer - INFO - 11:06:27.601 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-17 11:08:49 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-17 11:08:50 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-17 11:08:51 - src.asr.faster_whisper_streamer - INFO - 11:08:51.054 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO - 11:08:52.090 ✓ 处理完成: 输出文本长度 20 字符，耗时 1.036s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO - 11:08:52.091 性能指标 - 段数: 2, 音频时长: 7.32s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.036s, 实时率: 0.14
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.037s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO - 11:08:52.617 开始处理音频队列，包含 3 个段，总时长: 11.96s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO - 11:08:52.735 ✓ 处理完成: 输出文本长度 10 字符，耗时 0.118s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO - 11:08:52.735 性能指标 - 段数: 2, 音频时长: 11.96s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.117s, 实时率: 0.01
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.118s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO - 11:08:52.747 开始处理音频队列，包含 3 个段，总时长: 12.62s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO - 11:08:52.853 ✓ 处理完成: 输出文本长度 25 字符，耗时 0.106s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO - 11:08:52.853 性能指标 - 段数: 2, 音频时长: 12.62s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.106s, 实时率: 0.01
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.106s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-17 11:08:52 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: tiny on cuda
+2025-10-17 11:08:53 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-17 11:09:19 - src.asr.faster_whisper_streamer - INFO - 加载音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/experiments/datasets/processed/experiments/length_analysis/audio/long/sample_001.wav, 时长: 12.62s
+2025-10-17 11:09:19 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: '按你 你相信嗎我最近迷上了迷路的孩子他們簡局太令人震撼了他們最新的回歸去了一陣子一直都在我的播放列表律循環', 耗时: 0.38s
+2025-10-17 11:10:13 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: large on cuda
+2025-10-17 11:10:35 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-17 11:10:35 - src.asr.faster_whisper_streamer - INFO - 11:10:35.689 开始处理音频队列，包含 3 个段，总时长: 7.32s
+2025-10-17 11:10:36 - src.asr.faster_whisper_streamer - INFO - 11:10:36.668 ✓ 处理完成: 输出文本长度 19 字符，耗时 0.979s
+2025-10-17 11:10:36 - src.asr.faster_whisper_streamer - INFO - 11:10:36.669 性能指标 - 段数: 2, 音频时长: 7.32s
+2025-10-17 11:10:36 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.979s, 实时率: 0.13
+2025-10-17 11:10:36 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.980s
+2025-10-17 11:10:36 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-17 11:10:37 - src.asr.faster_whisper_streamer - INFO - 11:10:37.198 开始处理音频队列，包含 3 个段，总时长: 11.96s
+2025-10-17 11:10:37 - src.asr.faster_whisper_streamer - INFO - 11:10:37.857 ✓ 处理完成: 输出文本长度 10 字符，耗时 0.659s
+2025-10-17 11:10:37 - src.asr.faster_whisper_streamer - INFO - 11:10:37.857 性能指标 - 段数: 2, 音频时长: 11.96s
+2025-10-17 11:10:37 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.658s, 实时率: 0.06
+2025-10-17 11:10:37 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.659s
+2025-10-17 11:10:37 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-17 11:10:37 - src.asr.faster_whisper_streamer - INFO - 11:10:37.869 开始处理音频队列，包含 3 个段，总时长: 12.62s
+2025-10-17 11:10:38 - src.asr.faster_whisper_streamer - INFO - 11:10:38.378 ✓ 处理完成: 输出文本长度 24 字符，耗时 0.509s
+2025-10-17 11:10:38 - src.asr.faster_whisper_streamer - INFO - 11:10:38.379 性能指标 - 段数: 2, 音频时长: 12.62s
+2025-10-17 11:10:38 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.509s, 实时率: 0.04
+2025-10-17 11:10:38 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.510s
+2025-10-17 11:10:38 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2025-10-17 11:10:38 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: large on cuda
+2025-10-17 11:10:51 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2025-10-17 11:10:58 - src.asr.faster_whisper_streamer - INFO - 加载音频文件: /usr/local/app/jupyterlab/yanjiu/streamllm/experiments/datasets/processed/experiments/length_analysis/audio/long/sample_001.wav, 时长: 12.62s
+2025-10-17 11:11:00 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: '安妮,你相信吗?我最近迷上了迷路的孩子,他们简直太令人震撼了,他们最新的回归曲雷震子一直都在我的播放列表里循环。', 耗时: 0.17s
