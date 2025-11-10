@@ -117,7 +117,7 @@ class StreamLLMInference:
         return self.timing_events
 
     def reset_timings(self):
-        return self.timing_events.clear
+        self.timing_events.clear()
     
     def cache_prompt(self, prompt:str, pre_cache:KVCache | None = None, is_end:bool = False, system_prompt:str = "You are a helpful assistant responding in Chinese.") -> KVCache:
         """

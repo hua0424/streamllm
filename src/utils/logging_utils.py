@@ -65,7 +65,7 @@ def get_logger(name, level=None, log_file=None):
 
         # 生产环境优化的格式：更简洁
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S'
         )
 

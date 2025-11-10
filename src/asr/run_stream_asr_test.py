@@ -14,6 +14,9 @@ import time
 import json
 import os
 from typing import List, Dict, Tuple, Optional
+import threading
+import queue
+from concurrent.futures import ThreadPoolExecutor
 
 # 首先导入配置，确保环境变量在其他模块导入之前设置好
 import src.config
@@ -25,28 +28,300 @@ from src.asr.streamaudio_segmenter import StreamAudioSegmenter, StreamState, Aud
 from src.asr.faster_whisper_streamer import StreamingASRProcessor, ASRCache, ASRAudioSegment
 
 # 设置日志
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from src.utils.logging_utils import get_logger, set_global_log_level
+logger = get_logger(__name__)
+set_global_log_level("DEBUG")  # 设置全局日志级别为 DEBUG
 
-def simulate_streaming(audio_data: np.ndarray, chunk_size: int) -> List[np.ndarray]:
+
+class MultiThreadStreamingASR:
     """
-    模拟流式音频输入
+    多线程流式ASR系统
+    三个独立线程：音频生成、音频分段、转录处理
+    """
     
-    Args:
-        audio_data: 完整的音频数据
-        chunk_size: 每次输入的块大小（采样点数）
+    def __init__(self, audio_path: str, chunk_duration_ms: int = 100,
+                 model_size: str = "tiny", device: str = "cuda",
+                 simulate_streaming_delay: bool = False):
+        """
+        初始化多线程流式ASR系统
         
-    Returns:
-        List[np.ndarray]: 音频块列表
-    """
-    chunks = []
-    for i in range(0, len(audio_data), chunk_size):
-        chunk = audio_data[i:i+chunk_size]
-        chunks.append(chunk)
-    return chunks
+        Args:
+            audio_path: 音频文件路径
+            chunk_duration_ms: 音频块时长（毫秒）
+            model_size: Whisper模型大小
+            device: 计算设备
+            simulate_streaming_delay: 是否模拟实际音频产生的延迟
+        """
+        self.audio_path = audio_path
+        self.chunk_duration_ms = chunk_duration_ms
+        self.model_size = model_size
+        self.device = device
+        self.simulate_streaming_delay = simulate_streaming_delay
+        
+        # 加载音频文件
+        logger.info(f"Loading audio file: {audio_path}")
+        self.audio_data, self.sample_rate = sf.read(audio_path, dtype='float32')
+        self.audio_duration = len(self.audio_data) / self.sample_rate
+        
+        # 如果是立体声，转换为单声道
+        if len(self.audio_data.shape) > 1:
+            self.audio_data = self.audio_data.mean(axis=1)
+            logger.info("Converted stereo to mono")
+        
+        logger.info(f"Audio loaded: shape={self.audio_data.shape}, sample_rate={self.sample_rate}, duration={self.audio_duration:.2f}s")
+        
+        # 计算块大小
+        self.chunk_size = int(self.sample_rate * self.chunk_duration_ms / 1000)
+        logger.info(f"Chunk size: {self.chunk_size} samples ({self.chunk_duration_ms}ms)")
+        
+        # 创建队列
+        self.audio_chunk_queue = queue.Queue()  # 音频块队列
+        self.audio_segment_queue = queue.Queue()  # 音频段队列
+        self.transcription_queue = queue.Queue()  # 转录结果队列
+        
+        # 创建事件
+        self.stop_event = threading.Event()
+        self.audio_generation_complete = threading.Event()
+        self.segmentation_complete = threading.Event()
+        
+        # 创建组件
+        self.segmenter = StreamAudioSegmenter(
+            sampling_rate=self.sample_rate,
+            silence_threshold=0.5,
+            min_speech_duration_ms=500,
+            min_silence_duration_ms=300,
+            window_size_ms=64
+        )
+        
+        compute_type = "float16" if device == "cuda" else "int8"
+        self.asr_processor = StreamingASRProcessor(
+            model_size=model_size,
+            device=device,
+            compute_type=compute_type,
+            recognition_threshold=1.0,
+            prefix_segments=1
+        )
+        
+        # 创建线程
+        self.audio_generation_thread = None
+        self.segmentation_thread = None
+        self.transcription_thread = None
+        
+        # 结果
+        self.results = {
+            'test_mode': 'streaming',
+            'audio_file': audio_path,
+            'audio_duration': self.audio_duration,
+            'model_size': model_size,
+            'device': device,
+            'full_transcription': "",
+            'response_time': 0.0
+        }
+        
+        # 时间记录
+        self.start_time = 0
+        self.last_chunk_time = 0
+        self.transcription_complete_time = 0
+    
+    def start(self):
+        """启动所有线程"""
+        self.start_time = time.time()
+        
+        # 启动音频生成线程
+        self.audio_generation_thread = threading.Thread(
+            target=self._audio_generation_worker,
+            name="AudioGeneration"
+        )
+        self.audio_generation_thread.start()
+        
+        # 启动音频分段线程
+        self.segmentation_thread = threading.Thread(
+            target=self._segmentation_worker,
+            name="Segmentation"
+        )
+        self.segmentation_thread.start()
+        
+        # 启动转录线程
+        self.transcription_thread = threading.Thread(
+            target=self._transcription_worker,
+            name="Transcription"
+        )
+        self.transcription_thread.start()
+        
+        logger.info("All threads started")
+    
+    def stop(self):
+        """停止所有线程"""
+        self.stop_event.set()
+        
+        # 等待所有线程完成
+        if self.audio_generation_thread and self.audio_generation_thread.is_alive():
+            self.audio_generation_thread.join()
+        
+        if self.segmentation_thread and self.segmentation_thread.is_alive():
+            self.segmentation_thread.join()
+        
+        if self.transcription_thread and self.transcription_thread.is_alive():
+            self.transcription_thread.join()
+        
+        logger.info("All threads stopped")
+    
+    def _audio_generation_worker(self):
+        """音频生成工作线程"""
+        logger.info("Audio generation thread started")
+        
+        try:
+            # 计算总块数
+            total_chunks = (len(self.audio_data) + self.chunk_size - 1) // self.chunk_size
+            logger.info(f"Total chunks: {total_chunks}")
+            
+            for i in range(0, len(self.audio_data), self.chunk_size):
+                if self.stop_event.is_set():
+                    break
+                    
+                chunk = self.audio_data[i:i+self.chunk_size]
+                logger.debug(f"Generated chunk {i//self.chunk_size + 1}/{total_chunks}")
+                
+                # 将音频块放入队列
+                self.audio_chunk_queue.put((i//self.chunk_size, chunk))
+                
+                # 如果启用了延迟模拟，等待相应时间
+                if self.simulate_streaming_delay and i + self.chunk_size < len(self.audio_data):
+                    time.sleep(self.chunk_duration_ms / 1000)  # 转换为秒
+                
+                # 更新最后一个chunk处理完成的时间
+                self.last_chunk_time = time.time()
+            
+            # 音频生成完成
+            self.audio_generation_complete.set()
+            logger.info("Audio generation completed")
+            
+        except Exception as e:
+            logger.error(f"Error in audio generation thread: {e}")
+    
+    def _segmentation_worker(self):
+        """音频分段工作线程"""
+        logger.info("Segmentation thread started")
+        
+        try:
+            # 创建分段器状态
+            segmenter_state = self.segmenter.create_state()
+            
+            while not self.stop_event.is_set():
+                try:
+                    # 从队列获取音频块，设置超时以避免永久阻塞
+                    chunk_id, chunk = self.audio_chunk_queue.get(timeout=0.1)
+                    logger.debug(f"Processing chunk {chunk_id + 1} in segmentation thread")
+                    
+                    # 使用分段器处理音频块
+                    stream_segment, segmenter_state = self.segmenter.process_audio(chunk, segmenter_state)
+                    
+                    # 如果检测到音频段，放入音频段队列
+                    if stream_segment is not None:
+                        segment_id = f"seg_{len(self.audio_segment_queue.queue) + 1:03d}"
+                        
+                        # 判断是否为开始或结束段
+                        is_start = (len(self.audio_segment_queue.queue) == 0)
+                        is_final = (self.audio_generation_complete.is_set() and
+                                  self.audio_chunk_queue.empty() and
+                                  len(segmenter_state.accumulated_audio) == 0)
+                        
+                        # 转换为ASR音频段
+                        asr_segment = convert_audio_segment(
+                            stream_segment, segment_id, is_start, is_final
+                        )
+                        
+                        logger.debug(f"Generated segment {segment_id}: [{asr_segment.start_time:.2f}s-{asr_segment.end_time:.2f}s]")
+                        
+                        # 将音频段放入队列
+                        self.audio_segment_queue.put(asr_segment)
+                    
+                    # 标记任务完成
+                    self.audio_chunk_queue.task_done()
+                    
+                except queue.Empty:
+                    # 队列为空，检查是否音频生成已完成
+                    if self.audio_generation_complete.is_set() and self.audio_chunk_queue.empty():
+                        break
+                    continue
+            
+            # 处理剩余的音频数据
+            logger.info("Processing remaining audio data...")
+            remaining_segment, segmenter_state = self.segmenter.flush(segmenter_state)
+            
+            if remaining_segment is not None and len(remaining_segment.audio) > 0:
+                segment_id = f"seg_{len(self.audio_segment_queue.queue) + 1:03d}"
+                asr_segment = convert_audio_segment(remaining_segment, segment_id, False, True)
+                
+                logger.info(f"Generated final segment {segment_id}: [{asr_segment.start_time:.2f}s-{asr_segment.end_time:.2f}s]")
+                
+                # 将最终音频段放入队列
+                self.audio_segment_queue.put(asr_segment)
+            
+            # 分段完成
+            self.segmentation_complete.set()
+            logger.info("Segmentation completed")
+            
+        except Exception as e:
+            logger.error(f"Error in segmentation thread: {e}")
+    
+    def _transcription_worker(self):
+        """转录工作线程"""
+        logger.info("Transcription thread started")
+        
+        try:
+            # 创建ASR缓存
+            asr_cache = ASRCache()
+            transcription_text = ""
+            
+            while not self.stop_event.is_set():
+                try:
+                    # 从队列获取音频段，设置超时以避免永久阻塞
+                    asr_segment = self.audio_segment_queue.get(timeout=0.1)
+                    logger.debug(f"Processing segment {asr_segment.id} in transcription thread")
+                    
+                    # 使用ASR处理器处理音频段
+                    asr_cache, output_text = self.asr_processor.transcribe_audio_segment(asr_cache, asr_segment)
+                    
+                    # 如果有输出文本，更新转录结果
+                    if output_text:
+                        transcription_text += output_text + " "
+                        logger.info(f"  Transcription: '{output_text}'")
+                        
+                        # 将转录结果放入队列
+                        self.transcription_queue.put({
+                            'segment_id': asr_segment.id,
+                            'text': output_text,
+                            'timestamp': time.time() - self.start_time
+                        })
+                    
+                    # 标记任务完成
+                    self.audio_segment_queue.task_done()
+                    
+                except queue.Empty:
+                    # 队列为空，检查是否分段已完成
+                    if self.segmentation_complete.is_set() and self.audio_segment_queue.empty():
+                        break
+                    continue
+            
+            # 记录转录完成时间
+            self.transcription_complete_time = time.time()
+            
+            # 计算响应时间
+            response_time = self.transcription_complete_time - self.last_chunk_time
+            
+            # 更新结果
+            self.results['full_transcription'] = transcription_text.strip()
+            self.results['response_time'] = response_time
+            
+            logger.info("Transcription completed")
+            
+        except Exception as e:
+            logger.error(f"Error in transcription thread: {e}")
+    
+    def get_results(self) -> Dict:
+        """获取测试结果"""
+        return self.results
 
 
 def convert_audio_segment(stream_segment: AudioSegment, segment_id: str, 
@@ -90,6 +365,36 @@ def test_complete_asr(audio_path: str, save_results: bool = True, results_dir: s
         Dict: 测试结果
     """
     
+    # 创建流式ASR处理器
+    # 根据设备选择合适的计算类型
+    compute_type = "float16" if device == "cuda" else "int8"
+    
+    asr_processor = StreamingASRProcessor(
+        model_size=model_size,  # 使用指定的模型
+        device=device,
+        compute_type=compute_type,
+        recognition_threshold=1.0,  # 2秒阈值
+        prefix_segments=1
+    )
+    
+    logger.info(f"ASR处理器初始化完成: 模型={model_size}, 设备={device}, 计算类型={compute_type}")
+    
+    # 初始化结果记录
+    results = {
+        'test_mode': 'complete',
+        'audio_file': audio_path,
+        'model_size': model_size,
+        'device': device,
+        'full_transcription': "",
+        'response_time': 0.0  # 初始化为float类型
+    }
+    
+    # 记录开始时间（音频加载开始）
+    start_time = time.time()
+    
+    # 记录开始时间（音频加载开始）
+    start_time = time.time()
+    
     logger.info(f"Loading audio file: {audio_path}")
     
     # 加载音频文件获取基本信息
@@ -102,67 +407,24 @@ def test_complete_asr(audio_path: str, save_results: bool = True, results_dir: s
         audio_data = audio_data.mean(axis=1)
         logger.info("Converted stereo to mono")
     
-    # 创建流式ASR处理器
-    # 根据设备选择合适的计算类型
-    compute_type = "float16" if device == "cuda" else "int8"
+    # 更新结果中的音频时长
+    results['audio_duration'] = audio_duration
     
-    asr_processor = StreamingASRProcessor(
-        model_size=model_size,  # 使用指定的模型
-        device=device,
-        compute_type=compute_type,
-        recognition_threshold=2.0,  # 2秒阈值
-        prefix_segments=1
-    )
+    # 使用StreamingASRProcessor的transcribe_complete_audio方法，传递已加载的音频数据
+    logger.info(f"Starting transcription for audio with duration: {audio_duration:.2f}s")
+    complete_result = asr_processor.transcribe_complete_audio(audio_path, audio_data, sample_rate)
     
-    logger.info(f"ASR处理器初始化完成: 模型={model_size}, 设备={device}, 计算类型={compute_type}")
+    # 记录转录完成时间
+    transcription_complete_time = time.time()
     
-    # 初始化结果记录
-    results = {
-        'test_mode': 'complete',
-        'audio_file': audio_path,
-        'audio_duration': audio_duration,
-        'sample_rate': sample_rate,
-        'model_size': model_size,
-        'device': device,
-        'compute_type': compute_type,
-        'transcriptions': [],
-        'total_processing_time': 0.0,
-        'performance_metrics': {}
-    }
+    # 计算从音频加载开始到转录文本生成的响应时间
+    response_time = transcription_complete_time - start_time
     
-    # 记录开始时间
-    start_time = time.time()
-    
-    # 使用完整音频转录方法
-    try:
-        complete_result = asr_processor.transcribe_complete_audio(audio_path)
-    except Exception as e:
-        if "cuDNN" in str(e) and ("NOT_INITIALIZED" in str(e) or "STATUS_NOT_INITIALIZED" in str(e)):
-            logger.error(f"处理完整音频时发生 cuDNN 错误: {e}")
-            logger.error("程序终止")
-            raise e
-        else:
-            logger.error(f"处理完整音频时发生错误: {e}")
-            raise e
-    
-    # 计算总处理时间
-    total_processing_time = time.time() - start_time
-    results['total_processing_time'] = total_processing_time
-    results['real_time_factor'] = total_processing_time / audio_duration if audio_duration > 0 else 0
+    logger.info(f"Complete transcription finished: '{complete_result['text']}', took: {complete_result['timing']['transcription_time']:.2f}s")
     
     # 记录转录结果
     results['full_transcription'] = complete_result['text']
-    results['transcription_result'] = complete_result
-    
-    # 记录每个段的信息
-    for i, segment in enumerate(complete_result['segments']):
-        results['transcriptions'].append({
-            'segment_id': f"seg_{i+1:03d}",
-            'text': segment['text'],
-            'start_time': segment['start'],
-            'end_time': segment['end'],
-            'timestamp': segment['start']  # 使用开始时间作为时间戳
-        })
+    results['response_time'] = response_time
     
     # 打印结果摘要
     logger.info("\n" + "="*60)
@@ -171,8 +433,7 @@ def test_complete_asr(audio_path: str, save_results: bool = True, results_dir: s
     logger.info(f"Audio file: {audio_path}")
     logger.info(f"Audio duration: {audio_duration:.2f}s")
     logger.info(f"Model size: {model_size}")
-    logger.info(f"Total processing time: {total_processing_time:.2f}s")
-    logger.info(f"Real-time factor: {results['real_time_factor']:.2f}")
+    logger.info(f"Response time (load to transcription): {response_time:.3f}s")
     logger.info(f"Full transcription: '{results['full_transcription']}'")
     
     # 保存结果
@@ -184,9 +445,10 @@ def test_complete_asr(audio_path: str, save_results: bool = True, results_dir: s
 
 def test_streaming_asr(audio_path: str, chunk_duration_ms: int = 100,
                       save_results: bool = True, results_dir: str = "experiments/results",
-                      model_size: str = "tiny", device: str = "cuda") -> Dict:
+                      model_size: str = "tiny", device: str = "cuda",
+                      simulate_streaming_delay: bool = False) -> Dict:
     """
-    测试流式ASR系统
+    测试多线程流式ASR系统
     
     Args:
         audio_path: 音频文件路径
@@ -195,212 +457,52 @@ def test_streaming_asr(audio_path: str, chunk_duration_ms: int = 100,
         results_dir: 结果保存目录
         model_size: Whisper模型大小
         device: 计算设备 ("cuda" 或 "cpu")
+        simulate_streaming_delay: 是否模拟实际音频产生的延迟
         
     Returns:
         Dict: 测试结果
     """
     
-    logger.info(f"Loading audio file: {audio_path}")
-    
-    # 加载音频文件
-    audio_data, sample_rate = sf.read(audio_path, dtype='float32')
-    audio_duration = len(audio_data) / sample_rate
-    logger.info(f"Audio loaded: shape={audio_data.shape}, sample_rate={sample_rate}, duration={audio_duration:.2f}s")
-    
-    # 如果是立体声，转换为单声道
-    if len(audio_data.shape) > 1:
-        audio_data = audio_data.mean(axis=1)
-        logger.info("Converted stereo to mono")
-    
-    # 创建流式音频分段器
-    segmenter = StreamAudioSegmenter(
-        sampling_rate=sample_rate,
-        silence_threshold=0.5,
-        min_speech_duration_ms=250,
-        min_silence_duration_ms=300,
-        window_size_ms=64
-    )
-    
-    # 创建流式ASR处理器
-    # 根据设备选择合适的计算类型
-    compute_type = "float16" if device == "cuda" else "int8"
-    
-    asr_processor = StreamingASRProcessor(
-        model_size=model_size,  # 使用指定的模型
+    # 创建多线程流式ASR系统
+    logger.info(f"Initializing multi-thread streaming ASR system")
+    streaming_asr = MultiThreadStreamingASR(
+        audio_path=audio_path,
+        chunk_duration_ms=chunk_duration_ms,
+        model_size=model_size,
         device=device,
-        compute_type=compute_type,
-        recognition_threshold=2.0,  # 2秒阈值
-        prefix_segments=1
+        simulate_streaming_delay=simulate_streaming_delay
     )
     
-    logger.info(f"ASR处理器初始化完成: 模型={model_size}, 设备={device}, 计算类型={compute_type}")
+    logger.info(f"ASR系统初始化完成: 模型={model_size}, 设备={device}")
     
-    # 计算块大小
-    chunk_size = int(sample_rate * chunk_duration_ms / 1000)
-    logger.info(f"Chunk size: {chunk_size} samples ({chunk_duration_ms}ms)")
+    # 启动多线程处理
+    streaming_asr.start()
     
-    # 模拟流式输入
-    chunks = simulate_streaming(audio_data, chunk_size)
-    logger.info(f"Total chunks: {len(chunks)}")
+    # 等待处理完成
+    logger.info("Waiting for processing to complete...")
     
-    # 创建状态和缓存
-    segmenter_state = segmenter.create_state()
-    asr_cache = ASRCache()
+    # 监控处理进度
+    while not streaming_asr.segmentation_complete.is_set() or not streaming_asr.audio_segment_queue.empty():
+        time.sleep(0.1)
     
-    # 初始化结果记录
-    results = {
-        'test_mode': 'streaming',
-        'audio_file': audio_path,
-        'audio_duration': audio_duration,
-        'sample_rate': sample_rate,
-        'chunk_duration_ms': chunk_duration_ms,
-        'model_size': model_size,
-        'device': device,
-        'compute_type': compute_type,
-        'segments': [],
-        'transcriptions': [],
-        'total_processing_time': 0.0,
-        'performance_metrics': {}
-    }
+    # 等待转录完成
+    while not streaming_asr.transcription_complete_time:
+        time.sleep(0.1)
     
-    # 处理每个音频块
-    segment_count = 0
-    transcription_text = ""
-    start_time = time.time()
+    # 停止系统
+    streaming_asr.stop()
     
-    for i, chunk in enumerate(chunks):
-        logger.debug(f"Processing chunk {i+1}/{len(chunks)}")
-        
-        # 使用分段器处理音频块
-        stream_segment, segmenter_state = segmenter.process_audio(chunk, segmenter_state)
-        
-        # 如果检测到音频段，转换为ASR音频段并处理
-        if stream_segment is not None:
-            segment_count += 1
-            segment_id = f"seg_{segment_count:03d}"
-            
-            # 判断是否为开始或结束段
-            is_start = (segment_count == 1)
-            is_final = (i == len(chunks) - 1 and len(segmenter_state.accumulated_audio) == 0)
-            
-            # 转换音频段格式
-            asr_segment = convert_audio_segment(
-                stream_segment, segment_id, is_start, is_final
-            )
-            
-            logger.info(f"Segment {segment_count}: [{asr_segment.start_time:.2f}s-{asr_segment.end_time:.2f}s] "
-                       f"Duration: {asr_segment.duration:.2f}s")
-            
-            # 使用ASR处理器处理音频段
-            try:
-                asr_cache, output_text = asr_processor.transcribe_audio_segment(asr_cache, asr_segment)
-            except Exception as e:
-                if "cuDNN" in str(e) and ("NOT_INITIALIZED" in str(e) or "STATUS_NOT_INITIALIZED" in str(e)):
-                    logger.error(f"处理音频段 {segment_id} 时发生 cuDNN 错误: {e}")
-                    logger.error("程序终止")
-                    raise e
-                else:
-                    logger.error(f"处理音频段 {segment_id} 时发生错误: {e}")
-                    raise e
-            
-            # 如果有输出文本，更新转录结果
-            if output_text:
-                transcription_text += output_text + " "
-                logger.info(f"  Transcription: '{output_text}'")
-                
-                # 记录转录结果
-                results['transcriptions'].append({
-                    'segment_id': segment_id,
-                    'text': output_text,
-                    'start_time': asr_segment.start_time,
-                    'end_time': asr_segment.end_time,
-                    'timestamp': time.time() - start_time
-                })
-            
-            # 记录段信息
-            results['segments'].append({
-                'segment_id': segment_id,
-                'start_time': asr_segment.start_time,
-                'end_time': asr_segment.end_time,
-                'duration': asr_segment.duration,
-                'is_start': is_start,
-                'is_final': is_final,
-                'text': output_text
-            })
-    
-    # 处理剩余的音频数据
-    logger.info("Processing remaining audio data...")
-    remaining_segment, segmenter_state = segmenter.flush(segmenter_state)
-    
-    if remaining_segment is not None and len(remaining_segment.audio) > 0:
-        segment_count += 1
-        segment_id = f"seg_{segment_count:03d}"
-        
-        # 转换音频段格式
-        asr_segment = convert_audio_segment(remaining_segment, segment_id, False, True)
-        
-        logger.info(f"Final segment: [{asr_segment.start_time:.2f}s-{asr_segment.end_time:.2f}s] "
-                   f"Duration: {asr_segment.duration:.2f}s")
-        
-        # 使用ASR处理器处理音频段
-        try:
-            asr_cache, output_text = asr_processor.transcribe_audio_segment(asr_cache, asr_segment)
-        except Exception as e:
-            if "cuDNN" in str(e) and ("NOT_INITIALIZED" in str(e) or "STATUS_NOT_INITIALIZED" in str(e)):
-                logger.error(f"处理最终音频段 {segment_id} 时发生 cuDNN 错误: {e}")
-                logger.error("程序终止")
-                raise e
-            else:
-                logger.error(f"处理最终音频段 {segment_id} 时发生错误: {e}")
-                raise e
-        
-        # 如果有输出文本，更新转录结果
-        if output_text:
-            transcription_text += output_text
-            logger.info(f"  Transcription: '{output_text}'")
-            
-            # 记录转录结果
-            results['transcriptions'].append({
-                'segment_id': segment_id,
-                'text': output_text,
-                'start_time': asr_segment.start_time,
-                'end_time': asr_segment.end_time,
-                'timestamp': time.time() - start_time
-            })
-        
-        # 记录段信息
-        results['segments'].append({
-            'segment_id': segment_id,
-            'start_time': asr_segment.start_time,
-            'end_time': asr_segment.end_time,
-            'duration': asr_segment.duration,
-            'is_start': False,
-            'is_final': True,
-            'text': output_text
-        })
-    
-    # 计算总处理时间
-    total_processing_time = time.time() - start_time
-    results['total_processing_time'] = total_processing_time
-    results['real_time_factor'] = total_processing_time / audio_duration if audio_duration > 0 else 0
-    
-    # 获取性能指标
-    performance_metrics = asr_processor.get_performance_metrics()
-    results['performance_metrics'] = performance_metrics
-    
-    # 完整转录文本
-    results['full_transcription'] = transcription_text.strip()
+    # 获取结果
+    results = streaming_asr.get_results()
     
     # 打印结果摘要
     logger.info("\n" + "="*60)
     logger.info("STREAMING ASR TEST RESULTS")
     logger.info("="*60)
     logger.info(f"Audio file: {audio_path}")
-    logger.info(f"Audio duration: {audio_duration:.2f}s")
+    logger.info(f"Audio duration: {results['audio_duration']:.2f}s")
     logger.info(f"Model size: {model_size}")
-    logger.info(f"Total segments: {segment_count}")
-    logger.info(f"Total processing time: {total_processing_time:.2f}s")
-    logger.info(f"Real-time factor: {results['real_time_factor']:.2f}")
+    logger.info(f"Response time (last chunk to transcription): {results['response_time']:.3f}s")
     logger.info(f"Full transcription: '{results['full_transcription']}'")
     
     # 保存结果
@@ -442,16 +544,6 @@ def save_complete_test_results(results: Dict, results_dir: str, audio_path: str)
     with open(transcription_path, 'w', encoding='utf-8') as f:
         f.write(results['full_transcription'])
     logger.info(f"  Saved transcription to: {transcription_path}")
-    
-    # 保存段信息
-    segments_path = test_dir / "segments.csv"
-    with open(segments_path, 'w', encoding='utf-8') as f:
-        f.write("segment_id,text,start_time,end_time,timestamp\n")
-        for transcription in results['transcriptions']:
-            f.write(f"{transcription['segment_id']},\"{transcription['text']}\","
-                   f"{transcription['start_time']:.3f},{transcription['end_time']:.3f},"
-                   f"{transcription['timestamp']:.3f}\n")
-    logger.info(f"  Saved segments to: {segments_path}")
 
 
 def save_test_results(results: Dict, results_dir: str, audio_path: str) -> None:
@@ -486,28 +578,6 @@ def save_test_results(results: Dict, results_dir: str, audio_path: str) -> None:
     with open(transcription_path, 'w', encoding='utf-8') as f:
         f.write(results['full_transcription'])
     logger.info(f"  Saved transcription to: {transcription_path}")
-    
-    # 保存段信息
-    segments_path = test_dir / "segments.csv"
-    with open(segments_path, 'w', encoding='utf-8') as f:
-        f.write("segment_id,start_time,end_time,duration,is_start,is_final,text\n")
-        for segment in results['segments']:
-            f.write(f"{segment['segment_id']},{segment['start_time']:.3f},"
-                   f"{segment['end_time']:.3f},{segment['duration']:.3f},"
-                   f"{segment['is_start']},{segment['is_final']},"
-                   f"\"{segment['text'] or ''}\"\n")
-    logger.info(f"  Saved segments to: {segments_path}")
-    
-    # 保存转录时间线
-    timeline_path = test_dir / "timeline.csv"
-    with open(timeline_path, 'w', encoding='utf-8') as f:
-        f.write("segment_id,text,start_time,end_time,timestamp\n")
-        for transcription in results['transcriptions']:
-            segment = next(s for s in results['segments'] if s['segment_id'] == transcription['segment_id'])
-            f.write(f"{transcription['segment_id']},\"{transcription['text']}\","
-                   f"{segment['start_time']:.3f},{segment['end_time']:.3f},"
-                   f"{transcription['timestamp']:.3f}\n")
-    logger.info(f"  Saved timeline to: {timeline_path}")
 
 
 if __name__ == "__main__":
@@ -521,7 +591,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--audio", "-a",
         type=str,
-        default="experiments/datasets/processed/experiments/length_analysis/audio/short/sample_001.wav",
+        default="experiments/datasets/processed/experiments/length_analysis/audio/long/sample_001.wav",
         help="音频文件路径"
     )
     
@@ -570,6 +640,13 @@ if __name__ == "__main__":
         help="测试模式: streaming(流式ASR), complete(完整音频ASR), both(两种都测试)"
     )
     
+    parser.add_argument(
+        "--simulate-streaming-delay",
+        action="store_true",
+        default=False,
+        help="是否模拟实际音频产生的延迟"
+    )
+    
     # 解析参数
     args = parser.parse_args()
     
@@ -592,6 +669,7 @@ if __name__ == "__main__":
     logger.info(f"Test mode: {args.test_mode}")
     if args.test_mode in ["streaming", "both"]:
         logger.info(f"Chunk duration: {args.chunk_duration}ms")
+        logger.info(f"Simulate streaming delay: {args.simulate_streaming_delay}")
     logger.info(f"Model size: {args.model_size}")
     logger.info(f"Device: {args.device}")
     logger.info(f"Save results: {args.save_results}")
@@ -608,7 +686,8 @@ if __name__ == "__main__":
                 save_results=args.save_results,
                 results_dir=args.results_dir,
                 model_size=args.model_size,
-                device=args.device
+                device=args.device,
+                simulate_streaming_delay=args.simulate_streaming_delay
             )
             logger.info("\nStreaming ASR test completed successfully!")
             
@@ -632,7 +711,8 @@ if __name__ == "__main__":
                 save_results=args.save_results,
                 results_dir=args.results_dir,
                 model_size=args.model_size,
-                device=args.device
+                device=args.device,
+                simulate_streaming_delay=args.simulate_streaming_delay
             )
             
             logger.info("\nRunning complete ASR test...")
@@ -648,11 +728,10 @@ if __name__ == "__main__":
             logger.info("\n" + "="*60)
             logger.info("COMPARISON RESULTS")
             logger.info("="*60)
-            logger.info(f"Streaming ASR - First text time: {streaming_results['transcriptions'][0]['timestamp']:.3f}s")
-            logger.info(f"Complete ASR - Total processing time: {complete_results['total_processing_time']:.3f}s")
-            logger.info(f"Streaming ASR - Total processing time: {streaming_results['total_processing_time']:.3f}s")
-            logger.info(f"Complete ASR - Real-time factor: {complete_results['real_time_factor']:.2f}")
-            logger.info(f"Streaming ASR - Real-time factor: {streaming_results['real_time_factor']:.2f}")
+            logger.info(f"Audio duration: {streaming_results['audio_duration']:.2f}s")
+            logger.info(f"Streaming ASR - Response time (last chunk to transcription): {streaming_results['response_time']:.3f}s")
+            logger.info(f"Complete ASR - Response time (load to transcription): {complete_results['response_time']:.3f}s")
+            logger.info(f"Time difference: {streaming_results['response_time'] - complete_results['response_time']:.3f}s")
             
             # 比较转录文本
             logger.info(f"Streaming ASR transcription: '{streaming_results['full_transcription']}'")

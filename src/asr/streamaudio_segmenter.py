@@ -13,7 +13,8 @@ from enum import Enum, auto
 from typing import Dict
 import time
 
-logger = logging.getLogger(__name__)
+from src.utils.logging_utils import get_logger
+logger = get_logger(__name__)
 
 class TimingEventType(Enum):
     """时间事件类型枚举类，用于性能分析"""
@@ -222,7 +223,7 @@ class StreamAudioSegmenter:
                     # 设置时间信息
                     abs_start_time = state.current_speech_start
                     abs_end_time = state.current_speech_start + segment_duration_s
-                    state.current_speech_start += segment_duration_s
+                    state.current_speech_start = abs_end_time
                     
                     break
 
@@ -232,15 +233,6 @@ class StreamAudioSegmenter:
         else:
             # 没有语音活动
             state.is_speaking = False
-            
-            # 如果累积了太多静音数据，清理缓冲区（5秒静音）
-            if len(state.accumulated_audio) > self.sampling_rate * 5:
-                state.current_speech_start += len(state.accumulated_audio) / self.sampling_rate
-                state.accumulated_audio = np.array([], dtype=np.float32)
-                buffer_cleared = True
-        
-        # 更新时间偏移
-        state.current_speech_start += segment_duration_s if segment_detected or buffer_cleared else 0.0
         
         # 如果检测到完整段，创建AudioSegment对象
         if segment_detected and completed_segment is not None:

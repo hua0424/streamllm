@@ -25,7 +25,7 @@ logger = get_logger(__name__)
 # 常量定义
 DEFAULT_AUDIO_FORMAT = "float32"
 DEFAULT_SAMPLE_RATE = 16000
-DEFAULT_BEAM_SIZE = 1
+DEFAULT_BEAM_SIZE = 5
 DEFAULT_TEMPERATURE = 0.0
 DEFAULT_COMPRESSION_RATIO_THRESHOLD = 2.4
 DEFAULT_LOG_PROB_THRESHOLD = -1.0
@@ -96,17 +96,20 @@ class ASRCache:
             return None
         segment = self.segment_queue.pop(0)
         return segment
-        
-    def should_process(self, recognition_threshold: float, prefix_segments: int, is_final: bool) -> bool:
+
+    def should_process(self, recognition_threshold: float, prefix_segments: int, suffix_segments_atleast: int, is_final: bool) -> bool:
         """判断是否应该处理当前队列中的音频段"""
         queue_length = len(self.segment_queue)
+
+        if is_final:
+            return True
         
         # 检查是否达到识别阈值
-        if self.total_duration < recognition_threshold and not is_final:
+        if self.total_duration < recognition_threshold:
             return False
             
-        # 检查语音段数是否满足最低要求（前缀段数 + 本身 + 后续至少1段）
-        if queue_length < prefix_segments + 2 and not is_final:
+        # 检查语音段数是否满足最低要求（前缀段数 + 本身 + 后续最少段数）
+        if queue_length < prefix_segments + suffix_segments_atleast + 1:
             return False
             
         return True
@@ -125,6 +128,7 @@ class StreamingASRProcessor:
         recognition_threshold: float = 3.0,  # 识别阈值(秒)
         sample_rate: int = 16000, # 音频采样率
         prefix_segments: int = 1, # 前缀段数
+        suffix_segments_atleast: int = 1, # 最少后缀段数
     ):
         """
         初始化流式ASR处理器
@@ -160,6 +164,7 @@ class StreamingASRProcessor:
         self.recognition_threshold = recognition_threshold
         self.sample_rate = sample_rate
         self.prefix_segments = prefix_segments
+        self.suffix_segments_atleast = suffix_segments_atleast
         
         # 用于记录详细延迟的变量
         self.timing_events: Dict[TimingEventType, float] = {}
@@ -282,12 +287,14 @@ class StreamingASRProcessor:
         """重置时间事件记录"""
         self.timing_events.clear()
     
-    def transcribe_complete_audio(self, audio_path: str) -> Dict:
+    def transcribe_complete_audio(self, audio_path: str, audio_data: Optional[np.ndarray] = None, sample_rate: Optional[int] = None) -> Dict:
         """
         完整音频文件转录（用于基线系统）
         
         Args:
             audio_path: 音频文件路径
+            audio_data: 可选的已加载音频数据，如果提供则不会重新加载
+            sample_rate: 可选的音频采样率，与audio_data一起提供
             
         Returns:
             转录结果字典，包含文本和时序信息
@@ -295,22 +302,43 @@ class StreamingASRProcessor:
         try:
             import librosa
             
-            # 加载音频文件
+            # 记录开始时间
             start_time = time.time()
-            audio_data, sr = librosa.load(audio_path, sr=self.sample_rate)
-            audio_duration = len(audio_data) / sr
-            load_time = time.time() - start_time
             
-            logger.info(f"加载音频文件: {audio_path}, 时长: {audio_duration:.2f}s")
+            # 如果提供了音频数据，直接使用；否则加载音频文件
+            if audio_data is not None:
+                if sample_rate is None:
+                    raise ValueError("如果提供了audio_data，则必须提供sample_rate")
+                
+                # 确保音频数据是float32格式
+                if audio_data.dtype != np.float32:
+                    audio_data = audio_data.astype(np.float32)
+                
+                # 如果是立体声，转换为单声道
+                if len(audio_data.shape) > 1:
+                    audio_data = audio_data.mean(axis=1)
+                
+                audio_duration = len(audio_data) / sample_rate
+                load_time = 0  # 因为没有重新加载，所以加载时间为0
+                
+                logger.debug(f"使用提供的音频数据: shape={audio_data.shape}, sample_rate={sample_rate}, duration={audio_duration:.2f}s")
+            else:
+                # 加载音频文件
+                audio_data, sr = librosa.load(audio_path, sr=self.sample_rate)
+                sample_rate = sr
+                audio_duration = len(audio_data) / sample_rate
+                load_time = time.time() - start_time
+                
+                logger.info(f"加载音频文件: {audio_path}, 时长: {audio_duration:.2f}s")
             
             # 使用Whisper进行完整转录
             transcription_start = time.time()
             segments_result, info = self.model.transcribe(
                 audio_data,
-                beam_size=5,  # 基线系统使用较高beam size以获得更好质量
-                language="zh",
+                beam_size=DEFAULT_BEAM_SIZE,  # 基线系统使用较高beam size以获得更好质量
+                # language="zh",
                 word_timestamps=True,
-                vad_filter=True,
+                vad_filter=False,
                 temperature=DEFAULT_TEMPERATURE,
                 compression_ratio_threshold=DEFAULT_COMPRESSION_RATIO_THRESHOLD,
                 log_prob_threshold=DEFAULT_LOG_PROB_THRESHOLD,
@@ -368,7 +396,7 @@ class StreamingASRProcessor:
             logger.error(f"音频转录失败: {e}")
             raise e
     
-    def transcribe_audio_segment(self, cache: ASRCache, audio_segment: ASRAudioSegment) -> Tuple[ASRCache, Optional[str]]:
+    def transcribe_audio_segment(self, cache: ASRCache) -> Tuple[ASRCache, Optional[str]]:
         """
         添加音频块并返回新的转录文本，输出文本可能为空
         
@@ -392,21 +420,18 @@ class StreamingASRProcessor:
             cache = ASRCache()
             logger.debug("创建新的ASR缓存对象")
 
-        if audio_segment is None:
-            logger.warning("接收到空的音频段，跳过处理")
-            return cache, None
-        
+        audio_segment = cache.segment_queue[-1]  # 获取最新添加的音频段
+         
         # 使用ASRCache的新方法添加段
-        cache.add_segment(audio_segment)
-        logger.debug(f"添加音频段 {audio_segment.id} 到队列，当前队列长度: {len(cache.segment_queue)}")
+        logger.debug(f"最新音频段 {audio_segment.id} 到队列，当前队列长度: {len(cache.segment_queue)}")
 
-        # 检查是否应该处理当前队列
-        if not cache.should_process(self.recognition_threshold, self.prefix_segments, audio_segment.is_final):
+       # 检查是否应该处理当前队列
+        if not cache.should_process(self.recognition_threshold, self.prefix_segments, self.suffix_segments_atleast, audio_segment.is_final):
             return cache, None
 
         # 开始进行语音识别
         self.timing_events[TimingEventType.START_ASR] = time.perf_counter()
-        logger.info(f"{format_timestamp()} 开始处理音频队列，包含 {len(cache.segment_queue)} 个段，总时长: {cache.total_duration:.2f}s")
+        logger.debug(f"开始处理音频队列，包含 {len(cache.segment_queue)} 个段，总时长: {cache.total_duration:.2f}s")
 
         current_recognition = self._transcribe_segments(cache.segment_queue)
         
@@ -436,8 +461,9 @@ class StreamingASRProcessor:
 
         # 删除已处理的段
         if output_segment_indices:
-            # 只删除第一个输出的段，保持上下文
-            cache.remove_first_segment()
+            # 删除保留段数以前的所有段
+            for _ in range(len(output_segment_indices)):  
+                cache.remove_first_segment()
 
         # 记录结束时间
         self.timing_events[TimingEventType.END_ASR] = time.perf_counter()
@@ -465,12 +491,12 @@ class StreamingASRProcessor:
         if current_segment.is_final:
             return list(range(self.prefix_segments, queue_length))
 
-        # 如果是流式开始，输出前缀段数+1个段
+        # 如果是流式开始，输出保留段数之前的所有段
         if cache.segment_queue[0].is_start:
-            return list(range(0, self.prefix_segments + 1))
+            return list(range(0, queue_length - self.suffix_segments_atleast))
         
-        # 一般情况：输出第前缀段数+1个段
-        return [self.prefix_segments]
+        # 一般情况：输出中间段，不要输出前缀和后缀段
+        return list(range(self.prefix_segments, queue_length - self.suffix_segments_atleast))
         
     def _extract_output_text(self, cache: ASRCache, output_indices: List[int]) -> str:
         """
@@ -529,7 +555,7 @@ class StreamingASRProcessor:
         segments_result, info = self.model.transcribe(
             combined_audio,
             beam_size=DEFAULT_BEAM_SIZE,  # 使用常量
-            language="zh",  # 明确指定中文，避免语言检测开销
+            # language="zh",  # 明确指定中文，避免语言检测开销
             word_timestamps=True,  # 启用词级时间戳，用于精确匹配
             vad_filter=False,  # 关闭VAD过滤，因为我们已经用分段器处理过了
             temperature=DEFAULT_TEMPERATURE,  # 使用常量
@@ -633,12 +659,16 @@ class StreamingASRProcessor:
                 overlap_end = min(word_end, segment_end_offset)
                 overlap_duration = max(0, overlap_end - overlap_start)
                 word_duration = word_end - word_start
-                
-                # 如果重叠度超过词的50%，则归属于该段
-                if word_duration > 0 and (overlap_duration / word_duration) >= 0.5:
+
+                if word_end >= segment_start_offset and word_end <= segment_end_offset:
                     matched_words.append(word['text'])
-                    logger.debug(f"      词匹配: {word['text']} [{word_start:.2f}s-{word_end:.2f}s] "
-                               f"重叠度: {overlap_duration/word_duration:.2f}")
+                    logger.debug(f"      词匹配: {word['text']} [{word_start:.2f}s-{word_end:.2f}s] ")
+                        
+                # # 如果重叠度超过词的50%，则归属于该段
+                # if word_duration > 0 and (overlap_duration / word_duration) >= 0.5:
+                #     matched_words.append(word['text'])
+                #     logger.debug(f"      词匹配: {word['text']} [{word_start:.2f}s-{word_end:.2f}s] "
+                #                f"重叠度: {overlap_duration/word_duration:.2f}")
         
         if matched_words:
             result_text = ''.join(matched_words).strip()
