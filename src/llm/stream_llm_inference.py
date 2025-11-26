@@ -108,10 +108,11 @@ class StreamLLMInference:
 
 
     class KVCache:
-        def __init__(self, past_key_values:torch.Tensor, pre_input_ids:torch.Tensor, pre_attention_mask:torch.Tensor):
+        def __init__(self, past_key_values:torch.Tensor, pre_input_ids:torch.Tensor, pre_attention_mask:torch.Tensor, next_token_logits: torch.Tensor = None):
             self.past_key_values = past_key_values
             self.pre_input_ids = pre_input_ids
             self.pre_attention_mask = pre_attention_mask
+            self.next_token_logits = next_token_logits # 新增：保存最后的logits
 
     def get_last_timings(self):
         return self.timing_events
@@ -156,23 +157,42 @@ class StreamLLMInference:
         return result
     
     def generate(self, pre_cache:KVCache | None, max_new_tokens=50, temperature=0.1, top_p=0.9, repetition_penalty=1.1) -> Generator[str, None, None]:
-        """
-        使用预计算缓存生成回复
-        @eval 是否评估模式，True=评估模式，只生成首个token
-        """
         self.reset_timings()
         if pre_cache is None:
             raise Exception("未进行kv缓存初始化")
         
         self.timing_events[self.TimingEventType.START_FUNCTION] = time.perf_counter()
-        # 使用最后一个token作为输入
-        gen_input_ids = pre_cache.pre_input_ids[:, -1:]
-        gen_attention_mask = pre_cache.pre_attention_mask
+        
+        # 准备初始状态
         past_key_values = pre_cache.past_key_values
+        gen_attention_mask = pre_cache.pre_attention_mask
+        # 直接使用预处理阶段留下的 logits，无需再次 forward
+        next_token_logits = pre_cache.next_token_logits 
 
         for i in range(max_new_tokens):
+            # 1. 解码当前 Logits (解码上一步的结果)
+            self.timing_events[self.TimingEventType.RETURN_LOGITS] = time.perf_counter()
+            next_token_id = self._decode_logits(next_token_logits, temperature, top_p, repetition_penalty)
+            
+            # 检查是否是EOS token
+            is_eos = next_token_id.item() == self.tokenizer.eos_token_id
+            generated_token_text = self.tokenizer.decode(next_token_id[0], skip_special_tokens=True) 
+            self.timing_events[self.TimingEventType.DECODE_TOKEN] = time.perf_counter()
+            
+            yield generated_token_text
+
+            if self.eval_mode or is_eos:
+                break
+
+            # 2. 准备下一步推理的输入
+            gen_input_ids = next_token_id
+            gen_attention_mask = torch.cat(
+                [gen_attention_mask, torch.ones(next_token_id.shape, device=self.device)], 
+                dim=-1
+            )
+
+            # 3. 执行模型推理 (为下一次循环计算 Logits)
             self.timing_events[self.TimingEventType.START_INFERENCE] = time.perf_counter()
-            # 使用模型生成下一个token
             with torch.no_grad():
                 outputs = self.model(
                     input_ids=gen_input_ids,
@@ -182,33 +202,9 @@ class StreamLLMInference:
                     return_dict=True
                 )
             
-            # 获取logits并生成下一个token
-            next_token_logits = outputs.logits[:, -1, :]
-            self.timing_events[self.TimingEventType.RETURN_LOGITS] = time.perf_counter()
-            next_token_id = self._decode_logits(next_token_logits, temperature, top_p, repetition_penalty)
-            # 检查是否是EOS token
-            is_eos = next_token_id.item() == self.tokenizer.eos_token_id
-            # 解码生成的token
-            generated_token_text = self.tokenizer.decode(next_token_id[0], skip_special_tokens=True) 
-            self.timing_events[self.TimingEventType.DECODE_TOKEN] = time.perf_counter()
-           
-            # 更新KV缓存和输入ID序列
             past_key_values = outputs.past_key_values
-            gen_input_ids = next_token_id
-            
-            # 更新attention_mask
-            # attention_mask需要小心处理，因为它需要覆盖整个序列的长度
-            # 包括缓存的部分和新的部分
-            gen_attention_mask = torch.cat(
-                [gen_attention_mask, torch.ones(next_token_id.shape, device=self.device)], 
-                dim=-1
-            )
+            next_token_logits = outputs.logits[:, -1, :] # 获取新的 Logits
             self.timing_events[self.TimingEventType.END_FUNCTION] = time.perf_counter()
-            yield generated_token_text
-
-            # 如果生成结束，则返回
-            if self.eval_mode or is_eos:
-                break
 
         return None
 
@@ -229,7 +225,7 @@ class StreamLLMInference:
             )
         
         self.timing_events[self.TimingEventType.END_KV_CACHE] = time.perf_counter()
-        return self.KVCache(outputs.past_key_values, model_inputs.input_ids, model_inputs.attention_mask)
+        return self.KVCache(outputs.past_key_values, model_inputs.input_ids, model_inputs.attention_mask, outputs.logits[:, -1, :])
 
     def _add_stream_prompt(self, pre_cache:KVCache, text_fragments) -> KVCache:
         """
@@ -254,16 +250,24 @@ class StreamLLMInference:
             [pre_cache.pre_attention_mask, torch.ones(new_fragment_ids.shape, device=self.device)], 
             dim=-1
         )
+
+        # 显式计算 position_ids，防止位置编码错乱
+        past_length = pre_cache.pre_attention_mask.shape[1]
+        current_length = new_fragment_ids.shape[1]
+        position_ids = torch.arange(past_length, past_length + current_length, dtype=torch.long, device=self.device)
+        position_ids = position_ids.unsqueeze(0) # 增加 batch 维度
+
         with torch.no_grad():
             outputs = self.model(
                 input_ids=new_fragment_ids,
                 past_key_values=pre_cache.past_key_values,
                 attention_mask=attention_mask, # 传入拼接后的完整 attention mask
+                position_ids=position_ids, # 传入 position_ids
                 use_cache=True,
                 return_dict=True
                 )
         self.timing_events[self.TimingEventType.END_KV_CACHE] = time.perf_counter()
-        return self.KVCache(outputs.past_key_values, new_fragment_ids, attention_mask)
+        return self.KVCache(outputs.past_key_values, new_fragment_ids, attention_mask, outputs.logits[:, -1, :])
 
     def _decode_logits(self, logits, temperature, top_p, repetition_penalty):
         """
