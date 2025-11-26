@@ -218,7 +218,7 @@ class MultiThreadStreamingASR:
                     
                     # 如果检测到音频段，放入音频段队列
                     if stream_segment is not None:
-                        segment_id = f"seg_{len(self.audio_segment_queue.queue) + 1:03d}"
+                        segment_id = f"seg_{stream_segment.segment_id:03d}"
                         
                         # 判断是否为开始或结束段
                         is_start = (len(self.audio_segment_queue.queue) == 0)
@@ -250,7 +250,7 @@ class MultiThreadStreamingASR:
             remaining_segment, segmenter_state = self.segmenter.flush(segmenter_state)
             
             if remaining_segment is not None and len(remaining_segment.audio) > 0:
-                segment_id = f"seg_{len(self.audio_segment_queue.queue) + 1:03d}"
+                segment_id = f"seg_{remaining_segment.segment_id:03d}"
                 asr_segment = convert_audio_segment(remaining_segment, segment_id, False, True)
                 
                 logger.info(f"Generated final segment {segment_id}: [{asr_segment.start_time:.2f}s-{asr_segment.end_time:.2f}s]")
@@ -278,22 +278,40 @@ class MultiThreadStreamingASR:
                 try:
                     # 从队列获取音频段，设置超时以避免永久阻塞
                     asr_segment = self.audio_segment_queue.get(timeout=0.1)
-                    logger.debug(f"Processing segment {asr_segment.id} in transcription thread")
+                    logger.debug(f"Received segment {asr_segment.id} in transcription thread")
                     
-                    # 使用ASR处理器处理音频段
-                    asr_cache, output_text = self.asr_processor.transcribe_audio_segment(asr_cache, asr_segment)
+                    # 将音频段添加到缓存
+                    asr_cache.add_segment(asr_segment)
+                    logger.debug(f"Added segment {asr_segment.id} to cache, queue length: {len(asr_cache.segment_queue)}")
                     
-                    # 如果有输出文本，更新转录结果
-                    if output_text:
-                        transcription_text += output_text + " "
-                        logger.info(f"  Transcription: '{output_text}'")
+                    # 检查是否应该处理当前队列中的音频段
+                    should_process = asr_cache.should_process(
+                        self.asr_processor.recognition_threshold,
+                        self.asr_processor.prefix_segments,
+                        1,  # suffix_segments_atleast 参数
+                        asr_segment.is_final
+                    )
+                    
+                    # 如果应该处理且当前没有转录在进行中
+                    if should_process:
+                        logger.debug(f"Starting transcription for {len(asr_cache.segment_queue)} segments")
                         
-                        # 将转录结果放入队列
-                        self.transcription_queue.put({
-                            'segment_id': asr_segment.id,
-                            'text': output_text,
-                            'timestamp': time.time() - self.start_time
-                        })
+                        # 使用ASR处理器处理音频段
+                        asr_cache, output_text = self.asr_processor.transcribe_audio_segment(asr_cache)
+                        
+                        # 如果有输出文本，更新转录结果
+                        if output_text:
+                            transcription_text += output_text + " "
+                            logger.info(f"  Transcription: '{output_text}'")
+                            
+                            # 将转录结果放入队列
+                            self.transcription_queue.put({
+                                'segment_id': asr_segment.id,
+                                'text': output_text,
+                                'timestamp': time.time() - self.start_time
+                            })
+                        
+                        logger.debug(f"Transcription completed, remaining segments: {len(asr_cache.segment_queue)}")
                     
                     # 标记任务完成
                     self.audio_segment_queue.task_done()

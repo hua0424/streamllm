@@ -14,11 +14,11 @@ export LD_LIBRARY_PATH="/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/pyt
 echo "运行流式ASR测试..."
 uv run python -m src.asr.run_stream_asr_test \
     --audio "/usr/local/app/jupyterlab/yanjiu/streamllm/experiments/datasets/processed/experiments/length_analysis/audio/long/sample_001.wav" \
-    --chunk-duration 100 \
+    --chunk-duration 500 \
     --model-size large \
     --device cuda \
     --save-results \
-    --test-mode streaming \
+    --test-mode both \
     --simulate-streaming-delay \
     --results-dir "/usr/local/app/jupyterlab/yanjiu/streamllm/src/asr/test_result" 
 

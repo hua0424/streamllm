@@ -76,6 +76,7 @@ class ASRCache:
         current_recognition: 当前识别结果缓存
         current_segments_count: 当前处理的段数
         total_duration: 队列中音频的总时长（秒）
+        transcription_in_progress: 转录是否正在进行中
     """
     # 音频段
     segment_queue: List["ASRAudioSegment"] = field(default_factory=list)
@@ -83,6 +84,7 @@ class ASRCache:
     current_recognition: Optional[Dict] = None
     current_segments_count: int = 0
     total_duration: float = 0.0  # 缓存总时长，避免重复计算
+    transcription_in_progress: bool = False  # 转录是否正在进行中
     
     def add_segment(self, segment: "ASRAudioSegment") -> None:
         """添加音频段到队列并更新总时长"""
@@ -96,9 +98,21 @@ class ASRCache:
             return None
         segment = self.segment_queue.pop(0)
         return segment
+    
+    def set_processing(self) -> None:
+        """设置转录处理状态"""
+        self.transcription_in_progress = True
+
+    def set_processed(self) -> None:
+        """清除转录处理状态"""
+        self.transcription_in_progress = False
 
     def should_process(self, recognition_threshold: float, prefix_segments: int, suffix_segments_atleast: int, is_final: bool) -> bool:
         """判断是否应该处理当前队列中的音频段"""
+
+        if self.transcription_in_progress:
+            return False
+        
         queue_length = len(self.segment_queue)
 
         if is_final:
@@ -325,7 +339,7 @@ class StreamingASRProcessor:
             else:
                 # 加载音频文件
                 audio_data, sr = librosa.load(audio_path, sr=self.sample_rate)
-                sample_rate = sr
+                sample_rate = int(sr)  # 确保类型为int
                 audio_duration = len(audio_data) / sample_rate
                 load_time = time.time() - start_time
                 
@@ -430,49 +444,53 @@ class StreamingASRProcessor:
             return cache, None
 
         # 开始进行语音识别
-        self.timing_events[TimingEventType.START_ASR] = time.perf_counter()
-        logger.debug(f"开始处理音频队列，包含 {len(cache.segment_queue)} 个段，总时长: {cache.total_duration:.2f}s")
+        cache.set_processing()
+        try:
+            self.timing_events[TimingEventType.START_ASR] = time.perf_counter()
+            logger.debug(f"开始处理音频队列，包含 {len(cache.segment_queue)} 个段，总时长: {cache.total_duration:.2f}s")
 
-        current_recognition = self._transcribe_segments(cache.segment_queue)
-        
-        if current_recognition["segments"] is None or len(current_recognition["segments"]) == 0:
-            logger.warning("当前累积音频段的识别结果为空")
-            return cache, None
+            current_recognition = self._transcribe_segments(cache.segment_queue)
+            
+            if current_recognition["segments"] is None or len(current_recognition["segments"]) == 0:
+                logger.warning("当前累积音频段的识别结果为空")
+                return cache, None
 
-        # 记录每个段的识别结果
-        segment_start_offset = 0.0
-        for i, segment in enumerate(cache.segment_queue):
-            segment.text = self._extract_segment_text(current_recognition, i, segment, segment_start_offset)
-            segment_start_offset += segment.duration
+            # 记录每个段的识别结果
+            segment_start_offset = 0.0
+            for i, segment in enumerate(cache.segment_queue):
+                segment.text = self._extract_segment_text(current_recognition, i, segment, segment_start_offset)
+                segment_start_offset += segment.duration
 
-            if not segment.text:
-                logger.debug(f"段 {i} ({segment.id}) 没有提取到文本")
+                if not segment.text:
+                    logger.debug(f"段 {i} ({segment.id}) 没有提取到文本")
 
-        # 确定要输出的段索引
-        output_segment_indices = self._determine_output_segments(cache, audio_segment)
-        logger.debug(f"本次输出的段为: {[cache.segment_queue[i].id for i in output_segment_indices]}")
-        
-        # 提取输出文本
-        output_text = self._extract_output_text(cache, output_segment_indices)
-        
-        # 记录性能指标
-        processing_time = time.perf_counter() - self.timing_events[TimingEventType.START_ASR]
-        logger.info(f"{format_timestamp()} ✓ 处理完成: 输出文本长度 {len(output_text)} 字符，耗时 {processing_time:.3f}s")
+            # 确定要输出的段索引
+            output_segment_indices = self._determine_output_segments(cache, audio_segment)
+            logger.debug(f"本次输出的段为: {[cache.segment_queue[i].id for i in output_segment_indices]}")
+            
+            # 提取输出文本
+            output_text = self._extract_output_text(cache, output_segment_indices)
+            
+            # 记录性能指标
+            processing_time = time.perf_counter() - self.timing_events[TimingEventType.START_ASR]
+            logger.info(f"{format_timestamp()} ✓ 处理完成: 输出文本长度 {len(output_text)} 字符，耗时 {processing_time:.3f}s")
 
-        # 删除已处理的段
-        if output_segment_indices:
-            # 删除保留段数以前的所有段
-            for _ in range(len(output_segment_indices)):  
-                cache.remove_first_segment()
+            # 删除已处理的段
+            if output_segment_indices:
+                # 删除保留段数以前的所有段
+                for _ in range(len(output_segment_indices)-self.prefix_segments):  
+                    cache.remove_first_segment()
 
-        # 记录结束时间
-        self.timing_events[TimingEventType.END_ASR] = time.perf_counter()
-        self.timing_events[TimingEventType.END_FUNCTION] = time.perf_counter()
-        
-        # 记录详细性能指标
-        self.log_performance_metrics(len(cache.segment_queue), cache.total_duration)
+            # 记录结束时间
+            self.timing_events[TimingEventType.END_ASR] = time.perf_counter()
+            self.timing_events[TimingEventType.END_FUNCTION] = time.perf_counter()
+            
+            # 记录详细性能指标
+            self.log_performance_metrics(len(cache.segment_queue), cache.total_duration)
 
-        return cache, output_text
+            return cache, output_text
+        finally:
+            cache.set_processed()
         
     def _determine_output_segments(self, cache: ASRCache, current_segment: ASRAudioSegment) -> List[int]:
         """
@@ -493,6 +511,7 @@ class StreamingASRProcessor:
 
         # 如果是流式开始，输出保留段数之前的所有段
         if cache.segment_queue[0].is_start:
+            logger.debug(f"queue_length: {queue_length}, suffix_segments_atleast: {self.suffix_segments_atleast},selecting {list(range(0, queue_length - self.suffix_segments_atleast))}")
             return list(range(0, queue_length - self.suffix_segments_atleast))
         
         # 一般情况：输出中间段，不要输出前缀和后缀段
