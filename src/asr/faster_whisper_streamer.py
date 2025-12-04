@@ -7,7 +7,7 @@ import time
 import logging
 from typing import List, Dict, Optional, Callable, Generator, Tuple, Union
 from dataclasses import dataclass, field
-import os
+import threading
 from dotenv import load_dotenv
 from datetime import datetime
 
@@ -78,19 +78,28 @@ class ASRCache:
         total_duration: 队列中音频的总时长（秒）
         transcription_in_progress: 转录是否正在进行中
     """
-    # 音频段
-    segment_queue: List["ASRAudioSegment"] = field(default_factory=list)
-    segment_counter: int = 0
-    current_recognition: Optional[Dict] = None
-    current_segments_count: int = 0
-    total_duration: float = 0.0  # 缓存总时长，避免重复计算
-    transcription_in_progress: bool = False  # 转录是否正在进行中
+    def __init__(self):
+        self._lock = threading.Lock()
+        self.segment_queue: List["ASRAudioSegment"] = []
+        self.waiting_segment_queue: List["ASRAudioSegment"] = []
+        self.segment_counter: int = 0
+        self.current_recognition: Optional[Dict] = None
+        self.current_segments_count: int = 0
+        self.total_duration: float = 0.0  # 缓存总时长，避免重复计算
+        self.transcription_in_progress: bool = False  # 转录是否正在进行中
     
     def add_segment(self, segment: "ASRAudioSegment") -> None:
         """添加音频段到队列并更新总时长"""
-        self.segment_queue.append(segment)
-        self.total_duration += segment.duration
-        self.segment_counter += 1
+        with self._lock:
+            self.waiting_segment_queue.append(segment)
+    
+    def add_to_asr_segments(self) -> None:
+        """添加音频段到队列并更新总时长"""
+        with self._lock:
+            self.segment_queue.extend(self.waiting_segment_queue)
+            self.total_duration += sum(segment.duration for segment in self.waiting_segment_queue)  
+            self.segment_counter += len(self.waiting_segment_queue)
+            self.waiting_segment_queue.clear()
         
     def remove_first_segment(self) -> Optional["ASRAudioSegment"]:
         """移除队列首段并更新总时长"""
@@ -99,19 +108,24 @@ class ASRCache:
         segment = self.segment_queue.pop(0)
         return segment
     
-    def set_processing(self) -> None:
-        """设置转录处理状态"""
-        self.transcription_in_progress = True
+    def set_processing(self) -> bool:
+        """设置转录处理状态，返回是否成功"""
+        with self._lock:
+            if not self.transcription_in_progress:
+                self.transcription_in_progress = True
+                return True
+            return False
 
     def set_processed(self) -> None:
         """清除转录处理状态"""
         self.transcription_in_progress = False
 
+    def is_processing(self) -> bool:
+        """判断是否正在处理"""
+        return self.transcription_in_progress
+
     def should_process(self, recognition_threshold: float, prefix_segments: int, suffix_segments_atleast: int, is_final: bool) -> bool:
         """判断是否应该处理当前队列中的音频段"""
-
-        if self.transcription_in_progress:
-            return False
         
         queue_length = len(self.segment_queue)
 
@@ -429,11 +443,11 @@ class StreamingASRProcessor:
         self.reset_timings()
         self.timing_events[TimingEventType.START_FUNCTION] = time.perf_counter()
 
-        # 输入验证
-        if cache is None:
-            cache = ASRCache()
-            logger.debug("创建新的ASR缓存对象")
+        # 设置处理中，避免多线程竞争
+        if not cache.set_processing():
+            return cache, None
 
+        cache.add_to_asr_segments()  # 将等待中的音频段添加到ASR段队列
         audio_segment = cache.segment_queue[-1]  # 获取最新添加的音频段
          
         # 使用ASRCache的新方法添加段
@@ -441,10 +455,11 @@ class StreamingASRProcessor:
 
        # 检查是否应该处理当前队列
         if not cache.should_process(self.recognition_threshold, self.prefix_segments, self.suffix_segments_atleast, audio_segment.is_final):
+            cache.set_processed()
             return cache, None
-
+   
         # 开始进行语音识别
-        cache.set_processing()
+
         try:
             self.timing_events[TimingEventType.START_ASR] = time.perf_counter()
             logger.debug(f"开始处理音频队列，包含 {len(cache.segment_queue)} 个段，总时长: {cache.total_duration:.2f}s")
@@ -457,7 +472,7 @@ class StreamingASRProcessor:
 
             # 记录每个段的识别结果
             segment_start_offset = 0.0
-            for i, segment in enumerate(cache.segment_queue):
+            for i, segment in enumerate[ASRAudioSegment](cache.segment_queue):
                 segment.text = self._extract_segment_text(current_recognition, i, segment, segment_start_offset)
                 segment_start_offset += segment.duration
 
@@ -477,8 +492,12 @@ class StreamingASRProcessor:
 
             # 删除已处理的段
             if output_segment_indices:
+                # 确定在已输出的段中要保留的段序号
+                keep_segment: ASRAudioSegment = cache.segment_queue[output_segment_indices[-1] - self.prefix_segments + 1]
                 # 删除保留段数以前的所有段
-                for _ in range(len(output_segment_indices)-self.prefix_segments):  
+                for _ in range(len(cache.segment_queue)):  
+                    if keep_segment.id == cache.segment_queue[0].id:
+                        break
                     cache.remove_first_segment()
 
             # 记录结束时间
