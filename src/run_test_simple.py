@@ -464,28 +464,69 @@ class StreamPipelineTest(BasePipelineTest):
         logger.debug("[Segmenter] Finished")
 
     def _asr_worker(self):
-        """ASR转录"""
+        """
+        ASR转录 - 异步版本
+        
+        使用两个子线程：
+        1. collector: 从音频段队列收集音频，加入到 asr_cache
+        2. transcriber: 从 asr_cache 中取出音频进行转录
+        
+        这样音频收集不会被转录处理阻塞，转录可以批量处理多个音频段
+        """
         logger.debug("[ASR] Started")
         asr_cache = ASRCache()
         
-        while not self.stop_event.is_set():
-            try:
-                asr_segment = self.audio_segment_queue.get(timeout=0.1)
-            except queue.Empty:
-                if self.segmentation_done.is_set():
+        # 用于标记是否收到最终段
+        final_received = threading.Event()
+        # 用于标记转录是否完成
+        transcription_done = threading.Event()
+        
+        def collector_task():
+            """收集音频段到 asr_cache"""
+            while not self.stop_event.is_set():
+                try:
+                    asr_segment = self.audio_segment_queue.get(timeout=0.1)
+                except queue.Empty:
+                    if self.segmentation_done.is_set() and self.audio_segment_queue.empty():
+                        break
+                    continue
+                
+                asr_cache.add_segment(asr_segment)
+                logger.debug(f"[ASR-Collector] Added segment {asr_segment.id}, is_final={asr_segment.is_final}")
+                
+                if asr_segment.is_final:
+                    final_received.set()
                     break
-                continue
             
-            asr_cache.add_segment(asr_segment)
+            logger.debug("[ASR-Collector] Finished")
+        
+        def transcriber_task():
+            """从 asr_cache 进行转录"""
+            nonlocal asr_cache  # 使用外层的 asr_cache
+            is_final = False
             
-            if not asr_cache.is_processing():
-                asr_cache, output_text = self.asr_processor.transcribe_audio_segment(asr_cache)
+            while not self.stop_event.is_set() and not is_final:
+                # 检查是否有待处理的音频段
+                if len(asr_cache.waiting_segment_queue) == 0:
+                    # 如果 collector 已经结束且没有待处理的段，退出
+                    if final_received.is_set():
+                        logger.debug("[ASR-Transcriber] Collector finished but no final segment processed yet, waiting...")
+                    time.sleep(0.05)
+                    continue
+                
+                # 检查是否正在处理中（避免并发）
+                if asr_cache.is_processing():
+                    time.sleep(0.05)
+                    continue
+                
+                # 进行转录（transcribe_audio_segment 内部会调用 set_processing/set_processed）
+                asr_cache, output_text, is_final = self.asr_processor.transcribe_audio_segment(asr_cache)
+                
                 if output_text:
                     current_time = time.time()
                     self.timings["last_text_time"] = current_time
                     
-                    # DEBUG级别记录每段文本的时间
-                    logger.debug(f"[ASR] Text at {current_time - self.timings['start_time']:.3f}s: {output_text}")
+                    logger.debug(f"[ASR-Transcriber] Text at {current_time - self.timings['start_time']:.3f}s: {output_text}")
                     self.detailed_timings["text_segment_times"].append({
                         "text": output_text,
                         "time": current_time - self.timings["start_time"]
@@ -494,9 +535,21 @@ class StreamPipelineTest(BasePipelineTest):
                     logger.info(f"[ASR] Output: {output_text}")
                     self.text_queue.put((output_text, False))
             
-            if asr_segment.is_final:
-                self.text_queue.put(("", True))
-                break
+            # 发送结束信号
+            self.text_queue.put(("", True))
+            transcription_done.set()
+            logger.debug("[ASR-Transcriber] Finished")
+        
+        # 启动两个子线程
+        collector_thread = threading.Thread(target=collector_task, name="ASR-Collector")
+        transcriber_thread = threading.Thread(target=transcriber_task, name="ASR-Transcriber")
+        
+        collector_thread.start()
+        transcriber_thread.start()
+        
+        # 等待两个线程完成
+        collector_thread.join()
+        transcriber_thread.join()
         
         # INFO级别输出最后一段文本的时间
         logger.info(f"[ASR] Last text generated at {self.timings['last_text_time'] - self.timings['start_time']:.3f}s")

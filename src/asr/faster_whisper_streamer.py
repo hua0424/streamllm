@@ -424,7 +424,7 @@ class StreamingASRProcessor:
             logger.error(f"音频转录失败: {e}")
             raise e
     
-    def transcribe_audio_segment(self, cache: ASRCache) -> Tuple[ASRCache, Optional[str]]:
+    def transcribe_audio_segment(self, cache: ASRCache) -> Tuple[ASRCache, Optional[str], bool]:
         """
         添加音频块并返回新的转录文本，输出文本可能为空
         
@@ -433,7 +433,7 @@ class StreamingASRProcessor:
             audio_segment: 音频信号段ASRAudioSegment对象
             
         Returns:
-            Tuple[ASRCache, Optional[str]]: 更新后的缓存对象和新输出的文本
+            Tuple[ASRCache, Optional[str]]: 更新后的缓存对象和新输出的文本,是否最后一个音频段
             
         Notes:
             音频块必须是 float32, 单声道, 16kHz
@@ -445,7 +445,7 @@ class StreamingASRProcessor:
 
         # 设置处理中，避免多线程竞争
         if not cache.set_processing():
-            return cache, None
+            return cache, None, False
 
         cache.add_to_asr_segments()  # 将等待中的音频段添加到ASR段队列
         audio_segment = cache.segment_queue[-1]  # 获取最新添加的音频段
@@ -456,7 +456,7 @@ class StreamingASRProcessor:
        # 检查是否应该处理当前队列
         if not cache.should_process(self.recognition_threshold, self.prefix_segments, self.suffix_segments_atleast, audio_segment.is_final):
             cache.set_processed()
-            return cache, None
+            return cache, None, False
    
         # 开始进行语音识别
 
@@ -468,7 +468,7 @@ class StreamingASRProcessor:
             
             if current_recognition["segments"] is None or len(current_recognition["segments"]) == 0:
                 logger.warning("当前累积音频段的识别结果为空")
-                return cache, None
+                return cache, None, False
 
             # 记录每个段的识别结果
             segment_start_offset = 0.0
@@ -507,7 +507,7 @@ class StreamingASRProcessor:
             # 记录详细性能指标
             self.log_performance_metrics(len(cache.segment_queue), cache.total_duration)
 
-            return cache, output_text
+            return cache, output_text, audio_segment.is_final
         finally:
             cache.set_processed()
         
