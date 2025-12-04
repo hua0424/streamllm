@@ -4,7 +4,7 @@ __pycache__/
 node_modules/
 experiments/datasets/
 report/
-#logs/
+logs/
 experiments/datasets/processed
 experiments/datasets/raw_data
 src/asr/test_result
