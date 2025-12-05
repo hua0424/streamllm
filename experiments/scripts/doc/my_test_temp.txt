@@ -1,0 +1,11 @@
+
+# 快速测试
+uv run python -m experiments.scripts.run_exp_latency --max-samples 5
+
+# 完整实验（增加预热轮数）
+uv run python -m experiments.scripts.run_exp_latency --warmup-rounds 5
+
+# 使用脚本
+./experiments/scripts/run_exp_latency.sh test
+
+uv run python -m experiments.scripts.run_exp_latency --max-samples 2 --warmup-rounds 1
