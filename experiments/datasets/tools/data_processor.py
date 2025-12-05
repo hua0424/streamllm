@@ -9,6 +9,7 @@
 1. 计算每个对话的总文本长度（所有轮次累积）
 2. 按总文本长度降序排序，取前 N 条对话（默认100条）
 3. 对选中的对话进行累积处理，生成 turn1, turn2, turn3...
+4. 过滤掉累积文本长度超过上限的样本（中英文分开设置）
 
 累积对话逻辑：
 轮次1 (用户)  -> 输出文本: a1
@@ -54,7 +55,8 @@ def process_crosswoz(
     input_file: str, 
     output_dir: str, 
     top_n_dialogs: int = 100,
-    max_samples_per_dialog: Optional[int] = None
+    max_samples_per_dialog: Optional[int] = None,
+    max_text_length: Optional[int] = None
 ) -> int:
     """
     处理 CrossWOZ 数据集 (中文)
@@ -66,6 +68,7 @@ def process_crosswoz(
         output_dir: 输出目录
         top_n_dialogs: 取文本最长的前N个对话（默认100）
         max_samples_per_dialog: 每个对话最多生成的样本数（None表示不限制）
+        max_text_length: 累积文本的最大字符数（超过则跳过，None表示不限制）
     
     Returns:
         生成的任务文件数量
@@ -96,9 +99,13 @@ def process_crosswoz(
     if selected_dialogs:
         print(f"  最长对话文本长度: {selected_dialogs[0][1]} 字符")
         print(f"  最短对话文本长度: {selected_dialogs[-1][1]} 字符")
+    
+    if max_text_length:
+        print(f"  文本长度上限: {max_text_length} 字符")
 
     # 第三步：对选中的对话进行累积处理
     total_count = 0
+    skipped_count = 0
     
     for dialog_id, total_length, content in selected_dialogs:
         messages = content.get('messages', [])
@@ -125,7 +132,13 @@ def process_crosswoz(
             if role == 'usr':
                 user_turn_index += 1
                 
+                # 检查样本数限制
                 if max_samples_per_dialog and sample_count_in_dialog >= max_samples_per_dialog:
+                    continue
+                
+                # 检查文本长度限制
+                if max_text_length and len(accumulated_text) > max_text_length:
+                    skipped_count += 1
                     continue
                 
                 sample_id = f"crosswoz_{dialog_id}_turn{user_turn_index}"
@@ -150,6 +163,8 @@ def process_crosswoz(
                 sample_count_in_dialog += 1
 
     print(f"CrossWOZ 处理完成：{len(selected_dialogs)} 个对话，生成 {total_count} 个任务文件")
+    if skipped_count > 0:
+        print(f"  跳过超长文本: {skipped_count} 个")
     return total_count
 
 
@@ -157,7 +172,8 @@ def process_multiwoz(
     input_file: str, 
     output_dir: str, 
     top_n_dialogs: int = 100,
-    max_samples_per_dialog: Optional[int] = None
+    max_samples_per_dialog: Optional[int] = None,
+    max_text_length: Optional[int] = None
 ) -> int:
     """
     处理 MultiWOZ 数据集 (英文)
@@ -170,6 +186,7 @@ def process_multiwoz(
         output_dir: 输出目录
         top_n_dialogs: 取文本最长的前N个对话（默认100）
         max_samples_per_dialog: 每个对话最多生成的样本数（None表示不限制）
+        max_text_length: 累积文本的最大字符数（超过则跳过，None表示不限制）
     
     Returns:
         生成的任务文件数量
@@ -200,9 +217,13 @@ def process_multiwoz(
     if selected_dialogs:
         print(f"  最长对话文本长度: {selected_dialogs[0][1]} 字符")
         print(f"  最短对话文本长度: {selected_dialogs[-1][1]} 字符")
+    
+    if max_text_length:
+        print(f"  文本长度上限: {max_text_length} 字符")
 
     # 第三步：对选中的对话进行累积处理
     total_count = 0
+    skipped_count = 0
     
     for dialog_id, total_length, content in selected_dialogs:
         logs = content.get('log', [])
@@ -234,7 +255,13 @@ def process_multiwoz(
             if is_user_turn:
                 user_turn_index += 1
                 
+                # 检查样本数限制
                 if max_samples_per_dialog and sample_count_in_dialog >= max_samples_per_dialog:
+                    continue
+                
+                # 检查文本长度限制
+                if max_text_length and len(accumulated_text) > max_text_length:
+                    skipped_count += 1
                     continue
                 
                 sample_id = f"multiwoz_{clean_dialog_id}_turn{user_turn_index}"
@@ -259,6 +286,8 @@ def process_multiwoz(
                 sample_count_in_dialog += 1
 
     print(f"MultiWOZ 处理完成：{len(selected_dialogs)} 个对话，生成 {total_count} 个任务文件")
+    if skipped_count > 0:
+        print(f"  跳过超长文本: {skipped_count} 个")
     return total_count
 
 
@@ -275,6 +304,8 @@ def main():
                         help='取文本最长的前N个对话（默认100）')
     parser.add_argument('--max-samples-per-dialog', type=int, default=None,
                         help='每个对话最多生成的样本数')
+    parser.add_argument('--max-text-length', type=int, default=None,
+                        help='累积文本的最大字符数（超过则跳过）')
     
     args = parser.parse_args()
     
@@ -283,7 +314,8 @@ def main():
             args.input_file,
             args.output_dir,
             top_n_dialogs=args.top_n_dialogs,
-            max_samples_per_dialog=args.max_samples_per_dialog
+            max_samples_per_dialog=args.max_samples_per_dialog,
+            max_text_length=args.max_text_length
         )
     
     if args.dataset in ['multiwoz', 'all'] and args.input_file:
@@ -291,7 +323,8 @@ def main():
             args.input_file,
             args.output_dir,
             top_n_dialogs=args.top_n_dialogs,
-            max_samples_per_dialog=args.max_samples_per_dialog
+            max_samples_per_dialog=args.max_samples_per_dialog,
+            max_text_length=args.max_text_length
         )
 
 

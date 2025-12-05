@@ -63,6 +63,18 @@ experiments/
 
 1.  **筛选长对话**：计算每个对话的总文本长度（所有轮次累积），按长度降序排序，选取前 100 条对话
 2.  **累积对话生成**：对每个对话的每个用户轮次，生成累积的对话文本
+3.  **过滤过长文本**：由于过长的实验数据意义不大，且中英文语速不同，因此设置文本长度上限，超过上限的样本将被跳过
+
+### 3.1.1 文本长度限制
+
+| 语言 | 参数 | 默认值 | 说明 |
+|------|------|--------|------|
+| 中文 (CrossWOZ) | `--max-text-length-zh` | 720 | 约对应 150 秒音频 |
+| 英文 (MultiWOZ) | `--max-text-length-en` | 2050 | 约对应 150 秒音频 |
+
+**估算依据**：
+- 中文语速约 4-5 字/秒（720 字 ÷ 4.8 字/秒 ≈ 150 秒）
+- 英文语速约 13-14 字符/秒（2050 字符 ÷ 13.7 字符/秒 ≈ 150 秒）
 
 ### 3.2 累积对话逻辑
 
@@ -201,6 +213,12 @@ uv run python -m experiments.datasets.tools.run_pipeline --tts-workers 8
 
 # 仅预处理（跳过 TTS）
 uv run python -m experiments.datasets.tools.run_pipeline --skip-tts
+
+# 使用自定义文本长度限制（默认已启用：中文720，英文2050）
+uv run python -m experiments.datasets.tools.run_pipeline \
+    --max-text-length-zh 300 \
+    --max-text-length-en 800 \
+    --skip-tts
 ```
 
 ### 5.2 实验脚本开发 (待完成)

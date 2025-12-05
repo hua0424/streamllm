@@ -35,6 +35,12 @@ DEFAULT_PATHS = {
     "output_base": "experiments/datasets/processed",
 }
 
+# 默认文本长度限制（字符数）
+# 中文语速约 4-5 字/秒，英文约 13-14 字符/秒
+# 150秒音频对应：中文 ~720字，英文 ~2050字符
+DEFAULT_MAX_TEXT_LENGTH_ZH = 720   # 中文：约对应 150 秒音频
+DEFAULT_MAX_TEXT_LENGTH_EN = 2050  # 英文：约对应 150 秒音频
+
 
 def get_audio_duration(audio_path: Path) -> float:
     """
@@ -70,6 +76,9 @@ def run_phase_1_preprocess(args, project_root: Path) -> Path:
     print("阶段 1：数据预处理 (Data Preprocessing)")
     print("=" * 60)
     print(f"策略：选取每个数据集中文本最长的 {args.top_n_dialogs} 个对话")
+    print(f"文本长度限制：")
+    print(f"  中文 (CrossWOZ): {args.max_text_length_zh if args.max_text_length_zh else '不限制'} 字符")
+    print(f"  英文 (MultiWOZ): {args.max_text_length_en if args.max_text_length_en else '不限制'} 字符")
     
     output_base = project_root / args.output_dir
     processed_json_dir = output_base / "json"
@@ -85,7 +94,8 @@ def run_phase_1_preprocess(args, project_root: Path) -> Path:
                 str(crosswoz_file),
                 str(crosswoz_output),
                 top_n_dialogs=args.top_n_dialogs,
-                max_samples_per_dialog=args.max_samples_per_dialog
+                max_samples_per_dialog=args.max_samples_per_dialog,
+                max_text_length=args.max_text_length_zh
             )
             total_samples += count
         else:
@@ -100,7 +110,8 @@ def run_phase_1_preprocess(args, project_root: Path) -> Path:
                 str(multiwoz_file),
                 str(multiwoz_output),
                 top_n_dialogs=args.top_n_dialogs,
-                max_samples_per_dialog=args.max_samples_per_dialog
+                max_samples_per_dialog=args.max_samples_per_dialog,
+                max_text_length=args.max_text_length_en
             )
             total_samples += count
         else:
@@ -259,6 +270,9 @@ def main():
   # 选取文本最长的50个对话
   uv run python -m experiments.datasets.tools.run_pipeline --top-n-dialogs 50 --skip-tts
   
+  # 设置文本长度限制（过滤过长数据）
+  uv run python -m experiments.datasets.tools.run_pipeline --max-text-length-zh 300 --max-text-length-en 800 --skip-tts
+  
   # 跳过预处理，直接进行TTS
   uv run python -m experiments.datasets.tools.run_pipeline --skip-preprocess
   
@@ -289,6 +303,12 @@ def main():
                         help='选取文本最长的前N个对话 (默认: 100)')
     parser.add_argument('--max-samples-per-dialog', type=int, default=None,
                         help='每个对话最多生成的样本数 (默认: 不限制)')
+    
+    # 文本长度限制（中英文分开设置）
+    parser.add_argument('--max-text-length-zh', type=int, default=DEFAULT_MAX_TEXT_LENGTH_ZH,
+                        help=f'中文文本最大字符数，超过则跳过 (默认: {DEFAULT_MAX_TEXT_LENGTH_ZH}，约150秒音频)')
+    parser.add_argument('--max-text-length-en', type=int, default=DEFAULT_MAX_TEXT_LENGTH_EN,
+                        help=f'英文文本最大字符数，超过则跳过 (默认: {DEFAULT_MAX_TEXT_LENGTH_EN}，约150秒音频)')
     
     # TTS 参数
     parser.add_argument('--tts-url', default='http://host.docker.internal:20401',

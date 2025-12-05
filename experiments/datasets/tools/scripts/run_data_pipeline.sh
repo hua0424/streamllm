@@ -5,14 +5,15 @@
 # 功能：
 #   1. 数据预处理：将 MultiWOZ/CrossWOZ 转换为累积对话格式
 #   2. TTS 生成：批量生成音频文件
+#   3. 文本长度过滤：支持分别设置中英文文本长度上限
 #
 # 使用方法：
 #   ./experiments/datasets/tools/scripts/run_data_pipeline.sh [模式] [选项]
 #
 # 示例：
 #   ./experiments/datasets/tools/scripts/run_data_pipeline.sh preprocess
-#   ./experiments/datasets/tools/scripts/run_data_pipeline.sh full --max-dialogs 10
-#   ./experiments/datasets/tools/scripts/run_data_pipeline.sh tts-only
+#   ./experiments/datasets/tools/scripts/run_data_pipeline.sh full --top-n-dialogs 50
+#   ./experiments/datasets/tools/scripts/run_data_pipeline.sh preprocess --max-text-length-zh 300 --max-text-length-en 800
 #
 # 环境要求：
 #   - conda 环境 streamllm（其中安装了 uv）
@@ -41,6 +42,10 @@ TTS_SPEED="0.8"
 TTS_WORKERS="4"
 CONDA_ENV="${CONDA_ENV:-streamllm}"
 
+# 文本长度限制（默认不限制，可通过参数设置）
+MAX_TEXT_LENGTH_ZH=""
+MAX_TEXT_LENGTH_EN=""
+
 # 打印帮助信息
 print_help() {
     echo -e "${BLUE}========================================${NC}"
@@ -57,23 +62,28 @@ print_help() {
     echo "  help          显示此帮助信息"
     echo ""
     echo "选项:"
-    echo "  --dataset         数据集 (crosswoz/multiwoz/all)，默认: all"
-    echo "  --top-n-dialogs   选取文本最长的前N个对话，默认: 100"
-    echo "  --max-samples     每对话最大样本数"
-    echo "  --tts-url         TTS服务地址，默认: \$TTS_URL"
-    echo "  --tts-speed       TTS语速，默认: 0.8"
-    echo "  --tts-workers     TTS并发数，默认: 4"
+    echo "  --dataset             数据集 (crosswoz/multiwoz/all)，默认: all"
+    echo "  --top-n-dialogs       选取文本最长的前N个对话，默认: 100"
+    echo "  --max-samples         每对话最大样本数"
+    echo "  --max-text-length-zh  中文文本最大字符数，默认: 720（约150秒音频）"
+    echo "  --max-text-length-en  英文文本最大字符数，默认: 2050（约150秒音频）"
+    echo "  --tts-url             TTS服务地址，默认: \$TTS_URL"
+    echo "  --tts-speed           TTS语速，默认: 0.8"
+    echo "  --tts-workers         TTS并发数，默认: 4"
     echo ""
     echo "环境变量:"
     echo "  TTS_URL        TTS服务地址（可通过环境变量设置）"
     echo "  CONDA_ENV      conda环境名称，默认: streamllm"
     echo ""
     echo "示例:"
-    echo "  # 仅预处理数据（默认取文本最长的100个对话）"
+    echo "  # 仅预处理数据（使用默认文本长度限制）"
     echo "  $0 preprocess"
     echo ""
     echo "  # 完整管线，选取文本最长的50个对话"
     echo "  $0 full --top-n-dialogs 50"
+    echo ""
+    echo "  # 使用自定义文本长度限制"
+    echo "  $0 preprocess --max-text-length-zh 300 --max-text-length-en 800"
     echo ""
     echo "  # 仅处理CrossWOZ"
     echo "  $0 preprocess --dataset crosswoz"
@@ -113,6 +123,14 @@ while [[ $# -gt 0 ]]; do
             MAX_SAMPLES="$2"
             shift 2
             ;;
+        --max-text-length-zh)
+            MAX_TEXT_LENGTH_ZH="$2"
+            shift 2
+            ;;
+        --max-text-length-en)
+            MAX_TEXT_LENGTH_EN="$2"
+            shift 2
+            ;;
         --tts-url)
             TTS_URL="$2"
             shift 2
@@ -139,6 +157,15 @@ build_args() {
     
     if [[ -n "$MAX_SAMPLES" ]]; then
         args="$args --max-samples-per-dialog $MAX_SAMPLES"
+    fi
+    
+    # 文本长度限制
+    if [[ -n "$MAX_TEXT_LENGTH_ZH" ]]; then
+        args="$args --max-text-length-zh $MAX_TEXT_LENGTH_ZH"
+    fi
+    
+    if [[ -n "$MAX_TEXT_LENGTH_EN" ]]; then
+        args="$args --max-text-length-en $MAX_TEXT_LENGTH_EN"
     fi
     
     args="$args --tts-url $TTS_URL --tts-speed $TTS_SPEED --tts-workers $TTS_WORKERS"
@@ -177,6 +204,13 @@ run_pipeline() {
     log_info "项目根目录: $PROJECT_ROOT"
     log_info "运行数据处理管线..."
     log_info "参数: $cmd_args $extra_args"
+    
+    # 显示文本长度限制信息
+    if [[ -n "$MAX_TEXT_LENGTH_ZH" ]] || [[ -n "$MAX_TEXT_LENGTH_EN" ]]; then
+        log_info "文本长度限制:"
+        [[ -n "$MAX_TEXT_LENGTH_ZH" ]] && log_info "  中文: $MAX_TEXT_LENGTH_ZH 字符"
+        [[ -n "$MAX_TEXT_LENGTH_EN" ]] && log_info "  英文: $MAX_TEXT_LENGTH_EN 字符"
+    fi
     echo ""
     
     # 先激活 conda 环境，然后使用 uv run
