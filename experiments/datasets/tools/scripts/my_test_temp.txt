@@ -5,4 +5,4 @@ uv run python -m experiments.datasets.tools.run_pipeline --top-n-dialogs 1 --ski
 --skip-preprocess
 --skip-tts
 
-uv run python -m experiments.datasets.tools.run_pipeline --top-n-dialogs 1  --tts-workers 1 --skip-preprocess
+uv run python -m experiments.datasets.tools.run_pipeline --top-n-dialogs 50  --tts-workers 1 --skip-preprocess
