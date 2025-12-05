@@ -2,11 +2,10 @@ notebooks/logs/experiment.log
 __pycache__/
 **/__pycache__/
 node_modules/
-experiments/datasets/
 report/
 logs/
 experiments/datasets/processed
 experiments/datasets/raw_data
 src/asr/test_result
 results
-#logs/experiment.log
+
