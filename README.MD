@@ -2,340 +2,176 @@
 
 ## 1. 项目概述
 
-本项目旨在研究和实现一套低延迟智能语音对话系统。核心目标是优化级联式语音对话系统（ASR -> LLM -> TTS）中从用户语音输入开始到大语言模型（LLM）产生首个响应Token的端到端延迟。通过采用流式处理和KV缓存等技术，显著降低系统的响应时间，提升用户交互体验。
+本项目旨在研究和实现一套低延迟智能语音对话系统。核心目标是优化级联式语音对话系统（ASR -> LLM -> TTS）中从用户语音输入开始到大语言模型（LLM）产生首个响应Token的端到端延迟。
 
-### 核心功能
-- **流式ASR**: 基于 faster-whisper 的实时语音识别，支持动态音频分段和上下文感知
-- **流式LLM**: 基于 KV 缓存的低延迟文本生成，支持文本片段的流式输入和处理
-- **端到端流水线**: 完整的音频->文本->生成响应流程，支持实时处理
+通过采用流式处理和KV缓存等技术，显著降低系统的响应时间，提升用户交互体验。
 
-## 2. 系统架构
+### 核心特性
 
-### 2.1 核心模块结构
+- **流式 ASR (Streaming ASR)**: 基于 `faster-whisper` 和 `Silero VAD` 的实时语音识别。支持动态音频分段、重叠窗口识别和上下文感知，以在保证准确率的同时降低延迟。
+- **流式 LLM (Streaming LLM)**: 基于 `transformers` 的低延迟文本生成。利用 KV Cache (键值缓存) 技术，支持流式文本片段输入（Incremental Prompting），避免重复计算历史上下文。
+- **端到端流水线**: 完整的 "音频流 -> 分段 -> ASR流式转录 -> LLM流式输入 -> LLM流式生成" 链路，并提供详细的延迟性能分析。
+
+## 2. 系统架构与项目结构
+
+### 2.1 项目文件结构
 
 ```
 src/
-├── asr/                    # 自动语音识别模块
-│   ├── faster_whisper_streamer.py   # 基于faster-whisper的流式ASR处理器
-│   └── audio_segmenter.py           # VAD音频分段器 (基于Silero VAD)
-├── llm/                    # 大语言模型模块
-│   └── stream_llm_inference.py      # 流式LLM推理引擎 (支持KV缓存)
-├── pipeline/               # 流水线模块
-│   └── streaming_pipeline.py        # ASR-LLM级联处理流程
-├── utils/                  # 工具模块
-│   ├── audio2stream.py              # 音频流处理工具
-│   └── logging_utils.py             # 日志工具
-└── config.py               # 配置文件
+├── __init__.py
+├── config.py              # 全局配置管理，支持 .env 环境变量
+├── run_test_simple.py     # 全链路测试主程序 (Python)
+├── run_test_simple.sh     # 启动脚本 (Bash wrapper)
+├── asr/                   # ASR (自动语音识别) 模块
+│   ├── __init__.py
+│   ├── faster_whisper_streamer.py   # 流式ASR处理器，实现上下文感知和缓存管理
+│   ├── run_stream_asr_test.py       # ASR 模块独立测试脚本
+│   └── streamaudio_segmenter.py     # 基于 Silero VAD 的流式音频分段器
+├── llm/                   # LLM (大语言模型) 模块
+│   ├── __init__.py
+│   ├── run_llm_test.py              # LLM 模块独立测试脚本
+│   └── stream_llm_inference.py      # 流式LLM推理引擎，实现 KV Cache 管理
+└── utils/                 # 通用工具模块
+    ├── __init__.py
+    ├── audio_utils.py               # 音频处理工具
+    ├── audio2stream.py              # 音频流模拟生成器
+    └── logging_utils.py             # 日志配置
 ```
 
-### 2.2 自动语音识别 (ASR) 优化
+### 2.2 核心模块详解
 
-**核心技术**:
-- **ASR引擎**: 采用 [faster-whisper](https://github.com/SYSTRAN/faster-whisper) 作为ASR引擎
-- **音频分段**: 基于 Silero VAD 的智能语音活动检测和音频分段
-- **流式处理**: 支持实时音频块处理和文本输出
+#### 自动语音识别 (ASR)
+- **引擎**: `faster-whisper` (基于 CTranslate2 加速的 Whisper 实现)。
+- **分段**: 使用 `Silero VAD` 进行实时语音活动检测，智能切分音频流。
+- **流式策略**: 
+    - 维护一个音频缓冲区 (`ASRCache`)。
+    - 使用滑动窗口机制，保留前缀 (`prefix_segments`) 以提供识别上下文。
+    - 动态判断何时输出确定性的文本片段。
 
-**关键特性**:
-1. **动态分段策略**:
-   - 使用 VAD (Voice Activity Detection) 检测语音活动
-   - 支持基于静音的智能分段和固定时长分段两种模式
-   - 前缀段机制确保识别上下文的连续性
-
-2. **上下文感知识别**:
-   - 采用重叠音频段策略提高识别准确率
-   - 利用词级时间戳进行精确文本对齐和替换
-   - 支持历史上下文传递，提升连续对话识别质量
-
-3. **实时性优化**:
-   - 流式音频输入处理
-   - 动态识别阈值调整
-   - 支持并发音频处理和文本输出
-
-### 2.3 大语言模型 (LLM) 流式响应优化
-
-**核心技术**:
-- **KV缓存机制**: 利用 Transformer 模型的键值缓存减少计算开销
-- **流式文本处理**: 支持文本片段的增量输入和处理
-- **首Token延迟优化**: 针对首个响应Token的生成时间进行专门优化
-
-**关键特性**:
-1. **流式输入处理**:
-   - 支持文本片段的流式添加和KV缓存更新
-   - 动态生成触发机制（标点符号检测）
-   - 支持评估模式和完整生成模式
-
-2. **KV缓存优化**:
-   - 预计算KV缓存减少首Token延迟
-   - 增量式缓存更新避免重复计算
-   - 支持缓存状态管理和重置
-
-3. **生成控制**:
-   - 灵活的生成参数配置（温度、top_p等）
-   - 支持停止序列和EOS检测
-   - 详细的性能计时统计
+#### 大语言模型 (LLM)
+- **引擎**: HuggingFace `transformers`。
+- **KV Cache 优化**: 
+    - `StreamLLMInference` 类维护 `KVCache` 状态。
+    - 支持 `cache_prompt` 接口：当 ASR 产出新的文本片段时，仅对新片段计算 KV 并追加到缓存中，无需重新计算整个 Prompt。
+    - 显著降低了长上下文下的首字生成延迟 (TTFT)。
 
 ## 3. 快速开始
 
 ### 3.1 环境配置
 
-1. **Python环境**: 推荐使用 Python 3.8+
+1. **Python环境**: 推荐 Python 3.10+
 2. **依赖安装**:
    ```bash
    pip install -r requirements.txt
    ```
+   *注意: 需确保安装了对应 CUDA 版本的 `torch` 和 `ctranslate2` 以获得最佳性能。*
 
-3. **环境变量配置**: 复制 `.env.example` 到 `.env` 并配置相应参数:
+3. **环境变量配置**:
+   项目根目录下创建 `.env` 文件 (参考 `.env.example`，如果存在):
+   
    ```bash
+   # 基础设备配置 (auto/cuda/cpu)
+   DEVICE="auto"
+
    # 模型配置
-   LLM_MODEL_NAME="your_llm_model_name"
-   ASR_MODEL_NAME="base"  # faster-whisper模型大小
-   
-   # Hugging Face配置
+   LLM_MODEL_NAME="Qwen/Qwen2.5-0.5B-Instruct"  # 推荐使用小模型进行测试
+   ASR_MODEL_NAME="base"                         # faster-whisper 模型大小 (tiny/base/small/medium/large)
+
+   # Hugging Face 缓存
    HF_HOME="./cache"
-   HF_TOKEN="your_hf_token"
    
-   # 数据路径
-   DATA_DIR="data"
+   # ASR流式参数
+   VAD_THRESHOLD="0.5"
+   ASR_CHUNK_SECONDS="10"
    ```
 
-### 3.2 测试运行
+### 3.2 运行全链路测试
 
-**完整流水线测试**:
+项目提供了一个便捷的 Shell 脚本 `src/run_test_simple.sh` 来运行测试。该测试会使用一段音频文件，分别模拟流式输入和非流式输入，并对比两者的延迟性能。
+
+**基本用法**:
 ```bash
-python test_streaming.py --wav_path "path/to/your/audio.wav" --chunk_duration 0.5
+# 运行对比测试 (Streaming vs Non-Streaming)
+./src/run_test_simple.sh both
+
+# 指定音频文件运行
+./src/run_test_simple.sh both --audio /path/to/your/audio.wav
+
+# 仅运行流式测试，开启调试日志
+./src/run_test_simple.sh streaming --log-level DEBUG
+
+# 仅运行非流式测试
+./src/run_test_simple.sh non-streaming
 ```
 
-**ASR模块单独测试**:
-```bash
-python -m src.asr.faster_whisper_streamer --wav_path "path/to/audio.wav" --model_size base
-```
+**参数说明**:
+- `mode`: `streaming` (流式), `non-streaming` (非流式), `both` (对比测试)。
+- `--audio`: 输入音频文件路径。
+- `--chunk-duration`: 流式模式下模拟音频块的时长 (ms)，默认 500ms。
+- `--asr-device` / `--llm-device`: 显式指定各模块运行设备。
+- `--save-results`: 将测试结果保存为 JSON 文件到 `experiments/results`。
 
-**LLM模块单独测试**:
-```bash
-python -m src.llm.stream_llm_inference
-```
+## 4. 性能评估指标
 
-## 4. 核心API接口
+运行测试后，控制台会输出详细的性能统计信息：
 
-### 4.1 StreamingASRProcessor
+1. **Audio End to First Token (流式核心指标)**: 
+   - 定义：从用户说话结束（音频流结束）到 LLM 生成第一个字符的时间。
+   - 优化目标：越短越好。本项目通过流式 ASR 和 LLM KV Cache 旨在最小化此指标。
 
+2. **Audio Load to First Token (非流式基准)**:
+   - 定义：从音频加载完成（模拟录音结束）到 LLM 生成第一个字符的时间。
+   - 包含：完整的 ASR 转录时间 + 完整的 LLM Prompt 处理时间。
+
+3. **Latency Improvement**:
+   - 流式方案相对于非流式方案的延迟降低值。
+
+## 5. 核心 API 接口示例
+
+### 5.1 ASR 流式处理
 ```python
-from src.asr.faster_whisper_streamer import StreamingASRProcessor
+from src.asr.faster_whisper_streamer import StreamingASRProcessor, ASRCache
 
-# 创建ASR处理器
-asr_processor = StreamingASRProcessor(
-    model_size="base",
-    recognition_threshold=3.0,  # 识别阈值（秒）
-    prefix_segments=1           # 前缀段数
-)
+processor = StreamingASRProcessor(model_size="base")
+cache = ASRCache()
 
-# 处理音频块
-for audio_chunk, is_last in audio_stream:
-    new_texts = asr_processor.add_audio_chunk(audio_chunk, is_last)
-    for text in new_texts:
-        print(f"识别结果: {text}")
+# 模拟接收音频段
+# audio_segment 是包含音频数据和元数据的对象
+cache, new_text, is_final = processor.transcribe_audio_segment(cache)
+
+if new_text:
+    print(f"流式识别结果: {new_text}")
 ```
 
-### 4.2 StreamLLMInference
-
+### 5.2 LLM 流式推理与缓存
 ```python
 from src.llm.stream_llm_inference import StreamLLMInference
 
-# 创建LLM推理引擎
-llm_processor = StreamLLMInference()
+llm = StreamLLMInference(model_name="Qwen/Qwen2.5-0.5B-Instruct")
+kv_cache = None
 
-# 流式文本处理
-def text_generator():
-    texts = ["你好", "，请问", "你能做什么？"]
-    for i, text in enumerate(texts):
-        yield text, (i == len(texts) - 1)  # (文本, 是否结束)
+# 第一段输入
+kv_cache = llm.cache_prompt("你好，", pre_cache=kv_cache)
 
-# 生成响应
-for token, timestamp in llm_processor.stream_add_and_generate(text_generator()):
-    print(f"生成Token: {token}")
+# 第二段输入 (增量计算，复用之前的 kv_cache)
+kv_cache = llm.cache_prompt("请介绍一下你自己。", pre_cache=kv_cache, is_end=True)
+
+# 生成回复
+for token in llm.generate(pre_cache=kv_cache):
+    print(token, end="")
 ```
 
-### 4.3 端到端流水线
+## 6. 常见问题 (FAQ)
 
-```python
-from src.pipeline.streaming_pipeline import StreamingPipeline
+**Q: 首次运行速度较慢？**
+A: 首次运行需要下载 HuggingFace 模型和 Silero VAD 模型。此外，模型加载到 GPU 也需要时间。建议在测试脚本中观察 "Warmup" 阶段的日志。
 
-# 创建流水线
-pipeline = StreamingPipeline(
-    asr_model_size="base",
-    llm_model_name="your_model"
-)
+**Q: VAD 切分不准确？**
+A: 可以在 `.env` 或 `config.py` 中调整 `VAD_THRESHOLD` (默认 0.5) 和 `VAD_MIN_SPEECH_MS`。
 
-# 处理音频流
-pipeline.process_audio_stream(audio_frames_producer)
-```
+**Q: ASR 识别结果在流式输出时会变化？**
+A: 是的，这是预期的。为了提高准确率，流式 ASR 会保留一部分音频上下文（Context），当前的输出可能会在接收到更多音频后被修正（如果使用了更复杂的输出策略）。但在本项目的简单实现中，我们主要关注**确定的**输出片段如何尽快送入 LLM。
 
-## 5. 实验设计与评估
+## 7. 许可证
 
-### 5.1 评估指标
-
-- **首个Token延迟 (First Token Latency)**: 从语音输入完成到LLM生成首个Token的时间
-- **ASR准确率**: 使用词错误率(WER)评估识别准确性  
-- **端到端延迟**: 完整的音频->文本->响应生成链路延迟
-- **实时因子**: 处理时间与音频时长的比值
-
-### 5.2 测试数据
-
-项目支持多种音频输入格式：
-- **音频格式**: WAV, MP3等（自动转换为16kHz单声道）
-- **测试数据**: 位于 `data/processed_audio/` 目录
-- **时长分类**: 按语音长度分类测试不同场景的性能
-
-### 5.3 性能优化参数
-
-**ASR优化参数**:
-- `recognition_threshold`: 识别阈值，控制何时触发转录
-- `prefix_segments`: 前缀段数，影响上下文质量
-- `min_speech_duration`: 最小语音段长度
-
-**LLM优化参数**:
-- `eval_mode`: 评估模式，只生成首Token用于延迟测试
-- `temperature`: 生成随机性控制
-- KV缓存策略选择
-
-## 6. 技术实现细节
-
-### 6.1 ASR流式处理
-
-1. **音频分段策略**:
-   - 基于VAD的智能分段
-   - 固定时长分段作为备选
-   - 支持重叠段处理确保连续性
-
-2. **文本对齐算法**:
-   - 基于词级时间戳的精确对齐
-   - 历史文本替换和更新机制
-   - 上下文感知的识别优化
-
-### 6.2 LLM KV缓存机制
-
-1. **缓存更新策略**:
-   - 增量式KV缓存计算
-   - 动态缓存状态管理
-   - 内存使用优化
-
-2. **生成触发机制**:
-   - 基于标点符号的智能触发
-   - 支持手动和自动触发模式
-   - 可配置的触发条件
-
-### 6.3 并发处理架构
-
-- 使用队列和线程实现模块间异步通信
-- 支持生产者-消费者模式的数据流处理
-- 内置错误处理和恢复机制
-
-## 7. 扩展开发
-
-### 7.1 添加新的ASR引擎
-
-继承 `StreamingASRProcessor` 基类并实现相应接口:
-
-```python
-class CustomASRProcessor(StreamingASRProcessor):
-    def _transcribe_segments(self, segments):
-        # 实现自定义ASR逻辑
-        pass
-```
-
-### 7.2 集成其他LLM模型
-
-修改 `StreamLLMInference` 类以支持不同的模型架构:
-
-```python
-# 在config.py中配置新模型
-LLM_MODEL_NAME = "path/to/your/model"
-```
-
-### 7.3 扩展流水线功能
-
-在 `StreamingPipeline` 中添加新的处理阶段，如TTS集成。
-
-## 8. 项目文件结构
-
-```
-streamllm/
-├── CLAUDE.md                  # Claude Code 配置文件
-├── README.md                  # 项目说明文档
-├── test_streaming.py          # 主测试程序
-├── config.json               # 配置文件
-├── logs/                     # 日志目录
-│   └── experiment.log
-├── data/                     # 数据目录
-│   └── processed_audio/
-│       └── length30+/        # 按时长分类的音频文件
-├── src/                      # 源代码目录
-│   ├── config.py            # 配置管理
-│   ├── asr/                 # ASR模块
-│   │   ├── faster_whisper_streamer.py
-│   │   └── audio_segmenter.py
-│   ├── llm/                 # LLM模块
-│   │   └── stream_llm_inference.py  
-│   ├── pipeline/            # 流水线模块
-│   │   └── streaming_pipeline.py
-│   └── utils/               # 工具模块
-│       ├── audio2stream.py
-│       └── logging_utils.py
-└── requirements.txt         # 依赖列表
-```
-
-## 9. 常见问题
-
-### 9.1 模型加载问题
-
-**Q**: faster-whisper模型加载失败？
-**A**: 检查网络连接，或手动下载模型到本地目录，然后在config.py中指定本地路径。
-
-**Q**: LLM模型显存不足？
-**A**: 在config.py中设置`DEVICE="cpu"`使用CPU推理，或使用更小的模型。
-
-### 9.2 性能优化
-
-**Q**: 首Token延迟过高？
-**A**: 调整以下参数：
-- 降低`recognition_threshold`值
-- 启用`eval_mode=True`只生成首Token
-- 使用更小的模型
-
-**Q**: ASR识别准确率低？
-**A**: 尝试：
-- 增加`prefix_segments`数量
-- 调整VAD参数的`threshold`值
-- 使用更大的whisper模型
-
-### 9.3 开发调试
-
-**Q**: 如何查看详细日志？
-**A**: 在测试命令中添加`--log_level DEBUG`参数。
-
-**Q**: 如何单独测试某个模块？
-**A**: 使用各模块的main函数或测试脚本进行单独测试。
-
-## 10. 贡献指南
-
-欢迎贡献代码和建议！请遵循以下步骤：
-
-1. Fork 项目
-2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 创建 Pull Request
-
-## 11. 许可证
-
-本项目采用 MIT 许可证。详见 `LICENSE` 文件。
-
-## 12. 联系方式
-
-如有问题或建议，请通过以下方式联系：
-- 项目Issues: 在GitHub仓库中提交Issue
-- 邮箱: [项目维护者邮箱]
-
----
-
-**注意**: 本项目仍在积极开发中，API可能会发生变化。请关注版本更新和变更日志。
+本项目采用 MIT 许可证。

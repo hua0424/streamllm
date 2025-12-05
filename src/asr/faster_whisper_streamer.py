@@ -472,7 +472,7 @@ class StreamingASRProcessor:
 
             # 记录每个段的识别结果
             segment_start_offset = 0.0
-            for i, segment in enumerate[ASRAudioSegment](cache.segment_queue):
+            for i, segment in enumerate(cache.segment_queue):
                 segment.text = self._extract_segment_text(current_recognition, i, segment, segment_start_offset)
                 segment_start_offset += segment.duration
 
@@ -691,22 +691,10 @@ class StreamingASRProcessor:
                 word_start = word['start']
                 word_end = word['end']
                 
-                # 优化匹配策略：使用词的重叠度进行匹配
-                # 计算词与目标段的重叠度
-                overlap_start = max(word_start, segment_start_offset)
-                overlap_end = min(word_end, segment_end_offset)
-                overlap_duration = max(0, overlap_end - overlap_start)
-                word_duration = word_end - word_start
-
+                # 匹配策略：词的结束时间在目标段范围内则归属于该段
                 if word_end >= segment_start_offset and word_end <= segment_end_offset:
                     matched_words.append(word['text'])
-                    logger.debug(f"      词匹配: {word['text']} [{word_start:.2f}s-{word_end:.2f}s] ")
-                        
-                # # 如果重叠度超过词的50%，则归属于该段
-                # if word_duration > 0 and (overlap_duration / word_duration) >= 0.5:
-                #     matched_words.append(word['text'])
-                #     logger.debug(f"      词匹配: {word['text']} [{word_start:.2f}s-{word_end:.2f}s] "
-                #                f"重叠度: {overlap_duration/word_duration:.2f}")
+                    logger.debug(f"      词匹配: {word['text']} [{word_start:.2f}s-{word_end:.2f}s]")
         
         if matched_words:
             result_text = ''.join(matched_words).strip()

@@ -28,9 +28,8 @@ from src.asr.streamaudio_segmenter import StreamAudioSegmenter, StreamState, Aud
 from src.asr.faster_whisper_streamer import StreamingASRProcessor, ASRCache, ASRAudioSegment
 
 # 设置日志
-from src.utils.logging_utils import get_logger, set_global_log_level
+from src.utils.logging_utils import get_logger
 logger = get_logger(__name__)
-set_global_log_level("DEBUG")  # 设置全局日志级别为 DEBUG
 
 
 class MultiThreadStreamingASR:
@@ -297,7 +296,7 @@ class MultiThreadStreamingASR:
                         logger.debug(f"Starting transcription for {len(asr_cache.segment_queue)} segments")
                         
                         # 使用ASR处理器处理音频段
-                        asr_cache, output_text = self.asr_processor.transcribe_audio_segment(asr_cache)
+                        asr_cache, output_text, _ = self.asr_processor.transcribe_audio_segment(asr_cache)
                         
                         # 如果有输出文本，更新转录结果
                         if output_text:

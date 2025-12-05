@@ -32,7 +32,7 @@ from src.asr.streamaudio_segmenter import StreamAudioSegmenter
 from src.asr.faster_whisper_streamer import StreamingASRProcessor, ASRCache, ASRAudioSegment
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.asr.run_stream_asr_test import convert_audio_segment
-from src.config import LLM_MODEL_NAME
+from src.config import LLM_MODEL_NAME, ASR_MODEL_NAME, RESULTS_DIR
 
 # 设置日志
 logger = get_logger(__name__)
@@ -808,8 +808,8 @@ def main():
     
     # 基础参数
     parser.add_argument("--audio", type=str, 
-                        default="/usr/local/app/jupyterlab/yanjiu/streamllm/experiments/datasets/processed/experiments/length_analysis/audio/long/sample_001.wav", 
-                        help="Path to audio file")
+                        default="experiments/datasets/processed/experiments/length_analysis/audio/long/sample_001.wav", 
+                        help="Path to audio file (relative to project root or absolute)")
     parser.add_argument("--chunk-duration", type=int, default=500, 
                         help="Chunk duration in ms (for streaming mode)")
     
@@ -822,7 +822,7 @@ def main():
                         help="Device for LLM model (auto/cuda/cpu)")
     
     # ASR参数
-    parser.add_argument("--asr-model-size", type=str, default="tiny",
+    parser.add_argument("--asr-model-size", type=str, default=ASR_MODEL_NAME,
                         choices=["tiny", "base", "small", "medium", "large"],
                         help="ASR model size")
     parser.add_argument("--asr-prefix-segments", type=int, default=1, 
@@ -849,7 +849,7 @@ def main():
     # 结果保存
     parser.add_argument("--save-results", action="store_true", 
                         help="Save results to file")
-    parser.add_argument("--results-dir", type=str, default="experiments/results", 
+    parser.add_argument("--results-dir", type=str, default=RESULTS_DIR, 
                         help="Directory to save results")
     
     args = parser.parse_args()
