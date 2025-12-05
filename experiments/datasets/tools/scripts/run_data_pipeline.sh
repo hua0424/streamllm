@@ -35,9 +35,10 @@ NC='\033[0m' # No Color
 # 默认配置
 TTS_URL="${TTS_URL:-http://host.docker.internal:20401}"
 DATASET="${DATASET:-all}"
-MAX_DIALOGS=""
+TOP_N_DIALOGS="100"
 MAX_SAMPLES=""
-TTS_SPEED="1.0"
+TTS_SPEED="0.8"
+TTS_WORKERS="4"
 CONDA_ENV="${CONDA_ENV:-streamllm}"
 
 # 打印帮助信息
@@ -56,27 +57,28 @@ print_help() {
     echo "  help          显示此帮助信息"
     echo ""
     echo "选项:"
-    echo "  --dataset      数据集 (crosswoz/multiwoz/all)，默认: all"
-    echo "  --max-dialogs  最大对话数"
-    echo "  --max-samples  每对话最大样本数"
-    echo "  --tts-url      TTS服务地址，默认: \$TTS_URL"
-    echo "  --tts-speed    TTS语速，默认: 1.0"
+    echo "  --dataset         数据集 (crosswoz/multiwoz/all)，默认: all"
+    echo "  --top-n-dialogs   选取文本最长的前N个对话，默认: 100"
+    echo "  --max-samples     每对话最大样本数"
+    echo "  --tts-url         TTS服务地址，默认: \$TTS_URL"
+    echo "  --tts-speed       TTS语速，默认: 0.8"
+    echo "  --tts-workers     TTS并发数，默认: 4"
     echo ""
     echo "环境变量:"
     echo "  TTS_URL        TTS服务地址（可通过环境变量设置）"
     echo "  CONDA_ENV      conda环境名称，默认: streamllm"
     echo ""
     echo "示例:"
-    echo "  # 仅预处理数据"
+    echo "  # 仅预处理数据（默认取文本最长的100个对话）"
     echo "  $0 preprocess"
     echo ""
-    echo "  # 完整管线，限制10个对话"
-    echo "  $0 full --max-dialogs 10"
+    echo "  # 完整管线，选取文本最长的50个对话"
+    echo "  $0 full --top-n-dialogs 50"
     echo ""
     echo "  # 仅处理CrossWOZ"
     echo "  $0 preprocess --dataset crosswoz"
     echo ""
-    echo "  # 测试模式（5个对话，每对话3个样本）"
+    echo "  # 测试模式（10个对话）"
     echo "  $0 test"
 }
 
@@ -103,8 +105,8 @@ while [[ $# -gt 0 ]]; do
             DATASET="$2"
             shift 2
             ;;
-        --max-dialogs)
-            MAX_DIALOGS="$2"
+        --top-n-dialogs)
+            TOP_N_DIALOGS="$2"
             shift 2
             ;;
         --max-samples)
@@ -119,6 +121,10 @@ while [[ $# -gt 0 ]]; do
             TTS_SPEED="$2"
             shift 2
             ;;
+        --tts-workers)
+            TTS_WORKERS="$2"
+            shift 2
+            ;;
         *)
             log_error "未知参数: $1"
             print_help
@@ -129,17 +135,13 @@ done
 
 # 构建命令参数
 build_args() {
-    local args="--dataset $DATASET"
-    
-    if [[ -n "$MAX_DIALOGS" ]]; then
-        args="$args --max-dialogs $MAX_DIALOGS"
-    fi
+    local args="--dataset $DATASET --top-n-dialogs $TOP_N_DIALOGS"
     
     if [[ -n "$MAX_SAMPLES" ]]; then
         args="$args --max-samples-per-dialog $MAX_SAMPLES"
     fi
     
-    args="$args --tts-url $TTS_URL --tts-speed $TTS_SPEED"
+    args="$args --tts-url $TTS_URL --tts-speed $TTS_SPEED --tts-workers $TTS_WORKERS"
     
     echo "$args"
 }
@@ -197,9 +199,8 @@ case $MODE in
         run_pipeline ""
         ;;
     test)
-        log_info "模式: 测试（5个对话，每对话3个样本）"
-        MAX_DIALOGS=5
-        MAX_SAMPLES=3
+        log_info "模式: 测试（10个对话）"
+        TOP_N_DIALOGS=10
         run_pipeline "--skip-tts"
         ;;
     help|--help|-h)

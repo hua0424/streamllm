@@ -5,6 +5,11 @@
 
 将 MultiWOZ / CrossWOZ 数据集处理成累积对话格式，用于实验。
 
+筛选策略：
+1. 计算每个对话的总文本长度（所有轮次累积）
+2. 按总文本长度降序排序，取前 N 条对话（默认100条）
+3. 对选中的对话进行累积处理，生成 turn1, turn2, turn3...
+
 累积对话逻辑：
 轮次1 (用户)  -> 输出文本: a1
 轮次2 (系统)  -> 跳过（只在下一轮用户发言时累积）
@@ -12,14 +17,12 @@
 轮次4 (系统)  -> 跳过
 轮次5 (用户)  -> 输出文本: a1 + b1 + a2 + b2 + a3
 ...
-
-这样可以模拟用户在多轮对话中提供越来越长的上下文输入。
 """
 
 import json
 import shutil
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Tuple, Dict, Any
 
 
 def clear_output_dir(directory: Path):
@@ -29,10 +32,28 @@ def clear_output_dir(directory: Path):
     directory.mkdir(parents=True, exist_ok=True)
 
 
+def calculate_dialog_total_length_crosswoz(messages: List[Dict]) -> int:
+    """计算 CrossWOZ 对话的总文本长度"""
+    total_length = 0
+    for msg in messages:
+        text = msg.get('content', '').strip()
+        total_length += len(text)
+    return total_length
+
+
+def calculate_dialog_total_length_multiwoz(logs: List[Dict]) -> int:
+    """计算 MultiWOZ 对话的总文本长度"""
+    total_length = 0
+    for turn in logs:
+        text = turn.get('text', '').strip()
+        total_length += len(text)
+    return total_length
+
+
 def process_crosswoz(
     input_file: str, 
     output_dir: str, 
-    max_dialogs: Optional[int] = None,
+    top_n_dialogs: int = 100,
     max_samples_per_dialog: Optional[int] = None
 ) -> int:
     """
@@ -43,7 +64,7 @@ def process_crosswoz(
     Args:
         input_file: 输入JSON文件路径
         output_dir: 输出目录
-        max_dialogs: 最大处理对话数（None表示不限制）
+        top_n_dialogs: 取文本最长的前N个对话（默认100）
         max_samples_per_dialog: 每个对话最多生成的样本数（None表示不限制）
     
     Returns:
@@ -56,22 +77,35 @@ def process_crosswoz(
     with open(input_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    total_count = 0
-    dialog_count = 0
+    # 第一步：计算每个对话的总文本长度
+    dialog_lengths: List[Tuple[str, int, Dict]] = []
     
     for dialog_id, content in data.items():
-        if max_dialogs and dialog_count >= max_dialogs:
-            break
-            
         messages = content.get('messages', [])
         if not messages:
             continue
         
-        dialog_count += 1
+        total_length = calculate_dialog_total_length_crosswoz(messages)
+        dialog_lengths.append((dialog_id, total_length, content))
+    
+    # 第二步：按总文本长度降序排序，取前 top_n_dialogs 条
+    dialog_lengths.sort(key=lambda x: x[1], reverse=True)
+    selected_dialogs = dialog_lengths[:top_n_dialogs]
+    
+    print(f"共 {len(dialog_lengths)} 个对话，选取文本最长的 {len(selected_dialogs)} 个")
+    if selected_dialogs:
+        print(f"  最长对话文本长度: {selected_dialogs[0][1]} 字符")
+        print(f"  最短对话文本长度: {selected_dialogs[-1][1]} 字符")
+
+    # 第三步：对选中的对话进行累积处理
+    total_count = 0
+    
+    for dialog_id, total_length, content in selected_dialogs:
+        messages = content.get('messages', [])
         
         # 累积对话历史
         accumulated_text = ""
-        user_turn_index = 0  # 用户轮次计数
+        user_turn_index = 0
         sample_count_in_dialog = 0
         
         for idx, msg in enumerate(messages):
@@ -87,7 +121,7 @@ def process_crosswoz(
             else:
                 accumulated_text = text
             
-            # 只在用户轮次生成样本（模拟用户说完话后系统响应的场景）
+            # 只在用户轮次生成样本
             if role == 'usr':
                 user_turn_index += 1
                 
@@ -101,7 +135,9 @@ def process_crosswoz(
                     "dialog_id": str(dialog_id),
                     "turn_index": user_turn_index,
                     "text": accumulated_text,
+                    "text_length": len(accumulated_text),
                     "audio_file": f"{sample_id}.wav",
+                    "audio_duration": None,  # TTS 后填充
                     "language": "zh",
                     "dataset": "crosswoz"
                 }
@@ -113,14 +149,14 @@ def process_crosswoz(
                 total_count += 1
                 sample_count_in_dialog += 1
 
-    print(f"CrossWOZ 处理完成：{dialog_count} 个对话，生成 {total_count} 个任务文件")
+    print(f"CrossWOZ 处理完成：{len(selected_dialogs)} 个对话，生成 {total_count} 个任务文件")
     return total_count
 
 
 def process_multiwoz(
     input_file: str, 
     output_dir: str, 
-    max_dialogs: Optional[int] = None,
+    top_n_dialogs: int = 100,
     max_samples_per_dialog: Optional[int] = None
 ) -> int:
     """
@@ -132,7 +168,7 @@ def process_multiwoz(
     Args:
         input_file: 输入JSON文件路径
         output_dir: 输出目录
-        max_dialogs: 最大处理对话数（None表示不限制）
+        top_n_dialogs: 取文本最长的前N个对话（默认100）
         max_samples_per_dialog: 每个对话最多生成的样本数（None表示不限制）
     
     Returns:
@@ -145,25 +181,38 @@ def process_multiwoz(
     with open(input_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    total_count = 0
-    dialog_count = 0
+    # 第一步：计算每个对话的总文本长度
+    dialog_lengths: List[Tuple[str, int, Dict]] = []
     
     for dialog_id, content in data.items():
-        if max_dialogs and dialog_count >= max_dialogs:
-            break
-            
         logs = content.get('log', [])
         if not logs:
             continue
         
-        dialog_count += 1
+        total_length = calculate_dialog_total_length_multiwoz(logs)
+        dialog_lengths.append((dialog_id, total_length, content))
+    
+    # 第二步：按总文本长度降序排序，取前 top_n_dialogs 条
+    dialog_lengths.sort(key=lambda x: x[1], reverse=True)
+    selected_dialogs = dialog_lengths[:top_n_dialogs]
+    
+    print(f"共 {len(dialog_lengths)} 个对话，选取文本最长的 {len(selected_dialogs)} 个")
+    if selected_dialogs:
+        print(f"  最长对话文本长度: {selected_dialogs[0][1]} 字符")
+        print(f"  最短对话文本长度: {selected_dialogs[-1][1]} 字符")
+
+    # 第三步：对选中的对话进行累积处理
+    total_count = 0
+    
+    for dialog_id, total_length, content in selected_dialogs:
+        logs = content.get('log', [])
         
         # 清理 dialog_id (移除 .json 后缀)
         clean_dialog_id = dialog_id.replace('.json', '')
         
         # 累积对话历史
         accumulated_text = ""
-        user_turn_index = 0  # 用户轮次计数
+        user_turn_index = 0
         sample_count_in_dialog = 0
         
         for idx, turn in enumerate(logs):
@@ -195,7 +244,9 @@ def process_multiwoz(
                     "dialog_id": clean_dialog_id,
                     "turn_index": user_turn_index,
                     "text": accumulated_text,
+                    "text_length": len(accumulated_text),
                     "audio_file": f"{sample_id}.wav",
+                    "audio_duration": None,  # TTS 后填充
                     "language": "en",
                     "dataset": "multiwoz"
                 }
@@ -207,7 +258,7 @@ def process_multiwoz(
                 total_count += 1
                 sample_count_in_dialog += 1
 
-    print(f"MultiWOZ 处理完成：{dialog_count} 个对话，生成 {total_count} 个任务文件")
+    print(f"MultiWOZ 处理完成：{len(selected_dialogs)} 个对话，生成 {total_count} 个任务文件")
     return total_count
 
 
@@ -220,8 +271,8 @@ def main():
                         default='all', help='要处理的数据集')
     parser.add_argument('--input-file', help='输入文件路径')
     parser.add_argument('--output-dir', required=True, help='输出目录')
-    parser.add_argument('--max-dialogs', type=int, default=None, 
-                        help='最大处理对话数')
+    parser.add_argument('--top-n-dialogs', type=int, default=100, 
+                        help='取文本最长的前N个对话（默认100）')
     parser.add_argument('--max-samples-per-dialog', type=int, default=None,
                         help='每个对话最多生成的样本数')
     
@@ -231,7 +282,7 @@ def main():
         process_crosswoz(
             args.input_file,
             args.output_dir,
-            max_dialogs=args.max_dialogs,
+            top_n_dialogs=args.top_n_dialogs,
             max_samples_per_dialog=args.max_samples_per_dialog
         )
     
@@ -239,7 +290,7 @@ def main():
         process_multiwoz(
             args.input_file,
             args.output_dir,
-            max_dialogs=args.max_dialogs,
+            top_n_dialogs=args.top_n_dialogs,
             max_samples_per_dialog=args.max_samples_per_dialog
         )
 

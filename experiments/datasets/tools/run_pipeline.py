@@ -3,14 +3,17 @@
 """
 数据处理管线
 
-阶段1：数据预处理 - 将原始数据集转换为累积对话格式的JSON文件
+阶段1：数据预处理 - 选取文本最长的对话，转换为累积对话格式的JSON文件
 阶段2：TTS生成 - 批量调用TTS服务生成音频文件
+阶段3：更新元数据 - 读取音频时长，更新到JSON文件中
 
 使用方式（在项目根目录下运行）:
     uv run python -m experiments.datasets.tools.run_pipeline [参数]
 """
 
 import argparse
+import json
+import wave
 import sys
 from pathlib import Path
 
@@ -33,11 +36,32 @@ DEFAULT_PATHS = {
 }
 
 
+def get_audio_duration(audio_path: Path) -> float:
+    """
+    获取音频文件时长（秒）
+    
+    Args:
+        audio_path: 音频文件路径
+    
+    Returns:
+        音频时长（秒），失败返回 -1
+    """
+    try:
+        with wave.open(str(audio_path), 'rb') as wav_file:
+            frames = wav_file.getnframes()
+            sample_rate = wav_file.getframerate()
+            duration = frames / sample_rate
+            return round(duration, 3)
+    except Exception as e:
+        print(f"  警告：无法读取音频时长 {audio_path}: {e}")
+        return -1
+
+
 def run_phase_1_preprocess(args, project_root: Path) -> Path:
     """
     阶段一：数据预处理
     
-    将原始数据集转换为累积对话格式的JSON文件
+    选取每个数据集中文本最长的对话，转换为累积对话格式的JSON文件
     
     Returns:
         处理后的JSON文件目录路径
@@ -45,6 +69,7 @@ def run_phase_1_preprocess(args, project_root: Path) -> Path:
     print("\n" + "=" * 60)
     print("阶段 1：数据预处理 (Data Preprocessing)")
     print("=" * 60)
+    print(f"策略：选取每个数据集中文本最长的 {args.top_n_dialogs} 个对话")
     
     output_base = project_root / args.output_dir
     processed_json_dir = output_base / "json"
@@ -59,7 +84,7 @@ def run_phase_1_preprocess(args, project_root: Path) -> Path:
             count = process_crosswoz(
                 str(crosswoz_file),
                 str(crosswoz_output),
-                max_dialogs=args.max_dialogs,
+                top_n_dialogs=args.top_n_dialogs,
                 max_samples_per_dialog=args.max_samples_per_dialog
             )
             total_samples += count
@@ -74,7 +99,7 @@ def run_phase_1_preprocess(args, project_root: Path) -> Path:
             count = process_multiwoz(
                 str(multiwoz_file),
                 str(multiwoz_output),
-                max_dialogs=args.max_dialogs,
+                top_n_dialogs=args.top_n_dialogs,
                 max_samples_per_dialog=args.max_samples_per_dialog
             )
             total_samples += count
@@ -87,11 +112,14 @@ def run_phase_1_preprocess(args, project_root: Path) -> Path:
     return processed_json_dir
 
 
-def run_phase_2_tts(args, json_input_dir: Path, project_root: Path):
+def run_phase_2_tts(args, json_input_dir: Path, project_root: Path) -> Path:
     """
     阶段二：TTS 批量生成
     
     读取阶段1生成的JSON文件，调用TTS服务生成音频
+    
+    Returns:
+        音频输出目录路径
     """
     print("\n" + "=" * 60)
     print("阶段 2：TTS 批量生成 (TTS Batch Processing)")
@@ -103,9 +131,9 @@ def run_phase_2_tts(args, json_input_dir: Path, project_root: Path):
     if not client.test_connection():
         print("错误：无法连接到 TTS 服务，请确保服务已启动")
         print("提示：可以使用 --skip-tts 参数跳过 TTS 阶段")
-        return
+        return None
     
-    processor = BatchTTSProcessor(client)
+    processor = BatchTTSProcessor(client, max_workers=args.tts_workers)
     
     output_base = project_root / args.output_dir
     audio_output_base = output_base / "audio"
@@ -138,6 +166,79 @@ def run_phase_2_tts(args, json_input_dir: Path, project_root: Path):
     
     print(f"\n阶段 2 完成")
     print(f"音频输出目录: {audio_output_base}")
+    
+    return audio_output_base
+
+
+def run_phase_3_update_duration(args, json_dir: Path, audio_dir: Path, project_root: Path):
+    """
+    阶段三：更新音频时长
+    
+    读取音频文件时长，更新到对应的JSON文件中
+    """
+    print("\n" + "=" * 60)
+    print("阶段 3：更新音频时长 (Update Audio Duration)")
+    print("=" * 60)
+    
+    # 处理各个数据集
+    datasets_to_process = []
+    if args.dataset in ['crosswoz', 'all']:
+        datasets_to_process.append("crosswoz")
+    if args.dataset in ['multiwoz', 'all']:
+        datasets_to_process.append("multiwoz")
+    
+    total_updated = 0
+    total_missing = 0
+    
+    for dataset in datasets_to_process:
+        json_dataset_dir = json_dir / dataset
+        audio_dataset_dir = audio_dir / dataset
+        
+        if not json_dataset_dir.exists():
+            print(f"跳过 {dataset}：JSON目录不存在")
+            continue
+        
+        if not audio_dataset_dir.exists():
+            print(f"跳过 {dataset}：音频目录不存在")
+            continue
+        
+        print(f"\n更新数据集: {dataset}")
+        
+        # 遍历所有 JSON 文件
+        json_files = list(json_dataset_dir.glob("*.json"))
+        updated = 0
+        missing = 0
+        
+        for json_file in json_files:
+            try:
+                with open(json_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                audio_filename = data.get('audio_file', '')
+                audio_path = audio_dataset_dir / audio_filename
+                
+                if audio_path.exists():
+                    duration = get_audio_duration(audio_path)
+                    data['audio_duration'] = duration
+                    
+                    with open(json_file, 'w', encoding='utf-8') as f:
+                        json.dump(data, f, ensure_ascii=False, indent=2)
+                    
+                    updated += 1
+                else:
+                    missing += 1
+                    
+            except Exception as e:
+                print(f"  错误处理 {json_file}: {e}")
+        
+        print(f"  更新: {updated} 个文件")
+        if missing > 0:
+            print(f"  缺少音频: {missing} 个文件")
+        
+        total_updated += updated
+        total_missing += missing
+    
+    print(f"\n阶段 3 完成：更新 {total_updated} 个文件，缺少音频 {total_missing} 个")
 
 
 def main():
@@ -149,14 +250,20 @@ def main():
   # 仅预处理数据（生成JSON）
   uv run python -m experiments.datasets.tools.run_pipeline --skip-tts
   
-  # 完整管线（预处理 + TTS）
+  # 完整管线（预处理 + TTS + 更新时长）
   uv run python -m experiments.datasets.tools.run_pipeline --tts-url http://localhost:20401
   
-  # 仅处理 CrossWOZ 数据集，限制10个对话
-  uv run python -m experiments.datasets.tools.run_pipeline --dataset crosswoz --max-dialogs 10
+  # 使用8个并发加速TTS生成
+  uv run python -m experiments.datasets.tools.run_pipeline --tts-workers 8
   
-  # 跳过预处理，直接进行TTS（使用已有的JSON文件）
+  # 选取文本最长的50个对话
+  uv run python -m experiments.datasets.tools.run_pipeline --top-n-dialogs 50 --skip-tts
+  
+  # 跳过预处理，直接进行TTS
   uv run python -m experiments.datasets.tools.run_pipeline --skip-preprocess
+  
+  # 仅更新音频时长（已完成TTS）
+  uv run python -m experiments.datasets.tools.run_pipeline --skip-preprocess --skip-tts
         """
     )
     
@@ -178,22 +285,24 @@ def main():
                         help=f'输出基础目录 (默认: {DEFAULT_PATHS["output_base"]})')
     
     # 数量控制
-    parser.add_argument('--max-dialogs', type=int, default=None,
-                        help='每个数据集最多处理的对话数 (默认: 不限制)')
+    parser.add_argument('--top-n-dialogs', type=int, default=100,
+                        help='选取文本最长的前N个对话 (默认: 100)')
     parser.add_argument('--max-samples-per-dialog', type=int, default=None,
                         help='每个对话最多生成的样本数 (默认: 不限制)')
     
     # TTS 参数
     parser.add_argument('--tts-url', default='http://host.docker.internal:20401',
                         help='TTS 服务 URL (默认: http://host.docker.internal:20401)')
-    parser.add_argument('--tts-speed', type=float, default=1.0,
-                        help='TTS 语速系数 (默认: 1.0)')
+    parser.add_argument('--tts-speed', type=float, default=0.8,
+                        help='TTS 语速系数 (默认: 0.8)')
+    parser.add_argument('--tts-workers', type=int, default=4,
+                        help='TTS 并发数 (默认: 4，可根据GPU显存调整)')
     
     # 阶段控制
     parser.add_argument('--skip-preprocess', action='store_true',
-                        help='跳过阶段1（数据预处理），直接使用已有JSON文件')
+                        help='跳过阶段1（数据预处理），使用已有JSON文件')
     parser.add_argument('--skip-tts', action='store_true',
-                        help='跳过阶段2（TTS生成），仅进行数据预处理')
+                        help='跳过阶段2（TTS生成）')
     
     args = parser.parse_args()
     
@@ -201,9 +310,10 @@ def main():
     project_root = PROJECT_ROOT
     print(f"项目根目录: {project_root}")
     
-    # 确定 JSON 输入目录
+    # 确定目录路径
     output_base = project_root / args.output_dir
     json_dir = output_base / "json"
+    audio_dir = output_base / "audio"
     
     # 阶段1：数据预处理
     if not args.skip_preprocess:
@@ -217,9 +327,18 @@ def main():
     
     # 阶段2：TTS 生成
     if not args.skip_tts:
-        run_phase_2_tts(args, json_dir, project_root)
+        audio_dir = run_phase_2_tts(args, json_dir, project_root)
+        if audio_dir is None:
+            print("TTS 阶段失败，退出")
+            sys.exit(1)
     else:
         print("\n跳过阶段2（TTS生成）")
+    
+    # 阶段3：更新音频时长
+    if audio_dir and audio_dir.exists():
+        run_phase_3_update_duration(args, json_dir, audio_dir, project_root)
+    else:
+        print("\n跳过阶段3（更新音频时长）：音频目录不存在")
     
     print("\n" + "=" * 60)
     print("管线执行完成！")
