@@ -442,6 +442,12 @@ class QualityExperiment:
 
             res.start_time = timings["start"]
             res.audio_end_time = timings["audio_end"]
+
+            # 防止 ASR 无输出时时间戳计算错误
+            if timings["last_text"] == 0.0:
+                timings["last_text"] = time.time()
+                logger.warning(f"ASR 未输出文本: {sample.sample_id}")
+
             res.last_text_time = timings["last_text"]
             res.asr_time_ms = (timings["last_text"] - timings["audio_end"]) * 1000
             res.transcript = " ".join(texts)
@@ -493,7 +499,33 @@ def compute_statistics(results: List[ExperimentResult], key: str) -> List[Statis
     return stats
 
 
-def save_results(results: List[ExperimentResult], output_dir: Path, args, stats_dataset, stats_language, stats_overall):
+def compute_mode_statistics(results: List[ExperimentResult]) -> List[Statistics]:
+    """按 mode (streaming/non-streaming) 分别统计，论文核心对比数据"""
+    stats: List[Statistics] = []
+    buckets: Dict[str, List[ExperimentResult]] = {}
+    for r in results:
+        if r.error:
+            continue
+        buckets.setdefault(r.mode, []).append(r)
+    for mode, items in buckets.items():
+        wer_arr = np.array([x.wer for x in items])
+        cer_arr = np.array([x.cer for x in items])
+        dur = np.array([x.audio_duration for x in items])
+        stats.append(
+            Statistics(
+                scope=mode,
+                sample_count=len(items),
+                wer_mean=float(np.mean(wer_arr)),
+                wer_std=float(np.std(wer_arr)),
+                cer_mean=float(np.mean(cer_arr)),
+                cer_std=float(np.std(cer_arr)),
+                avg_duration=float(np.mean(dur)),
+            )
+        )
+    return stats
+
+
+def save_results(results: List[ExperimentResult], output_dir: Path, args, stats_dataset, stats_language, stats_overall, stats_mode):
     output_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -510,6 +542,7 @@ def save_results(results: List[ExperimentResult], output_dir: Path, args, stats_
         },
         "results": [asdict(r) for r in results],
         "statistics": {
+            "by_mode": [asdict(s) for s in stats_mode],
             "by_dataset": [asdict(s) for s in stats_dataset],
             "by_language": [asdict(s) for s in stats_language],
             "overall": [asdict(s) for s in stats_overall],
@@ -539,6 +572,9 @@ def save_results(results: List[ExperimentResult], output_dir: Path, args, stats_
     with open(stats_file, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["scope", "sample_count", "avg_duration_s", "wer_mean", "wer_std", "cer_mean", "cer_std"])
+        # 按 mode 统计放在最前面（论文核心对比）
+        for s in stats_mode:
+            w.writerow([s.scope, s.sample_count, f"{s.avg_duration:.2f}", f"{s.wer_mean:.4f}", f"{s.wer_std:.4f}", f"{s.cer_mean:.4f}", f"{s.cer_std:.4f}"])
         for s in stats_dataset + stats_language + stats_overall:
             w.writerow([s.scope, s.sample_count, f"{s.avg_duration:.2f}", f"{s.wer_mean:.4f}", f"{s.wer_std:.4f}", f"{s.cer_mean:.4f}", f"{s.cer_std:.4f}"])
     logger.info(f"统计结果: {stats_file}")
@@ -619,11 +655,21 @@ def main():
     exp = QualityExperiment(shared, args)
     results = exp.run_all(samples)
 
+    # 按 mode 统计（论文核心对比：streaming vs non-streaming）
+    stats_mode = compute_mode_statistics(results)
     stats_dataset = compute_statistics(results, "dataset")
     stats_language = compute_statistics(results, "language")
     stats_overall = compute_statistics(results, "overall")
 
-    save_results(results, output_dir, args, stats_dataset, stats_language, stats_overall)
+    save_results(results, output_dir, args, stats_dataset, stats_language, stats_overall, stats_mode)
+
+    # 打印核心对比结果
+    print("\n" + "=" * 60)
+    print("实验三结果摘要：流式 vs 非流式 ASR 准确率对比")
+    print("=" * 60)
+    for s in stats_mode:
+        print(f"  {s.scope:<15} WER: {s.wer_mean:.4f} (±{s.wer_std:.4f})  CER: {s.cer_mean:.4f} (±{s.cer_std:.4f})  样本: {s.sample_count}")
+    print("=" * 60)
 
     logger.info("实验完成！")
 

@@ -473,7 +473,7 @@ class AblationExperiment:
 
             full_response = []
             first_token = True
-            first_token_time = 0
+            first_token_time = 0.0
 
             for token in self.models.llm_inference.once_add_and_generate(
                 prompt=transcribed_text,
@@ -484,6 +484,12 @@ class AblationExperiment:
                     result.first_token_time = first_token_time
                     first_token = False
                 full_response.append(token)
+
+            # 防止 LLM 无输出时 TTFT 计算错误
+            if first_token_time == 0.0:
+                first_token_time = time.time()
+                result.first_token_time = first_token_time
+                logger.warning(f"LLM 未生成 token: {sample.sample_id}")
 
             result.ttft = (first_token_time - audio_load_time) * 1000
             result.asr_time = (last_text_time - audio_load_time) * 1000
@@ -658,6 +664,12 @@ class AblationExperiment:
                     result.first_token_time = first_token_time
                     first_token = False
                 full_response.append(token)
+
+            # 防止 LLM 无输出时 TTFT 计算错误
+            if first_token_time == 0.0:
+                first_token_time = time.time()
+                result.first_token_time = first_token_time
+                logger.warning(f"LLM 未生成 token: {sample.sample_id}")
 
             result.audio_end_time = timings["audio_end_time"]
             result.last_text_time = timings["last_text_time"]
@@ -847,6 +859,12 @@ class AblationExperiment:
             result.start_time = timings["start_time"]
             result.audio_end_time = timings["audio_end_time"]
             result.last_text_time = timings["last_text_time"]
+
+            # 防止 LLM 无输出时 TTFT 计算错误
+            if timings["first_token_time"] == 0.0:
+                timings["first_token_time"] = time.time()
+                logger.warning(f"LLM 未生成 token: {sample.sample_id}")
+
             result.first_token_time = timings["first_token_time"]
 
             result.ttft = (timings["first_token_time"] - timings["audio_end_time"]) * 1000
