@@ -46,32 +46,40 @@ uv run python -m experiments.scripts.run_exp_quality \
 1) **详细 JSON** `exp3_results_YYYYMMDD_HHMMSS.json`  
    - `config`：运行参数  
    - `results`：逐样本流式/非流式转写、WER/CER、耗时  
-   - `statistics`：按 dataset、language、overall 的均值/方差
+   - `statistics`：按 mode、dataset、language、overall 的均值/方差
 
 2) **逐样本汇总 CSV** `exp3_summary_YYYYMMDD_HHMMSS.csv`  
    列：`sample_id,dataset,language,dialog_id,turn_index,text_length,audio_duration,mode,wer,cer,asr_time_ms,error`
 
 3) **统计 CSV** `exp3_statistics_YYYYMMDD_HHMMSS.csv`  
    列：`scope,sample_count,avg_duration_s,wer_mean,wer_std,cer_mean,cer_std`  
-   - scope 包含 dataset 维度、language 维度、overall
+   - scope 包含：
+     - **mode 维度**（streaming / non-streaming）— 论文核心对比
+     - dataset 维度（crosswoz / multiwoz）
+     - language 维度（zh / en）
+     - overall
 
 ### 数据样例（虚拟）
 ```
-# exp3_summary_*.csv
+# exp3_summary_*.csv（同一 sample_id 有两行：streaming 和 non-streaming）
 sample_id,dataset,language,dialog_id,turn_index,text_length,audio_duration,mode,wer,cer,asr_time_ms,error
 crosswoz_391_turn3,crosswoz,zh,391,3,186,18.5,non-streaming,0.0720,0.0516,812.4,
 crosswoz_391_turn3,crosswoz,zh,391,3,186,18.5,streaming,0.0940,0.0667,285.3,
 ```
 ```
-# exp3_statistics_*.csv
+# exp3_statistics_*.csv（mode 统计在最前面，论文核心对比）
 scope,sample_count,avg_duration_s,wer_mean,wer_std,cer_mean,cer_std
-crosswoz,100,17.8,0.081,0.026,0.059,0.018
-multiwoz,100,16.5,0.102,0.031,0.071,0.022
-overall,200,17.2,0.091,0.030,0.065,0.021
+non-streaming,100,17.2,0.076,0.024,0.055,0.017
+streaming,100,17.2,0.098,0.029,0.069,0.021
+crosswoz,200,17.8,0.081,0.026,0.059,0.018
+multiwoz,200,16.5,0.102,0.031,0.071,0.022
+overall,400,17.2,0.091,0.030,0.065,0.021
 ```
 
 ## 论文撰写提示
-- 直接引用 `statistics` 中的 dataset / language / overall 均值；逐样本结果可用于误差条/箱线图。
+- **核心对比**：直接引用 `statistics` 中 `by_mode` 的 streaming vs non-streaming 均值，展示流式处理的精度影响。
+- 按 dataset / language 的统计可用于分析不同语言/数据集的差异。
 - 中文推荐使用 CER；WER 通过逐字空格化处理，便于中英文统一对比。
+- 逐样本结果可用于绘制误差条/箱线图。
 - 若需语义一致性（LLM 级别）扩展，可在得到转写后使用相同 LLM 对比回复相似度，作为后续工作附录。
 
