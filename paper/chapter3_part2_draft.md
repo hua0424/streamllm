@@ -12,8 +12,8 @@
 \begin{algorithm}
 \caption{Incremental KV Cache Prefill}
 \begin{algorithmic}[1]
-\REQUIRE Current KV Cache $C_{prev} = (K_{prev}, V_{prev})$, New Text Fragment $T_{new}$, LLM Model $\mathcal{M}$
-\ENSURE Updated KV Cache $C_{new}$, Next Token Logits $L$
+\REQUIRE Current KV Cache $C_{prev} = (K_{prev}, V_{prev})$, New Text Fragment $T_{new}$, Is End Flag $IsEnd$, LLM Model $\mathcal{M}$
+\ENSURE Updated KV Cache $C_{new}$, Next Token Logits $L$ (Optional)
 
 \STATE \textbf{Step 1: Tokenization}
 \STATE $Ids_{new} \leftarrow \text{Tokenizer}(T_{new})$
@@ -23,23 +23,20 @@
 
 \STATE \textbf{Step 2: Attention Mask Construction}
 \STATE $Mask_{prev} \leftarrow \text{GetMask}(C_{prev})$
-\STATE $Mask_{new} \leftarrow \text{Ones}(\text{Shape}(Ids_{new}))$
-\STATE $Mask_{full} \leftarrow \text{Concat}([Mask_{prev}, Mask_{new}], \text{dim}=-1)$
+\STATE $Mask_{full} \leftarrow \text{Concat}([Mask_{prev}, \text{Ones}(\text{Shape}(Ids_{new}))], \text{dim}=-1)$
 
-\STATE \textbf{Step 3: Position ID Alignment}
-\STATE $L_{prev} \leftarrow \text{Length}(K_{prev})$
-\STATE $Pos_{new} \leftarrow [L_{prev}, L_{prev} + 1, \dots, L_{prev} + \text{Length}(Ids_{new}) - 1]$
+\STATE \textbf{Step 3: Forward Pass (Incremental)}
+\STATE \COMMENT{Compute hidden states using cached history}
+\STATE $HiddenStates, C_{new} \leftarrow \mathcal{M}.\text{forward\_layers}(input=Ids_{new}, cache=C_{prev}, mask=Mask_{full})$
 
-\STATE \textbf{Step 4: Forward Pass (Incremental)}
-\STATE \COMMENT{Only compute attention for new tokens using cached history}
-\STATE $Out \leftarrow \mathcal{M}.\text{forward}(input\_ids=Ids_{new}, past\_key\_values=C_{prev}, mask=Mask_{full}, pos=Pos_{new})$
+\STATE \textbf{Step 4: Conditional Logits Projection}
+\STATE $L \leftarrow \text{None}$
+\IF{$IsEnd$ == True}
+    \STATE \COMMENT{Only compute logits projection at the final step to save compute}
+    \STATE $L \leftarrow \mathcal{M}.\text{lm\_head}(HiddenStates[-1])$
+\ENDIF
 
-\STATE \textbf{Step 5: Cache Update}
-\STATE $K_{new} \leftarrow \text{Concat}([K_{prev}, Out.K_{new}], \text{dim}=1)$
-\STATE $V_{new} \leftarrow \text{Concat}([V_{prev}, Out.V_{new}], \text{dim}=1)$
-\STATE $L \leftarrow Out.logits[-1]$ \COMMENT{Logits for the last token}
-
-\RETURN $(K_{new}, V_{new}), L$
+\RETURN $C_{new}, L$
 \end{algorithmic}
 \end{algorithm}
 ```
