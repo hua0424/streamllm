@@ -8,4 +8,11 @@ uv run python -m experiments.scripts.run_exp_latency --warmup-rounds 5
 # 使用脚本
 ./experiments/scripts/run_exp_latency.sh test
 
-uv run python -m experiments.scripts.run_exp_latency --max-samples 2 --warmup-rounds 1
+# 实验一
+uv run python -m experiments.scripts.run_exp_latency --max-samples 3 --warmup-rounds 1
+
+# 实验二
+uv run python -m experiments.scripts.run_exp_ablation --max-samples 10 --warmup-rounds 1 --duration-groups long very_long
+
+# 实验三
+uv run python -m experiments.scripts.run_exp_quality --max-samples 10 --warmup-rounds 1
