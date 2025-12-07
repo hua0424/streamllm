@@ -107,7 +107,7 @@ def silence_external_loggers():
         'transformers',
         'torch',
         'librosa',
-        'faster_whisper',
+        'whisper',
         'httpx',
         'urllib3',
         'huggingface_hub'

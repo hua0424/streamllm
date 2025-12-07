@@ -1,7 +1,8 @@
 # src/asr/faster_whisper_streamer.py
 
 from enum import Enum, auto
-from faster_whisper import WhisperModel
+from enum import Enum, auto
+import whisper
 import numpy as np
 import time
 import logging
@@ -146,6 +147,8 @@ class StreamingASRProcessor:
     """
     流式ASR处理器
     实现语音段队列管理和流式文本输出
+    
+    Backend: openai-whisper (Native PyTorch implementation)
     """
 
     def __init__(
@@ -176,14 +179,15 @@ class StreamingASRProcessor:
         # 根据设备自动选择计算类型
         if compute_type == 'auto':
             if self._device == 'cpu':
-                compute_type = 'int8'  # CPU使用int8
+                # compute_type = 'int8'  # CPU使用int8
                 logger.debug(f'Auto-selected compute type for CPU: {compute_type}')
             else:
-                compute_type = 'float16'  # GPU使用float16
+                # compute_type = 'float16'  # GPU使用float16
                 logger.debug(f'Auto-selected compute type for GPU: {compute_type}')
         
         # 加载Whisper模型
-        self.model = WhisperModel(model_size, device=device, compute_type=compute_type)
+        # self.model = WhisperModel(model_size, device=device, compute_type=compute_type)
+        self.model = whisper.load_model(model_size, device=device)
         
         # 存储模型大小以备后用
         self._model_size = model_size
@@ -285,9 +289,9 @@ class StreamingASRProcessor:
         
         report = {
             'model_info': {
-                'model_size': getattr(self.model, 'model_size', 'unknown'),
-                'device': getattr(self.model, 'device', 'unknown'),
-                'compute_type': getattr(self.model, 'compute_type', 'unknown')
+                'model_size': self._model_size,
+                'device': self._device,
+                'compute_type': 'float16' if self._device != 'cpu' else 'int8' # Approximate
             },
             'processing_metrics': metrics,
             'audio_info': {
@@ -361,44 +365,55 @@ class StreamingASRProcessor:
             
             # 使用Whisper进行完整转录
             transcription_start = time.time()
-            segments_result, info = self.model.transcribe(
+            # segments_result, info = self.model.transcribe(
+            #     audio_data,
+            #     beam_size=DEFAULT_BEAM_SIZE,  # 基线系统使用较高beam size以获得更好质量
+            #     # language="zh",
+            #     word_timestamps=True,
+            #     vad_filter=False,
+            #     temperature=DEFAULT_TEMPERATURE,
+            #     compression_ratio_threshold=DEFAULT_COMPRESSION_RATIO_THRESHOLD,
+            #     log_prob_threshold=DEFAULT_LOG_PROB_THRESHOLD,
+            #     no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD
+            # )
+            
+            result_obj = self.model.transcribe(
                 audio_data,
-                beam_size=DEFAULT_BEAM_SIZE,  # 基线系统使用较高beam size以获得更好质量
-                # language="zh",
+                beam_size=DEFAULT_BEAM_SIZE,
                 word_timestamps=True,
-                vad_filter=False,
                 temperature=DEFAULT_TEMPERATURE,
                 compression_ratio_threshold=DEFAULT_COMPRESSION_RATIO_THRESHOLD,
                 log_prob_threshold=DEFAULT_LOG_PROB_THRESHOLD,
-                no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD
+                no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD,
+                condition_on_previous_text=False # Usually good for streaming/chunks
             )
             
             transcription_time = time.time() - transcription_start
             
             # 整理转录结果
-            full_text = ""
+            full_text = result_obj['text'].strip()
             segments = []
             
-            for segment in segments_result:
-                segment_text = segment.text.strip()
-                full_text += segment_text
+            for segment in result_obj['segments']:
+                segment_text = segment['text'].strip()
+                # full_text += segment_text # Already in result_obj['text']
                 segments.append({
                     'text': segment_text,
-                    'start': segment.start,
-                    'end': segment.end,
+                    'start': segment['start'],
+                    'end': segment['end'],
                     'words': [
                         {
-                            'text': word.word,
-                            'start': word.start,
-                            'end': word.end,
-                            'probability': word.probability
+                            'text': word['word'],
+                            'start': word['start'],
+                            'end': word['end'],
+                            'probability': word['probability']
                         }
-                        for word in (segment.words or [])
+                        for word in (segment.get('words', []))
                     ]
                 })
             
             result = {
-                'text': full_text.strip(),
+                'text': full_text,
                 'segments': segments,
                 'timing': {
                     'audio_duration': audio_duration,
@@ -408,9 +423,9 @@ class StreamingASRProcessor:
                     'real_time_factor': transcription_time / audio_duration if audio_duration > 0 else 0
                 },
                 'info': {
-                    'language': info.language,
-                    'language_probability': info.language_probability,
-                    'duration': info.duration
+                    'language': result_obj.get('language', 'unknown'),
+                    'language_probability': 0.0, # Not directly returned by openai-whisper transcribe dict
+                    'duration': audio_duration # Approximation
                 }
             }
             
@@ -590,41 +605,52 @@ class StreamingASRProcessor:
         self.timing_events[TimingEventType.START_TRANSCRIBE] = time.perf_counter()
         
         
-        segments_result, info = self.model.transcribe(
+        # segments_result, info = self.model.transcribe(
+        #     combined_audio,
+        #     beam_size=DEFAULT_BEAM_SIZE,  # 使用常量
+        #     # language="zh",  # 明确指定中文，避免语言检测开销
+        #     word_timestamps=True,  # 启用词级时间戳，用于精确匹配
+        #     vad_filter=False,  # 关闭VAD过滤，因为我们已经用分段器处理过了
+        #     temperature=DEFAULT_TEMPERATURE,  # 使用常量
+        #     compression_ratio_threshold=DEFAULT_COMPRESSION_RATIO_THRESHOLD,
+        #     log_prob_threshold=DEFAULT_LOG_PROB_THRESHOLD,
+        #     no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD
+        # )
+        
+        result_obj = self.model.transcribe(
             combined_audio,
-            beam_size=DEFAULT_BEAM_SIZE,  # 使用常量
-            # language="zh",  # 明确指定中文，避免语言检测开销
-            word_timestamps=True,  # 启用词级时间戳，用于精确匹配
-            vad_filter=False,  # 关闭VAD过滤，因为我们已经用分段器处理过了
-            temperature=DEFAULT_TEMPERATURE,  # 使用常量
+            beam_size=DEFAULT_BEAM_SIZE,
+            word_timestamps=True,
+            temperature=DEFAULT_TEMPERATURE,
             compression_ratio_threshold=DEFAULT_COMPRESSION_RATIO_THRESHOLD,
             log_prob_threshold=DEFAULT_LOG_PROB_THRESHOLD,
-            no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD
+            no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD,
+            condition_on_previous_text=False
         )
             
         # 处理转录结果
         transcription_segments = []
-        for i, segment in enumerate(segments_result):
-            segment_text = segment.text.strip()
-            logger.debug(f"  段 {i+1}: [{segment.start:.2f}s-{segment.end:.2f}s] {segment_text}")
+        for i, segment in enumerate(result_obj['segments']):
+            segment_text = segment['text'].strip()
+            logger.debug(f"  段 {i+1}: [{segment['start']:.2f}s-{segment['end']:.2f}s] {segment_text}")
             
             # 性能优化：只在有词级时间戳时才处理
             words = []
-            if segment.words:
+            if 'words' in segment:
                 words = [
                     {
-                        'text': word.word,
-                        'start': word.start,
-                        'end': word.end,
-                        'probability': word.probability
+                        'text': word['word'], # openai-whisper key is 'word'
+                        'start': word['start'],
+                        'end': word['end'],
+                        'probability': word['probability']
                     }
-                    for word in segment.words
+                    for word in segment['words']
                 ]
             
             transcription_segments.append({
                 'text': segment_text,
-                'start': segment.start,
-                'end': segment.end,
+                'start': segment['start'],
+                'end': segment['end'],
                 'words': words
             })
 
@@ -638,9 +664,9 @@ class StreamingASRProcessor:
         result = {
             'segments': transcription_segments,
             'info': {
-                'language': info.language,
-                'language_probability': info.language_probability,
-                'duration': info.duration
+                'language': result_obj.get('language', 'unknown'),
+                'language_probability': 0.0,
+                'duration': total_duration # Using buffer duration
             },
             'timing': {
                 'transcription_time': transcription_time,
