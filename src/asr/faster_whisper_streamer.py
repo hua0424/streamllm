@@ -1,8 +1,8 @@
 # src/asr/faster_whisper_streamer.py
 
 from enum import Enum, auto
-from enum import Enum, auto
 import whisper
+import torch
 import numpy as np
 import time
 import logging
@@ -37,6 +37,26 @@ MAX_AUDIO_BUFFER_SIZE = 30  # 最大音频缓冲区大小（秒）
 MIN_SEGMENT_DURATION = 0.5  # 最小段长度（秒）
 TIMESTAMP_FORMAT = "%H:%M:%S.%f"  # 时间戳格式
 TIMESTAMP_PRECISION = 3  # 时间戳精度（毫秒）
+
+
+def _normalize_device(device: str | None) -> str:
+    """
+    将传入的设备描述符标准化为 whisper/torch 可接受的值。
+    支持:
+      - "auto": 自动选择 cuda (优先) 或 cpu
+      - "cuda", "cuda:0", "cuda:1" ...
+      - "cpu"
+    """
+    if not device or device.lower() == "auto":
+        return "cuda" if torch.cuda.is_available() else "cpu"
+    dev = device.lower()
+    if dev == "cuda" or dev.startswith("cuda"):
+        return dev
+    if dev == "cpu":
+        return "cpu"
+    # 回退：未知输入时也尝试直接交给 torch/whisper，但打印警告
+    logger.warning(f"Unknown device '{device}', fallback to torch default (cuda if available else cpu)")
+    return "cuda" if torch.cuda.is_available() else "cpu"
 
 def format_timestamp(precision: int = TIMESTAMP_PRECISION) -> str:
     """格式化当前时间戳为字符串"""
@@ -165,7 +185,7 @@ class StreamingASRProcessor:
         初始化流式ASR处理器
         
         Args:
-            model_size: faster-whisper 模型大小
+            model_size: whisper 模型大小 (openai-whisper)
             device: 推理设备
             compute_type: 计算类型，'auto'为自动选择
             recognition_threshold: 识别阈值，队列总长度达到此值时开始识别(秒)
@@ -173,8 +193,9 @@ class StreamingASRProcessor:
         """
         logger.info(f'Loading ASR model: {model_size} on {device}')
         
-        # 存储设备类型
-        self._device = device.lower()
+        # 标准化设备字符串，避免传入 "auto" 导致 torch.load map_location 错误
+        normalized_device = _normalize_device(device)
+        self._device = normalized_device
         
         # 根据设备自动选择计算类型
         if compute_type == 'auto':
@@ -185,9 +206,9 @@ class StreamingASRProcessor:
                 # compute_type = 'float16'  # GPU使用float16
                 logger.debug(f'Auto-selected compute type for GPU: {compute_type}')
         
-        # 加载Whisper模型
+        # 加载Whisper模型（使用标准化后的设备）
         # self.model = WhisperModel(model_size, device=device, compute_type=compute_type)
-        self.model = whisper.load_model(model_size, device=device)
+        self.model = whisper.load_model(model_size, device=normalized_device)
         
         # 存储模型大小以备后用
         self._model_size = model_size
@@ -341,6 +362,11 @@ class StreamingASRProcessor:
             if audio_data is not None:
                 if sample_rate is None:
                     raise ValueError("如果提供了audio_data，则必须提供sample_rate")
+                if sample_rate not in (16000, 8000):
+                    raise ValueError(
+                        f"Whisper/Silero VAD 仅支持 8k/16k 输入，收到 {sample_rate}，"
+                        "请在传入前将音频重采样到 16k（推荐）。"
+                    )
                 
                 # 确保音频数据是float32格式
                 if audio_data.dtype != np.float32:
@@ -355,13 +381,13 @@ class StreamingASRProcessor:
                 
                 logger.debug(f"使用提供的音频数据: shape={audio_data.shape}, sample_rate={sample_rate}, duration={audio_duration:.2f}s")
             else:
-                # 加载音频文件
+                # 加载音频文件并重采样到 self.sample_rate（默认 16k）
                 audio_data, sr = librosa.load(audio_path, sr=self.sample_rate)
                 sample_rate = int(sr)  # 确保类型为int
                 audio_duration = len(audio_data) / sample_rate
                 load_time = time.time() - start_time
                 
-                logger.info(f"加载音频文件: {audio_path}, 时长: {audio_duration:.2f}s")
+                logger.info(f"加载音频文件: {audio_path}, 时长: {audio_duration:.2f}s, sr={sample_rate}")
             
             # 使用Whisper进行完整转录
             transcription_start = time.time()
@@ -383,7 +409,7 @@ class StreamingASRProcessor:
                 word_timestamps=True,
                 temperature=DEFAULT_TEMPERATURE,
                 compression_ratio_threshold=DEFAULT_COMPRESSION_RATIO_THRESHOLD,
-                log_prob_threshold=DEFAULT_LOG_PROB_THRESHOLD,
+                logprob_threshold=DEFAULT_LOG_PROB_THRESHOLD,  # openai-whisper 参数名
                 no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD,
                 condition_on_previous_text=False # Usually good for streaming/chunks
             )
@@ -623,7 +649,7 @@ class StreamingASRProcessor:
             word_timestamps=True,
             temperature=DEFAULT_TEMPERATURE,
             compression_ratio_threshold=DEFAULT_COMPRESSION_RATIO_THRESHOLD,
-            log_prob_threshold=DEFAULT_LOG_PROB_THRESHOLD,
+            logprob_threshold=DEFAULT_LOG_PROB_THRESHOLD,  # openai-whisper 参数名
             no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD,
             condition_on_previous_text=False
         )

@@ -300,13 +300,14 @@ class SharedModels:
         logger.info("=" * 60)
 
         logger.info(f"加载 ASR 模型: {self.args.asr_model_size} on {self.args.asr_device}")
+        logger.info(f"ASR 参数: prefix_segments={self.args.prefix_segments}, suffix_segments={self.args.suffix_segments}, threshold={self.args.recognition_threshold}")
         self.asr_processor = StreamingASRProcessor(
             model_size=self.args.asr_model_size,
             device=self.args.asr_device,
             compute_type="auto",
-            recognition_threshold=1.0,
-            prefix_segments=1,
-            suffix_segments_atleast=1
+            recognition_threshold=self.args.recognition_threshold,
+            prefix_segments=self.args.prefix_segments,
+            suffix_segments_atleast=self.args.suffix_segments
         )
 
         logger.info(f"加载 LLM 模型: {self.args.llm_model_name} on {self.args.llm_device}")
@@ -1060,6 +1061,9 @@ def save_results(
             "max_tokens": args.max_tokens,
             "warmup_rounds": args.warmup_rounds,
             "target_groups": args.duration_groups,
+            "prefix_segments": args.prefix_segments,
+            "suffix_segments": args.suffix_segments,
+            "recognition_threshold": args.recognition_threshold,
             "timestamp": timestamp
         },
         "results": [asdict(r) for r in results],
@@ -1173,9 +1177,9 @@ def main():
 
     # 设备参数
     parser.add_argument('--asr-device', type=str, default='auto',
-                        choices=['auto', 'cuda', 'cpu'], help='ASR 设备')
+                        help='ASR 设备 (auto/cuda/cuda:0/cuda:1/cpu)')
     parser.add_argument('--llm-device', type=str, default='auto',
-                        choices=['auto', 'cuda', 'cpu'], help='LLM 设备')
+                        help='LLM 设备 (auto/cuda/cuda:0/cuda:1/cpu)')
 
     # 模型参数
     parser.add_argument('--asr-model-size', type=str, default=ASR_MODEL_NAME,
@@ -1191,6 +1195,14 @@ def main():
                         help='LLM 最大生成 token 数')
     parser.add_argument('--warmup-rounds', type=int, default=3,
                         help='模型预热轮数（默认3轮）')
+    
+    # ASR 流式参数
+    parser.add_argument('--prefix-segments', type=int, default=1,
+                        help='ASR 前缀段数（影响上下文和延迟，默认1）')
+    parser.add_argument('--suffix-segments', type=int, default=1,
+                        help='ASR 后缀段数（影响准确率和延迟，默认1）')
+    parser.add_argument('--recognition-threshold', type=float, default=2.0,
+                        help='ASR 识别阈值（秒），队列总长度达到此值时开始识别')
 
     # 输出参数
     parser.add_argument('--output-dir', type=str,
@@ -1204,11 +1216,11 @@ def main():
 
     set_global_log_level(args.log_level)
 
+    # 处理设备参数（支持 cuda:0, cuda:1 等具体设备）
+    import torch
     if args.asr_device == 'auto':
-        import torch
         args.asr_device = 'cuda' if torch.cuda.is_available() else 'cpu'
     if args.llm_device == 'auto':
-        import torch
         args.llm_device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     logger.info("=" * 60)
@@ -1222,6 +1234,9 @@ def main():
     logger.info(f"ASR 模型: {args.asr_model_size}")
     logger.info(f"LLM 模型: {args.llm_model_name}")
     logger.info(f"预热轮数: {args.warmup_rounds}")
+    logger.info(f"ASR prefix_segments: {args.prefix_segments}")
+    logger.info(f"ASR suffix_segments: {args.suffix_segments}")
+    logger.info(f"ASR recognition_threshold: {args.recognition_threshold}s")
     logger.info("=" * 60)
 
     data_dir = PROJECT_ROOT / args.data_dir

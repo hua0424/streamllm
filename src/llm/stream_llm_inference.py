@@ -51,8 +51,10 @@ class StreamLLMInference:
             hf_endpoint (str, optional): Hugging Face 端点。
             hf_token (str, optional): Hugging Face API Token.
         """
+        # 设备标准化，支持 cuda:0/cuda:1
         if device == "auto":
-            device = "cuda" if torch.cuda.is_available() else "cpu"
+            device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        device = device.lower()
         logger.info(f"Loading LLM model {model_name} on {device}")
         logger.debug(f"HF_HOME: {hf_home}, HF_ENDPOINT: {hf_endpoint}")
         self.device = device
@@ -67,10 +69,11 @@ class StreamLLMInference:
         except Exception as e:
             raise RuntimeError(f"无法加载tokenizer: {e}")
         try:
+            device_map = "auto" if device == "auto" else {"": device}
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 torch_dtype="auto",
-                device_map= "auto", #device if device == "auto" else device, # device_map="auto" or device_map=device for single GPU
+                device_map=device_map,
                 cache_dir=hf_home,
                 token=hf_token,
                 trust_remote_code=True, # 对于某些模型如Qwen是必要的

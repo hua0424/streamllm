@@ -36,10 +36,7 @@
 前置：完成数据处理管线、安装依赖、准备 GPU（建议）。
 
 ```bash
-# 激活环境
-conda activate streamllm
-
-# 运行默认长语音消融实验
+# 运行默认长语音消融实验（使用 uv，无需激活 conda）
 uv run python -m experiments.scripts.run_exp_ablation
 
 # 指定数据集与样本数

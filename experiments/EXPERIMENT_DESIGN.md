@@ -190,6 +190,13 @@ experiments/
     *   比较 System A 和 System B 生成的最终回复 $R_A$ 和 $R_B$
     *   计算 BERTScore 或语义相似度，确保 ASR 的细微差异没有导致 LLM 回复产生幻觉或逻辑错误
 
+**文本归一化**：
+计算 WER/CER 前，会对参考文本和识别文本进行标点符号归一化处理：
+- 移除中英文标点符号（如 `，。！？` 和 `,.!?` 等）
+- 原因：流式 ASR 使用词级时间戳匹配输出，标点符号可能落在音频段边界而丢失；非流式 ASR 直接使用完整转录文本，包含标点符号
+- 这是语音识别评估的业界标准做法，确保流式与非流式模式的公平比较
+- 归一化后的指标仅反映**内容准确率**，不包含标点预测的评估
+
 ---
 
 ## 五、 实施路线图
@@ -221,14 +228,28 @@ uv run python -m experiments.datasets.tools.run_pipeline \
     --skip-tts
 ```
 
-### 5.2 实验脚本开发 (待完成)
+### 5.2 实验脚本开发 ✅ 已完成
 
-- [ ] 基于 `src/run_test_simple.py` 改造，编写批量测试脚本
-- [ ] 实现自动记录日志到 CSV/JSON 的功能
-- [ ] 实现按时长分组运行实验的功能
+- [x] 基于 `src/run_test_simple.py` 改造，编写批量测试脚本
+- [x] 实现自动记录日志到 CSV/JSON 的功能
+- [x] 实现按时长分组运行实验的功能
+- [x] 添加 ASR 流式参数控制 (`--prefix-segments`, `--suffix-segments`, `--recognition-threshold`)
+- [x] 实现 WER/CER 计算时的文本归一化（标点移除）
+
+**运行方式**：
+```bash
+# 实验一：延迟与语音长度关系
+./experiments/scripts/run_exp_latency.sh full
+
+# 实验二：消融实验
+./experiments/scripts/run_exp_ablation.sh full
+
+# 实验三：准确率验证
+./experiments/scripts/run_exp_quality.sh full
+```
 
 ### 5.3 执行与分析 (待完成)
 
-- [ ] 在 GPU 环境下运行实验脚本
+- [ ] 在 GPU 环境下运行完整实验
 - [ ] 收集实验数据
 - [ ] 使用 Python (Matplotlib/Seaborn) 绘制论文所需的图表

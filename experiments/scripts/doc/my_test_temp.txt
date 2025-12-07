@@ -11,6 +11,8 @@ uv run python -m experiments.scripts.run_exp_latency --warmup-rounds 5
 # 实验一
 uv run python -m experiments.scripts.run_exp_latency --max-samples 3 --warmup-rounds 1
 
+./experiments/scripts/run_exp_latency.sh test --asr-device cuda:0 --llm-device cuda:1 --suffix-segments 0
+
 # 实验二
 uv run python -m experiments.scripts.run_exp_ablation --max-samples 10 --warmup-rounds 1 --duration-groups long very_long
 

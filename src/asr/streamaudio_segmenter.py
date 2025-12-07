@@ -101,6 +101,12 @@ class StreamAudioSegmenter:
             min_silence_duration_ms: 最小静音时长（毫秒），默认300ms
             window_size_ms: VAD窗口大小（毫秒），默认64ms
         """
+        # Silero VAD 仅支持 8000 或 16000 (或 16000 的倍数) 的采样率
+        if sampling_rate not in (8000, 16000):
+            raise ValueError(
+                f"Silero VAD 仅支持 8k/16k 采样率，收到 {sampling_rate}，"
+                "请在输入前将音频重采样到 16k 或 8k。"
+            )
         self.sampling_rate = sampling_rate
         self.silence_threshold = silence_threshold
         self.min_speech_duration_ms = min_speech_duration_ms

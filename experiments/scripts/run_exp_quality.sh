@@ -23,7 +23,6 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-CONDA_ENV="${CONDA_ENV:-streamllm}"
 ASR_DEVICE="${ASR_DEVICE:-auto}"
 ASR_MODEL_SIZE=""
 MAX_SAMPLES=""
@@ -32,6 +31,9 @@ LOG_LEVEL="INFO"
 WARMUP_ROUNDS="2"
 CHUNK_DURATION="500"
 OUTPUT_DIR="experiments/results/exp3_quality"
+PREFIX_SEGMENTS=""
+SUFFIX_SEGMENTS=""
+RECOGNITION_THRESHOLD=""
 
 print_help() {
     echo -e "${BLUE}========================================${NC}"
@@ -49,12 +51,15 @@ print_help() {
     echo ""
     echo "选项:"
     echo "  --max-samples N       最大样本数"
-    echo "  --asr-device          ASR 设备 (auto/cuda/cpu)"
+    echo "  --asr-device          ASR 设备 (auto/cuda/cuda:0/cuda:1/cpu)"
     echo "  --asr-model-size      ASR 模型 (tiny/base/small/medium/large)"
     echo "  --chunk-duration      流式分块时长 ms (默认 500)"
     echo "  --warmup-rounds       预热轮数 (默认 2)"
     echo "  --output-dir          输出目录"
     echo "  --log-level           日志级别 (DEBUG/INFO/WARNING/ERROR)"
+    echo "  --prefix-segments     ASR 前缀段数 (默认: 1)"
+    echo "  --suffix-segments     ASR 后缀段数 (默认: 1)"
+    echo "  --recognition-threshold  ASR 识别阈值秒数 (默认: 2.0)"
     echo ""
     echo "示例:"
     echo "  $0 full --asr-device cuda --asr-model-size base"
@@ -64,18 +69,12 @@ print_help() {
 log_info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-activate_conda() {
-    if [[ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]]; then
-        source "$HOME/miniconda3/etc/profile.d/conda.sh"
-    elif [[ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]]; then
-        source "$HOME/anaconda3/etc/profile.d/conda.sh"
-    elif [[ -f "/opt/conda/etc/profile.d/conda.sh" ]]; then
-        source "/opt/conda/etc/profile.d/conda.sh"
-    elif [[ -f "/root/miniconda3/etc/profile.d/conda.sh" ]]; then
-        source "/root/miniconda3/etc/profile.d/conda.sh"
+check_uv() {
+    if ! command -v uv &> /dev/null; then
+        log_error "uv 未安装，请先安装 uv: curl -LsSf https://astral.sh/uv/install.sh | sh"
+        exit 1
     fi
-    conda activate "$CONDA_ENV" || { log_error "无法激活 conda 环境 '$CONDA_ENV'"; exit 1; }
-    log_info "已激活 conda 环境: $CONDA_ENV"
+    log_info "使用 uv 运行实验"
 }
 
 MODE="${1:-help}"
@@ -90,6 +89,9 @@ while [[ $# -gt 0 ]]; do
         --warmup-rounds) WARMUP_ROUNDS="$2"; shift 2 ;;
         --output-dir) OUTPUT_DIR="$2"; shift 2 ;;
         --log-level) LOG_LEVEL="$2"; shift 2 ;;
+        --prefix-segments) PREFIX_SEGMENTS="$2"; shift 2 ;;
+        --suffix-segments) SUFFIX_SEGMENTS="$2"; shift 2 ;;
+        --recognition-threshold) RECOGNITION_THRESHOLD="$2"; shift 2 ;;
         *)
             log_error "未知参数: $1"
             print_help
@@ -105,6 +107,15 @@ build_args() {
     if [[ -n "$MAX_SAMPLES" ]]; then
         args="$args --max-samples $MAX_SAMPLES"
     fi
+    if [[ -n "$PREFIX_SEGMENTS" ]]; then
+        args="$args --prefix-segments $PREFIX_SEGMENTS"
+    fi
+    if [[ -n "$SUFFIX_SEGMENTS" ]]; then
+        args="$args --suffix-segments $SUFFIX_SEGMENTS"
+    fi
+    if [[ -n "$RECOGNITION_THRESHOLD" ]]; then
+        args="$args --recognition-threshold $RECOGNITION_THRESHOLD"
+    fi
     echo "$args"
 }
 
@@ -115,7 +126,7 @@ run_experiment() {
     log_info "运行实验三..."
     log_info "参数: $args"
     echo ""
-    activate_conda
+    check_uv
     uv run python -m experiments.scripts.run_exp_quality $args
 }
 

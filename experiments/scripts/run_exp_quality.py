@@ -62,8 +62,56 @@ def _levenshtein(seq1: List[str], seq2: List[str]) -> int:
     return dp[m][n]
 
 
-def cer(ref: str, hyp: str) -> float:
-    """字符级错误率"""
+def normalize_text(text: str, remove_punctuation: bool = True) -> str:
+    """
+    文本归一化，用于准确率计算前的预处理
+    
+    Args:
+        text: 原始文本
+        remove_punctuation: 是否移除标点符号（默认True）
+        
+    Returns:
+        归一化后的文本
+    
+    Notes:
+        - 流式ASR可能缺失标点符号，为公平比较需要统一移除
+        - 这是语音识别评估的标准做法
+    """
+    import re
+    import unicodedata
+    
+    # 先去除首尾空白
+    text = text.strip()
+    
+    if remove_punctuation:
+        # 移除中英文标点符号
+        # 中文标点
+        zh_punctuation = r'[，。！？、；：""''（）【】《》—…·]'
+        # 英文标点
+        en_punctuation = r'[,.!?;:\'"()\[\]{}<>\-_+=*/\\@#$%^&|`~]'
+        
+        text = re.sub(zh_punctuation, '', text)
+        text = re.sub(en_punctuation, '', text)
+    
+    # 移除多余空格
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text
+
+
+def cer(ref: str, hyp: str, normalize: bool = True) -> float:
+    """
+    字符级错误率 (Character Error Rate)
+    
+    Args:
+        ref: 参考文本
+        hyp: 假设文本（识别结果）
+        normalize: 是否在计算前进行文本归一化（移除标点）
+    """
+    if normalize:
+        ref = normalize_text(ref)
+        hyp = normalize_text(hyp)
+    
     ref_chars = list(ref.strip())
     hyp_chars = list(hyp.strip())
     if len(ref_chars) == 0:
@@ -71,8 +119,20 @@ def cer(ref: str, hyp: str) -> float:
     return _levenshtein(ref_chars, hyp_chars) / len(ref_chars)
 
 
-def wer(ref: str, hyp: str) -> float:
-    """词级错误率（以空格切分；中文场景可视作每字空格切分后再计算）"""
+def wer(ref: str, hyp: str, normalize: bool = True) -> float:
+    """
+    词级错误率 (Word Error Rate)
+    以空格切分；中文场景可视作每字空格切分后再计算
+    
+    Args:
+        ref: 参考文本
+        hyp: 假设文本（识别结果）
+        normalize: 是否在计算前进行文本归一化（移除标点）
+    """
+    if normalize:
+        ref = normalize_text(ref)
+        hyp = normalize_text(hyp)
+    
     ref_words = ref.strip().split()
     hyp_words = hyp.strip().split()
     if len(ref_words) == 0:
@@ -80,8 +140,16 @@ def wer(ref: str, hyp: str) -> float:
     return _levenshtein(ref_words, hyp_words) / len(ref_words)
 
 
-def zh_to_word_seq(text: str) -> str:
-    """将中文字符串转为空格分隔的“词”(逐字)，便于 WER 统一计算"""
+def zh_to_word_seq(text: str, normalize: bool = True) -> str:
+    """
+    将中文字符串转为空格分隔的"词"(逐字)，便于 WER 统一计算
+    
+    Args:
+        text: 原始中文文本
+        normalize: 是否先进行文本归一化（移除标点）
+    """
+    if normalize:
+        text = normalize_text(text)
     return " ".join(list(text.replace(" ", "")))
 
 
@@ -225,13 +293,14 @@ class SharedASR:
 
     def initialize(self):
         logger.info("加载 ASR 模型...")
+        logger.info(f"ASR 参数: prefix_segments={self.args.prefix_segments}, suffix_segments={self.args.suffix_segments}, threshold={self.args.recognition_threshold}")
         self.asr = StreamingASRProcessor(
             model_size=self.args.asr_model_size,
             device=self.args.asr_device,
             compute_type="auto",
-            recognition_threshold=1.0,
-            prefix_segments=1,
-            suffix_segments_atleast=1,
+            recognition_threshold=self.args.recognition_threshold,
+            prefix_segments=self.args.prefix_segments,
+            suffix_segments_atleast=self.args.suffix_segments,
         )
 
     def set_warmup_audio(self, audio: np.ndarray, sr: int):
@@ -538,6 +607,9 @@ def save_results(results: List[ExperimentResult], output_dir: Path, args, stats_
             "warmup_rounds": args.warmup_rounds,
             "max_samples": args.max_samples,
             "dataset": args.dataset,
+            "prefix_segments": args.prefix_segments,
+            "suffix_segments": args.suffix_segments,
+            "recognition_threshold": args.recognition_threshold,
             "timestamp": ts,
         },
         "results": [asdict(r) for r in results],
@@ -602,10 +674,15 @@ def main():
     parser.add_argument("--dataset", type=str, choices=["crosswoz", "multiwoz", "all"], default="all", help="数据集")
     parser.add_argument("--max-samples", type=int, default=None, help="最大样本数")
 
-    parser.add_argument("--asr-device", type=str, default="auto", choices=["auto", "cuda", "cpu"], help="ASR 设备")
+    parser.add_argument("--asr-device", type=str, default="auto", help="ASR 设备 (auto/cuda/cuda:0/cuda:1/cpu)")
     parser.add_argument("--asr-model-size", type=str, default=ASR_MODEL_NAME, choices=["tiny", "base", "small", "medium", "large"], help="ASR 模型大小")
     parser.add_argument("--chunk-duration", type=int, default=500, help="流式音频块时长 ms")
     parser.add_argument("--warmup-rounds", type=int, default=2, help="模型预热轮数")
+    
+    # ASR 流式参数
+    parser.add_argument("--prefix-segments", type=int, default=1, help="ASR 前缀段数（影响上下文和延迟，默认1）")
+    parser.add_argument("--suffix-segments", type=int, default=1, help="ASR 后缀段数（影响准确率和延迟，默认1）")
+    parser.add_argument("--recognition-threshold", type=float, default=2.0, help="ASR 识别阈值（秒）")
 
     parser.add_argument("--output-dir", type=str, default="experiments/results/exp3_quality", help="输出目录")
     parser.add_argument("--log-level", type=str, default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="日志级别")
@@ -614,8 +691,9 @@ def main():
 
     set_global_log_level(args.log_level)
 
+    # 处理设备参数（支持 cuda:0, cuda:1 等具体设备）
+    import torch
     if args.asr_device == "auto":
-        import torch
         args.asr_device = "cuda" if torch.cuda.is_available() else "cpu"
 
     logger.info("=" * 60)
@@ -624,6 +702,8 @@ def main():
     logger.info(f"数据集: {args.dataset}, 最大样本: {args.max_samples}")
     logger.info(f"ASR 设备: {args.asr_device}, 模型: {args.asr_model_size}")
     logger.info(f"chunk: {args.chunk_duration} ms, 预热: {args.warmup_rounds}")
+    logger.info(f"ASR prefix_segments: {args.prefix_segments}, suffix_segments: {args.suffix_segments}")
+    logger.info(f"ASR recognition_threshold: {args.recognition_threshold}s")
     logger.info("=" * 60)
 
     data_dir = PROJECT_ROOT / args.data_dir
