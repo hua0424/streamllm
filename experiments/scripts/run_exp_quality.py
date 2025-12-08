@@ -9,6 +9,10 @@
 
 运行示例（项目根目录）：
     uv run python -m experiments.scripts.run_exp_quality --dataset all --max-samples 200
+
+关键设计：
+- 增量保存：每处理 N 个样本自动保存检查点，防止中断丢失数据
+- 断点续传：支持从上次中断位置继续运行
 """
 
 import argparse
@@ -19,7 +23,7 @@ import wave
 import gc
 from pathlib import Path
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 from dataclasses import dataclass, asdict
 
 import numpy as np
@@ -332,6 +336,80 @@ class SharedASR:
 
 
 # =============================================================================
+# 检查点管理（增量保存与断点续传）
+# =============================================================================
+
+def get_checkpoint_path(output_dir: Path) -> Path:
+    """获取检查点文件路径"""
+    return output_dir / "checkpoint.json"
+
+
+def load_checkpoint(output_dir: Path) -> Tuple[List[ExperimentResult], set]:
+    """
+    加载检查点
+    
+    Returns:
+        (已保存的结果列表, 已完成的样本ID集合)
+    """
+    checkpoint_path = get_checkpoint_path(output_dir)
+    
+    if not checkpoint_path.exists():
+        return [], set()
+    
+    try:
+        with open(checkpoint_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        results = []
+        for r in data.get('results', []):
+            result = ExperimentResult(**r)
+            results.append(result)
+        
+        completed_ids = set(data.get('completed_sample_ids', []))
+        
+        logger.info(f"加载检查点: {len(results)} 条结果, {len(completed_ids)} 个已完成样本")
+        return results, completed_ids
+        
+    except Exception as e:
+        logger.warning(f"加载检查点失败: {e}, 将从头开始")
+        return [], set()
+
+
+def save_checkpoint(
+    results: List[ExperimentResult],
+    completed_sample_ids: set,
+    output_dir: Path,
+    config: Dict[str, Any]
+):
+    """
+    保存检查点
+    
+    Args:
+        results: 当前所有结果
+        completed_sample_ids: 已完成的样本ID集合
+        output_dir: 输出目录
+        config: 实验配置
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_path = get_checkpoint_path(output_dir)
+    
+    checkpoint_data = {
+        'config': config,
+        'results': [asdict(r) for r in results],
+        'completed_sample_ids': list(completed_sample_ids),
+        'last_update': datetime.now().isoformat()
+    }
+    
+    # 写入临时文件后重命名，确保原子性
+    temp_path = checkpoint_path.with_suffix('.tmp')
+    with open(temp_path, 'w', encoding='utf-8') as f:
+        json.dump(checkpoint_data, f, indent=2, ensure_ascii=False)
+    
+    temp_path.replace(checkpoint_path)
+    logger.info(f"检查点已保存: {len(results)} 条结果")
+
+
+# =============================================================================
 # 实验执行
 # =============================================================================
 
@@ -342,10 +420,42 @@ class QualityExperiment:
         self.args = args
         self.results: List[ExperimentResult] = []
 
-    def run_all(self, samples: List[SampleInfo]) -> List[ExperimentResult]:
-        total = len(samples)
-        for i, s in enumerate(samples):
-            logger.info(f"[{i+1}/{total}] 样本 {s.sample_id} ({s.language}) 长度 {s.audio_duration:.2f}s")
+    def run_all(
+        self, 
+        samples: List[SampleInfo],
+        output_dir: Path,
+        batch_size: int = 100,
+        config: Dict[str, Any] = None
+    ) -> List[ExperimentResult]:
+        """
+        运行所有样本的实验（支持增量保存和断点续传）
+        
+        Args:
+            samples: 样本列表
+            output_dir: 输出目录（用于保存检查点）
+            batch_size: 每处理多少样本保存一次检查点
+            config: 实验配置（用于保存到检查点）
+            
+        Returns:
+            所有实验结果
+        """
+        # 加载检查点
+        existing_results, completed_ids = load_checkpoint(output_dir)
+        self.results = existing_results
+        
+        # 过滤已完成的样本
+        pending_samples = [s for s in samples if s.sample_id not in completed_ids]
+        
+        if len(pending_samples) < len(samples):
+            logger.info(f"断点续传: 跳过 {len(samples) - len(pending_samples)} 个已完成样本")
+        
+        total_original = len(samples)
+        processed_in_batch = 0
+        
+        for i, s in enumerate(pending_samples):
+            # 显示进度时包含已完成的数量
+            done_count = len(completed_ids) + i + 1
+            logger.info(f"[{done_count}/{total_original}] 样本 {s.sample_id} ({s.language}) 长度 {s.audio_duration:.2f}s")
             audio, sr = sf.read(str(s.audio_path), dtype="float32")
             if audio.ndim > 1:
                 audio = audio.mean(axis=1)
@@ -361,9 +471,23 @@ class QualityExperiment:
             streaming = self._run_streaming(s, audio, sr)
 
             self.results.extend([non_stream, streaming])
+            completed_ids.add(s.sample_id)
+            processed_in_batch += 1
 
             if (i + 1) % 10 == 0:
                 clear_gpu_memory()
+            
+            # 每 batch_size 个样本保存一次检查点
+            if processed_in_batch >= batch_size:
+                save_checkpoint(self.results, completed_ids, output_dir, config or {})
+                processed_in_batch = 0
+                logger.info(f"✓ 已保存检查点 ({len(completed_ids)}/{total_original} 完成)")
+        
+        # 最后保存一次（确保所有结果都被保存）
+        if processed_in_batch > 0:
+            save_checkpoint(self.results, completed_ids, output_dir, config or {})
+            logger.info(f"✓ 最终检查点已保存 ({len(completed_ids)}/{total_original} 完成)")
+        
         return self.results
 
     def _run_non_streaming(self, sample: SampleInfo, audio: np.ndarray, sr: int) -> ExperimentResult:
@@ -685,6 +809,10 @@ def main():
     parser.add_argument("--recognition-threshold", type=float, default=2.0, help="ASR 识别阈值（秒）")
 
     parser.add_argument("--output-dir", type=str, default="experiments/results/exp3_quality", help="输出目录")
+    
+    # 断点续传参数
+    parser.add_argument("--batch-size", type=int, default=100, help="每处理多少样本保存一次检查点（默认100）")
+    parser.add_argument("--no-resume", action="store_true", help="不从检查点恢复，从头开始运行")
     parser.add_argument("--log-level", type=str, default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="日志级别")
 
     args = parser.parse_args()
@@ -704,12 +832,21 @@ def main():
     logger.info(f"chunk: {args.chunk_duration} ms, 预热: {args.warmup_rounds}")
     logger.info(f"ASR prefix_segments: {args.prefix_segments}, suffix_segments: {args.suffix_segments}")
     logger.info(f"ASR recognition_threshold: {args.recognition_threshold}s")
+    logger.info(f"批次大小（检查点间隔）: {args.batch_size}")
+    logger.info(f"断点续传: {'禁用' if args.no_resume else '启用'}")
     logger.info("=" * 60)
 
     data_dir = PROJECT_ROOT / args.data_dir
     json_dir = data_dir / "json"
     audio_dir = data_dir / "audio"
     output_dir = PROJECT_ROOT / args.output_dir
+
+    # 如果指定了 --no-resume，删除检查点文件
+    if args.no_resume:
+        checkpoint_path = get_checkpoint_path(output_dir)
+        if checkpoint_path.exists():
+            checkpoint_path.unlink()
+            logger.info("已删除旧的检查点文件，从头开始运行")
 
     dataset_filter = None if args.dataset == "all" else args.dataset
     samples = load_samples(json_dir, audio_dir, dataset_filter, args.max_samples)
@@ -732,8 +869,27 @@ def main():
     shared.set_warmup_audio(audio, sr)
     shared.warmup(rounds=args.warmup_rounds)
 
+    # 构建实验配置（用于检查点）
+    experiment_config = {
+        "asr_model": args.asr_model_size,
+        "asr_device": args.asr_device,
+        "chunk_duration_ms": args.chunk_duration,
+        "warmup_rounds": args.warmup_rounds,
+        "max_samples": args.max_samples,
+        "dataset": args.dataset,
+        "prefix_segments": args.prefix_segments,
+        "suffix_segments": args.suffix_segments,
+        "recognition_threshold": args.recognition_threshold,
+    }
+
+    # 运行实验（支持断点续传）
     exp = QualityExperiment(shared, args)
-    results = exp.run_all(samples)
+    results = exp.run_all(
+        samples,
+        output_dir=output_dir,
+        batch_size=args.batch_size,
+        config=experiment_config
+    )
 
     # 按 mode 统计（论文核心对比：streaming vs non-streaming）
     stats_mode = compute_mode_statistics(results)

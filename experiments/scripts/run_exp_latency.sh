@@ -35,6 +35,8 @@ WARMUP_ROUNDS="3"
 PREFIX_SEGMENTS=""
 SUFFIX_SEGMENTS=""
 RECOGNITION_THRESHOLD=""
+BATCH_SIZE=""
+NO_RESUME=""
 
 # 打印帮助
 print_help() {
@@ -60,11 +62,15 @@ print_help() {
     echo "  --prefix-segments  ASR 前缀段数 (默认: 1)"
     echo "  --suffix-segments  ASR 后缀段数 (默认: 1)"
     echo "  --recognition-threshold  ASR 识别阈值秒数 (默认: 2.0)"
+    echo "  --batch-size N     每处理 N 个样本保存一次检查点 (默认: 100)"
+    echo "  --no-resume        不从检查点恢复，从头开始运行"
     echo ""
     echo "示例:"
     echo "  $0 full"
     echo "  $0 test"
     echo "  $0 crosswoz --max-samples 10"
+    echo "  $0 full --batch-size 50        # 更频繁保存检查点"
+    echo "  $0 full --no-resume            # 从头开始，忽略已有检查点"
 }
 
 log_info() {
@@ -122,6 +128,14 @@ while [[ $# -gt 0 ]]; do
             RECOGNITION_THRESHOLD="$2"
             shift 2
             ;;
+        --batch-size)
+            BATCH_SIZE="$2"
+            shift 2
+            ;;
+        --no-resume)
+            NO_RESUME="true"
+            shift
+            ;;
         *)
             log_error "未知参数: $1"
             print_help
@@ -145,6 +159,12 @@ build_args() {
     fi
     if [[ -n "$RECOGNITION_THRESHOLD" ]]; then
         args="$args --recognition-threshold $RECOGNITION_THRESHOLD"
+    fi
+    if [[ -n "$BATCH_SIZE" ]]; then
+        args="$args --batch-size $BATCH_SIZE"
+    fi
+    if [[ -n "$NO_RESUME" ]]; then
+        args="$args --no-resume"
     fi
     
     echo "$args"

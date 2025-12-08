@@ -4,7 +4,7 @@
 实验二：消融实验 (Ablation Study)
 
 实验目的：
-量化“流式 ASR”和“LLM KV 预填充”两个模块各自对 TTFT 的贡献。
+量化"流式 ASR"和"LLM KV 预填充"两个模块各自对 TTFT 的贡献。
 对比配置：
 1) Baseline：非流式 ASR + 非流式 LLM
 2) Streaming ASR Only：流式 ASR + 非流式 LLM（等待完整文本，不做 KV 预填充）
@@ -12,6 +12,10 @@
 
 使用方式（在项目根目录下运行）：
     uv run python -m experiments.scripts.run_exp_ablation [参数]
+
+关键设计：
+- 增量保存：每处理 N 个样本自动保存检查点，防止中断丢失数据
+- 断点续传：支持从上次中断位置继续运行
 """
 
 import argparse
@@ -884,15 +888,49 @@ class AblationExperiment:
         return result
 
     # ------------------------------------------------------------------
-    def run_all(self, samples: List[SampleInfo]) -> List[ExperimentResult]:
-        total = len(samples)
-        for i, sample in enumerate(samples):
-            logger.info(f"\n[{i + 1}/{total}] 测试样本: {sample.sample_id}")
+    def run_all(
+        self, 
+        samples: List[SampleInfo],
+        output_dir: Path,
+        batch_size: int = 100,
+        config: Dict[str, Any] = None
+    ) -> List[ExperimentResult]:
+        """
+        运行所有样本的实验（支持增量保存和断点续传）
+        
+        Args:
+            samples: 样本列表
+            output_dir: 输出目录（用于保存检查点）
+            batch_size: 每处理多少样本保存一次检查点
+            config: 实验配置（用于保存到检查点）
+            
+        Returns:
+            所有实验结果
+        """
+        # 加载检查点
+        existing_results, completed_ids = load_checkpoint(output_dir)
+        self.results = existing_results
+        
+        # 过滤已完成的样本
+        pending_samples = [s for s in samples if s.sample_id not in completed_ids]
+        
+        if len(pending_samples) < len(samples):
+            logger.info(f"断点续传: 跳过 {len(samples) - len(pending_samples)} 个已完成样本")
+        
+        total_original = len(samples)
+        processed_in_batch = 0
+        
+        for i, sample in enumerate(pending_samples):
+            # 显示进度时包含已完成的数量
+            done_count = len(completed_ids) + i + 1
+            logger.info(f"\n[{done_count}/{total_original}] 测试样本: {sample.sample_id}")
             logger.info(f"  音频时长: {sample.audio_duration:.2f}s, 分组: {sample.duration_group}")
 
             baseline_result, streaming_asr_result, full_streaming_result = self.run_single_sample(sample)
 
             self.results.extend([baseline_result, streaming_asr_result, full_streaming_result])
+            completed_ids.add(sample.sample_id)
+            processed_in_batch += 1
 
             if not baseline_result.error and not streaming_asr_result.error and not full_streaming_result.error:
                 logger.info(f"  Baseline TTFT: {baseline_result.ttft:.2f} ms")
@@ -902,8 +940,93 @@ class AblationExperiment:
             if (i + 1) % 5 == 0:
                 clear_gpu_memory()
                 logger.debug("已清理 GPU 内存")
+            
+            # 每 batch_size 个样本保存一次检查点
+            if processed_in_batch >= batch_size:
+                save_checkpoint(self.results, completed_ids, output_dir, config or {})
+                processed_in_batch = 0
+                logger.info(f"✓ 已保存检查点 ({len(completed_ids)}/{total_original} 完成)")
+        
+        # 最后保存一次（确保所有结果都被保存）
+        if processed_in_batch > 0:
+            save_checkpoint(self.results, completed_ids, output_dir, config or {})
+            logger.info(f"✓ 最终检查点已保存 ({len(completed_ids)}/{total_original} 完成)")
 
         return self.results
+
+
+# =============================================================================
+# 检查点管理（增量保存与断点续传）
+# =============================================================================
+
+def get_checkpoint_path(output_dir: Path) -> Path:
+    """获取检查点文件路径"""
+    return output_dir / "checkpoint.json"
+
+
+def load_checkpoint(output_dir: Path) -> Tuple[List[ExperimentResult], set]:
+    """
+    加载检查点
+    
+    Returns:
+        (已保存的结果列表, 已完成的样本ID集合)
+    """
+    checkpoint_path = get_checkpoint_path(output_dir)
+    
+    if not checkpoint_path.exists():
+        return [], set()
+    
+    try:
+        with open(checkpoint_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        results = []
+        for r in data.get('results', []):
+            result = ExperimentResult(**r)
+            results.append(result)
+        
+        completed_ids = set(data.get('completed_sample_ids', []))
+        
+        logger.info(f"加载检查点: {len(results)} 条结果, {len(completed_ids)} 个已完成样本")
+        return results, completed_ids
+        
+    except Exception as e:
+        logger.warning(f"加载检查点失败: {e}, 将从头开始")
+        return [], set()
+
+
+def save_checkpoint(
+    results: List[ExperimentResult],
+    completed_sample_ids: set,
+    output_dir: Path,
+    config: Dict[str, Any]
+):
+    """
+    保存检查点
+    
+    Args:
+        results: 当前所有结果
+        completed_sample_ids: 已完成的样本ID集合
+        output_dir: 输出目录
+        config: 实验配置
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_path = get_checkpoint_path(output_dir)
+    
+    checkpoint_data = {
+        'config': config,
+        'results': [asdict(r) for r in results],
+        'completed_sample_ids': list(completed_sample_ids),
+        'last_update': datetime.now().isoformat()
+    }
+    
+    # 写入临时文件后重命名，确保原子性
+    temp_path = checkpoint_path.with_suffix('.tmp')
+    with open(temp_path, 'w', encoding='utf-8') as f:
+        json.dump(checkpoint_data, f, indent=2, ensure_ascii=False)
+    
+    temp_path.replace(checkpoint_path)
+    logger.info(f"检查点已保存: {len(results)} 条结果")
 
 
 # =============================================================================
@@ -1208,6 +1331,12 @@ def main():
     parser.add_argument('--output-dir', type=str,
                         default='experiments/results/exp2_ablation',
                         help='结果输出目录')
+    
+    # 断点续传参数
+    parser.add_argument('--batch-size', type=int, default=100,
+                        help='每处理多少样本保存一次检查点（默认100）')
+    parser.add_argument('--no-resume', action='store_true',
+                        help='不从检查点恢复，从头开始运行')
     parser.add_argument('--log-level', type=str, default='INFO',
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
                         help='日志级别')
@@ -1237,12 +1366,21 @@ def main():
     logger.info(f"ASR prefix_segments: {args.prefix_segments}")
     logger.info(f"ASR suffix_segments: {args.suffix_segments}")
     logger.info(f"ASR recognition_threshold: {args.recognition_threshold}s")
+    logger.info(f"批次大小（检查点间隔）: {args.batch_size}")
+    logger.info(f"断点续传: {'禁用' if args.no_resume else '启用'}")
     logger.info("=" * 60)
 
     data_dir = PROJECT_ROOT / args.data_dir
     json_dir = data_dir / "json"
     audio_dir = data_dir / "audio"
     output_dir = PROJECT_ROOT / args.output_dir
+
+    # 如果指定了 --no-resume，删除检查点文件
+    if args.no_resume:
+        checkpoint_path = get_checkpoint_path(output_dir)
+        if checkpoint_path.exists():
+            checkpoint_path.unlink()
+            logger.info("已删除旧的检查点文件，从头开始运行")
 
     dataset_filter = None if args.dataset == 'all' else args.dataset
     samples = load_samples(json_dir, audio_dir, dataset_filter, args.max_samples)
@@ -1270,8 +1408,29 @@ def main():
     shared_models.set_warmup_audio(audio_data, sample_rate)
     shared_models.warmup(warmup_rounds=args.warmup_rounds)
 
+    # 构建实验配置（用于检查点）
+    experiment_config = {
+        "asr_model": args.asr_model_size,
+        "llm_model": args.llm_model_name,
+        "asr_device": args.asr_device,
+        "llm_device": args.llm_device,
+        "chunk_duration_ms": args.chunk_duration,
+        "max_tokens": args.max_tokens,
+        "warmup_rounds": args.warmup_rounds,
+        "target_groups": args.duration_groups,
+        "prefix_segments": args.prefix_segments,
+        "suffix_segments": args.suffix_segments,
+        "recognition_threshold": args.recognition_threshold,
+    }
+
+    # 运行实验（支持断点续传）
     experiment = AblationExperiment(shared_models, args)
-    results = experiment.run_all(samples)
+    results = experiment.run_all(
+        samples,
+        output_dir=output_dir,
+        batch_size=args.batch_size,
+        config=experiment_config
+    )
 
     statistics = calculate_group_statistics(results)
     sample_gains = compute_sample_gains(results)
