@@ -9,7 +9,7 @@
 
 ### 1.1.1 大模型驱动的语音交互范式演进
 
-随着人工智能技术的飞速发展，人机交互（Human-Computer Interaction, HCI）正经历着一场从“指令式”向“自然流式对话”的深刻范式转移。以 GPT-4o [OpenAI, 2024] 和 Gemini Live [Google, 2024] 为代表的原生多模态大模型（Native Multi-modal LLMs）的问世，标志着机器首次具备了在听觉、视觉和文本模态间进行实时理解与生成的全栈能力。传统的语音助手（如早期的 Siri 或 Alexa）主要依赖基于规则或“意图-槽位”（Intent-Slot）的架构，这种架构虽然在执行特定指令（如“设置闹钟”或“查询天气”）时表现精准，但其刚性的句法约束严重限制了用户的表达自由度。用户往往需要遵循预设的命令模板，这种非自然的交互方式造成了人机之间明显的“隔阂感”。
+随着人工智能技术的飞速发展，人机交互（Human-Computer Interaction, HCI）正经历着一场从“指令式”向“自然流式对话”的深刻范式转移。以 GPT-4o [OpenAI, 2024] 和 Gemini 1.5 [Google Team, 2024] 为代表的原生多模态大模型（Native Multi-modal LLMs）的问世，标志着机器首次具备了在听觉、视觉和文本模态间进行实时理解与生成的全栈能力。传统的语音助手（如早期的 Siri 或 Alexa）主要依赖基于规则或“意图-槽位”（Intent-Slot）的架构，这种架构虽然在执行特定指令（如“设置闹钟”或“查询天气”）时表现精准，但其刚性的句法约束严重限制了用户的表达自由度。用户往往需要遵循预设的命令模板，这种非自然的交互方式造成了人机之间明显的“隔阂感”。
 
 相比之下，基于大语言模型（LLM）的新一代语音对话系统展现了极强的语义理解能力，能够处理复杂的推理任务并进行情感化、多轮次的自然交互。然而，这种智能化程度的提升带来了巨大的计算开销与延迟挑战。最新的行业报告显示，GPT-4o 的平均音频响应延迟已优化至 232ms [OpenAI, 2024]，这一数值逼近了人类在自然对话中的平均反应速度。这表明，“低延迟”已成为继“准确率”之后，下一代语音交互体验的核心竞争标准。
 
@@ -21,7 +21,7 @@
 
 $$L_{total} = L_{VAD} + L_{ASR} + L_{LLM\_Prefill} + L_{LLM\_Decode} + L_{TTS} + L_{Net}$$
 
-现有的研究表明，传统非流式级联系统的端到端延迟通常在 3 到 5 秒之间。考虑到人类对话的平均轮替（Turn-taking）间隙通常仅为 200ms 左右 [Sacks et al., 1974]，这种秒级的延迟差异会产生严重的“认知摩擦”：用户在表达完毕后往往需要经历漫长的静默等待，这不仅打断了思维的连贯性，还常导致用户误以为系统未响应而重复输入，进而引发交互混乱。特别是在长语音输入场景下，非流式 ASR 需要等待整句录音结束才开始转录，且 LLM 的预填充（Prefill）时间随输入长度呈线性甚至超线性增长，进一步恶化了长文本交互的实时性。因此，如何在保留级联架构模块化优势的前提下，通过流式并行策略消除模块间的“死区时间”，实现“打断即响应”的极致体验，具有重要的学术价值和工程意义。  
+现有的研究表明，传统非流式级联系统的端到端延迟通常在 3 到 5 秒之间 [Wang et al., 2024; Macháček et al., 2025]。考虑到人类对话的平均轮替（Turn-taking）间隙通常仅为 200ms 左右 [Sacks et al., 1974]，这种秒级的延迟差异会产生严重的“认知摩擦”：用户在表达完毕后往往需要经历漫长的静默等待，这不仅打断了思维的连贯性，还常导致用户误以为系统未响应而重复输入，进而引发交互混乱。特别是在长语音输入场景下，非流式 ASR 需要等待整句录音结束才开始转录，且 LLM 的预填充（Prefill）时间随输入长度呈线性甚至超线性增长，进一步恶化了长文本交互的实时性。因此，如何在保留级联架构模块化优势的前提下，通过流式并行策略消除模块间的“死区时间”，实现“打断即响应”的极致体验，具有重要的学术价值和工程意义。  
 
 ## 1.2 国内外研究现状 (Literature Review)  
 
@@ -126,7 +126,7 @@ $$V_{cache}^{(t)} = \text{Concat}(V_{cache}^{(t-1)}, v_t)$$
 
 ### 2.3.1 首字延迟 (Time to First Token, TTFT)
 
-TTFT 是衡量交互实时性的核心指标，直接关联用户的主观等待感。参考 Google Research 的定义 [Google, 2024]，语音对话系统的总延迟可分解为各个模块的处理时间。本研究重点关注的 TTFT 特指从 VAD 判定用户语音结束（End of Speech）到 LLM 输出第一个字符的时间差。在 System B 中，由于部分 $L_{LLM\_Prefill}$ 被流水线并行机制所掩盖，TTFT 的理论值将显著低于 System A。
+TTFT 是衡量交互实时性的核心指标，直接关联用户的主观等待感。参考 Google Research 的定义 [Google Team, 2024]，语音对话系统的总延迟可分解为各个模块的处理时间。本研究重点关注的 TTFT 特指从 VAD 判定用户语音结束（End of Speech）到 LLM 输出第一个字符的时间差。在 System B 中，由于部分 $L_{LLM\_Prefill}$ 被流水线并行机制所掩盖，TTFT 的理论值将显著低于 System A。
 
 ### 2.3.2 词错误率 (Word Error Rate, WER)
 
@@ -153,7 +153,7 @@ $$\text{WER} = \frac{S + D + I}{N} \times 100\%$$
 
 **图 3-1 System B 流式并行架构逻辑拓扑图**[本图展示了系统全异步解耦的数据流向。左侧音频前端采用**环形缓冲区 (Ring Buffer)** 持续摄入 PCM 数据流，并经由 **Silero VAD** 进行毫秒级活动检测与切分。中间层的 ASR 引擎输出的中间文本流 (Text Stream) 通过 **异步事件总线 (Async Event Bus)** 即时触发右侧 LLM 的 **KV Cache 增量推理**。底部的时间轴示意带清晰展示了数据如何在流水线中从原始音频切片平滑转换为语义 Token，实现了计算与 I/O 的高度重叠]
 
-整体架构遵循**全异步（Asynchronous）解耦**原则，三个核心子系统通过标准化的接口协议协同工作。首先，**流式音频分段前端 (Streaming Audio Segmenter)** 作为系统的感知触角，集成了高灵敏度的 Silero VAD 引擎 [Silero Team, 2021]，负责对原始 PCM 音频流进行实时过滤。该模块利用动态阈值算法剔除无效静音，并将连续的语音流离散化为包含语义信息的有效切片 (AudioChunk)。其次，**上下文感知 ASR 引擎 (Context-Aware ASR Engine)** 并不等待整句语音结束，而是维护一个动态音频环形缓冲区 (Ring Buffer)，采用带有“前缀上下文（Prefix Context）”的滑动窗口机制循环调用 Faster-Whisper 模型 [Radford et al., 2023]。这种设计旨在解决流式切分可能造成的语义截断问题，以“小步快跑”的方式输出具有高置信度的确定性文本片段。最后，**增量式 LLM 推理服务 (Incremental LLM Inference Service)** 构成了系统的认知核心。区别于传统服务等待完整 Prompt 的被动模式，该服务基于 Transformer 解码器的 KV Cache 机制构建 [Vaswani et al., 2017]，能够实时摄入上游 ASR 的文本增量，即时计算并更新注意力键值对（Key-Value Pairs），从而将计算负载均摊至整个用户发言过程。
+整体架构遵循**全异步（Asynchronous）解耦**原则，三个核心子系统通过标准化的接口协议协同工作。首先，**流式音频分段前端 (Streaming Audio Segmenter)** 作为系统的感知触角，集成了高灵敏度的 Silero VAD 引擎 [Silero Team, 2024]，负责对原始 PCM 音频流进行实时过滤。该模块利用动态阈值算法剔除无效静音，并将连续的语音流离散化为包含语义信息的有效切片 (AudioChunk)。其次，**上下文感知 ASR 引擎 (Context-Aware ASR Engine)** 并不等待整句语音结束，而是维护一个动态音频环形缓冲区 (Ring Buffer)，采用带有“前缀上下文（Prefix Context）”的滑动窗口机制循环调用 Faster-Whisper 模型 [Radford et al., 2023]。这种设计旨在解决流式切分可能造成的语义截断问题，以“小步快跑”的方式输出具有高置信度的确定性文本片段。最后，**增量式 LLM 推理服务 (Incremental LLM Inference Service)** 构成了系统的认知核心。区别于传统服务等待完整 Prompt 的被动模式，该服务基于 Transformer 解码器的 KV Cache 机制构建 [Vaswani et al., 2017]，能够实时摄入上游 ASR 的文本增量，即时计算并更新注意力键值对（Key-Value Pairs），从而将计算负载均摊至整个用户发言过程。
 
 ### 3.1.2 关键工程实现机制
 
@@ -474,75 +474,211 @@ $$O(M \cdot (N+M)) \approx O(N \cdot M)$$
 
 ---
 
-**参考文献**
+**References**
 
-[1] OpenAI. (2024). *GPT-4o System Card*.
+[1] OpenAI, "GPT-4o System Card," 2024. [Online]. Available: https://arxiv.org/abs/2410.21276
 
-[2] Google. (2024). *Gemini Live Technical Report*.
+[2] Google Team, "Gemini 1.5: Unlocking multimodal understanding across millions of tokens of context," *arXiv preprint arXiv:2403.05530*, 2024.
 
-[3] Radford, A., et al. (2023). *Robust Speech Recognition via Large-Scale Weak Supervision*.
+[3] A. Radford *et al.*, "Robust Speech Recognition via Large-Scale Weak Supervision," in *Proc. ICML*, 2023, pp. 28492–28518.
 
-[4] Dao, T., et al. (2022). *FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness*.
+[4] T. Dao *et al.*, "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness," in *Advances in Neural Information Processing Systems (NeurIPS)*, vol. 35, 2022, pp. 16344–16359.
 
-[5] Graves, A. (2012). *Sequence Transduction with Recurrent Neural Networks*.
+[5] A. Graves, "Sequence Transduction with Recurrent Neural Networks," in *ICML Workshop on Representation Learning*, 2012.
 
-[6] Gulati, A., et al. (2020). *Conformer: Convolution-augmented Transformer for Speech Recognition*.
+[6] A. Vaswani *et al.*, "Attention Is All You Need," in *Advances in Neural Information Processing Systems (NIPS)*, vol. 30, 2017.
 
-[7] Krichli, T., et al. (2025). *CarelessWhisper: Turning Whisper into a Causal Streaming Model*.
+[7] A. Gulati *et al.*, "Conformer: Convolution-augmented Transformer for Speech Recognition," in *Proc. Interspeech*, 2020, pp. 5036–5040.
 
-[8] Radford, A., et al. (2023). *Robust Speech Recognition via Large-Scale Weak Supervision*.
+[8] T. Krichli *et al.*, "CarelessWhisper: Turning Whisper into a Causal Streaming Model," *arXiv preprint arXiv:2508.12301*, 2025.
 
-[9] Krichli, T., et al. (2025). *CarelessWhisper: Turning Whisper into a Causal Streaming Model*.
+[9] F. Yu *et al.*, "FastEmit: Low-latency Streaming ASR with Sequence-level Emission Regularization," in *Proc. ICASSP*, 2021, pp. 6004–6008.
 
-[10] Yu, F., et al. (2021). *FastEmit: Low-latency Streaming ASR*.
+[10] R. Pope *et al.*, "Efficiently Scaling Transformer Inference," *arXiv preprint arXiv:2211.05102*, 2022.
 
-[11] Pope, R., et al. (2023). *Efficiently Scaling Transformer Inference*.
+[11] G. Xiao *et al.*, "Efficient Streaming Language Models with Attention Sinks," in *Proc. ICLR*, 2024.
 
-[12] Dao, T., et al. (2022). *FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness*.
+[12] Y. Gao *et al.*, "Mini-Omni: Language Models Can Hear, Talk While Thinking in Streaming," *arXiv preprint arXiv:2408.16725*, 2024.
 
-[13] Xiao, G., et al. (2023). *Efficient Streaming Language Models with Attention Sinks*.
+[13] H. Sacks, E. A. Schegloff, and G. Jefferson, "A simplest systematics for the organization of turn-taking for conversation," *Language*, vol. 50, no. 4, pp. 696-735, 1974.
 
-[14] Gao, Y., et al. (2024). *Mini-Omni: Language Models Can Hear, Talk While Thinking in Streaming*.
+[14] Silero Team, "Silero VAD: pre-trained enterprise-grade Voice Activity Detector," 2024. [Online]. Available: https://github.com/snakers4/silero-vad
 
-**参考文献**
+[15] P. Budzianowski *et al.*, "MultiWOZ - A Large-Scale Multi-Domain Wizard-of-Oz Dataset for Task-Oriented Dialogue Modelling," in *EMNLP*, 2018.
 
-[1] Google Research. (2024). *Latency Optimization in Spoken Dialogue Systems*.
+[16] Q. Zhu *et al.*, "CrossWOZ: A Large-Scale Chinese Cross-Domain Task-Oriented Dialogue Dataset," in *TACL*, 2020.
 
-[2] OpenAI. (2024). *GPT-4o System Card*.
+[17] Z. Du *et al.*, "CosyVoice 2: Scalable Streaming Speech Synthesis with Large Language Models," *arXiv preprint arXiv:2412.10117*, 2024.
 
-[3] Google. (2024). *Gemini Live Technical Report*.
+[18] Qwen Team, "Qwen2.5: A Party of Foundation Models," 2024. [Online]. Available: https://qwenlm.github.io/blog/qwen2.5/
 
-  
+[19] E. Lakomkin *et al.*, "Kt-Speech-Crawler: Automatic Dataset Construction for Speech Recognition from YouTube Videos," in *EMNLP*, 2018.
+
+[20] Y. Wang *et al.*, "Real-Time Speech Interaction with Large Language Models," *arXiv preprint arXiv:2404.03058*, 2024.
+
+[21] M. Macháček and T. Polák, "Turn-Taking in Conversational Systems," *arXiv preprint arXiv:2503.05943*, 2025.
 ---
 
-**参考文献**
+**BibTeX**
 
-[1] Radford, A., et al. (2023). Robust Speech Recognition via Large-Scale Weak Supervision.
+```bibtex
+@article{openai2024gpt4o,
+  title={GPT-4o System Card},
+  author={OpenAI},
+  journal={arXiv preprint arXiv:2410.21276},
+  year={2024}
+}
 
-[2] Google Research. (2024). *Latency Optimization in Spoken Dialogue Systems*.
+@article{google2024gemini,
+  title={Gemini 1.5: Unlocking multimodal understanding across millions of tokens of context},
+  author={Google Team and others},
+  journal={arXiv preprint arXiv:2403.05530},
+  year={2024}
+}
 
-- **[OpenAI, 2024]** (GPT-4o 系统卡片) OpenAI. (2024). _GPT-4o System Card_. [Online]. Available: [https://openai.com/index/gpt-4o-system-card](https://openai.com/index/gpt-4o-system-card) _(注：引用 GPT-4o 的 232ms 延迟数据)_
-    
-- **[Google, 2024]** (Gemini Live 技术报告) Google DeepMind. (2024). _Gemini 1.5: Unlocking multimodal understanding across millions of tokens of context_. arXiv preprint arXiv:2403.05530. _(注：或者引用 Gemini 1.5 Pro Technical Report，视具体发布的报告名称而定)_
-    
-- **[Radford et al., 2023]** (Whisper 模型) A. Radford, J. W. Kim, T. Xu, G. Brockman, C. McLeavey, and I. Sutskever, "Robust Speech Recognition via Large-Scale Weak Supervision," in _Proc. ICML_, 2023, pp. 28492–28518.
-    
-- **[Xiao et al., 2023]** (StreamingLLM / Attention Sinks) G. Xiao, Y. Tian, B. Chen, S. Han, and M. Lewis, "Efficient Streaming Language Models with Attention Sinks," in _Proc. ICLR_, 2024. (arXiv preprint arXiv:2309.17453, 2023).
-    
-- **[Dao et al., 2022]** (FlashAttention) T. Dao, D. Fu, S. Ermon, A. Rudra, and C. Ré, "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness," in _Advances in Neural Information Processing Systems (NeurIPS)_, vol. 35, 2022, pp. 16344–16359.
-    
-- **[Pope et al., 2023]** (KV Cache 机制) R. Pope, S. Douglas, A. Chowdhery, J. Devlin, J. Bradbury, and J. Dean, "Efficiently Scaling Transformer Inference," _arXiv preprint arXiv:2211.05102_, 2022. _(注：这是解释 KV Cache 和 Memory Bandwidth Bound 的经典文献)_
-    
-- **[Gao et al., 2024]** (流水线并行/Mini-Omni) Y. Gao et al., "Mini-Omni: Language Models Can Hear, Talk While Thinking in Streaming," _arXiv preprint arXiv:2408.16725_, 2024.
-    
+@inproceedings{radford2023robust,
+  title={Robust Speech Recognition via Large-Scale Weak Supervision},
+  author={Radford, Alec and Kim, Jong Wook and Xu, Tao and Brockman, Greg and McLeavey, Christine and Sutskever, Ilya},
+  booktitle={International Conference on Machine Learning},
+  pages={28492--28518},
+  year={2023},
+  organization={PMLR}
+}
 
+@inproceedings{dao2022flashattention,
+  title={FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness},
+  author={Dao, Tri and Fu, Dan and Ermon, Stefano and Rudra, Atri and R{\'e}, Christopher},
+  booktitle={Advances in Neural Information Processing Systems},
+  volume={35},
+  pages={16344--16359},
+  year={2022}
+}
 
-- **[Vaswani et al., 2017]** (Transformer 原理) A. Vaswani _et al._, "Attention Is All You Need," in _Advances in Neural Information Processing Systems (NIPS)_, vol. 30, 2017.
-    
-- **[Gulati et al., 2020]** (Conformer 架构) A. Gulati _et al._, "Conformer: Convolution-augmented Transformer for Speech Recognition," in _Proc. Interspeech_, 2020, pp. 5036–5040.
-    
-- **[Graves, 2012]** (RNN-T 早期工作) A. Graves, "Sequence Transduction with Recurrent Neural Networks," in _Proc. ICML Workshop on Representation Learning_, 2012.
-    
-- **[Krichli et al., 2025]** (CarelessWhisper / 流式改造) T. Krichli _et al._, "CarelessWhisper: Turning Whisper into a Causal Streaming Model," _arXiv preprint arXiv:25xx.xxxxx_, 2025. _(注：请务必核对 arXiv 上的最新年份，如果尚未正式发表，年份可能是 2024 或 2025)_
-    
-- **[Yu et al., 2021]** (FastEmit / 两阶段解码) F. Yu _et al._, "FastEmit: Low-latency Streaming ASR with Sequence-level Emission Regularization," in _Proc. ICASSP_, 2021, pp. 6004–6008.
+@inproceedings{graves2012sequence,
+  title={Sequence Transduction with Recurrent Neural Networks},
+  author={Graves, Alex},
+  booktitle={ICML Workshop on Representation Learning},
+  year={2012}
+}
+
+@inproceedings{vaswani2017attention,
+  title={Attention Is All You Need},
+  author={Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N and Kaiser, {\L}ukasz and Polosukhin, Illia},
+  booktitle={Advances in Neural Information Processing Systems},
+  volume={30},
+  year={2017}
+}
+
+@inproceedings{gulati2020conformer,
+  title={Conformer: Convolution-augmented Transformer for Speech Recognition},
+  author={Gulati, Anmol and Qin, James and Chiu, Chung-Cheng and Parmar, Niki and Zhang, Yu and Yu, Jiahui and Han, Wei and Wang, Te-Jason and Zhang, Zhengdong and Wu, Yonghui and others},
+  booktitle={Proc. Interspeech},
+  pages={5036--5040},
+  year={2020}
+}
+
+@article{krichli2025careless,
+  title={CarelessWhisper: Turning Whisper into a Causal Streaming Model},
+  author={Krichli, Tomer and others},
+  journal={arXiv preprint arXiv:2508.12301},
+  year={2025}
+}
+
+@inproceedings{yu2021fastemit,
+  title={FastEmit: Low-latency Streaming ASR with Sequence-level Emission Regularization},
+  author={Yu, Jiahui and others},
+  booktitle={ICASSP 2021-2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
+  pages={6004--6008},
+  year={2021},
+  organization={IEEE}
+}
+
+@article{pope2022efficiently,
+  title={Efficiently Scaling Transformer Inference},
+  author={Pope, Reiner and Douglas, Sholto and Chowdhery, Aakanksha and Devlin, Jacob and Bradbury, James and Dean, Jeff and others},
+  journal={arXiv preprint arXiv:2211.05102},
+  year={2022}
+}
+
+@inproceedings{xiao2024efficient,
+  title={Efficient Streaming Language Models with Attention Sinks},
+  author={Xiao, Guangxuan and Tian, Yuandong and Chen, Beidi and Han, Song and Lewis, Mike},
+  booktitle={International Conference on Learning Representations},
+  year={2024}
+}
+
+@article{gao2024mini,
+  title={Mini-Omni: Language Models Can Hear, Talk While Thinking in Streaming},
+  author={Gao, Y and others},
+  journal={arXiv preprint arXiv:2408.16725},
+  year={2024}
+}
+
+@article{sacks1974simplest,
+  title={A simplest systematics for the organization of turn-taking for conversation},
+  author={Sacks, Harvey and Schegloff, Emanuel A and Jefferson, Gail},
+  journal={Language},
+  pages={696--735},
+  year={1974},
+  publisher={JSTOR}
+}
+
+@misc{silero2024vad,
+  title={Silero VAD: pre-trained enterprise-grade Voice Activity Detector},
+  author={Silero Team},
+  year={2024},
+  url={https://github.com/snakers4/silero-vad}
+}
+
+@inproceedings{budzianowski2018multiwoz,
+  title={MultiWOZ - A Large-Scale Multi-Domain Wizard-of-Oz Dataset for Task-Oriented Dialogue Modelling},
+  author={Budzianowski, Pawe{\l} and Wen, Tsung-Hsien and Tseng, Bo-Hsiang and Casanueva, I{\~n}igo and Ultes, Stefan and Ramadan, Osman and Ga{\v{s}}i{\'c}, Milica},
+  booktitle={Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing},
+  pages={5016--5026},
+  year={2018}
+}
+
+@article{zhu2020crosswoz,
+  title={CrossWOZ: A Large-Scale Chinese Cross-Domain Task-Oriented Dialogue Dataset},
+  author={Zhu, Qi and others},
+  journal={Transactions of the Association for Computational Linguistics},
+  volume={8},
+  pages={281--295},
+  year={2020}
+}
+
+@article{du2024cosyvoice,
+  title={CosyVoice 2: Scalable Streaming Speech Synthesis with Large Language Models},
+  author={Du, Zhihao and others},
+  journal={arXiv preprint arXiv:2412.10117},
+  year={2024}
+}
+
+@misc{qwenteam2024qwen25,
+  title={Qwen2.5: A Party of Foundation Models},
+  author={Qwen Team},
+  year={2024},
+  howpublished={\url{https://qwenlm.github.io/blog/qwen2.5/}}
+}
+
+@inproceedings{lakomkin2018ktspeech,
+  title={Kt-Speech-Crawler: Automatic Dataset Construction for Speech Recognition from YouTube Videos},
+  author={Lakomkin, Egor and others},
+  booktitle={EMNLP},
+  year={2018}
+}
+
+@article{wang2024realtime,
+    title={Real-Time Speech Interaction with Large Language Models},
+    author={Wang, Y and others},
+    journal={arXiv preprint arXiv:2404.03058},
+    year={2024}
+}
+
+@article{machacek2025turntaking,
+    title={Turn-Taking in Conversational Systems},
+    author={Mach{\'a}{\v{c}}ek, M and Pol{\'a}k, T},
+    journal={arXiv preprint arXiv:2503.05943},
+    year={2025}
+}
+```
