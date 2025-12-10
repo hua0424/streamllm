@@ -29,6 +29,7 @@ dependencies = [
     "nvidia-cuda-nvrtc-cu12==12.1.*",
     "nvidia-cuda-runtime-cu12==12.1.*",
     "nvidia-cudnn-cu12==9.1.0.*",
+    "seaborn>=0.13.2",
 ]
 
 [tool.uv.sources]
