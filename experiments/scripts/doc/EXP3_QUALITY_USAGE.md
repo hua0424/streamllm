@@ -2,7 +2,7 @@
 
 ## 目标
 - 对比 **非流式 ASR** 与 **流式 ASR** 的识别准确率（WER/CER）
-- 关注长语音场景，验证流式处理带来的精度影响
+- 关注中长语音（默认从 **medium/long/very_long** 分层抽样），验证流式处理带来的精度影响
 
 ## 核心配置
 - 代码入口：`experiments/scripts/run_exp_quality.py`
@@ -12,11 +12,16 @@
 
 ## 运行方式
 ```bash
-# 默认运行（使用 uv，无需激活 conda）
+# 默认运行（使用 uv，无需激活 conda），分层抽样 medium/long/very_long
 uv run python -m experiments.scripts.run_exp_quality
 
-# 指定数据集与样本数（推荐 50-200 条）
-uv run python -m experiments.scripts.run_exp_quality --dataset crosswoz --max-samples 100
+# 指定数据集与总样本数（按分组均分或 --samples-per-group 固定）
+uv run python -m experiments.scripts.run_exp_quality --dataset crosswoz --max-samples 90
+
+# 自定义分组与每组样本数
+uv run python -m experiments.scripts.run_exp_quality \
+    --duration-groups medium long very_long \
+    --samples-per-group 40
 
 # 指定设备、分块与预热
 uv run python -m experiments.scripts.run_exp_quality \
@@ -29,7 +34,9 @@ uv run python -m experiments.scripts.run_exp_quality \
 |------|--------|------|
 | `--data-dir` | `experiments/datasets/processed` | 处理后数据目录 |
 | `--dataset` | `all` | 选择 crosswoz/multiwoz/all |
-| `--max-samples` | None | 最大样本数（论文建议 50-200） |
+| `--max-samples` | None | 最大总样本数；分层抽样时按分组均分 |
+| `--duration-groups` | `medium long very_long` | 分层抽样的时长分组 |
+| `--samples-per-group` | None | 每组抽样数量；缺省时按 `max-samples` 平均分配 |
 | `--asr-device` | `auto` | ASR 设备 (auto/cuda/cpu) |
 | `--asr-model-size` | 配置默认 | ASR 模型 (tiny/base/small/medium/large) |
 | `--chunk-duration` | 500 | 流式分块时长 ms |
@@ -49,7 +56,7 @@ uv run python -m experiments.scripts.run_exp_quality \
    - `statistics`：按 mode、dataset、language、overall 的均值/方差
 
 2) **逐样本汇总 CSV** `exp3_summary_YYYYMMDD_HHMMSS.csv`  
-   列：`sample_id,dataset,language,dialog_id,turn_index,text_length,audio_duration,mode,wer,cer,asr_time_ms,error`
+   列：`sample_id,dataset,language,dialog_id,turn_index,text_length,audio_duration,duration_group,mode,wer,cer,asr_time_ms,error`
 
 3) **统计 CSV** `exp3_statistics_YYYYMMDD_HHMMSS.csv`  
    列：`scope,sample_count,avg_duration_s,wer_mean,wer_std,cer_mean,cer_std`  

@@ -21,6 +21,7 @@ import sys
 import time
 import wave
 import gc
+import math
 from pathlib import Path
 from datetime import datetime
 from typing import List, Optional, Dict, Any, Tuple
@@ -41,6 +42,35 @@ from src.asr.run_stream_asr_test import convert_audio_segment
 from src.config import ASR_MODEL_NAME
 
 logger = get_logger(__name__)
+
+# =============================================================================
+# 时长分组
+# =============================================================================
+
+DURATION_GROUPS = {
+    "short": (0, 5),
+    "medium": (5, 15),
+    "long": (15, 30),
+    "very_long": (30, 60),
+    "extra_long": (60, float("inf")),
+}
+
+
+def get_duration_group(duration: float) -> str:
+    for name, (lo, hi) in DURATION_GROUPS.items():
+        if lo <= duration < hi:
+            return name
+    return "extra_long"
+
+
+def _mark_error(result, reason: str) -> None:
+    if not reason:
+        return
+    if not getattr(result, "error", ""):
+        result.error = reason
+    elif reason not in result.error:
+        result.error = f"{result.error}; {reason}"
+
 
 # =============================================================================
 # 工具函数：WER / CER
@@ -174,6 +204,7 @@ class SampleInfo:
     audio_duration: float
     language: str
     dataset: str
+    duration_group: str
 
 
 @dataclass
@@ -185,6 +216,7 @@ class ExperimentResult:
     turn_index: int
     text_length: int
     audio_duration: float
+    duration_group: str
     mode: str  # streaming / non-streaming
 
     transcript: str
@@ -270,6 +302,7 @@ def load_samples(json_dir: Path, audio_dir: Path, dataset_filter: Optional[str],
                         audio_duration=audio_duration,
                         language=data["language"],
                         dataset=data["dataset"],
+                        duration_group=get_duration_group(audio_duration),
                     )
                 )
             except Exception as e:
@@ -280,6 +313,40 @@ def load_samples(json_dir: Path, audio_dir: Path, dataset_filter: Optional[str],
     samples.sort(key=lambda x: x.audio_duration)
     logger.info(f"加载了 {len(samples)} 个样本")
     return samples
+
+
+def stratified_sample_by_group(
+    samples: List[SampleInfo],
+    target_groups: List[str],
+    samples_per_group: Optional[int] = None,
+    max_total: Optional[int] = None,
+) -> List[SampleInfo]:
+    """
+    按时长分组分层抽样，保障 medium/long/very_long 均衡。
+    优先取分组内时长较短的样本以降低运行成本（稳定复现）。
+    """
+    buckets: Dict[str, List[SampleInfo]] = {g: [] for g in target_groups}
+    for s in samples:
+        if s.duration_group in buckets:
+            buckets[s.duration_group].append(s)
+
+    for g in buckets:
+        buckets[g].sort(key=lambda x: x.audio_duration)
+
+    if samples_per_group is None and max_total:
+        samples_per_group = math.ceil(max_total / len(target_groups))
+
+    selected: List[SampleInfo] = []
+    for g in target_groups:
+        grp = buckets.get(g, [])
+        take_n = samples_per_group or len(grp)
+        selected.extend(grp[:take_n])
+
+    if max_total:
+        selected = selected[:max_total]
+
+    logger.info(f"分层抽样分组 {target_groups}, 每组取 {samples_per_group or 'ALL'}, 最终 {len(selected)} 条")
+    return selected
 
 
 # =============================================================================
@@ -499,6 +566,7 @@ class QualityExperiment:
             turn_index=sample.turn_index,
             text_length=sample.text_length,
             audio_duration=sample.audio_duration,
+            duration_group=sample.duration_group,
             mode="non-streaming",
             transcript="",
             wer=0.0,
@@ -521,6 +589,11 @@ class QualityExperiment:
                 res.wer = wer(ref_text, res.transcript)
             res.cer = cer(ref_text, res.transcript)
             res.asr_time_ms = (res.last_text_time - res.audio_load_time) * 1000
+            if not res.transcript:
+                _mark_error(res, "asr_no_text")
+            if res.asr_time_ms < 0:
+                res.asr_time_ms = max(0.0, res.asr_time_ms)
+                _mark_error(res, "invalid_timing")
         except Exception as e:
             res.error = str(e)
             logger.error(f"非流式失败 {sample.sample_id}: {e}")
@@ -538,6 +611,7 @@ class QualityExperiment:
             turn_index=sample.turn_index,
             text_length=sample.text_length,
             audio_duration=sample.audio_duration,
+            duration_group=sample.duration_group,
             mode="streaming",
             transcript="",
             wer=0.0,
@@ -638,8 +712,9 @@ class QualityExperiment:
 
             # 防止 ASR 无输出时时间戳计算错误
             if timings["last_text"] == 0.0:
-                timings["last_text"] = time.time()
+                timings["last_text"] = timings["audio_end"]
                 logger.warning(f"ASR 未输出文本: {sample.sample_id}")
+                _mark_error(res, "asr_no_text")
 
             res.last_text_time = timings["last_text"]
             res.asr_time_ms = (timings["last_text"] - timings["audio_end"]) * 1000
@@ -651,6 +726,9 @@ class QualityExperiment:
             else:
                 res.wer = wer(ref_text, res.transcript)
             res.cer = cer(ref_text, res.transcript)
+            if res.asr_time_ms < 0:
+                res.asr_time_ms = max(0.0, res.asr_time_ms)
+                _mark_error(res, "invalid_timing")
 
         except Exception as e:
             res.error = str(e)
@@ -731,6 +809,8 @@ def save_results(results: List[ExperimentResult], output_dir: Path, args, stats_
             "warmup_rounds": args.warmup_rounds,
             "max_samples": args.max_samples,
             "dataset": args.dataset,
+            "duration_groups": args.duration_groups,
+            "samples_per_group": args.samples_per_group,
             "prefix_segments": args.prefix_segments,
             "suffix_segments": args.suffix_segments,
             "recognition_threshold": args.recognition_threshold,
@@ -755,12 +835,12 @@ def save_results(results: List[ExperimentResult], output_dir: Path, args, stats_
         w = csv.writer(f)
         w.writerow([
             "sample_id", "dataset", "language", "dialog_id", "turn_index", "text_length",
-            "audio_duration", "mode", "wer", "cer", "asr_time_ms", "error"
+            "audio_duration", "duration_group", "mode", "wer", "cer", "asr_time_ms", "error"
         ])
         for r in results:
             w.writerow([
                 r.sample_id, r.dataset, r.language, r.dialog_id, r.turn_index, r.text_length,
-                f"{r.audio_duration:.2f}", r.mode, f"{r.wer:.4f}", f"{r.cer:.4f}", f"{r.asr_time_ms:.2f}", r.error
+                f"{r.audio_duration:.2f}", r.duration_group, r.mode, f"{r.wer:.4f}", f"{r.cer:.4f}", f"{r.asr_time_ms:.2f}", r.error
             ])
     logger.info(f"CSV 结果: {csv_file}")
 
@@ -797,6 +877,11 @@ def main():
     parser.add_argument("--data-dir", type=str, default="experiments/datasets/processed", help="处理后的数据目录")
     parser.add_argument("--dataset", type=str, choices=["crosswoz", "multiwoz", "all"], default="all", help="数据集")
     parser.add_argument("--max-samples", type=int, default=None, help="最大样本数")
+    parser.add_argument("--duration-groups", nargs="+", default=["medium", "long", "very_long"],
+                        choices=list(DURATION_GROUPS.keys()),
+                        help="分层抽样的时长分组（默认 medium/long/very_long）")
+    parser.add_argument("--samples-per-group", type=int, default=None,
+                        help="每个分组抽样数量；未指定时若设置 --max-samples 将自动均分")
 
     parser.add_argument("--asr-device", type=str, default="auto", help="ASR 设备 (auto/cuda/cuda:0/cuda:1/cpu)")
     parser.add_argument("--asr-model-size", type=str, default=ASR_MODEL_NAME, choices=["tiny", "base", "small", "medium", "large"], help="ASR 模型大小")
@@ -833,6 +918,7 @@ def main():
     logger.info(f"ASR prefix_segments: {args.prefix_segments}, suffix_segments: {args.suffix_segments}")
     logger.info(f"ASR recognition_threshold: {args.recognition_threshold}s")
     logger.info(f"批次大小（检查点间隔）: {args.batch_size}")
+    logger.info(f"分层抽样分组: {args.duration_groups}, 每组数量: {args.samples_per_group or '均分/全部'}")
     logger.info(f"断点续传: {'禁用' if args.no_resume else '启用'}")
     logger.info("=" * 60)
 
@@ -849,9 +935,18 @@ def main():
             logger.info("已删除旧的检查点文件，从头开始运行")
 
     dataset_filter = None if args.dataset == "all" else args.dataset
-    samples = load_samples(json_dir, audio_dir, dataset_filter, args.max_samples)
-    if not samples:
+    raw_samples = load_samples(json_dir, audio_dir, dataset_filter, None)
+    if not raw_samples:
         logger.error("没有可用样本，请先运行数据处理管线")
+        sys.exit(1)
+    samples = stratified_sample_by_group(
+        raw_samples,
+        target_groups=args.duration_groups,
+        samples_per_group=args.samples_per_group,
+        max_total=args.max_samples
+    )
+    if not samples:
+        logger.error("分层抽样后无可用样本，请调整分组或增加数据")
         sys.exit(1)
 
     shared = SharedASR(args)
@@ -877,6 +972,8 @@ def main():
         "warmup_rounds": args.warmup_rounds,
         "max_samples": args.max_samples,
         "dataset": args.dataset,
+        "duration_groups": args.duration_groups,
+        "samples_per_group": args.samples_per_group,
         "prefix_segments": args.prefix_segments,
         "suffix_segments": args.suffix_segments,
         "recognition_threshold": args.recognition_threshold,

@@ -142,6 +142,31 @@ def get_duration_group(duration: float) -> str:
     return "extra_long"
 
 
+def _mark_error(result: ExperimentResult, reason: str) -> None:
+    """为结果追加错误标记（去重）。"""
+    if not reason:
+        return
+    if not result.error:
+        result.error = reason
+    elif reason not in result.error:
+        result.error = f"{result.error}; {reason}"
+
+
+def _sanitize_timings(result: ExperimentResult) -> None:
+    """
+    将异常计时（None/负值）夹到非负，并打上错误标记。
+    统计时会跳过带 error 的样本，避免污染均值。
+    """
+    invalid = False
+    for field in ("ttft", "asr_time", "llm_prefill_time"):
+        val = getattr(result, field, 0)
+        if val is None or val < 0:
+            setattr(result, field, max(0.0, val or 0.0))
+            invalid = True
+    if invalid:
+        _mark_error(result, "invalid_timing")
+
+
 # =============================================================================
 # 内存管理
 # =============================================================================
@@ -494,12 +519,18 @@ class AblationExperiment:
             if first_token_time == 0.0:
                 first_token_time = time.time()
                 result.first_token_time = first_token_time
+                _mark_error(result, "llm_no_token")
                 logger.warning(f"LLM 未生成 token: {sample.sample_id}")
+
+            if result.last_text_time == 0.0:
+                result.last_text_time = result.audio_load_time
+                _mark_error(result, "asr_no_text")
 
             result.ttft = (first_token_time - audio_load_time) * 1000
             result.asr_time = (last_text_time - audio_load_time) * 1000
             result.llm_prefill_time = (first_token_time - last_text_time) * 1000
             result.response_preview = "".join(full_response)[:100]
+            _sanitize_timings(result)
 
         except Exception as e:
             result.error = str(e)
@@ -682,6 +713,16 @@ class AblationExperiment:
             result.asr_time = (timings["last_text_time"] - timings["audio_end_time"]) * 1000
             result.llm_prefill_time = (first_token_time - timings["last_text_time"]) * 1000
             result.response_preview = "".join(full_response)[:100]
+            if not transcribed_text:
+                _mark_error(result, "asr_no_text")
+            if result.last_text_time == 0.0:
+                result.last_text_time = result.audio_end_time
+                _mark_error(result, "asr_last_text_missing")
+            if first_token_time == 0.0:
+                first_token_time = max(result.last_text_time, result.audio_end_time)
+                result.first_token_time = first_token_time
+                _mark_error(result, "llm_no_token")
+            _sanitize_timings(result)
 
         except Exception as e:
             result.error = str(e)
@@ -868,9 +909,14 @@ class AblationExperiment:
             # 防止 LLM 无输出时 TTFT 计算错误
             if timings["first_token_time"] == 0.0:
                 timings["first_token_time"] = time.time()
+                _mark_error(result, "llm_no_token")
                 logger.warning(f"LLM 未生成 token: {sample.sample_id}")
 
             result.first_token_time = timings["first_token_time"]
+
+            if result.last_text_time == 0.0:
+                result.last_text_time = result.audio_end_time
+                _mark_error(result, "asr_last_text_missing")
 
             result.ttft = (timings["first_token_time"] - timings["audio_end_time"]) * 1000
             result.asr_time = (timings["last_text_time"] - timings["audio_end_time"]) * 1000
@@ -878,6 +924,9 @@ class AblationExperiment:
 
             result.transcribed_text = " ".join(transcribed_text)
             result.response_preview = "".join(full_response)[:100]
+            if not transcribed_text:
+                _mark_error(result, "asr_no_text")
+            _sanitize_timings(result)
 
         except Exception as e:
             result.error = str(e)
@@ -1038,7 +1087,7 @@ def calculate_group_statistics(results: List[ExperimentResult]) -> List[Ablation
     grouped: Dict[str, Dict[str, List[float]]] = {}
 
     for r in results:
-        if r.error:
+        if r.error or r.ttft <= 0 or r.asr_time < 0 or r.llm_prefill_time < 0:
             continue
         group = r.duration_group
         grouped.setdefault(group, {
@@ -1294,9 +1343,9 @@ def main():
                         default='all', help='数据集选择')
     parser.add_argument('--max-samples', type=int, default=None,
                         help='最大样本数（用于测试）')
-    parser.add_argument('--duration-groups', nargs='+', default=['long'],
+    parser.add_argument('--duration-groups', nargs='+', default=['long', 'very_long'],
                         choices=list(DURATION_GROUPS.keys()),
-                        help='按时长分组筛选样本，默认只测试 long 组')
+                        help='按时长分组筛选样本，默认 long + very_long')
 
     # 设备参数
     parser.add_argument('--asr-device', type=str, default='auto',
