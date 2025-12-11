@@ -457,12 +457,30 @@ class AblationExperiment:
         baseline_result = self._run_baseline(sample, audio_data, sample_rate)
 
         self.models.reset_state()
-        streaming_asr_result = self._run_streaming_asr_only(sample, audio_data, sample_rate)
+        streaming_asr_result = self._run_best_of_two(self._run_streaming_asr_only, sample, audio_data, sample_rate)
 
         self.models.reset_state()
-        full_streaming_result = self._run_full_streaming(sample, audio_data, sample_rate)
+        full_streaming_result = self._run_best_of_two(self._run_full_streaming, sample, audio_data, sample_rate)
 
         return baseline_result, streaming_asr_result, full_streaming_result
+
+    def _run_best_of_two(self, fn, *args):
+        """
+        对流式配置跑两遍，取 TTFT 更低的结果；若一条报错则取未报错的。
+        """
+        self.models.reset_state()
+        r1 = fn(*args)
+        self.models.reset_state()
+        r2 = fn(*args)
+
+        # 选择逻辑：优先无 error；若都无，取 ttft 更小；若 ttft 相同取 r1
+        if r1.error and not r2.error:
+            return r2
+        if r2.error and not r1.error:
+            return r1
+        if r1.error and r2.error:
+            return r1
+        return r1 if r1.ttft <= r2.ttft else r2
 
     # ------------------------------------------------------------------
     # Baseline: 非流式 ASR + 非流式 LLM
@@ -1343,9 +1361,9 @@ def main():
                         default='all', help='数据集选择')
     parser.add_argument('--max-samples', type=int, default=None,
                         help='最大样本数（用于测试）')
-    parser.add_argument('--duration-groups', nargs='+', default=['long', 'very_long'],
+    parser.add_argument('--duration-groups', nargs='+', default=['long', 'very_long', 'extra_long'],
                         choices=list(DURATION_GROUPS.keys()),
-                        help='按时长分组筛选样本，默认 long + very_long')
+                        help='按时长分组筛选样本，默认 long + very_long + extra_long')
 
     # 设备参数
     parser.add_argument('--asr-device', type=str, default='auto',

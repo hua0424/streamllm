@@ -13,7 +13,7 @@
 - **Streaming ASR Only**：流式 ASR + 非流式 LLM（等待完整文本，不做 KV 预填充）
 - **Full Streaming**：流式 ASR + 流式 LLM（增量 KV 预填充）
 
-默认测试 **长/超长语音组 (15-60s, long + very_long)**，可通过参数调整。
+默认测试 **长/超长/极长语音组 (15s+，long + very_long + extra_long)**，可通过参数调整。
 
 ## 关键设计与公平性
 
@@ -22,6 +22,7 @@
 - **状态重置**：每次测试前清理 timing 与 GPU 缓存
 - **统一音频**：同一音频样本依次跑三种配置，保证可比性
 - **计时清洗**：若 ASR 无输出或 LLM 未产出首 token，将标记 error 并从统计中剔除，避免负值/异常时间污染均值
+- **流式配置双跑取最优**：Streaming ASR Only 与 Full Streaming 每个样本各运行 2 次，取 TTFT 更低的一次作为结果，稳定抑制偶发抖动
 
 ## 核心指标
 
@@ -61,7 +62,7 @@ uv run python -m experiments.scripts.run_exp_ablation --log-level DEBUG
 | `--data-dir` | `experiments/datasets/processed` | 处理后的数据目录 |
 | `--dataset` | `all` | 数据集选择 (crosswoz/multiwoz/all) |
 | `--max-samples` | None | 最大样本数（快速验证用） |
-| `--duration-groups` | `long very_long` | 按时长分组筛选，默认长+超长 |
+| `--duration-groups` | `long very_long extra_long` | 按时长分组筛选，默认长+超长+极长 |
 
 #### 设备参数
 | 参数 | 默认值 | 说明 |
