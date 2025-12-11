@@ -118,13 +118,27 @@ class StreamAudioSegmenter:
         self.min_silence_samples = int(sampling_rate * min_silence_duration_ms / 1000)
         self.window_size_samples = int(sampling_rate * window_size_ms / 1000)
         
-        # 加载Silero VAD模型
-        model, utils = torch.hub.load(
-            repo_or_dir='snakers4/silero-vad',
-            model='silero_vad',
-            force_reload=False,
-            onnx=False
-        )
+        # 加载Silero VAD模型（优先从本地缓存加载，避免网络访问）
+        try:
+            # 先尝试从本地缓存加载（完全离线）
+            model, utils = torch.hub.load(
+                repo_or_dir='snakers4/silero-vad',
+                model='silero_vad',
+                source='local',  # 仅从本地缓存加载，不访问网络
+                onnx=False
+            )
+            logger.debug("Silero VAD 模型从本地缓存加载成功")
+        except Exception as e:
+            # 如果本地缓存不存在，回退到网络下载
+            logger.warning(f"本地缓存加载失败 ({e})，尝试从网络下载 Silero VAD 模型...")
+            model, utils = torch.hub.load(
+                repo_or_dir='snakers4/silero-vad',
+                model='silero_vad',
+                force_reload=False,
+                onnx=False,
+                trust_repo=True  # 避免交互式确认
+            )
+            logger.info("Silero VAD 模型从网络下载成功，已缓存到本地")
         
         self.model = model
         # 获取VAD检测函数

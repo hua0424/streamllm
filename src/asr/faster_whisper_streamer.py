@@ -6,6 +6,8 @@ import torch
 import numpy as np
 import time
 import logging
+import os
+from pathlib import Path
 from typing import List, Dict, Optional, Callable, Generator, Tuple, Union
 from dataclasses import dataclass, field
 import threading
@@ -22,6 +24,61 @@ load_dotenv()  # 加载 .env 文件中的环境变量
 
 # 获取当前模块的logger
 logger = get_logger(__name__)
+
+
+def _load_whisper_model_offline_first(model_size: str, device: str):
+    """
+    优先从本地缓存加载 Whisper 模型，支持离线环境
+    
+    Args:
+        model_size: 模型大小 (tiny, base, small, medium, large)
+        device: 设备 (cuda, cpu)
+    
+    Returns:
+        加载的 Whisper 模型
+    """
+    # Whisper 默认缓存目录
+    default_cache_dir = os.path.join(os.path.expanduser("~"), ".cache", "whisper")
+    cache_dir = os.getenv("WHISPER_CACHE", default_cache_dir)
+    
+    # Whisper 模型文件名映射
+    model_file_map = {
+        "tiny": "tiny.pt",
+        "tiny.en": "tiny.en.pt",
+        "base": "base.pt",
+        "base.en": "base.en.pt",
+        "small": "small.pt",
+        "small.en": "small.en.pt",
+        "medium": "medium.pt",
+        "medium.en": "medium.en.pt",
+        "large": "large-v3.pt",
+        "large-v1": "large-v1.pt",
+        "large-v2": "large-v2.pt",
+        "large-v3": "large-v3.pt",
+    }
+    
+    model_file = model_file_map.get(model_size, f"{model_size}.pt")
+    model_path = Path(cache_dir) / model_file
+    
+    # 检查模型是否已缓存
+    if model_path.exists():
+        logger.debug(f"Whisper 模型已在本地缓存: {model_path}")
+        # 直接加载本地模型，避免网络检查
+        try:
+            model = whisper.load_model(model_size, device=device, download_root=cache_dir)
+            logger.info(f"Whisper 模型从本地缓存加载成功: {model_size}")
+            return model
+        except Exception as e:
+            logger.warning(f"从缓存加载失败: {e}")
+    
+    # 如果本地没有缓存，尝试下载（仅在联网环境下有效）
+    logger.warning(f"Whisper 模型 {model_size} 未在本地缓存中找到，尝试下载...")
+    try:
+        model = whisper.load_model(model_size, device=device, download_root=cache_dir)
+        logger.info(f"Whisper 模型下载并加载成功: {model_size}")
+        return model
+    except Exception as e:
+        raise RuntimeError(f"无法加载 Whisper 模型 {model_size}: {e}")
 
 # 常量定义
 DEFAULT_AUDIO_FORMAT = "float32"
@@ -206,9 +263,8 @@ class StreamingASRProcessor:
                 # compute_type = 'float16'  # GPU使用float16
                 logger.debug(f'Auto-selected compute type for GPU: {compute_type}')
         
-        # 加载Whisper模型（使用标准化后的设备）
-        # self.model = WhisperModel(model_size, device=device, compute_type=compute_type)
-        self.model = whisper.load_model(model_size, device=normalized_device)
+        # 加载Whisper模型（优先从本地缓存加载，支持离线环境）
+        self.model = _load_whisper_model_offline_first(model_size, normalized_device)
         
         # 存储模型大小以备后用
         self._model_size = model_size
