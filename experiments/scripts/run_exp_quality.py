@@ -647,6 +647,7 @@ class QualityExperiment:
 
             def seg_worker():
                 state = segmenter.create_state()
+                segments_emitted = 0  # 跟踪已输出的段数
                 while True:
                     try:
                         chunk = audio_q.get(timeout=0.1)
@@ -659,16 +660,17 @@ class QualityExperiment:
                         seg = convert_audio_segment(
                             stream_seg,
                             segment_id=f"seg_{stream_seg.segment_id:03d}",
-                            is_start=stream_seg.segment_id == 1,
+                            is_start=(segments_emitted == 0),  # 第一个输出的段标记为 is_start
                             is_final=False,
                         )
                         seg_q.put(seg)
+                        segments_emitted += 1
                 rem, state = segmenter.flush(state)
                 if rem and len(rem.audio) > 0:
                     seg = convert_audio_segment(
                         rem,
                         segment_id=f"seg_{rem.segment_id:03d}",
-                        is_start=False,
+                        is_start=(segments_emitted == 0),  # 如果是第一个段，标记为 is_start
                         is_final=True,
                     )
                     seg_q.put(seg)
@@ -694,6 +696,15 @@ class QualityExperiment:
                         timings["last_text"] = time.time()
                         texts.append(text)
                     if is_final and final_received:
+                        break
+
+                # 兜底：若还有残留等待段，强制再拉一次，防止短音频遗漏
+                while len(asr_cache.waiting_segment_queue) > 0 and not asr_cache.is_processing():
+                    asr_cache, text, is_final = self.models.asr.transcribe_audio_segment(asr_cache)
+                    if text:
+                        timings["last_text"] = time.time()
+                        texts.append(text)
+                    if is_final:
                         break
 
             timings["start"] = time.time()
@@ -741,11 +752,13 @@ class QualityExperiment:
 # =============================================================================
 
 
-def compute_statistics(results: List[ExperimentResult], key: str) -> List[Statistics]:
+def compute_statistics(results: List[ExperimentResult], key: str, mode_filter: Optional[str] = None) -> List[Statistics]:
     stats: List[Statistics] = []
     buckets: Dict[str, List[ExperimentResult]] = {}
     for r in results:
         if r.error:
+            continue
+        if mode_filter and r.mode != mode_filter:
             continue
         if key == "overall":
             buckets.setdefault("overall", []).append(r)
@@ -794,6 +807,49 @@ def compute_mode_statistics(results: List[ExperimentResult]) -> List[Statistics]
             )
         )
     return stats
+
+
+def pair_and_recompute(results: List[ExperimentResult]) -> List[ExperimentResult]:
+    """
+    仅保留 streaming / non-streaming 均无 error 的样本对，
+    并将 WER/CER 计算为 streaming 相对 non-streaming 的差异。
+    - 参考文本：non-streaming 转写
+    - 假设文本：streaming 转写
+    - non-streaming 的 wer/cer 置为 0，作为参考基线
+    """
+    by_sample: Dict[str, Dict[str, ExperimentResult]] = {}
+    for r in results:
+        by_sample.setdefault(r.sample_id, {})[r.mode] = r
+
+    paired: List[ExperimentResult] = []
+    dropped = 0
+
+    for sample_id, modes in by_sample.items():
+        ns = modes.get("non-streaming")
+        st = modes.get("streaming")
+        if not ns or not st:
+            dropped += 1
+            continue
+        if ns.error or st.error:
+            dropped += 1
+            continue
+
+        ref = ns.transcript
+        hyp = st.transcript
+
+        if ns.language.lower().startswith("zh"):
+            st.wer = wer(zh_to_word_seq(ref), zh_to_word_seq(hyp))
+        else:
+            st.wer = wer(ref, hyp)
+        st.cer = cer(ref, hyp)
+
+        ns.wer = 0.0
+        ns.cer = 0.0
+
+        paired.extend([ns, st])
+
+    logger.info(f"成对有效样本: {len(paired)//2} 对；丢弃: {dropped} (缺失或有错误)")
+    return paired
 
 
 def save_results(results: List[ExperimentResult], output_dir: Path, args, stats_dataset, stats_language, stats_overall, stats_mode):
@@ -988,13 +1044,17 @@ def main():
         config=experiment_config
     )
 
-    # 按 mode 统计（论文核心对比：streaming vs non-streaming）
-    stats_mode = compute_mode_statistics(results)
-    stats_dataset = compute_statistics(results, "dataset")
-    stats_language = compute_statistics(results, "language")
-    stats_overall = compute_statistics(results, "overall")
+    # 成对过滤并重算 WER/CER（streaming 相对 non-streaming）
+    paired_results = pair_and_recompute(results)
 
-    save_results(results, output_dir, args, stats_dataset, stats_language, stats_overall, stats_mode)
+    # 按 mode 统计（论文核心对比：streaming vs non-streaming）
+    stats_mode = compute_mode_statistics(paired_results)
+    # 语言/数据集/整体统计仅基于 streaming 相对 non-streaming 的误差
+    stats_dataset = compute_statistics(paired_results, "dataset", mode_filter="streaming")
+    stats_language = compute_statistics(paired_results, "language", mode_filter="streaming")
+    stats_overall = compute_statistics(paired_results, "overall", mode_filter="streaming")
+
+    save_results(paired_results, output_dir, args, stats_dataset, stats_language, stats_overall, stats_mode)
 
     # 打印核心对比结果
     print("\n" + "=" * 60)

@@ -1,7 +1,7 @@
 # 实验三：准确率与质量验证使用说明
 
 ## 目标
-- 对比 **非流式 ASR** 与 **流式 ASR** 的识别准确率（WER/CER）
+- 对比 **非流式 ASR** 与 **流式 ASR** 的识别准确率（WER/CER），其中 WER/CER 计算为 **streaming 相对 non-streaming 转写的差异**（参考文本取 non-streaming 输出）
 - 关注中长语音（默认从 **medium/long/very_long** 分层抽样），验证流式处理带来的精度影响
 
 ## 核心配置
@@ -53,18 +53,19 @@ uv run python -m experiments.scripts.run_exp_quality \
 1) **详细 JSON** `exp3_results_YYYYMMDD_HHMMSS.json`  
    - `config`：运行参数  
    - `results`：逐样本流式/非流式转写、WER/CER、耗时  
-   - `statistics`：按 mode、dataset、language、overall 的均值/方差
+   - `statistics`：按 mode、dataset、language、overall 的均值/方差（仅保留 streaming 与 non-streaming 均无 error 的成对样本；WER/CER 为相对差异；除 mode 维度外，其他分组仅统计 streaming）
 
 2) **逐样本汇总 CSV** `exp3_summary_YYYYMMDD_HHMMSS.csv`  
-   列：`sample_id,dataset,language,dialog_id,turn_index,text_length,audio_duration,duration_group,mode,wer,cer,asr_time_ms,error`
+   列：`sample_id,dataset,language,dialog_id,turn_index,text_length,audio_duration,duration_group,mode,wer,cer,asr_time_ms,error`  
+   - 仅包含 streaming/non-streaming 均无 error 的样本；non-streaming 的 wer/cer 记为 0，streaming 的 wer/cer 为相对差异
 
 3) **统计 CSV** `exp3_statistics_YYYYMMDD_HHMMSS.csv`  
    列：`scope,sample_count,avg_duration_s,wer_mean,wer_std,cer_mean,cer_std`  
    - scope 包含：
      - **mode 维度**（streaming / non-streaming）— 论文核心对比
-     - dataset 维度（crosswoz / multiwoz）
-     - language 维度（zh / en）
-     - overall
+     - dataset 维度（crosswoz / multiwoz，基于 streaming 相对 non-streaming 的误差）
+     - language 维度（zh / en，基于 streaming 相对 non-streaming 的误差）
+     - overall（基于 streaming 相对 non-streaming 的误差）
 
 ### 数据样例（虚拟）
 ```
@@ -103,7 +104,7 @@ overall,400,17.2,0.091,0.030,0.065,0.021
 - **核心对比**：直接引用 `statistics` 中 `by_mode` 的 streaming vs non-streaming 均值，展示流式处理的精度影响。
 - 按 dataset / language 的统计可用于分析不同语言/数据集的差异。
 - 中文推荐使用 CER；WER 通过逐字空格化处理，便于中英文统一对比。
-- 逐样本结果可用于绘制误差条/箱线图。
+- 逐样本结果可用于绘制误差条/箱线图；注意 WER/CER 为 streaming 相对 non-streaming 的差异。
 - 若需语义一致性（LLM 级别）扩展，可在得到转写后使用相同 LLM 对比回复相似度，作为后续工作附录。
 - **注意**：由于进行了标点归一化，WER/CER 仅反映内容准确率，标点预测不在评估范围内。
 

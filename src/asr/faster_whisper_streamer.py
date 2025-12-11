@@ -564,13 +564,19 @@ class StreamingASRProcessor:
             List[int]: 应该输出的段索引列表
         """
         queue_length = len(cache.segment_queue)
+        is_first_batch = cache.segment_queue[0].is_start if cache.segment_queue else False
         
         # 如果是流式结尾，输出所有剩余段
         if current_segment.is_final:
+            # 如果队列第一个段是开始段，说明前缀段还没有被输出过，需要从0开始输出所有段
+            if is_first_batch:
+                logger.debug(f"is_final=True 且 is_start=True，输出所有段 [0, {queue_length})")
+                return list(range(0, queue_length))
+            # 否则前缀段已经输出过，只输出剩余段
             return list(range(self.prefix_segments, queue_length))
 
         # 如果是流式开始，输出保留段数之前的所有段
-        if cache.segment_queue[0].is_start:
+        if is_first_batch:
             logger.debug(f"queue_length: {queue_length}, suffix_segments_atleast: {self.suffix_segments_atleast},selecting {list(range(0, queue_length - self.suffix_segments_atleast))}")
             return list(range(0, queue_length - self.suffix_segments_atleast))
         
