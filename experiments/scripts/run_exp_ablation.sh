@@ -30,6 +30,7 @@ NC='\033[0m'
 ASR_DEVICE="${ASR_DEVICE:-auto}"
 LLM_DEVICE="${LLM_DEVICE:-auto}"
 MAX_SAMPLES=""
+MAX_SAMPLES_PER_GROUP=""
 DATASET="all"
 DURATION_GROUPS=("long")   # 默认只跑长语音组
 LOG_LEVEL="INFO"
@@ -57,25 +58,27 @@ print_help() {
     echo "  help        显示帮助"
     echo ""
     echo "选项:"
-    echo "  --max-samples N           最大样本数（快速验证）"
-    echo "  --duration-groups g1 g2   指定分组（默认: long；可选: short/medium/long/very_long/extra_long）"
-    echo "  --asr-device              ASR 设备 (auto/cuda/cuda:0/cuda:1/cpu)"
-    echo "  --llm-device              LLM 设备 (auto/cuda/cuda:0/cuda:1/cpu)"
-    echo "  --log-level               日志级别 (DEBUG/INFO/WARNING/ERROR)"
-    echo "  --warmup-rounds           预热轮数 (默认: 3)"
-    echo "  --chunk-duration          流式分块时长 ms (默认: 500)"
-    echo "  --max-tokens              LLM 最大生成 token 数 (默认: 50)"
-    echo "  --prefix-segments         ASR 前缀段数 (默认: 1)"
-    echo "  --suffix-segments         ASR 后缀段数 (默认: 1)"
-    echo "  --recognition-threshold   ASR 识别阈值秒数 (默认: 2.0)"
-    echo "  --batch-size N            每处理 N 个样本保存一次检查点 (默认: 100)"
-    echo "  --no-resume               不从检查点恢复，从头开始运行"
+    echo "  --max-samples N               最大样本数（快速验证）"
+    echo "  --max-samples-per-group N     每个时长分组的最大样本数（确保各组均衡）"
+    echo "  --duration-groups g1 g2       指定分组（默认: long；可选: short/medium/long/very_long/extra_long）"
+    echo "  --asr-device                  ASR 设备 (auto/cuda/cuda:0/cuda:1/cpu)"
+    echo "  --llm-device                  LLM 设备 (auto/cuda/cuda:0/cuda:1/cpu)"
+    echo "  --log-level                   日志级别 (DEBUG/INFO/WARNING/ERROR)"
+    echo "  --warmup-rounds               预热轮数 (默认: 3)"
+    echo "  --chunk-duration              流式分块时长 ms (默认: 500)"
+    echo "  --max-tokens                  LLM 最大生成 token 数 (默认: 50)"
+    echo "  --prefix-segments             ASR 前缀段数 (默认: 1)"
+    echo "  --suffix-segments             ASR 后缀段数 (默认: 1)"
+    echo "  --recognition-threshold       ASR 识别阈值秒数 (默认: 2.0)"
+    echo "  --batch-size N                每处理 N 个样本保存一次检查点 (默认: 100)"
+    echo "  --no-resume                   不从检查点恢复，从头开始运行"
     echo ""
     echo "示例:"
     echo "  $0 full"
     echo "  $0 test"
     echo "  $0 crosswoz --max-samples 10 --duration-groups long very_long"
     echo "  $0 full --asr-device cuda --llm-device cuda --warmup-rounds 5"
+    echo "  $0 full --duration-groups long very_long extra_long --max-samples-per-group 100"
     echo "  $0 full --batch-size 50        # 更频繁保存检查点"
     echo "  $0 full --no-resume            # 从头开始，忽略已有检查点"
 }
@@ -100,6 +103,8 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --max-samples)
             MAX_SAMPLES="$2"; shift 2 ;;
+        --max-samples-per-group)
+            MAX_SAMPLES_PER_GROUP="$2"; shift 2 ;;
         --duration-groups)
             shift
             DURATION_GROUPS=()
@@ -146,6 +151,9 @@ build_args() {
 
     if [[ -n "$MAX_SAMPLES" ]]; then
         args="$args --max-samples $MAX_SAMPLES"
+    fi
+    if [[ -n "$MAX_SAMPLES_PER_GROUP" ]]; then
+        args="$args --max-samples-per-group $MAX_SAMPLES_PER_GROUP"
     fi
     if [[ -n "$PREFIX_SEGMENTS" ]]; then
         args="$args --prefix-segments $PREFIX_SEGMENTS"

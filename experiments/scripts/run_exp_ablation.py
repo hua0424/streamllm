@@ -292,9 +292,44 @@ def load_samples(
     return samples
 
 
-def filter_by_groups(samples: List[SampleInfo], target_groups: List[str]) -> List[SampleInfo]:
-    """按指定时长分组过滤样本"""
-    filtered = [s for s in samples if s.duration_group in target_groups]
+def filter_by_groups(
+    samples: List[SampleInfo], 
+    target_groups: List[str],
+    max_samples_per_group: Optional[int] = None
+) -> List[SampleInfo]:
+    """
+    按指定时长分组过滤样本，并可选限制每组的样本数量
+    
+    Args:
+        samples: 样本列表
+        target_groups: 目标分组列表
+        max_samples_per_group: 每组最大样本数，None 表示不限制
+        
+    Returns:
+        过滤后的样本列表
+    """
+    # 按组分类样本
+    grouped_samples: Dict[str, List[SampleInfo]] = {g: [] for g in target_groups}
+    
+    for sample in samples:
+        if sample.duration_group in target_groups:
+            grouped_samples[sample.duration_group].append(sample)
+    
+    # 按组限制样本数量
+    filtered = []
+    for group in target_groups:
+        group_samples = grouped_samples[group]
+        
+        if max_samples_per_group and len(group_samples) > max_samples_per_group:
+            # 按时长排序后取前 N 个（从短到长，便于测试）
+            group_samples.sort(key=lambda x: x.audio_duration)
+            group_samples = group_samples[:max_samples_per_group]
+            logger.info(f"  {group}: 从 {len(grouped_samples[group])} 个样本中选取 {len(group_samples)} 个")
+        else:
+            logger.info(f"  {group}: {len(group_samples)} 个样本")
+        
+        filtered.extend(group_samples)
+    
     logger.info(f"按分组 {target_groups} 过滤后剩余 {len(filtered)} 个样本")
     return filtered
 
@@ -1360,10 +1395,12 @@ def main():
     parser.add_argument('--dataset', type=str, choices=['crosswoz', 'multiwoz', 'all'],
                         default='all', help='数据集选择')
     parser.add_argument('--max-samples', type=int, default=None,
-                        help='最大样本数（用于测试）')
+                        help='最大样本数（用于测试，先加载再过滤）')
     parser.add_argument('--duration-groups', nargs='+', default=['long', 'very_long', 'extra_long'],
                         choices=list(DURATION_GROUPS.keys()),
                         help='按时长分组筛选样本，默认 long + very_long + extra_long')
+    parser.add_argument('--max-samples-per-group', type=int, default=None,
+                        help='每个时长分组的最大样本数（确保各组均衡），None 表示不限制')
 
     # 设备参数
     parser.add_argument('--asr-device', type=str, default='auto',
@@ -1425,6 +1462,10 @@ def main():
     logger.info(f"数据目录: {args.data_dir}")
     logger.info(f"数据集: {args.dataset}")
     logger.info(f"目标分组: {args.duration_groups}")
+    if args.max_samples_per_group:
+        logger.info(f"每组样本上限: {args.max_samples_per_group}")
+    if args.max_samples:
+        logger.info(f"总样本上限: {args.max_samples}")
     logger.info(f"ASR 设备: {args.asr_device}")
     logger.info(f"LLM 设备: {args.llm_device}")
     logger.info(f"ASR 模型: {args.asr_model_size}")
@@ -1455,7 +1496,7 @@ def main():
         logger.error("没有找到有效样本，请先运行数据处理管线")
         sys.exit(1)
 
-    samples = filter_by_groups(samples, args.duration_groups)
+    samples = filter_by_groups(samples, args.duration_groups, args.max_samples_per_group)
     if not samples:
         logger.error("指定分组无可用样本，请调整 --duration-groups 或生成更多数据")
         sys.exit(1)
