@@ -322,8 +322,17 @@ def stratified_sample_by_group(
     max_total: Optional[int] = None,
 ) -> List[SampleInfo]:
     """
-    按时长分组分层抽样，保障 medium/long/very_long 均衡。
+    按时长分组分层抽样，保障各组均衡。
     优先取分组内时长较短的样本以降低运行成本（稳定复现）。
+    
+    Args:
+        samples: 样本列表
+        target_groups: 目标分组列表
+        samples_per_group: 每组最大样本数，None 表示不限制
+        max_total: 总样本数上限
+    
+    Returns:
+        抽样后的样本列表
     """
     buckets: Dict[str, List[SampleInfo]] = {g: [] for g in target_groups}
     for s in samples:
@@ -340,6 +349,13 @@ def stratified_sample_by_group(
     for g in target_groups:
         grp = buckets.get(g, [])
         take_n = samples_per_group or len(grp)
+        
+        # 记录抽样情况
+        if samples_per_group and len(grp) > samples_per_group:
+            logger.info(f"  {g}: 从 {len(grp)} 个样本中选取 {take_n} 个")
+        else:
+            logger.info(f"  {g}: {len(grp)} 个样本")
+        
         selected.extend(grp[:take_n])
 
     if max_total:
@@ -866,7 +882,7 @@ def save_results(results: List[ExperimentResult], output_dir: Path, args, stats_
             "max_samples": args.max_samples,
             "dataset": args.dataset,
             "duration_groups": args.duration_groups,
-            "samples_per_group": args.samples_per_group,
+            "max_samples_per_group": args.max_samples_per_group,
             "prefix_segments": args.prefix_segments,
             "suffix_segments": args.suffix_segments,
             "recognition_threshold": args.recognition_threshold,
@@ -936,8 +952,10 @@ def main():
     parser.add_argument("--duration-groups", nargs="+", default=["medium", "long", "very_long"],
                         choices=list(DURATION_GROUPS.keys()),
                         help="分层抽样的时长分组（默认 medium/long/very_long）")
-    parser.add_argument("--samples-per-group", type=int, default=None,
-                        help="每个分组抽样数量；未指定时若设置 --max-samples 将自动均分")
+    parser.add_argument("--max-samples-per-group", type=int, default=None,
+                        help="每个时长分组的最大样本数（确保各组均衡），None 表示不限制；未指定时若设置 --max-samples 将自动均分")
+    parser.add_argument("--samples-per-group", type=int, default=None, dest="max_samples_per_group",
+                        help="(已弃用，请使用 --max-samples-per-group)")  # 兼容旧参数
 
     parser.add_argument("--asr-device", type=str, default="auto", help="ASR 设备 (auto/cuda/cuda:0/cuda:1/cpu)")
     parser.add_argument("--asr-model-size", type=str, default=ASR_MODEL_NAME, choices=["tiny", "base", "small", "medium", "large"], help="ASR 模型大小")
@@ -968,13 +986,17 @@ def main():
     logger.info("=" * 60)
     logger.info("实验三：准确率与质量验证")
     logger.info("=" * 60)
-    logger.info(f"数据集: {args.dataset}, 最大样本: {args.max_samples}")
+    logger.info(f"数据集: {args.dataset}")
+    logger.info(f"目标分组: {args.duration_groups}")
+    if args.max_samples_per_group:
+        logger.info(f"每组样本上限: {args.max_samples_per_group}")
+    if args.max_samples:
+        logger.info(f"总样本上限: {args.max_samples}")
     logger.info(f"ASR 设备: {args.asr_device}, 模型: {args.asr_model_size}")
     logger.info(f"chunk: {args.chunk_duration} ms, 预热: {args.warmup_rounds}")
     logger.info(f"ASR prefix_segments: {args.prefix_segments}, suffix_segments: {args.suffix_segments}")
     logger.info(f"ASR recognition_threshold: {args.recognition_threshold}s")
     logger.info(f"批次大小（检查点间隔）: {args.batch_size}")
-    logger.info(f"分层抽样分组: {args.duration_groups}, 每组数量: {args.samples_per_group or '均分/全部'}")
     logger.info(f"断点续传: {'禁用' if args.no_resume else '启用'}")
     logger.info("=" * 60)
 
@@ -998,7 +1020,7 @@ def main():
     samples = stratified_sample_by_group(
         raw_samples,
         target_groups=args.duration_groups,
-        samples_per_group=args.samples_per_group,
+        samples_per_group=args.max_samples_per_group,
         max_total=args.max_samples
     )
     if not samples:
@@ -1029,7 +1051,7 @@ def main():
         "max_samples": args.max_samples,
         "dataset": args.dataset,
         "duration_groups": args.duration_groups,
-        "samples_per_group": args.samples_per_group,
+        "samples_per_group": args.max_samples_per_group,
         "prefix_segments": args.prefix_segments,
         "suffix_segments": args.suffix_segments,
         "recognition_threshold": args.recognition_threshold,
