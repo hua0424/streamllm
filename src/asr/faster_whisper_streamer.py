@@ -558,12 +558,24 @@ class StreamingASRProcessor:
             # 删除已处理的段
             if output_segment_indices:
                 # 确定在已输出的段中要保留的段序号
-                keep_segment: ASRAudioSegment = cache.segment_queue[output_segment_indices[-1] - self.prefix_segments + 1]
-                # 删除保留段数以前的所有段
-                for _ in range(len(cache.segment_queue)):  
-                    if keep_segment.id == cache.segment_queue[0].id:
-                        break
-                    cache.remove_first_segment()
+                # 保留策略：保留最后输出的段之后 prefix_segments 个段
+                last_output_idx = output_segment_indices[-1]
+                keep_from_idx = last_output_idx + 1 - self.prefix_segments
+                
+                # 确保索引有效
+                if keep_from_idx < 0:
+                    keep_from_idx = 0
+                if keep_from_idx >= len(cache.segment_queue):
+                    # 所有段都已输出，可以全部删除（但通常不会发生）
+                    keep_from_idx = len(cache.segment_queue)
+                
+                # 删除 keep_from_idx 之前的所有段
+                segments_to_remove = keep_from_idx
+                for _ in range(segments_to_remove):
+                    if cache.segment_queue:  # 确保队列不为空
+                        cache.remove_first_segment()
+                
+                logger.debug(f"删除了 {segments_to_remove} 个已处理段，剩余 {len(cache.segment_queue)} 个段")
 
             # 记录结束时间
             self.timing_events[TimingEventType.END_ASR] = time.perf_counter()
@@ -596,16 +608,20 @@ class StreamingASRProcessor:
             if is_first_batch:
                 logger.debug(f"is_final=True 且 is_start=True，输出所有段 [0, {queue_length})")
                 return list(range(0, queue_length))
-            # 否则前缀段已经输出过，只输出剩余段
-            return list(range(self.prefix_segments, queue_length))
+            # 否则前缀段已经输出过，只输出剩余段（从 prefix_segments 开始）
+            start_idx = max(0, self.prefix_segments)  # 确保索引不为负
+            return list(range(start_idx, queue_length))
 
         # 如果是流式开始，输出保留段数之前的所有段
         if is_first_batch:
-            logger.debug(f"queue_length: {queue_length}, suffix_segments_atleast: {self.suffix_segments_atleast},selecting {list(range(0, queue_length - self.suffix_segments_atleast))}")
-            return list(range(0, queue_length - self.suffix_segments_atleast))
+            end_idx = max(0, queue_length - self.suffix_segments_atleast)
+            logger.debug(f"queue_length: {queue_length}, suffix_segments_atleast: {self.suffix_segments_atleast}, selecting {list(range(0, end_idx))}")
+            return list(range(0, end_idx))
         
         # 一般情况：输出中间段，不要输出前缀和后缀段
-        return list(range(self.prefix_segments, queue_length - self.suffix_segments_atleast))
+        start_idx = max(0, self.prefix_segments)
+        end_idx = max(start_idx, queue_length - self.suffix_segments_atleast)
+        return list(range(start_idx, end_idx))
         
     def _extract_output_text(self, cache: ASRCache, output_indices: List[int]) -> str:
         """
