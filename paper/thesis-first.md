@@ -346,9 +346,9 @@ $$O(M \cdot (N+M)) \approx O(N \cdot M)$$
 
 ### 4.1.1 实验设置与环境构建
 
-为了客观衡量系统在长语音场景下的实时响应能力，本实验选取了 **MultiWOZ** 与 **CrossWOZ** 这两个公开数据集，分别代表了英文与中文的多轮对话数据。通过3.4小节中的方法，构建了一个涵盖短指令、中等陈述及长篇叙述的混合测试集，总计1133条数据。
+为了客观衡量系统在长语音场景下的实时响应能力，本实验选取了 **MultiWOZ** 与 **CrossWOZ** 这两个公开数据集，分别代表了英文与中文的多轮对话数据。通过3.4小节中的方法，构建了一个涵盖短指令、中等陈述及长篇叙述的混合测试集，总计 1132 条数据。
 
-实验硬件平台统一基于 两块**NVIDIA RTX 3090 (24GB VRAM)** 显卡的平台上进行，ASR模型和LLM模型分别在两块显卡中运行。该环境代表了消费级工作站的典型算力水平。为了消除模型加载与初始化带来的随机误差，我们对对比组（System A）与实验组（System B）实施了严格的公平性控制： 首先，两组实验均复用同一套模型权重，即 **Whisper-Turbo** [Radford et al., 2023] 作为声学编码器，以及 **Qwen2.5-7B** [Qwen Team, 2024] 作为语义生成器，排除了参数量差异带来的干扰。 其次，引入“热身机制”（Warmup Mechanism），在记录数据前预先执行 3 轮真实音频推理，以确保 CUDA Context 完成初始化且 JIT 编译器已优化核心算子。 在流式配置中，音频切片（Chunk Duration）严格锁定为 500ms，以模拟真实对话中的标准包发送频率。
+实验硬件平台统一基于 两块**NVIDIA RTX 3090 (24GB VRAM)** 显卡的平台上进行，ASR模型和LLM模型分别在两块显卡中运行。该环境代表了消费级工作站的典型算力水平。为了消除模型加载与初始化带来的随机误差，我们对对比组（System A）与实验组（System B）实施了严格的公平性控制： 首先，两组实验均复用同一套模型权重，即 **Whisper-Turbo** [Radford et al., 2023] 作为声学编码器，以及 **Qwen2-7B-Instruct** [Qwen Team, 2024] 作为语义生成器，排除了参数量差异带来的干扰。其次，引入“热身机制”（Warmup Mechanism），在记录数据前预先执行3轮真实音频推理，以确保 CUDA Context 完成初始化且JIT编译器已优化核心算子。 在流式配置中，音频切片（Chunk Duration）锁定为 500ms，以模拟真实对话中的标准包发送频率。需要说明的是，实验一的有效统计样本为1132条。
 
 ### 4.1.2 延迟趋势分析
 
@@ -358,29 +358,19 @@ $$O(M \cdot (N+M)) \approx O(N \cdot M)$$
 
 [图 4-1: TTFT vs Audio Duration 趋势对比图]
 
-*(图注：X轴为 audio\_duration (s)，Y轴为 ttft\_ms。图中包含两条曲线：System A (蓝色) 呈线性上升趋势，System B (红色) 呈平缓水平趋势。两条曲线在 x ≈ 5s 处出现交叉点 (Crossover Point)。)*
+*(图注：X轴为 audio\_duration (s)，Y轴为 ttft\_ms。图中包含两条曲线：System A (蓝色) 随语音时长增长呈单调上升趋势；System B (红色) 在长语音区间呈近似“水平上界”。两条曲线在 medium 与 long 的分界附近（约 15s）出现明显的“拐点/交叉区间”，短语音段的固定开销与长语音段的并行化收益在此发生主导项切换。)*
 
-结合实验数据（参见 `exp1_results.json`），我们可以从计算复杂度的角度对结果进行深入解读：
+结合 `experiments/results/exp1_latency/exp1_statistics_*.csv` 的分组统计，可以从“串行依赖”与“流水线覆盖”两个角度对结果作进一步解释。**非流式基线（System A）的线性瓶颈**首先体现在其 TTFT 随语音长度的单调增长：在短语音组（$T<5s$）中，TTFT 的均值为 533.42ms；当语音进入 long 组（$15s\le T<30s$）后，均值上升至 1722.04ms，并在 very\_long 与 extra\_long 组进一步扩展到 3191.97ms 与 6753.43ms。该趋势与级联式系统的处理范式一致：ASR 必须在端点结束后进行全量解码，LLM 则对完整转录文本完成一次性 Prefill（Transformer 的注意力计算随序列长度增长而增加）[Vaswani et al., 2017; Pope et al., 2022]。由于上述过程缺乏可重叠的并行窗口，用户在长语音场景中将不可避免地经历更长的“静默等待期”。
 
-非流式基线 (System A) 的线性瓶颈
-
-实验结果显示，System A 的 TTFT 与输入时长呈现出极强的线性正相关性 ($R^2 > 0.95$)。在处理短语音 (<5s) 时，其延迟约为 [待填: ~200] ms，表现尚可；然而，当语音长度超过 15秒时，延迟激增至 [待填: ~1000] ms 以上。这种现象符合传统级联架构的特性：ASR 模块必须等待音频录制完全结束（End-of-Speech）才能启动全量编码，随后 LLM 需对长文本进行一次性 Prefill。这种串行处理机制导致计算开销 $Cost \propto Length$，在长语音交互中会造成显著的“静默等待期”，严重破坏了用户的沉浸式体验。
-
-流式优化 (System B) 的常数级突破
-
-相比之下，System B 的 TTFT 曲线展现了显著的稳定性，几乎平行于 X 轴。无论输入语音是 5秒还是 60秒，系统的响应延迟始终稳定在 [待填: ~150] ms 左右。这一结果有力地验证了本文提出的流水线设计的有效性：通过在用户发言的同时并行执行 ASR 转录与 LLM 的 KV Cache 增量计算，系统成功掩盖了绝大部分计算开销。当用户说完最后一个字时，系统仅需处理最后一个 500ms 的音频块及极少量的增量 Token。这种设计成功地将端到端延迟从 $O(N)$ 的线性增长解耦为 $O(1)$ 的常数级开销，实现了长语音场景下的“即说即得”。
+与之对照，**流式系统（System B）的常数级上界**在长语音区间表现得更为明显：long/very\_long/extra\_long 三组的 TTFT 均值分别为 1126.63ms、1099.16ms 与 1087.70ms，整体稳定在约 1.1s 的量级。需要强调的是，这里的“常数”并非意味着可以无限趋近于零，而是指 TTFT 的主导项从“随语音长度累积的全量计算”转移为“最后一个音频分片（本实验为 500ms）与尾部调度开销”的上界之和；因此，只要分片粒度与线程调度不发生根本变化，TTFT 便不会随输入时长继续增大。与此同时，短语音与中等语音（short/medium）上 System B 的 TTFT 均值分别为 648.17ms 与 959.53ms，略高于基线的 533.42ms 与 923.42ms，说明在输入较短时，分片、缓存维护与增量提示构造等固定开销会掩盖并行化带来的收益。综合来看，流式架构的优势在 $T\approx15s$ 附近开始占据主导，并在 very\_long 与 extra\_long 组实现了 65.6% 与 83.9% 的延迟缩减，验证了本文“以流式并行打破级联线性增长”的核心假设。
 
 ## 4.2 实验二：核心模块消融实验 (Ablation Study)
 
-为了精准量化“流式 ASR”与“LLM 增量预填充”两个核心创新点各自的性能贡献，我们在计算负载较重的长语音场景上开展了消融实验，默认覆盖 **long (15-30s)** 与 **very_long (30-60s)** 两个分组。我们定义了三种递进的配置模式，以解析延迟优化的来源。实验脚本已对结果中的异常样本（ASR 无输出、LLM 未产首 token、负值计时）在聚合统计时剔除，以避免异常值污染均值。
+为了精准量化“流式 ASR”与“LLM 增量预填充（KV Cache Prefill）”两个关键机制的贡献，本节在计算负载更重的长语音场景上开展消融实验，覆盖 **long (15–30s)**、**very\_long (30–60s)** 与 **extra\_long (≥60s)** 三个分组。实验设置为三种递进配置：其一为 Baseline（ASR 与 LLM 均为非流式串行执行）；其二为 Streaming ASR Only（仅将 ASR 改造为流式，使转录过程尽可能被说话时长所“掩盖”，但 LLM 仍在最终转录完成后一次性 Prefill）；其三为 Full Streaming（在流式 ASR 的基础上进一步引入 KV Cache 状态保持，并对增量文本片段执行预填充，以期降低端点之后的 LLM Prefill 开销）[Vaswani et al., 2017; Pope et al., 2022]。为避免异常计时与失败样本对均值造成偏置，统计时仅纳入 `error` 为空的样本。
 
 ### 4.2.1 评价指标与对比组
 
-- **Baseline (传统级联)**：采用标准的非流式处理范式，音频录制结束后依次执行 ASR 和 LLM 推理。
-    
-- **Streaming ASR Only (半流式)**：仅启用 Whisper 的流式转录功能。但在该模式下，由于 LLM 未启用 KV Cache 状态保持，ASR 输出的中间文本流无法被 LLM 持续利用，系统仍需等待最终完整文本生成后，一次性送入 LLM 进行处理。
-    
-- **System B (Full Streaming)**：启用全链路优化，包含流式 ASR 及基于算法 1 (Algorithm 1) 的 LLM 增量预填充策略。
+本实验以 TTFT 作为核心指标，并进一步记录端点之后的 ASR 尾部处理耗时（`asr_time_ms`）与 LLM 侧的 Prefill 耗时（`llm_prefill_time_ms`），用于刻画瓶颈在不同配置之间的迁移。对比组设置为 Baseline、Streaming ASR Only 与 Full Streaming（System B）三类，其差异仅体现在 ASR 是否流式化以及 LLM 是否启用 KV Cache 的增量预填充，从而保证结论可被归因于目标机制本身。
 
 ### 4.2.2 贡献度量化分析
 
@@ -390,23 +380,21 @@ $$O(M \cdot (N+M)) \approx O(N \cdot M)$$
 
 | Mode (配置模式) | ASR Strategy | LLM Strategy | first_token_latency (TTFT) | asr_time | llm_prefill_time | Total Improvement |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| Baseline | Non-streaming | Non-streaming | [待填: 1023.4] | [待填: 780.2] | [待填: 243.2] | - |
-| Streaming ASR Only | Streaming | Non-streaming | [待填: 412.6] | [待填: 280.5] | [待填: 132.1] | [待填: 60%] |
-| System B (Full Streaming)| Streaming | KV Prefill | [待填: 145.8] | [待填: 92.4] | [待填: 53.4] | [待填: 85%] |
+| Baseline | Non-streaming | Non-streaming | 1698.88ms | 1644.41ms | 54.48ms | - |
+| Streaming ASR Only | Streaming | Non-streaming | 1064.18ms | 994.84ms | 69.34ms | 37.4% |
+| System B (Full Streaming)| Streaming | KV Prefill | 1084.17ms | 991.18ms | 92.99ms | 36.2% |
 
-(注：数据源自 exp2_statistics.csv。asr_time 在流式模式下特指针对最后一个音频分片的处理耗时。)
+(注：表中统计来自 `experiments/results/exp2_ablation/exp2_summary_*.csv`，并与 `exp2_statistics_*.csv` 的分组汇总一致；其中 `asr_time` 在流式模式下特指端点之后、针对尾部音频分片的处理耗时。)
 
-结果解析：
+从 long 分组的均值层面来看，ASR 的流式化是降低 TTFT 的首要驱动力：Baseline 相比 Streaming ASR Only 的 TTFT 减少 634.70ms（降幅 37.4%），且几乎完全由 `asr_time` 的下降所贡献（1644.41ms → 994.84ms）。这表明在端点之后的“尾部等待”主要来自 ASR 对最后若干分片的解码与稳定输出判定，而流式 ASR 通过将大部分计算前移并重叠在说话时长中，显著压缩了端点后的剩余工作量。
 
-首先，ASR 流式化是降低延迟的第一驱动力。对比 Baseline 与 Streaming ASR Only，TTFT 显著降低了约 [待填] ms。这一收益主要源于 ASR 模块消除了对音频结束符的被动等待，利用音频录制的时间窗口并行完成了绝大部分声学特征提取与解码工作。
+在同一分组中，Full Streaming 相对 Streaming ASR Only 的 TTFT 均值差异为 +19.99ms（即略有上升），意味着在当前模型与提示长度下，LLM 侧的 Prefill 并非 long 分组的主导瓶颈。结合 `llm_prefill_time` 的量级可进一步解释这一现象：在 Baseline 中 Prefill 平均仅为 54.48ms，而流式模式下由于增量调用、同步与缓存状态维护引入了额外开销，Prefill 均值反而上升到 69.34ms 与 92.99ms。换言之，当 LLM Prefill 已被高效注意力算子与推理优化充分压缩时（例如 IO-aware 的注意力实现 [Dao et al., 2022]，以及面向长上下文服务的分页式显存管理 [需补充引用: PagedAttention/vLLM]），KV Cache 预填充对 TTFT 的边际收益会受到上限约束，甚至可能被工程开销抵消。
 
-然而，仅有流式 ASR 是不够的。实验数据显示，在 Streaming ASR Only 模式下，尽管 ASR 耗时大幅下降，但 LLM 的 `llm_prefill_time` 依然占据了一定的比重。这是因为 Transformer 架构 [Vaswani et al., 2017] 在处理长 Prompt 时需要重新计算所有 Token 的 Attention Score。
-
-引入 **KV Cache 增量预填充**（System B）后，TTFT 进一步下降了 [待填] ms。此时，`llm_prefill_time` 被压缩至极低水平。这证明了本文提出的增量策略有效地复用了历史计算结果（$O(N)$），使得 LLM 在每一时刻仅需计算新增 Token 的 $O(M)$ 增量，避免了对长历史上下文的重复编码。最终，System B 相比 Baseline 实现了 [待填: ~85%] 的端到端延迟缩减，证明了“双流并行”策略的必要性。
+将视角扩展到更长的 very\_long 与 extra\_long 分组，可以观察到更清晰的“收益条件”：very\_long 分组中 Full Streaming 相比 Streaming ASR Only 的 TTFT 仅改善 2.73ms（1155.09ms → 1152.36ms），属于可忽略的边际差异；而在 extra\_long 分组中，Full Streaming 的 TTFT 均值反而高于 Streaming ASR Only（2382.41ms vs 1269.22ms），其主要原因是 `asr_time` 均值显著抬升（1141.02ms → 2293.53ms）。这一结果提示：当增量预填充的调用频率与同步路径未被充分异步化时，LLM 侧的持续计算可能通过 CPU 调度、队列回压或缓存管理开销间接拖慢 ASR 的实时处理，从而在极长语音下形成新的“尾部瓶颈”。尽管如此，Full Streaming 相比 Baseline 在 long、very\_long 与 extra\_long 三组仍分别实现了 36.2%、65.1% 与 63.5% 的 TTFT 缩减，说明流式改造的总体方向是成立的，但 KV Prefill 的工程实现仍有进一步优化空间。
 
 ## 4.3 实验三：准确率与质量边界 (Accuracy & Quality)
 
-在追求极致低延迟的同时，相对于非流式系统可以看见完整的输入音频，流式系统往往面临“上下文缺失”（Lack of Future Context）的挑战。由于流式 ASR 只能基于当前及过去的部分音频片段进行推断，缺乏整句信息的全局校准，理论上可能导致识别精度的下降。为了平衡上下文缺失带来的精度下降，本项目采用滑动窗口，在待识别的音频之前增加了部分过去的音频段来辅助进行ASR识别，从而使得当前音频的上下文得到一定程度的补充。本实验旨在评估这种机制下，ASR 识别的精度损失是否处于工业应用的可接受范围内。实验三的样本按时长分组进行了分层抽样，默认从 **medium / long / very_long** 各取等量样本，以覆盖中长语音的主场景；同样的，异常样本会从统计中剔除。
+在追求极致低延迟的同时，相对于非流式系统能够利用完整输入音频，流式系统天然面临“未来上下文缺失”（Lack of Future Context）的挑战：模型在句尾阶段缺少全局校准信息，更容易出现替换、插入或省略等错误 [Yu et al., 2021; Gulati et al., 2020]。为缓解这一问题，本文在 ASR 侧采用滑动窗口机制，通过引入前缀上下文（Prefix Context）与可控的前瞻上下文（Suffix/Lookahead Context）在精度与延迟之间进行调节。本实验进一步扩展了上下文配置，对比三种设置：**prefix=1, suffix=0**（仅保留 1 段历史上下文，作为默认配置）、**prefix=1, suffix=1**（在默认基础上加入 1 段前瞻，以提升句尾收敛质量，但理论上会引入等待开销）、以及 **prefix=0, suffix=0**（不使用上下文，追求最小尾部延迟）。实验三按时长分组进行分层抽样，从 **medium / long / very\_long** 各抽取 50 条样本，共计 150 条，以覆盖中长语音的主场景；同样地，异常样本在统计中被剔除。
 
 ### 4.3.1 评估方法
 
@@ -416,23 +404,20 @@ $$O(M \cdot (N+M)) \approx O(N \cdot M)$$
 
 表 4-2 展示了不同模式下的准确率与平均处理耗时的对比情况。
 
-[表 4-2: 流式与非流式 ASR 准确率对比]
+[表 4-2: 不同上下文窗口配置下的流式 ASR 准确率与尾部耗时对比]
 
-| Scope (数据集) | Mode | WER / CER (Mean) | WER / CER (Std) | asr_time_ms (Avg) |
-| :--- | :--- | :--- | :--- | :--- |
-| Overall | Non-streaming | [待填: 0.076] | [待填: 0.024] | [待填: 812.4] |
-| Overall | Streaming | [待填: 0.098] | [待填: 0.029] | [待填: 285.3] |
-| | | | | |
-| CrossWOZ (ZH) | Non-streaming | [待填: 0.055] (CER) | [待填: 0.017] | - |
-| CrossWOZ (ZH) | Streaming | [待填: 0.069] (CER) | [待填: 0.021] | - |
+| Context Setting | MultiWOZ (EN) WER Mean | WER Std | CrossWOZ (ZH) CER Mean | CER Std | asr_time_ms (Avg) |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Non-streaming (Reference) | 0.0000 | 0.0000 | 0.0000 | 0.0000 | 1516.95ms |
+| prefix=1, suffix=0 | 0.0813 | 0.0606 | 0.0292 | 0.0337 | 932.96ms |
+| prefix=1, suffix=1 | 0.0895 | 0.0609 | 0.0203 | 0.0274 | 1123.07ms |
+| prefix=0, suffix=0 | 0.0619 | 0.0673 | 0.0500 | 0.0372 | 668.61ms |
 
-(注：数据源自 exp3_statistics.csv。)
+(注：数据源自 `experiments/results/exp3_quality/*/exp3_statistics_*.csv`；每种上下文配置均包含 150 条样本，其中 MultiWOZ 74 条、CrossWOZ 76 条。由于评测音频由文本经 TTS 合成生成，非流式识别在本次样本上的规范化 WER/CER 为 0，可视为近似“无误差”对照基线。)
 
-结论：
+从精度与延迟的对照可以得到两点较为稳定的结论。其一，suffix（前瞻上下文）确实能够改善句尾收敛质量，尤其在中文 CER 上表现更为明显：在 prefix=1 的条件下，将 suffix 从 0 增至 1，可将 CrossWOZ 的 CER 从 0.0292 降至 0.0203，但与此同时 `asr_time_ms` 的均值由 932.96ms 增至 1123.07ms，说明前瞻上下文带来的收益以额外等待与尾部计算为代价。其二，去除上下文（prefix=0, suffix=0）能够进一步压缩尾部耗时（`asr_time_ms` 均值降至 668.61ms），但在中文上会引入更明显的精度退化（CER 升至 0.0500），体现出流式识别在缺乏历史约束与未来校准时更容易出现局部替换与分词漂移的问题 [Yu et al., 2021]。
 
-实验数据表明，流式模式的 WER/CER 相比非流式全量模式仅有 [待填: ~2%] 的微小上升。这种精度的轻微波动主要集中在句尾部分，属于流式识别中的常见现象。然而，得益于本文在 3.2 节中引入的“自适应上下文滑动窗口”策略，我们有效地利用了前缀上下文 ($Prefix Context$) 对当前识别结果进行了约束，避免了误差的级联扩散。
-
-从人机对话的整体体验来看，这是一种极具性价比的权衡（Acceptable Trade-off）。考虑到 TTFT 在任意长度的语音输入下，维持在1秒左右的范围内，且 LLM 本身具有较强的鲁棒性和纠错能力，ASR 层面的微小字符级错误（如同音字差异）通常不会影响 LLM 对用户意图的整体理解。因此，System B 在保持高水平语义理解能力的同时，实现了交互体验的质变。
+从交互体验的角度看，这是一种典型的“可接受权衡”（Acceptable Trade-off）：在 long 及以上语音长度下，系统 TTFT 已被稳定压缩至约 1s 量级，而 2%–9% 的词/字级误差通常更多体现为表层转写偏差。考虑到对话式 LLM 在语义层面具备一定的鲁棒性与容错能力（例如能够结合上下文进行意图补全与纠错）[需补充引用: 关于 LLM 对 ASR 噪声鲁棒性的实证研究]，上述误差在多数任务型对话中未必会引发语义层面的“灾难性偏离”。因此，在工程落地中更合理的策略是按应用场景选择上下文窗口：若优先保证中文识别质量，可采用 prefix=1, suffix=1；若以响应速度为绝对优先，可采用 prefix=0, suffix=0；而在兼顾两者的默认设置下，prefix=1, suffix=0 提供了相对稳健的折中。
 
   
 
