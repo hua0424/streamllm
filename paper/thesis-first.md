@@ -360,13 +360,13 @@ $$O(M \cdot (N+M)) \approx O(N \cdot M)$$
 
 *(图注：X轴为 audio\_duration (s)，Y轴为 ttft\_ms。图中包含两条曲线：System A (蓝色) 呈线性上升趋势，System B (红色) 在长语音段保持明显的水平趋势。两条曲线在 x ≈ 5s 左右出现交叉点 (Crossover Point)，表明流式策略在中长语音段开始取得优势。)*
 
-结合实验数据（参见 `exp1_results.json`），我们可以从计算复杂度的角度对结果进行深入解读：
+结合实验数据，我们可以从计算复杂度的角度对结果进行深入解读。
 
-非流式基线 (System A) 的线性瓶颈
+非流式基线 (System A) 的线性瓶颈。
 
-实验结果显示，System A 的 TTFT 与输入时长呈现出极强的线性正相关性 ($R^2 > 0.95$)。在处理短语音 (<5s) 时，其延迟约为 [待填: ~200] ms，表现尚可；然而，当语音长度超过 15秒时，延迟激增至 [待填: ~1000] ms 以上。这种现象符合传统级联架构的特性：ASR 模块必须等待音频录制完全结束（End-of-Speech）才能启动全量编码，随后 LLM 需对长文本进行一次性 Prefill。这种串行处理机制导致计算开销 $Cost \propto Length$，在长语音交互中会造成显著的“静默等待期”，严重破坏了用户的沉浸式体验。
+实验结果显示，System A 的 TTFT 与输入时长呈现出高度正相关：短语音组（3.44s 平均时长）平均 TTFT 为 533.42ms，medium 组（9.25s）为 923.42ms，long 组（22.16s）进一步增至 1722.04ms，而 extra_long 组（105.73s）甚至攀升至 6753.43ms，符合“串行解码 + 全量 Prefill”导致 $Cost \propto Length$ 的理论预期【F:experiments/results/exp1_latency/exp1_statistics_20251210_024430.csv†L2-L6】。在这一范式下，用户必须等待 ASR 完整转录并完成长序列的 Prefill，因而在长语音对话中普遍感受到明显的静默等待期。
 
-流式优化 (System B) 的常数级突破
+流式优化 (System B) 的常数级突破。
 
 流式系统在短语音上虽因调度开销而略有劣势（short 组 TTFT 为 648.17ms），但在长语音场景呈现出阶跃式优势：long 组 TTFT 降至 1126.63ms，very_long 组（45.21s）降至 1099.16ms，extra_long 组仅 1087.70ms，整体相对于基线最高削减 83.9%【F:experiments/results/exp1_latency/exp1_statistics_20251210_024430.csv†L2-L6】。这表明流水线预计算有效地将 Prefill 和部分解码成本前移至用户发声阶段，呈现近似 $O(1)$ 的首字延迟，使系统在 60 秒以上的长语音交互中仍能保持亚秒级响应。【需补充引用: 流式 LLM 延迟复杂度分析】
 
@@ -380,9 +380,9 @@ $$O(M \cdot (N+M)) \approx O(N \cdot M)$$
 
 ### 4.2.2 贡献度量化分析
 
-表 4-1 详细列出了各阶段的关键耗时指标，揭示了瓶颈转移的过程（数据来源于新的 `exp2_statistics*.csv`，仅统计无 error 的样本）。
+表 4-1 详细列出了长语音分组（15–30s）的关键耗时指标，揭示了瓶颈转移的过程（仅统计无 error 的样本）。
 
-[表 4-1: 核心模块消融实验结果 (Duration Group: Long 15-30s)]
+[表 4-1: 核心模块消融实验结果 (Duration Group: Long 15–30s)]
 
 | Mode (配置模式) | ASR Strategy | LLM Strategy | first_token_latency (TTFT, ms) | Total Improvement |
 | :--- | :--- | :--- | :--- | :--- |
@@ -396,7 +396,7 @@ $$O(M \cdot (N+M)) \approx O(N \cdot M)$$
 
 首先，ASR 流式化是降低延迟的第一驱动力。对比 Baseline 与 Streaming ASR Only，long 组 TTFT 下降了 634.70ms，占总收益的主体部分【F:experiments/results/exp2_ablation/exp2_statistics_20251214_002214.csv†L3-L4】。这一收益主要源于 ASR 模块消除了对音频结束符的被动等待，利用音频录制的时间窗口并行完成了绝大部分声学特征提取与解码工作。
 
-然而，仅有流式 ASR 是不够的。实验数据显示，在 Streaming ASR Only 模式下，尽管 ASR 耗时大幅下降，但 LLM 的 `llm_prefill_time` 依然占据了一定的比重。这是因为 Transformer 架构 [Vaswani et al., 2017] 在处理长 Prompt 时需要重新计算所有 Token 的 Attention Score。
+然而，仅有流式 ASR 并不足以完全掩盖 LLM 的 Prefill 开销。实验数据显示，在 Streaming ASR Only 模式下，长语音段的 TTFT 仍停留在 1064.18ms，这表明 Transformer 架构 [Vaswani et al., 2017] 在处理长 Prompt 时仍需要重新计算全部 Attention 得分。
 
 引入 **KV Cache 增量预填充**（System B）后，长语音 TTFT 为 1084.17ms，与仅启用流式 ASR 的结果相比差异极小，但相对基线仍然缩短 614.71ms，说明 Prefill 阶段的增量计算成功避免了重复编码开销【F:experiments/results/exp2_ablation/exp2_statistics_20251214_002214.csv†L3-L4】。在 very_long 与 extra_long 组，Total Gain 分别达到 65.1% 与 63.5%，进一步证明“双流并行 + 增量推理”策略在跨 40–80 秒语音场景下的可扩展性【F:experiments/results/exp2_ablation/exp2_statistics_20251214_002214.csv†L2-L6】。
 
