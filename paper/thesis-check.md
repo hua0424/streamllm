@@ -118,9 +118,9 @@ TTFT 是衡量交互实时性的核心指标，直接关联用户的主观等待
 
 虽然本研究的核心目标是降低延迟，但这不能以牺牲识别准确率为代价。WER 是评估 ASR 准确率的通用标准，基于 Levenshtein 编辑距离计算：  
 
-$$\text{WER} = \frac{S + D + I}{N} \times 100\%$$  
+$$\text{WER} = \frac{S + D + I}{N_{ref}}$$  
 
-其中 $S$ 为替换 (Substitution)、$D$ 为删除 (Deletion)、$I$ 为插入 (Insertion) 的错误数量，$N$ 为参考文本的总词数。对于中文数据集，本研究主要考察字符错误率 (CER)，其计算逻辑与 WER 一致。
+其中 $S$ 为替换 (Substitution)、$D$ 为删除 (Deletion)、$I$ 为插入 (Insertion) 的错误数量，$N_{ref}$ 为参考文本的总词数。若以百分比形式呈现，可再乘以 $100\%$。对于中文数据集，本研究主要考察字符错误率 (CER)，其计算逻辑与 WER 一致。
   
 
 # 第三章 基于流式架构的低延迟语音对话系统设计 (System Design & Methodology)
@@ -154,11 +154,11 @@ $$\text{WER} = \frac{S + D + I}{N} \times 100\%$$
 
 ### 3.2.1 动态 VAD 分段策略  
 
-系统采用 Silero VAD 模型对连续 PCM 音频流进行在线分段 [14]。形式化地，定义输入音频流为时间序列 $X=\{x_1,x_2,\dots,x_t\}$，分段器维护累计缓冲区 $A_{accum}$，并在每次接收新的音频块 $chunk_t$ 后执行 $A_{accum}\leftarrow A_{accum}\oplus chunk_t$。当累计长度超过最小检测窗口（本文实现取 64ms）后，系统调用 Silero VAD 的时间戳提取函数在 $A_{accum}$ 上返回一组语音区间 $\{(s_i,e_i)\}$（以采样点为单位）。对于任一区间，如果其结束点之后的静音长度 $L_{silence}=|A_{accum}|-e_i$（或相邻区间间隔 $s_{i+1}-e_i$）达到最小静音阈值 $T_{min\_silence}$，则认为该语音段已“闭合”，系统将 $A_{accum}[0:e_i]$ 输出为一个音频段，并将缓冲裁剪为 $A_{accum}\leftarrow A_{accum}[e_i:]$；同时更新累计的绝对时间起点，以便为下游 ASR 提供可对齐的起止时间。
+系统采用 Silero VAD 模型对连续 PCM 音频流进行在线分段 [14]。形式化地，定义输入音频流为时间序列 $X=\{x_1,x_2,\dots,x_t\}$，分段器维护累计缓冲区 $A_{accum}$，并在每次接收新的音频块 $chunk_t$ 后执行 $A_{accum}\leftarrow A_{accum}\oplus chunk_t$，其中 $\oplus$ 表示拼接，$|A_{accum}|$ 表示缓冲区的采样点数。当累计长度超过最小检测窗口（本文实现取 64ms）后，系统调用 Silero VAD 的时间戳提取函数在 $A_{accum}$ 上返回一组语音区间 $\{(s_i,e_i)\}$，其中 $s_i,e_i$ 为采样点索引。设采样率为 $f_s$，则将第 $i$ 个语音区间记为 $seg_i=(s_i,e_i)$，其有效语音时长为 $Len(seg_i)=1000\cdot\frac{e_i-s_i}{f_s}$（ms）；段后静音时长定义为 $L_{silence}(i)=1000\cdot\frac{|A_{accum}|-e_i}{f_s}$（或相邻区间间隔 $1000\cdot\frac{s_{i+1}-e_i}{f_s}$）。当 $L_{silence}(i)\ge T_{min\_silence}$ 时认为该语音段已“闭合”。为便于下游 ASR 对齐，本实现输出音频片段 $A_{accum}[0:e_i]$（可包含少量前导静音/上下文），并将缓冲裁剪为 $A_{accum}\leftarrow A_{accum}[e_i:]$；同时更新累计的绝对时间起点，以便为下游 ASR 提供可对齐的起止时间。
 
 从实现角度看，分段触发条件可以抽象为静音约束与最小语音长度约束的组合：
 
-$$\text{FlushTrigger}(i)=\mathbb{I}\left[L_{silence}\ge T_{min\_silence}\right]\cdot \mathbb{I}\left[Len(seg_i)\ge T_{min\_speech}\right]$$
+$$\text{FlushTrigger}(i)=\mathbb{I}\left[L_{silence}(i)\ge T_{min\_silence}\right]\cdot \mathbb{I}\left[Len(seg_i)\ge T_{min\_speech}\right]$$
 
 其中，$T_{min\_silence}$、$T_{min\_speech}$ 与 VAD 的阈值 $\theta_{threshold}$ 共同决定分段的敏感度：$T_{min\_speech}$ 过小会引入噪声脉冲段，$T_{min\_silence}$ 过小则会将连贯语音过度切碎。本文原型系统的默认配置为 $\theta_{threshold}=0.5$、$T_{min\_speech}=500\text{ms}$、$T_{min\_silence}=300\text{ms}$，以在实时性与稳定性之间取得折中。
 
@@ -176,13 +176,17 @@ $$\text{FlushTrigger}(i)=\mathbb{I}\left[L_{silence}\ge T_{min\_silence}\right]\
 
 其次，进行确定性文本提取 (Deterministic Text Extraction)。鉴于 Whisper 等 Encoder-Decoder 模型在处理流式输入的末尾时往往存在“闪烁” (Flickering) 现象——即随着新音频的输入，原本输出的末尾词汇可能发生变化——系统在输出侧加入“后缀保护”的稳定性约束。定义 $N_{prefix}$ 为前缀段数，$N_{suffix}$ 为后缀保护段数，系统仅输出稳定区域 (Stable Region) 内的文本。为保证输出与音频段一一对应，本文实现利用词级时间戳将 $T_{raw}$ 中的词按结束时间映射回每个音频段的时间区间，从而得到段级候选文本；随后仅拼接稳定区域内段的文本形成本轮输出 $T_{out}$。稳定区域的队列索引范围定义为：
 
-$$I_{stable} = [N_{prefix}, \text{Length}(Q_{temp}) - N_{suffix})$$
+$$I_{stable}=\{\, i \mid N_{prefix}\le i < |Q_{temp}|-N_{suffix}\,\}$$
+
+其中 $i$ 为队列索引（从 0 开始），$|Q|$ 表示队列长度（段数），稳定区采用半开区间定义以避免边界歧义。
 
 在工程实现中，系统还对流式起止边界做了特殊处理：在流式起始轮（首段标记为 `is_start`）时，前缀段尚未输出过，稳定区的起点可从 0 开始；在流式结束轮（`is_final`）时，为避免遗留文本，系统会输出所有剩余段并完成收敛。
 
 最后，执行缓冲区状态迁移 (Buffer Transition)。在输出 $T_{out}$ 后，窗口执行滑动以限制累计长度并维持声学连贯性：系统不会将队列全部清空，而是保留最后一个已输出段之前的 $N_{prefix}$ 个段作为下一轮的前缀上下文，同时继续保留尚未输出的后缀保护段。设本轮输出的最后一个段索引为 $i_{last}$，则更新后的队列可写为：
 
-$$Q_t = Q_{temp}\left[\max(0, i_{last}+1-N_{prefix}):\right]$$
+$$Q_t = Q_{temp}[j:],\quad j=\max(0, i_{last}+1-N_{prefix})$$
+
+记 $Q[a:b)$ 为队列 $Q$ 的子序列（含 $a$ 不含 $b$），$Q[a:]$ 为从 $a$ 到末尾的后缀。
 
 需要指出的是，稳定输出的代价并非“仅增加一个 chunk”的固定延迟，而是至少需要等待 $N_{suffix}$ 个后续段到达、并满足触发阈值 $T_{asr}$；但该代价换来了输出文本在边界处的可提交性，使下游 LLM 能够稳定地进行增量预填充，从系统层面实现端到端延迟的可控下降。
 
@@ -354,11 +358,11 @@ $$O(M\cdot(N+M))$$
 
 其次是**并发 TTS 音频合成 (Batch TTS Synthesis)**。本研究集成了阿里巴巴提出的 CosyVoice 大模型语音合成服务 [17]。相较于传统 TTS，CosyVoice 能够生成韵律更自然、情感更丰富的高保真语音波形，更贴近真实人声输入。在工程实现上，我们开发了批量处理模块，采用多线程异步请求机制，显著提升了大规模数据生成的效率。
 
-最后是**时长校准与元数据同步 (Duration Calibration)**。由于生成式 TTS 模型的语速具有非确定性 (Non-deterministic)，简单的基于文本字数的时长估算往往存在误差。本管线通过解析生成的 WAV 文件头（Header）来获取精确到毫秒的物理时长：$Duration = \frac{TotalFrames}{SampleRate}$。该真实时长 ($audio\_duration$) 被回写至测试元数据 JSON 中，作为后续实验中 $X$ 轴（输入时长）的真值依据 (Ground Truth)。
+最后是**时长校准与元数据同步 (Duration Calibration)**。由于生成式 TTS 模型的语速具有非确定性 (Non-deterministic)，简单的基于文本字数的时长估算往往存在误差。本管线通过解析生成的 WAV 文件头（Header）来获取以秒为单位（可精确到毫秒级）的物理时长：$Duration = \frac{TotalFrames}{SampleRate}$。该真实时长 ($audio\_duration$) 被回写至测试元数据 JSON 中，作为后续实验中 $X$ 轴（输入时长）的真值依据 (Ground Truth)。
 
 ### 3.4.3 测试集分组定义 (Benchmark Grouping)
 
-为了细粒度分析不同时长下的延迟表现，我们将生成的样本集依据 $AudioDuration$ 划分为四个标准实验组（见表 3-2）。
+为了细粒度分析不同时长下的延迟表现，我们将生成的样本集依据样本真实音频时长 $T$（即元数据字段 `audio_duration`，单位：秒）划分为四个标准实验组（见表 3-2）。
 
 [表 3-2: 实验数据分组定义]
 
