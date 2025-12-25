@@ -206,7 +206,7 @@ $$Q_t = Q_{temp}[j:],\quad j=\max(0, i_{last}+1-N_{prefix})$$
 
   
 
-\REQUIRE Current KV cache $C_{prev}=(P_{prev},Mask_{prev},L_{prev})$, New Text Fragment $T_{new}$, Is End Flag $IsEnd$, Tokenizer $\mathcal{T}$, LLM Model $\mathcal{M}$
+\REQUIRE Previous cache $C_{prev}=(P_{prev},Mask_{prev},L_{prev})$ (optional), New Text Fragment $T_{new}$, Is End Flag $IsEnd$, System Prompt $S$, Generation Prompt $G$, Tokenizer $\mathcal{T}$, LLM Model $\mathcal{M}$
 
   
 
@@ -216,7 +216,67 @@ $$Q_t = Q_{temp}[j:],\quad j=\max(0, i_{last}+1-N_{prefix})$$
 
   
 
+\IF{$C_{prev}$ is None}
+
+  
+
+\STATE $Template \leftarrow \text{ApplyChatTemplate}(S,\epsilon,\texttt{add\_generation\_prompt}=True)$
+
+  
+
+\STATE $Prefix \leftarrow \text{Remove}(Template, G)$
+
+  
+
+\STATE $Prompt \leftarrow Prefix \oplus T_{new}$
+
+  
+
+\IF{$IsEnd$}
+
+  
+
+\STATE $Prompt \leftarrow Prompt \oplus G$
+
+  
+
+\ENDIF
+
+  
+
+\STATE $(Ids, Mask) \leftarrow \mathcal{T}(Prompt)$
+
+  
+
+\STATE $Outputs \leftarrow \mathcal{M}(Ids,Mask,\texttt{use\_cache}=True)$
+
+  
+
+\STATE $C_{new} \leftarrow (Outputs.\texttt{past\_key\_values}, Mask, Outputs.\texttt{logits}[:, -1, :])$
+
+  
+
+\RETURN $C_{new}$
+
+  
+
+\ENDIF
+
+  
+
 \STATE \textbf{Step 1: Tokenization (Streaming Fragment)}
+
+  
+
+\IF{$IsEnd$}
+
+  
+
+\STATE $T_{new} \leftarrow T_{new} \oplus G$
+
+  
+
+\ENDIF
 
   
 
@@ -228,13 +288,11 @@ $$Q_t = Q_{temp}[j:],\quad j=\max(0, i_{last}+1-N_{prefix})$$
 
   
 
-\RETURN $C_{prev}$
+\STATE \textbf{raise} error
 
   
 
 \ENDIF
-
-  
 
   
 
@@ -250,8 +308,6 @@ $$Q_t = Q_{temp}[j:],\quad j=\max(0, i_{last}+1-N_{prefix})$$
 
   
 
-  
-
 \STATE \textbf{Step 3: Forward Pass (Incremental Update)}
 
   
@@ -261,8 +317,6 @@ $$Q_t = Q_{temp}[j:],\quad j=\max(0, i_{last}+1-N_{prefix})$$
   
 
 \STATE $Outputs \leftarrow \mathcal{M}(Ids_{new},Mask_{new},Pos,P_{prev},\texttt{use\_cache}=True)$
-
-  
 
   
 
@@ -278,17 +332,11 @@ $$Q_t = Q_{temp}[j:],\quad j=\max(0, i_{last}+1-N_{prefix})$$
 
   
 
-\STATE \COMMENT{If $IsEnd=True$, decode the first token from $L_{new}$ without extra forward}
-
-  
-
 \STATE $C_{new} \leftarrow (P_{new},Mask_{new},L_{new})$
 
   
 
-\STATE \COMMENT{End of update}
-
-  
+\STATE \COMMENT{Use $L_{new}$ as the first decode logits when $IsEnd=True$}
 
   
 
