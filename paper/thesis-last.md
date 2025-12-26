@@ -2,6 +2,18 @@
 
 # Optimization of Low-Latency Voice Dialogue Systems based on Streaming Architecture
 
+# 摘要
+
+针对级联式语音对话系统在长语音场景下端点后等待时间随输入时长增长的问题，提出流水线并行的流式优化架构，使语音识别、语言模型推理与语音合成可重叠执行。前端以语音活动检测实时分段，结合 Whisper 时间戳对齐构建自适应滑窗与动态缓冲，通过前缀-后缀上下文与局部一致性约束提交稳定转录；后端采用键值缓存增量预填充，仅对新增文本更新缓存，降低首 token 输出时间并抑制其随长度线性增长。长语音数据集实验表明，长语音分组的平均首 token 输出时间稳定在约 1.1 秒，相比非流式基线降低 34.6%–83.9%，最长分组平均减少 5.67 秒；转录错误率保持在可接受范围。结果表明该架构可有效降低长语音交互等待。
+
+**关键词：** 流式架构；语音对话系统；流水线并行；增量预填充；端到端延迟
+
+# Abstract
+
+A pipeline-parallel streaming architecture is proposed to mitigate post-utterance waiting time in cascaded voice dialogue systems for long-form speech. The architecture overlaps speech recognition, language model inference, and text-to-speech processing. Voice activity detection enables online segmentation, and an adaptive sliding window with dynamic buffering leverages Whisper timestamp alignment to commit stable transcripts under a prefix–suffix context and a local-consistency constraint. Incremental prefilling with a key–value cache updates only newly arrived text, reducing the time to first token and preventing it from increasing linearly with input length. Experiments on a long-speech dataset show that mean time to first token remains around 1.1 s in long-utterance groups, achieving 34.6%–83.9% reductions over a non-streaming baseline and a 5.67 s average reduction in the longest group, while keeping transcription error rates within an acceptable range. Results indicate that streaming pipeline parallelism and state incrementalization effectively reduce long-utterance interaction latency in modular cascaded systems.
+
+**Keywords:** streaming architecture; voice dialogue system; pipeline parallelism; incremental prefilling; end-to-end latency
+
 # 第一章 绪论 (Introduction)
 
 ## 1.1 研究背景与意义
