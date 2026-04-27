@@ -1,6 +1,6 @@
 # 并行流式架构的级联式语音对话系统延迟优化
 
-莫海华<sup>1<sup>
+莫海华<sup>1</sup>
 
 1.广西大学 计算机与电子信息学院，广西省南宁市 530004
 \+ 通信作者 E-mail:zhyliang@gxu.edu.cn
@@ -8,17 +8,17 @@
 **摘要：** 针对级联式语音对话系统在长语音场景下端点后等待时间随输入时长增长的问题，提出流水线并行的流式优化架构，使语音识别、语言模型推理可重叠执行。前端以语音活动检测实时分段，结合 Whisper 时间戳对齐构建自适应滑窗与动态缓冲，通过前缀-后缀上下文与局部一致性约束提交稳定转录；后端采用键值缓存增量预填充，仅对新增文本更新缓存，降低首 token 输出时间并抑制其随长度线性增长。长语音数据集实验表明，长语音分组的平均首 token 输出时间稳定在约 1.1 秒，相比非流式基线降低 34.6%–83.9%，最长分组平均减少 5.67 秒；转录错误率保持在可接受范围。结果表明该架构可有效降低长语音交互等待。
 **关键词：** 流式架构；语音对话系统；流水线并行；增量预填充；端到端延迟
 **文献标志码: A**    **中图分类号:TP18**
-  
-# Latency Optimization of Cascaded Voice Dialogue Systems with a Streaming Architecture
-MO Haihua<sup>1<sup> 
+
+# Latency Optimization of Cascaded Voice Dialogue Systems with a Pipeline-Parallel Streaming Architecture
+MO Haihua<sup>1</sup>
 
 1. School of Computer, Electronics and information, Guangxi University, Nanning 530004, China
 
-**Abstract:** A pipeline-parallel streaming architecture is proposed to mitigate post-utterance waiting time in cascaded voice dialogue systems for long-form speech. The architecture overlaps speech recognition, language model inference, and text-to-speech processing. Voice activity detection enables online segmentation, and an adaptive sliding window with dynamic buffering leverages Whisper timestamp alignment to commit stable transcripts under a prefix–suffix context and a local-consistency constraint. Incremental prefilling with a key–value cache updates only newly arrived text, reducing the time to first token and preventing it from increasing linearly with input length. Experiments on a long-speech dataset show that mean time to first token remains around 1.1 s in long-utterance groups, achieving 34.6%–83.9% reductions over a non-streaming baseline (System A) and a 5.67 s average reduction in the longest group, while keeping transcription error rates within an acceptable range. Results indicate that streaming pipeline parallelism and state incrementalization effectively reduce long-utterance interaction latency in modular cascaded systems.
+**Abstract:** A pipeline-parallel streaming architecture is proposed to mitigate post-utterance waiting time in cascaded voice dialogue systems for long-form speech. The architecture overlaps speech recognition and language-model prefilling/inference. Voice activity detection enables online segmentation, and an adaptive sliding window with dynamic buffering leverages Whisper timestamp alignment to commit stable transcripts under a prefix–suffix context and a local-consistency constraint. Incremental prefilling with a key–value cache updates only newly arrived text, reducing the time to first token and preventing it from increasing linearly with input length. Experiments on a long-speech dataset show that mean time to first token remains around 1.1 s in long-utterance groups, achieving 34.6%–83.9% reductions over a non-streaming baseline (System A) and a 5.67 s average reduction in the longest group, while keeping transcription error rates within an acceptable range. Results indicate that streaming pipeline parallelism and state incrementalization effectively reduce long-utterance interaction latency in modular cascaded systems.
 
 **Keywords:** streaming architecture; voice dialogue system; pipeline parallelism; incremental prefilling; end-to-end latency
 
-# 第一章 绪论 (Introduction)
+# 1 引言 (Introduction)
 
 ## 1.1 研究背景与意义
 
@@ -26,32 +26,36 @@ MO Haihua<sup>1<sup>
 
 随着人工智能技术的飞速发展，人机交互正经历着一场从“指令式”向“自然流式对话”的快速转变。 GPT-4o [1] 和 Gemini 1.5 [2] 的出现，代表了原生多模态大模型的问世，使之前只能文字聊天的语言模型，首次具备了在听觉、视觉和文本模态间进行理解与生成的能力。传统的语音助手(如早期的 Siri 或天猫精灵等)主要依赖基于规则或“意图-槽位”(Intent-Slot)的实现方式，其虽然在执行特定指令时表现良好，但其固定的句法十分生硬，严重限制了用户的表达自由度。用户需要遵守厂家预设的命令模板，这种僵硬的对话方式使人机之间的交互充满了机械感。
 
-相比之下，新一代语音对话系统基于大语言模型（LLM）有更强的理解能力，能处理复杂推理任务，还能支持带有情感色彩的多轮自然语言交互，可这种智能化水平的提高，也带来了巨大的计算开销和延迟挑战。公开的系统报告指出，GPT - 4o 端到端语音响应延迟楞低至232毫秒，平均320毫秒[1]，这已经接近人类自然对话反应速度。这意味着，“低延迟”与“准确率”并列，是下一代语音交互体验的关键竞争指标。
+相比之下，新一代语音对话系统基于大语言模型（LLM）有更强的理解能力，能处理复杂推理任务，还能支持带有情感色彩的多轮自然语言交互，可这种智能化水平的提高，也带来了巨大的计算开销和延迟挑战。公开的系统报告指出，GPT-4o 端到端语音响应延迟可低至 232 ms，平均约 320 ms [1]，这已经接近人类自然对话反应速度。这意味着，“低延迟”与“准确率”并列，是下一代语音交互体验的关键竞争指标。
 
 ### 1.1.2 延迟：影响用户体验的核心痛点
 
-尽管端到端多模态模型在论文和实验中表现出色，可其训练成本高，数据隐私管控难，垂直场景需深度定制，还有音频模块、语音合成模块和LLM模块，难以及时更新到最新的SOTA，所以工业界的主流做法还是倾向于使用级联架构。该架构把系统划分成三个独立模块，即ASR（自动语音识别）、LLM（大语言模型）与TTS（语音合成），然后按顺序连接起来。在这种串行架构中，系统的总延迟($L_{total}$)不仅取决于各个模块的处理时间，还显著受限于模块间的数据流转方式。为方便分析，这种串行级联系统的总延迟可表示为各组件延迟的简单线性叠加：
+尽管端到端多模态模型在论文和实验中表现出色，可其训练成本高、数据隐私管控难，垂直场景还需要深度定制。相比之下，级联式系统把语音活动检测（VAD）、自动语音识别（ASR）、大语言模型（LLM）和语音合成（TTS）拆分为可替换模块，便于复用已部署的高质量 ASR、文本 LLM 与 TTS 能力。因此，在需要快速迭代组件、控制部署成本的工程场景中，级联架构仍具有现实价值。其代价是各模块天然存在串行依赖：上一模块输出完成后，下一模块才开始主要计算。在这种串行架构中，系统的总延迟($L_{total}$)不仅取决于各个模块的处理时间，还显著受限于模块间的数据流转方式。为方便分析，这种串行级联系统的总延迟可表示为各组件延迟的简单线性叠加：
 
 $$L_{total} = L_{VAD} + L_{ASR} + L_{LLM\_Prefill} + L_{LLM\_Decode} + L_{TTS} + L_{Net}$$
 
-在大多数常见的传统级联式实现中，用户说话结束到听见系统回复，往往要等待几秒的时间。而人类对话的平均轮替间隙大概为 200ms [3]，这一巨大的差距，会带来明显的迟滞感-“认知摩擦”：用户完成表达后往被迫长时间静默等待，思维连贯性因此被打断，还常让用户误以为系统无响应，重复输入，交互就开始混乱了。特别在长语音场景下，传统级联式 ASR 必须等到用户说完整句语音才启动转录，而 LLM 的预填阶段是随着输入文本变长，耗时同步增加的。这会进一步拖慢长文本交互的实时表现。因此，如何在保留级联架构模块化优势的基础上，借助流式并行策略，消除模块间的“死区时间”，达成“打断即响应”的交互体验，且既有学术意义，又具有工程价值。
+在大多数常见的传统级联式实现中，用户说话结束到听见系统回复，往往要等待几秒的时间。而人类对话的平均轮替间隙大概为 200 ms [3]，这一巨大差距会带来明显的迟滞感，即“认知摩擦”：用户完成表达后往往被迫长时间静默等待，思维连贯性因此被打断，还常让用户误以为系统无响应，重复输入，导致交互混乱。特别在长语音场景下，传统级联式 ASR 需要在用户发声结束后处理完整音频，LLM 也需要在完整转录文本到齐后一次性完成预填充，端点后的等待时间随语音长度和转录文本长度同步增加。
 
-在大多数常见的传统级联式实现中，用户说话结束到听见系统回复，往往要等待几秒的时间。而人类对话的平均轮替间隙大概为 200ms [3]，这一巨大的差距，会带来明显的迟滞感—即“认知摩擦”：用户完成表达后往往被迫长时间静默等待，思维连贯性因此被打断，还常让用户误以为系统无响应，重复输入，导致交互混乱。特别在长语音场景下，传统级联式 ASR 必须等到用户说完整句语音才启动转录，而 LLM 的预填阶段是随着输入文本变长，耗时同步增加的。ASR 系统的处理速度，决定着用户语音被转化到可被文本 LLM 接受的文本的速度。早期流式自动语音识别（ASR）的架构演进以RNN-Transducer（RNN-T）架构 [4] 为主导。RNN-T 凭借其天然的循环神经网络的特性，非常适合处理流式音频，但难以并行化，长程语义捕捉困难。随着 Transformer [5] 的出现，注意力机制模型的识别精度得以提升到新高，但其全局注意力要求必须在整段输入完成后才开始计算。为解决此问题，Google 提出了 Conformer 架构 [6]，将 CNN 局部特征提取和 Transformer 全局建模结合。在实际应用中，流式 ASR 常采用分块处理加重叠拼接的方式：先用滑动窗口切分音频并识别，然后通过重叠区域对输出做一致性校正。以 Whisper 为例，其原始模型采用 Encoder-Decoder 结构，主要面向离线转录 [7]；近期的 CarelessWhisper [8] 尝试将非因果编码器改成因果编码器以实现低延迟。在 LLM 环节，推理速度主要受 Transformer 解码器的自回归生成机制及 GPU 显存带宽所限。KV 键值缓存（KV Cache）技术通过缓存历史 token 的 Key/Value 向量值，避免重复计算，已成为现代推理引擎的标配 [10]。
+围绕低延迟语音交互，已有研究主要沿两条路径展开。第一类工作直接优化单个模块：早期流式 ASR 以 RNN-Transducer（RNN-T）架构 [4] 为代表，适合在线音频处理，但长程语义建模和并行计算能力受限；Transformer [5] 和 Conformer [6] 提升了识别精度，但原始全局注意力更偏向完整输入场景。以 Whisper 为例，其原始模型采用 Encoder-Decoder 结构，主要面向离线转录 [7]；近期的 CarelessWhisper [8] 尝试将非因果编码器改造成因果编码器以实现低延迟。第二类工作采用端到端多模态模型，例如 GPT-4o [1] 与 Mini-Omni [13]，通过统一网络直接建模音频输入、语言理解与语音输出，能够获得更低的交互延迟，但通常需要专门训练，且难以直接替换为工业系统中已有的 ASR、LLM 或 TTS 模块。
+
+在 LLM 环节，推理速度主要受 Transformer 解码器的自回归生成机制及 GPU 显存带宽所限。KV 键值缓存（KV Cache）技术通过缓存历史 token 的 Key/Value 向量值，避免重复计算，已成为现代推理引擎的标配 [10]。然而，已有优化往往聚焦于 ASR 或 LLM 单点性能，较少讨论在保留级联架构模块化优势的前提下，如何让 ASR 转录与 LLM 预填充在用户发声期间重叠执行，从而减少模块之间的端点后“死区时间”。
 
 为了解决上述问题，本研究提出一种细粒度流水线并行方案（System B），在保留级联架构模块化优势的基础上，消除模块间的“死区时间”。不同于端到端模型（如 GPT-4o [1] 或 Mini-Omni [13]）试图通过统一网络解决所有问题，本文方案采用流式并行策略：ASR 输出部分文本片段后，LLM 即可提前增量预填充并持续刷新 KV Cache，把原本语音输入结束之后的计算提前移到用户发声阶段并行完成，能有效压缩语音结束端点后的等待时长。
 
-## 1.3 本文主要研究内容  
+## 1.2 本文主要研究内容与贡献
 
-传统级联语音对话系统在处理长语音时，各模块产生的延迟会逐级叠加，同时出现资源空转延迟累积与资源闲置问题，现有研究要么单独优化 ASR 模型，要么把 LLM 扩展为多模态架构直接生成语音，都难以复用已有的 SOTA 模型。本文提出一种细粒度流水线并行方案（下文称 System B），可直接兼容现有非流式 ASR 模型与文本 LLM。本文的主要研究内容与贡献如下：  
+传统级联语音对话系统在处理长语音时，各模块产生的延迟会逐级叠加，并出现资源空转与等待累积。现有研究要么侧重于单点优化 ASR/LLM 模型本身，要么采用端到端多模态模型进行统一建模，往往难以复用工业界已部署的高质量模块。本文提出一种并行流式的级联方案（下文称 System B），在保留“ASR-LLM-TTS”模块化与可替换优势的同时，通过细粒度流水线并行减少模块间“死区时间”。本文主要研究内容与贡献如下：
 
-构建流式 ASR 上下文管理机制：本文设计了基于 Whisper 和 Silero VAD 的自适应滑动窗口算法。为了解决流式切片导致的上下文缺失与识别不稳定性问题，本文提出了动态缓冲与“前缀后缀上下文(Prefix Context & Suffix Context)”拼接策略，在保证长句识别准确率的同时，实现毫秒级的 ASR 转录片段输出。
+（1）并行流式架构：构建基于多线程队列的流水线，使 ASR 转录与 LLM 预填充在用户发声阶段重叠执行，从系统层面压缩端点后等待。
 
-针对长语音输入引发的首字延迟（TTFT），本文提出了使用 LLM 的 KV Cache 技术应对流式转录生成的流式文本进行增量预填充。该算法深度运用 Transformer 的 KV Cache 机制，实时接收流式 ASR 的输出片段，进行 Attention 计算与状态更新，不重复编码历史上下文，把 LLM 的计算开销均摊到用户语音输入过程中。
+（2）自适应流式 ASR 上下文管理：基于 Silero VAD 实时分段，结合 Whisper 时间戳对齐，设计前缀-后缀上下文的滑动窗口与稳定提交策略，降低分段边界处的识别抖动。
 
-本文在MultiWOZ（英文）和CrossWOZ（中文）数据集上构建了长语音测试基准，这是对该内容进行全链路延迟评估与验证的工作。实验结果显示，在15秒以上的长语音场景里，本文提出的System B相比传统非流式基线(System A)能显著降低延迟，而且没有对系统语义理解能力产生负面影响。
+（3）LLM KV Cache 增量预填充：利用 past_key_values 复用历史状态，仅对新增文本进行增量预填充，并复用预填充末步 logits 直接解码首 token，从而抑制 TTFT 随输入长度增长。
 
-  
-# 第二章 基于流式架构的低延迟语音对话系统设计 (System Design & Methodology)
+（4）长语音基准与验证：在 MultiWOZ 与 CrossWOZ 上构建长语音测试集，开展端到端 TTFT 对比、模块消融与 WER/CER 评估，验证本文方法在 15 s 以上长语音区间的显著收益。
+
+
+# 2 并行流式级联式语音对话系统设计 (System Design & Methodology)
 
 本章将深入剖析本文提出的流式语音对话系统(System B)的架构范式与核心算法实现。针对传统级联架构(System A)在长语音交互场景中存在的“计算阻塞”与“延迟累积”问题，本研究提出了一种细粒度的流水线并行(Pipeline Parallelism)策略。该策略通过构建自适应流式 ASR 上下文管理机制与 LLM KV Cache 增量预填充技术，从根本上重构了数据流转方式，成功打破了模块间的串行依赖，实现了“感知-认知-表达”的同步进行，即“边听边想”的即时响应能力。
 
@@ -63,13 +67,13 @@ $$L_{total} = L_{VAD} + L_{ASR} + L_{LLM\_Prefill} + L_{LLM\_Decode} + L_{TTS} +
 
 ![[图2.1 1.png]]
 
-**图 2-1 System B 流式并行架构逻辑拓扑图**[本图展示了基于多线程生产者-消费者队列的流式并行数据流向。音频以固定时长的 PCM 块持续进入分段模块，Silero VAD [14] 在累计缓冲区上进行活动检测并输出语音段；ASR 模块将若干语音段拼接后调用 Whisper [7] 进行转录，并按前缀/后缀上下文策略输出稳定文本片段；文本片段经线程安全队列传递给 LLM 模块，持续更新 KV Cache 并在收到终止标记后启动生成，从而尽可能将 LLM 的预填充计算前移并与音频输入过程重叠。]  
+**图 2-1 System B 流式并行架构逻辑拓扑图**[本图展示了基于多线程生产者-消费者队列的流式并行数据流向。音频以固定时长的 PCM 块持续进入分段模块，Silero VAD [14] 在累计缓冲区上进行活动检测并输出语音段；ASR 模块将若干语音段拼接后调用 Whisper [7] 进行转录，并按前缀/后缀上下文策略输出稳定文本片段；文本片段经线程安全队列传递给 LLM 模块，持续更新 KV Cache 并在收到终止标记后启动生成，从而尽可能将 LLM 的预填充计算前移并与音频输入过程重叠。]
 
 整体架构采用“分段—转录—预填充—生成”的流水线并行方式：当上游模块产生新的音频或文本段时，下游模块即可立即启动计算，无需等待整段输入结束。系统由以下三个子系统组成：负责语音活动检测与分段的 Streaming Audio Segmenter、负责上下文拼接并保证输出稳定的 Context-Aware ASR Engine ，以及负责增量预填充与最终生成的 Incremental LLM Inference Service 。其中 LLM 部分的 KV Cache 属于 Transformer 解码器推理阶段的通用优化思路，本文直接复用推理框架内置的 use_cache/past_key_values 机制完成状态复用，理论背景见[5]。
-  
+
 ### 2.1.2 关键工程实现机制
 
-为了在单机原型中保持流式链路的实时与可控，工程实现上需要把整条链路拆成多线程流水线，并用线程安全队列解耦， 同时借助显式状态对象保存跨片段的上下文。  
+为了在单机原型中保持流式链路的实时与可控，工程实现上需要把整条链路拆成多线程流水线，并用线程安全队列解耦， 同时借助显式状态对象保存跨片段的上下文。
 
 在通信机制上，为了去耦合，各模块不再使用同步函数调用，而是使用生产者-消费者模型进行异步通信。在代码实现方面，音频块队列、音频分段队列以及文本段队列都由 queue.Queue 的实例承担，消费者端则使用带超时参数的 get 方法循环，配合指定的结束事件标记生产端的消息生产结束，以避免单点阻塞，防止整个处理流程卡死。在 ASR 阶段，系统一方面需要承接上游传来的分段的音频，又要进行音频转录文本的流式处理，以将流式文本发往下由，因此该系统拆分为“收集器”与“转录器”两个子线程：前者持续接收上游语音段并写入等待队列，后者在满足触发条件时批量拼接，再调用 Whisper 进行文本转录，再将转录文本中的稳定的文本片段推送给下游 LLM，从而实现了音频收集与模型推理的解耦。
 
@@ -77,9 +81,9 @@ $$L_{total} = L_{VAD} + L_{ASR} + L_{LLM\_Prefill} + L_{LLM\_Decode} + L_{TTS} +
 
 ## 2.2 自适应流式 ASR 上下文管理 (Adaptive Streaming ASR)
 
-流式 ASR 的核心挑战在于寻找“识别准确率”与“识别延迟”之间的最优平衡：过短的音频切片会导致模型缺乏必要的声学上下文 (Acoustic Context)，从而因归纳偏置(Inductive Bias)不足急剧增加字词错误率 (WER/CER)；而等待过长的切片则会引入显著的缓冲延迟，削弱流式处理的优势。为此，本节提出一种基于滑动窗口的自适应上下文管理策略。  
+流式 ASR 的核心挑战在于寻找“识别准确率”与“识别延迟”之间的最优平衡：过短的音频切片会导致模型缺乏必要的声学上下文 (Acoustic Context)，从而因归纳偏置(Inductive Bias)不足急剧增加字词错误率 (WER/CER)；而等待过长的切片则会引入显著的缓冲延迟，削弱流式处理的优势。为此，本节提出一种基于滑动窗口的自适应上下文管理策略。
 
-### 2.2.1 动态 VAD 分段策略  
+### 2.2.1 动态 VAD 分段策略
 
 系统采用 Silero VAD 模型对连续 PCM 音频流进行在线分段 [14]。形式化地，定义输入音频流为时间序列 $X=\{x_1,x_2,\dots,x_t\}$，分段器维护累计缓冲区 $A_{accum}$，并在每次接收新的音频块 $chunk_t$ 后执行 $A_{accum}\leftarrow A_{accum}\oplus chunk_t$，其中 $\oplus$ 表示拼接，$|A_{accum}|$ 表示缓冲区的采样点数。当累计长度超过最小检测窗口（本文实现取 64ms）后，系统调用 Silero VAD 的时间戳提取函数在 $A_{accum}$ 上返回一组语音区间 $\{(s_i,e_i)\}$，其中 $s_i,e_i$ 为采样点索引。设采样率为 $f_s$，则将第 $i$ 个语音区间记为 $seg_i=(s_i,e_i)$，其有效语音时长为 $Len(seg_i)=1000\cdot\frac{e_i-s_i}{f_s}$（ms）；段后静音时长定义为 $L_{silence}(i)=1000\cdot\frac{|A_{accum}|-e_i}{f_s}$（或相邻区间间隔 $1000\cdot\frac{s_{i+1}-e_i}{f_s}$）。当 $L_{silence}(i)\ge T_{min\_silence}$ 时认为该语音段已“闭合”。为便于下游 ASR 对齐，本实现输出音频片段 $A_{accum}[0:e_i]$（可包含少量前导静音/上下文），并将缓冲裁剪为 $A_{accum}\leftarrow A_{accum}[e_i:]$；同时更新累计的绝对时间起点，以便为下游 ASR 提供可对齐的起止时间。
 
@@ -124,119 +128,47 @@ $$Q_t = Q_{temp}[j:],\quad j=\max(0, i_{last}+1-N_{prefix})$$
 **Algorithm 1: Incremental KV Cache Prefill Strategy**
 
 ```latex
-
-  
-
 \begin{algorithm}
-
-  
-
 \caption{Incremental KV Cache Prefill (StreamLLMInference)}
-
-  
-
 \begin{algorithmic}[1]
-
-  
-
-\REQUIRE Current KV cache $C_{prev}=(P_{prev},Mask_{prev},L_{prev})$, New Text Fragment $T_{new}$, Is End Flag $IsEnd$, Tokenizer $\mathcal{T}$, LLM Model $\mathcal{M}$
-
-  
-
+\REQUIRE Previous cache $C_{prev}=(P_{prev},Mask_{prev},L_{prev})$ or $\varnothing$, new text fragment $T_{new}$, end flag $IsEnd$, tokenizer $\mathcal{T}$, LLM $\mathcal{M}$
 \ENSURE Updated cache $C_{new}=(P_{new},Mask_{new},L_{new})$
 
-  
-
-  
-
-\STATE \textbf{Step 1: Tokenization (Streaming Fragment)}
-
-  
-
-\STATE $Ids_{new} \leftarrow \mathcal{T}(T_{new}, \texttt{add\_special\_tokens}=False)$
-
-  
-
+\STATE \textbf{Step 1: Initialize or append prompt}
+\IF{$C_{prev}=\varnothing$}
+    \STATE $T_{input}\leftarrow \text{ChatTemplate}(SystemPrompt, UserPrefix) \oplus T_{new}$
+    \IF{$IsEnd=True$}
+        \STATE $T_{input}\leftarrow T_{input}\oplus GenerationPrompt$
+    \ENDIF
+    \STATE $Ids_{new}\leftarrow \mathcal{T}(T_{input})$
+\ELSE
+    \IF{$IsEnd=True$}
+        \STATE $T_{new}\leftarrow T_{new}\oplus GenerationPrompt$
+    \ENDIF
+    \STATE $Ids_{new}\leftarrow \mathcal{T}(T_{new}, \texttt{add\_special\_tokens}=False)$
+\ENDIF
 \IF{$Ids_{new}$ is empty}
-
-  
-
-\RETURN $C_{prev}$
-
-  
-
+    \RETURN $C_{prev}$
 \ENDIF
 
-  
+\STATE \textbf{Step 2: Attention mask and position IDs}
+\IF{$C_{prev}=\varnothing$}
+    \STATE $Mask_{new}\leftarrow \mathbf{1}_{|Ids_{new}|}$, $Pos\leftarrow [0,\dots,|Ids_{new}|-1]$
+    \STATE $Outputs \leftarrow \mathcal{M}(Ids_{new}, Mask_{new}, \texttt{use\_cache}=True)$
+\ELSE
+    \STATE $Mask_{new}\leftarrow \text{Concat}(Mask_{prev},\mathbf{1}_{|Ids_{new}|})$
+    \STATE $Pos\leftarrow [|Mask_{prev}|,\dots,|Mask_{new}|-1]$
+    \STATE $Outputs \leftarrow \mathcal{M}(Ids_{new},Mask_{new},Pos,P_{prev},\texttt{use\_cache}=True)$
+\ENDIF
 
-  
-
-\STATE \textbf{Step 2: Attention Mask \& Position IDs}
-
-  
-
-\STATE $Mask_{new} \leftarrow \text{Concat}(Mask_{prev},\mathbf{1}_{|Ids_{new}|})$
-
-  
-
-\STATE $Pos \leftarrow [|Mask_{prev}|, \dots, |Mask_{new}|-1]$ \COMMENT{explicit \texttt{position\_ids}}
-
-  
-
-  
-
-\STATE \textbf{Step 3: Forward Pass (Incremental Update)}
-
-  
-
-\STATE \COMMENT{Forward on new tokens with cached $P_{prev}$}
-
-  
-
-\STATE $Outputs \leftarrow \mathcal{M}(Ids_{new},Mask_{new},Pos,P_{prev},\texttt{use\_cache}=True)$
-
-  
-
-  
-
-\STATE \textbf{Step 4: Cache \& Logits Update}
-
-  
-
+\STATE \textbf{Step 3: Cache and logits update}
 \STATE $P_{new} \leftarrow Outputs.\texttt{past\_key\_values}$
-
-  
-
 \STATE $L_{new} \leftarrow Outputs.\texttt{logits}[:, -1, :]$
-
-  
-
-\STATE \COMMENT{If $IsEnd=True$, decode the first token from $L_{new}$ without extra forward}
-
-  
-
 \STATE $C_{new} \leftarrow (P_{new},Mask_{new},L_{new})$
-
-  
-
-\STATE \COMMENT{End of update}
-
-  
-
-  
-
+\STATE \COMMENT{When $IsEnd=True$, generation reuses $L_{new}$ to decode the first token without an extra forward pass.}
 \RETURN $C_{new}$
-
-  
-
 \end{algorithmic}
-
-  
-
 \end{algorithm}
-
-  
-
 ```
 
 ![[图2.3.png]]
@@ -285,7 +217,7 @@ $$O(M\cdot(N+M))$$
 
 ### 2.4.3 测试集分组定义 (Benchmark Grouping)
 
-为了细粒度分析不同时长下的延迟表现，我们将生成的样本集依据 $AudioDuration$ 划分为四个标准实验组(见表 2-2)。
+为了细粒度分析不同时长下的延迟表现，我们将生成的样本集依据 $AudioDuration$ 划分为五个标准实验组(见表 2-2)。
 
 [表 2-2: 实验数据分组定义]
 
@@ -294,13 +226,14 @@ $$O(M\cdot(N+M))$$
 | Short      | $T < 5s$          | 短指令 (Short Commands) | 基准延迟验证 (Baseline Latency)    |
 | Medium     | $5s \le T < 15s$  | 包含多轮意图的陈述            | 日常对话性能 (Daily Conversation)  |
 | Long       | $15s \le T < 30s$ | 复杂长难句/长段落            | 流式架构核心优势区间                   |
-| Extra Long | $T \ge 30s$       | 极限压力测试               | 系统稳定性与显存边界 (Stability & OOM) |
+| Very Long  | $30s \le T < 60s$ | 超长输入               | 长语音延迟上界与稳定性验证             |
+| Extra Long | $T \ge 60s$       | 极限压力测试               | 系统稳定性与显存边界 (Stability & OOM) |
 
-这一分组标准将在第四章的实验分析中贯穿始终，用于对比不同系统架构在处理长短语音时的性能差异。
+这一分组标准将在第 3 节的实验分析中贯穿使用，用于对比不同系统架构在处理不同语音长度时的性能差异。
 
-# 第三章 实验与结果分析 (Experiments & Analysis)
+# 3 实验与结果分析 (Experiments & Analysis)
 
-本章围绕“VAD 判定用户语音结束至大语言模型产生首个响应 Token”的首字延迟（Time-to-First-Token, TTFT）开展实验验证，系统性评估本文提出的流式级联式语音对话架构（System B）在长语音交互场景中的性能收益与代价。本实验设置了一个具有代表性的对比基线 **System A**：System A 采用完全串行的传统级联架构，通常被称为“Simply Cascade”或“Pipeline”系统在相关综述中被作为标准基线 [19] [20]。其具体实现为：先使用 OpenAI Whisper [7] (large/turbo) 等非流式 ASR 模型接收完整音频并输出全量文本，随后将文本送入 Qwen2 [18] (Instruct) 等自回归 LLM 进行一次性预填充和生成。System A 代表了目前工业界构建高质量语音助手的通用范式，即优先追求各模块的 SOTA 性能（Accuracy），而接受由串行依赖带来的延迟叠加。
+本章围绕“VAD 判定用户语音结束至大语言模型产生首个响应 Token”的首字延迟（Time-to-First-Token, TTFT）开展实验验证，系统性评估本文提出的流式级联式语音对话架构（System B）在长语音交互场景中的性能收益与代价。为隔离“数据流转方式”本身带来的影响，本文设置非流式级联对照基线 **System A**：System A 与 System B 复用同一套 ASR 与 LLM 权重，但采用完全串行的数据流，即先由 Whisper [7] 接收完整音频并输出全量文本，再将完整文本送入 Qwen2 [18] 等自回归 LLM 进行一次性预填充和生成。需要说明的是，System A 并非某篇论文单独提出的新模型，而是由公开高性能组件组成的受控实验基线，用于代表传统“ASR 后接文本模型”的级联处理范式；类似的 cascade/pipeline 范式长期作为语音翻译等语音处理任务中与端到端方法比较的基本参照 [19][20]。因此，本文比较的重点不是模型参数规模差异，而是在相同组件和硬件条件下，串行级联与并行流式调度之间的端点后延迟差异。
 
 通过控制变量，本章依次从延迟特性、关键模块消融以及精度-延迟权衡三方面给出实证结果，并讨论观察到的“主导项切换”现象及其工程边界。
 
@@ -308,7 +241,7 @@ $$O(M\cdot(N+M))$$
 
 ### 3.1.1 实验设置与环境构建
 
-为了客观衡量系统在长语音场景下的实时响应能力，本实验选取 MultiWOZ 与 CrossWOZ 两个公开数据集，分别代表英文与中文的多轮对话任务。按 3.4 小节所述的数据构建流程，我们生成了覆盖短、中、长、很长、超长五组长度的混合测试集，共 1132 条样本。  
+为了客观衡量系统在长语音场景下的实时响应能力，本实验选取 MultiWOZ 与 CrossWOZ 两个公开数据集，分别代表英文与中文的多轮对话任务。按 2.4 小节所述的数据构建流程，我们生成了覆盖短、中、长、很长、超长五组长度的混合测试集，共 1132 条样本。
 
 实验硬件平台统一基于 两块 NVIDIA RTX 3090 （24GB VRAM）显卡的平台上进行，ASR 模型和 LLM 模型分别在两块显卡中运行。该环境代表了消费级工作站的典型算力水平。为了消除模型加载与初始化带来的随机误差，我们对对比组（System A）与实验组（System B）实施了严格的公平性控制： 首先，两组实验均复用同一套模型权重，即 Whisper-Turbo [7] 作为声学编码器，以及 Qwen2-7B-Instruct [18] 作为语义生成器，排除了参数量差异带来的干扰。其次，引入“热身机制”，在记录数据前预先执行3轮真实音频推理，以确保 CUDA Context 完成初始化且JIT编译器已优化核心算子。 在流式配置中，音频切片（Chunk Duration）锁定为 500ms，以模拟真实对话中的标准包发送频率。
 
@@ -331,83 +264,85 @@ $$O(M\cdot(N+M))$$
 
 [表 3-1: 不同语音时长分组下的 TTFT 统计]
 
-表 3-1 给出了按语音时长分组的 TTFT 统计结果。非流式基线System A的TTFT随输入时长有明显增长。其中short 组均值为 533.42ms，long 组上升到了 1722.04ms，very_long 与 extra_long 组进一步增长到 3191.97ms 与 6753.43ms。这一现象和级联式处理范式的预期是相符的，就是ASR得等语音生成完成之后才能完成全量解码，之后LLM才会对完整转录文本一次性进行全量Prefill。在此期间，端点之后的计算链路几乎不会重叠，这就使得语音长度与TTFT基本是线性相关的关系[5, 10]。而流式系统 System B 在 long 及以上区间显示出近似常数的“上界”：long、very_long 与 extra_long 三组的 TTFT 均值分别为： 1126.63ms、1099.16ms 与 1087.70ms，整体稳定在约 1.1s 左右。相应的TTFT 在 long/very_long/extra_long 这三个分组上，相对于基线系统分别压缩了 34.6%、65.6% 与 83.9%，其中 extra_long 组平均绝对延迟降低了 5.67s，明显减轻了长语音交互时的静默等待。
+表 3-1 给出了按语音时长分组的 TTFT 统计结果。非流式基线 System A 的 TTFT 随输入时长有明显增长：short 组均值为 533.42 ms，long 组上升到 1722.04 ms，very_long 与 extra_long 组进一步增长到 3191.97 ms 与 6753.43 ms。这一现象与级联式处理范式的预期相符，即 ASR 需要在语音结束后完成全量解码，之后 LLM 才能对完整转录文本一次性进行全量 Prefill。在此期间，端点之后的计算链路几乎不会重叠，因此语音长度与 TTFT 基本呈正相关关系 [5,10]。而流式系统 System B 在 long 及以上区间显示出近似常数的“上界”：long、very_long 与 extra_long 三组的 TTFT 均值分别为 1126.63 ms、1099.16 ms 与 1087.70 ms，整体稳定在约 1.1 s 左右。相应地，System B 在 long/very_long/extra_long 三个分组上相对于基线系统分别压缩了 34.6%、65.6% 与 83.9%，其中 extra_long 组平均绝对延迟降低了 5.67 s，明显减轻了长语音交互时的静默等待。
 
 ### 3.1.3 与 SOTA 模型的对比讨论 (Discussion)
 
-尽管 System B 实现了显著的延迟优化，但与当前最先进的端到端（E2E）模型及人类水平相比仍有提升空间。人类对话的自然轮替间隙约为 200ms [3]，而 GPT-4o 作为目前的工业界 SOTA，其端到端平均音频响应延迟约为 320ms [1]。相比之下，本研究在长语音下的平均延迟约为 1.1s。这一差距主要源于级联架构固有的模块间 I/O 开销及无法进行跨模态联合优化的局限性。然而，Mini-Omni [13] 等开源端到端尝试虽然能实现流式输出，但往往绑定特定的 LLM 基座，训练成本高昂且难以灵活替换组件。System B 的优势在于其兼容性：作为一种架构级优化，它允许开发者自由组合最新的 SOTA ASR（如 Whisper-Turbo）与 LLM（如 Qwen2、Llama3），在无需高昂端到端训练成本的前提下，将非流式组件的组合延迟降低至“可交互”的秒级范围内，这在追求组件解耦与快速迭代的实际工程场景中具有独特的实用价值。对于不需要极速打断的场景，1.1s 的延迟已明显优于传统方案的 3-6s 等待，提供了良好的性价比。
+尽管 System B 实现了显著的延迟优化，但它与当前最先进的端到端（E2E）语音模型仍属于不同技术路线，相关指标不宜直接作为严格公平实验比较。GPT-4o 的公开系统报告显示，其音频响应延迟可低至 232 ms、平均约 320 ms [1]，接近人类对话的自然轮替间隙 [3]；Mini-Omni [13] 等开源端到端尝试也展示了语音输入、推理与语音输出统一建模的潜力。相比之下，本文 System B 在长语音下的平均 TTFT 约为 1.1 s，仍受级联架构中的模块间 I/O、ASR 尾部处理和调度同步开销限制。
+
+然而，本文方法的目标并不是替代端到端语音大模型，而是在保留级联架构可解释、可替换、易部署优势的前提下，压缩传统非流式组件组合的端点后等待。对于已经部署文本 LLM、ASR 与 TTS 组件的系统，端到端重训或迁移成本较高；而 System B 只改变数据流转和状态复用方式，使 ASR 输出的稳定文本片段可以提前驱动 LLM 增量预填充。因此，本文的先进性主要体现在：在同一组件、同一硬件和同一任务数据下，将传统串行级联基线的长语音 TTFT 从数秒级压缩到约 1.1 s，并显著削弱其随输入时长增长的趋势。这一结果补充了端到端路线之外的工程优化路径。
 
 ## 3.2 实验二：核心模块消融实验 (Ablation Study)
 
-为了量化“流式 ASR”与“LLM 增量预填充”两项机制的相对贡献，我们挑选了 long 及以上长度的样本开展消融实验。按照 3.1 节所描述的分组，我们选择了 long（15–30s）、very_long（30–60s） 与 extra_long（≥60s)）三个分组，因为在该长度区间能比较好地体现流式改造的收益。对比配置设置分为三类：Baseline（System A，ASR 与 LLM 均为非流式串行执行）、Streaming ASR Only（仅 ASR 流式化，LLM 在等待全部文本到齐后再启动推理）以及 Full Streaming（在 Streaming ASR Only 使用流式ASR和流式LLM，也就是上文中的 System B）。  
+为量化“流式 ASR”与“LLM 增量预填充”两项机制的相对贡献，我们挑选 long 及以上长度的样本开展消融实验。按照 3.1 节所描述的分组，本文选择 long（15-30 s）、very_long（30-60 s）与 extra_long（≥60 s）三个分组，因为在该长度区间更能体现流式改造的收益。对比配置设置为三类：
 
-### 3.2.1 评价指标与对比组  
+- Baseline（System A）：非流式 ASR + 非流式 LLM，二者串行执行；
+- Streaming ASR Only：流式 ASR + 非流式 LLM，LLM 等待全部文本到齐后再启动推理；
+- Full Streaming（System B）：流式 ASR + 流式 LLM，LLM 使用 KV Cache 增量预填充。
 
-为了量化“流式 ASR”与“LLM 增量预填充”两项机制的相对贡献，我们挑选了 long 及以上长度的样本开展消融实验。按照 4.1 节所描述的分组，我们选择了 long（15–30s）、very_long（30–60s） 与 extra_long（≥60s)）三个分组，因为在该长度区间能比较好地体现流式改造的收益。对比配置设置分为三类：Baseline（System A，ASR 与 LLM 均为非流式串行执行）、Streaming ASR Only（仅 ASR 流式化，LLM 在等待全部文本到齐后再启动推理）以及 Full Streaming（在 Streaming ASR Only 使用流式ASR和流式LLM，也就是上文中的 System B）。
+### 3.2.1 评价指标与对比组
 
-### 3.2.1 评价指标与对比组  
+本实验的核心指标为 TTFT。同时在日志中记录语音结束端点后的 ASR 尾部处理耗时以及 LLM Prefill 耗时，用于判断处理瓶颈。为凸显架构差异带来的用户感知延迟变化，表 3-2 统计了三种配置的 TTFT 均值，并计算 ASR 增益与 KV Cache 增益（正值表示缩短 TTFT，负值表示增加耗时），以保证结论可归因于目标机制本身。
 
-本实验的核心指标主要就是TTFT，另外还在日志里记录语音生成结束端点后的 ASR 尾部处理耗时以及 LLM Prefill 耗时，用来判断处理瓶颈。为了凸显架构差异给用户感知延迟带来的影响，我们在表 3-2 中记录了三种配置的 TTFT 均值，以及由此计算出的 ASR 增益与 KV Cache 的增益(正值表示缩短 TTFT，负值表示增加耗时)，从而保证结论可被归因于目标机制本身。
-
-### 3.2.2 贡献度量化分析  
+### 3.2.2 贡献度量化分析
 
 表 3-2 列出了各分组下三种配置的 TTFT 均值及对应增益，如下表所示。
 
-| 组别         | 平均持续时间(秒) | 基线TTFT均值(毫秒) | 流式ASR TTFT均值(毫秒) | 全流式TTFT均值(毫秒) | ASR增益(毫秒) | KV增益(毫秒) |     |
-| ---------- | --------- | ------------ | ---------------- | ------------- | --------- | -------- | --- |
-| long       | 21.51     | 1698.88      | 1064.18          | 1084.17       | 634.70    | -19.99   |     |
-| very_long  | 42.43     | 3300.58      | 1171.02          | 1154.06       | 2129.56   | 16.96    |     |
-| extra_long | 83.75     | 6518.40      | 1228.77          | 1114.57       | 5289.63   | 114.20   |     |
+| 组别         | 平均持续时间(秒) | 基线TTFT均值(毫秒) | 流式ASR TTFT均值(毫秒) | 全流式TTFT均值(毫秒) | ASR增益(毫秒) | KV增益(毫秒) |
+| ---------- | --------- | ------------ | ---------------- | ------------- | --------- | -------- |
+| long       | 21.51     | 1698.88      | 1064.18          | 1084.17       | 634.70    | -19.99   |
+| very_long  | 42.43     | 3300.58      | 1171.02          | 1154.06       | 2129.56   | 16.96    |
+| extra_long | 83.75     | 6518.40      | 1228.77          | 1114.57       | 5289.63   | 114.20   |
 
 [表 3-2: 核心模块消融实验结果]
 
-由表 3-2 可见，在实验平台硬件及所用模型条件下，ASR 流式化是缩短 TTFT 的主因。Baseline 与 Streaming ASR Only 相比，在 long、very_long 与 extra_long 三组长度下分别减少了 634.70ms、2129.56ms 与 5289.63ms，对应降幅为 37.4%、64.5% 与 81.1%。这表明在传统串行链路中，语音结束端点后的主要耗时来自于 ASR 对整个音频的处理。而流式 ASR 把大部分计算提前到与语音生成的时间重叠，因此显著压缩了端点后的计算量。 增量Prefill在LLM方面表现出显著的长度的依赖特性。在 long 组，Full Streaming 相比 Streaming ASR Only 的 TTFT 反而增加了 19.99ms(KV 增益为 -19.99ms)，这说明当上下文还没足够长的时候，增量调用、缓存管理以及同步这些额外开销或许会超出其节省的一次性 Prefill 计算。而在 very_long 与 extra_long 组，KV 增益分别为 16.96ms 与 114.20ms，且在 extra_long 组，KV Cache 相对整体的收益占比达到约 9.3%（114.20/1228.77），这表明，随着输入文本与上下文长度增长，LLM Prefill 的的收益愈加显著。  
+由表 3-2 可见，在实验平台硬件及所用模型条件下，ASR 流式化是缩短 TTFT 的主因。Baseline 与 Streaming ASR Only 相比，在 long、very_long 与 extra_long 三组长度下分别减少了 634.70 ms、2129.56 ms 与 5289.63 ms，对应降幅为 37.4%、64.5% 与 81.1%。这表明在传统串行链路中，语音结束端点后的主要耗时来自于 ASR 对整个音频的处理。而流式 ASR 把大部分计算提前到与语音输入过程重叠，因此显著压缩了端点后的计算量。增量 Prefill 在 LLM 方面表现出明显的长度依赖特性。在 long 组，Full Streaming 相比 Streaming ASR Only 的 TTFT 反而增加了 19.99 ms（KV 增益为 -19.99 ms），这说明当上下文还没足够长时，增量调用、缓存管理以及同步这些额外开销可能会超过其节省的一次性 Prefill 计算。而在 very_long 与 extra_long 组，KV 增益分别为 16.96 ms 与 114.20 ms，且在 extra_long 组，KV Cache 相对整体的收益占比达到约 9.3%（114.20/1228.77），这表明，随着输入文本与上下文长度增长，LLM Prefill 的收益愈加显著。
 
-综合两项优化机制，Full Streaming 将 TTFT 均值控制在 1.1s（long 1084.17ms、very_long 1154.06ms、extra_long 1114.57ms）左右，相较于 Baseline，Full Streaming 分别缩减了约 36.2%、65.0% 与 82.9%。该结果与实验总体趋势相符，流式并行能明显降低级联系统在输入时长增加时的等待时间，不过 KV Cache 预填充的边际收益还是受工程实现和硬件并发与算力的影响。消融实验表明，在实验平台 RTX 3090 的硬件条件下，运行 Whisper 模型已略显吃力，且 Whisper在语音转文本方面已经算是最高端的模型。而 Qwen2-7B-Instruct 的体量在LLM 领域可以算是小型模型，其推理计算量远小于高性能模型（参数量往往在数百到上千B），因此实验平台的算力应付起来可以说比较轻松。如果换为主流SOTA模型，相信流式在 KV Cache Prefill 的收益将会更加明显。另外值得注意的是，音频的长度与ASR转录后的文本长度并非严格符合线性关系，在对实验数据进行进一步的研究后发现，KV Cache Prefill 的收益与ASR转录后的文本长度才明显符合线性关系，这说明KV Cache Prefill 的效果基本符合预期，即文本越长，流式处理的效果就越明显。
+综合两项优化机制，Full Streaming 将 TTFT 均值控制在 1.1 s（long 1084.17 ms、very_long 1154.06 ms、extra_long 1114.57 ms）左右，相较于 Baseline，Full Streaming 分别缩减了约 36.2%、65.0% 与 82.9%。该结果与实验总体趋势相符，流式并行能明显降低级联系统在输入时长增加时的等待时间。不过，KV Cache 预填充的边际收益仍受工程实现、硬件并发和模型规模影响：在本文平台上，ASR 侧 Whisper 推理更容易成为主导耗时，而 Qwen2-7B-Instruct 的预填充开销相对可控，因此 KV Cache 的绝对收益小于 ASR 流式化收益。若换用更长上下文或更大规模的文本 LLM，增量预填充的收益预计会更加明显，但这一判断仍需在对应模型和硬件条件下进一步验证。另外值得注意的是，音频长度与 ASR 转录后的文本长度并非严格线性关系；进一步分析发现，KV Cache Prefill 的收益与 ASR 转录文本长度更直接相关，这说明该机制的效果基本符合预期，即文本越长，流式增量处理越有价值。
 
 ## 3.3 实验三：准确率与质量边界 (Accuracy & Quality)
 
-延迟被大幅压短后，流式化的主要代价落在“上下文截断”与“端点不确定性”上。与 System A 可利用整段音频不同，流式 ASR 在每个输入的语音片段上只能看到整段音频局部的片段，句末边界附近因此更易出现替换、插入或省略。为引入稳定的识别结果，本文在 ASR 侧采用滑动窗口上下文管理，通过前缀（prefix）提供音频，通过后缀（suffix）提供后续音频，在精度与耗时之间进行折中。借助该机制，本实验对比三种配置：prefix=1, suffix=0（默认）、prefix=1, suffix=1（增加 1 段前瞻以改善句尾效果）以及 prefix=0, suffix=0（完全去除上下文以追求最小延迟），并从 medium、long 与 very_long 组各抽取 50 条样本，共 150 条，用于覆盖中长语音的主要应用场景。  
+延迟被大幅压短后，流式化的主要代价落在“上下文截断”与“端点不确定性”上。与 System A 可利用整段音频不同，流式 ASR 在每个输入的语音片段上只能看到整段音频局部的片段，句末边界附近因此更易出现替换、插入或省略。为引入稳定的识别结果，本文在 ASR 侧采用滑动窗口上下文管理，通过前缀（prefix）提供音频，通过后缀（suffix）提供后续音频，在精度与耗时之间进行折中。借助该机制，本实验对比三种配置：prefix=1, suffix=0（默认）、prefix=1, suffix=1（增加 1 段前瞻以改善句尾效果）以及 prefix=0, suffix=0（完全去除上下文以追求最小延迟），并从 medium、long 与 very_long 组各抽取 50 条样本，共 150 条，用于覆盖中长语音的主要应用场景。
 
-### 3.3.1 评估方法  
+### 3.3.1 评估方法
 
-我们采用业界标准的词错误率（Word Error Rate, WER）和字错误率（Character Error Rate, CER）作为衡量指标，分别针对英文（MultiWOZ）与中文（CrossWOZ）样本计算转录误差，并将非流式全量识别（System A）作为上界对照，比较不同流式上下文配置（System B）下的识别质量与尾部耗时。  
+我们采用业界标准的词错误率（Word Error Rate, WER）和字错误率（Character Error Rate, CER）作为衡量指标，分别针对英文（MultiWOZ）与中文（CrossWOZ）样本计算转录误差，并将非流式全量识别（System A）作为上界对照，比较不同流式上下文配置（System B）下的识别质量与尾部耗时。
 
-### 3.3.2 精度-延迟权衡分析  
+### 3.3.2 精度-延迟权衡分析
 
 表 3-3 展示了不同上下文窗口配置下的准确率与尾部耗时对比结果。
 
 | context config | multiwoz<br>wer_mean | multiwoz<br>cer_mean | crosswoz<br>wer_mean | crosswoz<br>cer_mean | asr_time_ms |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | pre1&suf1 | 0.0895 | 0.0196 | 0.0083 | 0.0203 | 1327.48 |
-| pre1&suf0(default) | 0.0813 | 0.0221 | 0.0118 | 0.0292 | 1224.96 | 
+| pre1&suf0(default) | 0.0813 | 0.0221 | 0.0118 | 0.0292 | 1224.96 |
 | pre0&suf0 | 0.0619 | 0.0226 | 0.0210 | 0.0500 | 1086.16 |
 
 [表 3-3: 不同上下文窗口配置下的流式 ASR 准确率与尾部耗时对比]
-  
-(注：每种上下文配置均包含 150 条样本，其中 MultiWOZ 74 条、CrossWOZ 76 条。由于评测音频由文本经 TTS 合成生成，参考文本可视为该批样本的近似真值；同时，System A 在该合成集合上的 WER/CER 为 0，作为上界对照。本文主要关注不同上下文配置下的相对差异，不将该结果直接外推为真实录音场景的绝对误差。)  
 
-从表 3-3 可以看出，增加前后缀（pre1&suf1）对中文句尾稳定性的提升更加明显：中文数据集CrossWOZ 的 WER/CER 分别由默认配置的 0.0118/0.0292 下降到了 0.0083/0.0203。由于处理片段长度增加，也导致了语音结束端点后的尾部耗时上升，使asr_time_ms 由 1224.96ms 增加到了 1327.48ms（+102.52ms），这与后缀窗口需要等待额外音频片段并完成更多解码计算的机制预期相符。而对于英文数据集的 MultiWOZ，suffix 的增加使 CER 从 0.0221 降低到了 0.0196，不过 WER 稍微升高到了 0.0895，说明在以词为单位的评价标准下，后缀窗口对齐和分词的影响可能更敏感了。这一现象有必要通过真实录音及更大样本数据做进一步验证。当完全去除额外上下文（pre0&suf0）时，系统获得了更低的耗时（asr_time_ms 下降至 1086.16ms，相比默认耗时减少 138.80ms），中文误差在预料之内明显变大了：CrossWOZ 的 CER 上升到了 0.0500，WER 也上升到了 0.0210。该结果显示，prefix给出的那些历史上下文在流式识别里发挥了重要的约束作用，能给音频 - 语言模型的局部决策带来更强纠正效果，从而抑制长句里逐步累积的误差。  
+(注：每种上下文配置均包含 150 条样本，其中 MultiWOZ 74 条、CrossWOZ 76 条。由于评测音频由文本经 TTS 合成生成，参考文本可视为该批样本的近似真值；同时，System A 在该合成集合上的 WER/CER 为 0，作为上界对照。本文主要关注不同上下文配置下的相对差异，不将该结果直接外推为真实录音场景的绝对误差。)
+
+从表 3-3 可以看出，增加前后缀（pre1&suf1）对中文句尾稳定性的提升更加明显：中文数据集CrossWOZ 的 WER/CER 分别由默认配置的 0.0118/0.0292 下降到了 0.0083/0.0203。由于处理片段长度增加，也导致了语音结束端点后的尾部耗时上升，使asr_time_ms 由 1224.96ms 增加到了 1327.48ms（+102.52ms），这与后缀窗口需要等待额外音频片段并完成更多解码计算的机制预期相符。而对于英文数据集的 MultiWOZ，suffix 的增加使 CER 从 0.0221 降低到了 0.0196，不过 WER 稍微升高到了 0.0895，说明在以词为单位的评价标准下，后缀窗口对齐和分词的影响可能更敏感了。这一现象有必要通过真实录音及更大样本数据做进一步验证。当完全去除额外上下文（pre0&suf0）时，系统获得了更低的耗时（asr_time_ms 下降至 1086.16ms，相比默认耗时减少 138.80ms），中文误差在预料之内明显变大了：CrossWOZ 的 CER 上升到了 0.0500，WER 也上升到了 0.0210。该结果显示，prefix给出的那些历史上下文在流式识别里发挥了重要的约束作用，能给音频 - 语言模型的局部决策带来更强纠正效果，从而抑制长句里逐步累积的误差。
 
 由于中文是单字结构，而英文是单词组合，因此在中文数据集上我们主要考察的是 CER 也就是字符的错误率，而英文数据集主要考察的是 WER 即词错误率。从中文数据集上看，随着上下文的扩大，CER有明显降低；而在英文数据集上，三个配置的 WER 可以说基本一致，最小的上下文有最低的 WER 可以视为是实验的波动。这主要是因为中文的同音字较多，更多的上下文对于转录出准确的文字有较大帮助；而英文单词的同音词汇就少得多，因此只要发音准确，词级识别就相对稳定，增加的上下文并未显著提升准确率，因此在实际部署时，英文对话可去掉前后缀扩展，把流式架构的延迟优势压到极限。
 
-最后从端到端交互预算看， 实验一与实验二显示 long 及以上语音的 TTFT 已可稳定压缩至约 1.1s，而表 3-3 中不同上下文配置带来的 0.1–0.2s 尾部耗时已占去可观比例，因此需按场景进行取舍：对中文任务中识别正确性更敏感者，可启用 pre1&f1 以降低句尾错误；pre0&suf0 则作为极低延迟模式，或用于英文对话。考虑到对话式 LLM 在语义层面通常对噪声具有一定鲁棒性，转录文本的小误差预计对 LLM 的推理不会造成明显影响。后续可引入语义一致性与任务完成率等指标，直接量化“转写误差是否造成语义漂移”的数值。  
+最后从端到端交互预算看， 实验一与实验二显示 long 及以上语音的 TTFT 已可稳定压缩至约 1.1 s，而表 3-3 中不同上下文配置带来的 0.1-0.2 s 尾部耗时已占去可观比例，因此需按场景进行取舍：对中文任务中识别正确性更敏感者，可启用 pre1&suf1 以降低句尾错误；pre0&suf0 则可作为极低延迟模式，或用于英文对话。考虑到对话式 LLM 在语义层面通常对噪声具有一定鲁棒性，转录文本的小误差预计对 LLM 的推理不会造成明显影响。后续可引入语义一致性与任务完成率等指标，直接量化“转写误差是否造成语义漂移”的数值。
 
-# 第四章 总结与展望 (Conclusion & Future Work)  
+# 4 结论与展望 (Conclusion & Future Work)
 
-## 4.1 全文总结(Summary of Contributions)  
+## 4.1 全文总结(Summary of Contributions)
 
-本文聚焦于人机语音交互领域一个关键问题：大语言模型推理成本不断上升，而实时对话系统对响应速度的要求却日益严格。为此，我们设计并实现了一套基于流水线并行的低延迟语音对话架构。回顾全文 ，本研究以“计算流式化”和“状态增量化”这两条技术主线为研究对象，通过系统性的架构重构，消除了传统级联系统(Cascaded Systems)中的串行处理瓶颈，使整个处理过程流式化。  
+本文聚焦于人机语音交互领域一个关键问题：大语言模型推理成本不断上升，而实时对话系统对响应速度的要求却日益严格。为此，我们设计并实现了一套基于流水线并行的低延迟语音对话架构。回顾全文 ，本研究以“计算流式化”和“状态增量化”这两条技术主线为研究对象，通过系统性的架构重构，消除了传统级联系统(Cascaded Systems)中的串行处理瓶颈，使整个处理过程流式化。
 
-首先，在ASR转录方面，本文提出一种自适应流式 ASR 上下文管理机制。不同于 Whisper 的全量处理 [7] ，本研究借助滑动窗口把 ASR 封装成可持续输出增量转录文本的的流式引擎，在“实时响应”与“语义完整性”之间取得了平衡，在用户发声结束前，即可及时获得稳定的文本片段。其次，针对LLM的推理部分，本文使用了基于LLM的增量 KV Cache 预填充算法，充分利用了流式ASR产生流式文本的好处。在传统级联式架构中，ASR每输出一次文本更新，Transformer 模型[5]就得把越来越长的历史prompt重新计算KV值，语音结束端点后的预填充开销因此随输入长度线性增加。本研究利用Transformer库可复用 Key/Value 缓存的特点，利用旧的KV Cache，对新增的文本片段做增量更新，从而将原本集中在 End-of-Speech 之后的一次性全量预填充提前进行大部分的计算。需要指出的是，这一方式并未改变注意力计算的二次复杂度，只是将大部分的KV计算工作在语音生成过程中同步计算，使语音结束端点后的计算量减少，从而缩短端点后的 TTFT，在长语音场景下抑制 TTFT 随输入长度而线性增加的缺点。  
+首先，在 ASR 转录方面，本文提出一种自适应流式 ASR 上下文管理机制。不同于 Whisper 的全量处理 [7]，本研究借助滑动窗口把 ASR 封装成可持续输出增量转录文本的流式引擎，在“实时响应”与“语义完整性”之间取得了平衡，在用户发声结束前即可及时获得稳定的文本片段。其次，针对 LLM 的推理部分，本文使用了基于 LLM 的增量 KV Cache 预填充算法，充分利用流式 ASR 产生增量文本的特点。在传统级联式架构中，若 ASR 每输出一次文本更新，Transformer 模型 [5] 就重新计算越来越长的历史 prompt，其重复预填充开销会随输入长度增加。本研究利用 Transformer 库可复用 Key/Value 缓存的特点，对新增文本片段做增量更新，从而将原本集中在 End-of-Speech 之后的一次性全量预填充提前完成大部分计算。需要指出的是，这一方式并未改变注意力计算的二次复杂度，而是将大部分 KV 计算工作在语音输入过程中同步完成，使语音结束端点后的计算量减少，从而缩短端点后的 TTFT，在长语音场景下抑制 TTFT 随输入长度而线性增加的问题。
 
-实验结果验证了该架构的有效性。在从 MultiWOZ 与 CrossWOZ 构建的长语音数据集上，System B 比传统非流式基线 SystemA 优势明显。特别在 15 秒以上的长语音分组中，System B 有稳定的优势，其将TTFT保持在了一个稳定的值中。同时维持了语音转录文本的准确性，WER/CER处于可接受范围内。当然，在当前的实验平台上，long 及以上分组的 TTFT 仍然有约为 1.1s，与人类对话中约 200ms 的对话间隙仍有一定差距，但与传统串行方式相比，System B 最大的优势在于长语音场景下的 TTFT 在达到一定数值后不再随着语音时长增长。未来借助更高效的推理硬件、更低延迟的ASR模型及进一步调度优化 ，继续压缩这段端点后等待时间，即可实现任意长度语音均保持与人类对话间隙一致的响应延迟。
+实验结果验证了该架构的有效性。在从 MultiWOZ 与 CrossWOZ 构建的长语音数据集上，System B 比传统非流式基线 System A 优势明显。特别在 15 秒以上的长语音分组中，System B 能将 TTFT 稳定保持在约 1.1 s，同时维持语音转录文本的准确性，WER/CER 处于可接受范围内。当然，在当前实验平台上，long 及以上分组的 TTFT 与人类对话中约 200 ms 的对话间隙仍有一定差距，但与传统串行方式相比，System B 最大的优势在于长语音场景下的 TTFT 在达到一定数值后不再随着语音时长增长。未来借助更高效的推理硬件、更低延迟的 ASR 模型及进一步调度优化，继续压缩这段端点后等待时间，即可进一步逼近自然对话所需的响应延迟。
 
 ## 4.2 研究局限性 (Limitations)
 
-尽管本研究在降低交互延迟方面取得了显著进展，且所提出的流式架构在工程实践中表现出了良好的鲁棒性，但受限于级联架构本身的结构性约束，系统在迈向“类人自然对话”的终极目标上仍面临以下局限：  
+尽管本研究在降低交互延迟方面取得了显著进展，且所提出的流式架构在工程实践中表现出了良好的鲁棒性，但受限于级联架构本身的结构性约束，系统在迈向“类人自然对话”的终极目标上仍面临以下局限：
 
-首先是半双工交互模式(Half-duplex Interaction)带来的体验割裂。当前系统设计虽然优化了响应速度，但本质上仍遵循“用户发言 $\rightarrow$ 系统处理 $\rightarrow$ 系统回复”的半双工话轮转换(Turn-taking)逻辑。由于现有的 VAD 模块缺乏对用户“打断(Barge-in)”意图的高层语义理解，当系统处于生成或播放语音的状态时，往往难以精准捕捉并响应用户的插话行为。这种对交互状态的刚性锁定，使得人机对话在灵活性上仍落后于人类自然的“重叠对话(Overlapping Speech)”体验。其次是级联架构导致的副语言信息丢失(Loss of Paralinguistic Information)。作为典型的级联系统，本研究采用“文本”作为 ASR 感知模块与 LLM 认知模块之间的唯一信息接口。这种离散化的符号接口虽然简化了工程实现，但也造成了不可忽视的信息有损压缩(Lossy Compression)。人类语音中蕴含的丰富副语言特征——如说话人的情绪波动(愤怒、犹豫)、语调变化(疑问、反讽)以及微小的停顿节奏——在强制转录为文本的过程中被不可逆地丢弃。由于 LLM 无法直接感知原始声学特征，生成的回复往往局限于字面语义的正确性，而缺乏情感上的共鸣与适配，呈现出“理智但冷漠”的交互缺陷。  
+首先是半双工交互模式(Half-duplex Interaction)带来的体验割裂。当前系统设计虽然优化了响应速度，但本质上仍遵循“用户发言 $\rightarrow$ 系统处理 $\rightarrow$ 系统回复”的半双工话轮转换(Turn-taking)逻辑。由于现有的 VAD 模块缺乏对用户“打断(Barge-in)”意图的高层语义理解，当系统处于生成或播放语音的状态时，往往难以精准捕捉并响应用户的插话行为。这种对交互状态的刚性锁定，使得人机对话在灵活性上仍落后于人类自然的“重叠对话(Overlapping Speech)”体验。其次是级联架构导致的副语言信息丢失(Loss of Paralinguistic Information)。作为典型的级联系统，本研究采用“文本”作为 ASR 感知模块与 LLM 认知模块之间的唯一信息接口。这种离散化的符号接口虽然简化了工程实现，但也造成了不可忽视的信息有损压缩(Lossy Compression)。人类语音中蕴含的丰富副语言特征——如说话人的情绪波动(愤怒、犹豫)、语调变化(疑问、反讽)以及微小的停顿节奏——在强制转录为文本的过程中被不可逆地丢弃。由于 LLM 无法直接感知原始声学特征，生成的回复往往局限于字面语义的正确性，而缺乏情感上的共鸣与适配，呈现出“理智但冷漠”的交互缺陷。
 
 ## 4.3 未来展望 (Future Work)
 
@@ -425,7 +360,7 @@ $$O(M\cdot(N+M))$$
 
 ---
 
-  
+
 
 **References**
 
@@ -465,205 +400,6 @@ $$O(M\cdot(N+M))$$
 
 [18] A. Yang *et al.*, "Qwen2 Technical Report," *arXiv preprint arXiv:2407.10671*, 2024. [Online]. Available: https://arxiv.org/abs/2407.10671
 
-[19] R. Karakanta, M. G. A. Rivoudad, and M. Negri, "The Two Paths to Speech Translation: A Survey of Cascaded and End-to-End Architectures," *arXiv preprint arXiv:2104.02052*, 2021.
+[19] L. Bentivogli, M. Cettolo, M. Gaido, A. Karakanta, A. Martinelli, M. Negri, and M. Turchi, "Cascade versus Direct Speech Translation: Do the Differences Still Make a Difference?," in *Proc. ACL-IJCNLP*, 2021, pp. 2873-2887, doi:10.18653/v1/2021.acl-long.224.
 
-[20] H. Inaguma, K. Duh, T. Kawahara, and S. Watanabe, "Multilingual Speech-to-Speech Translation: A Survey of Cascaded and End-to-End Approaches," in *Proc. ASRU*, 2023.
-
----
-
-  
-
-**BibTeX**
-
-```bibtex
-@misc{openai2024gpt4o,
-  title         = {GPT-4o System Card},
-  author        = {{OpenAI}},
-  year          = {2024},
-  eprint        = {2410.21276},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/2410.21276}
-}
-
-@misc{gemini2024gemini15,
-  title         = {Gemini 1.5: Unlocking multimodal understanding across millions of tokens of context},
-  author        = {{Gemini Team}},
-  year          = {2024},
-  eprint        = {2403.05530},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/2403.05530}
-}
-
-@article{sacks1974turntaking,
-  title   = {A Simplest Systematics for the Organization of Turn-Taking for Conversation},
-  author  = {Sacks, Harvey and Schegloff, Emanuel A. and Jefferson, Gail},
-  journal = {Language},
-  volume  = {50},
-  number  = {4},
-  pages   = {696--735},
-  year    = {1974},
-  doi     = {10.2307/412243}
-}
-
-@misc{graves2012sequence_transduction,
-  title         = {Sequence Transduction with Recurrent Neural Networks},
-  author        = {Graves, Alex},
-  year          = {2012},
-  eprint        = {1211.3711},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/1211.3711}
-}
-
-@inproceedings{vaswani2017attention,
-  title         = {Attention Is All You Need},
-  author        = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N. and Kaiser, Lukasz and Polosukhin, Illia},
-  booktitle     = {Advances in Neural Information Processing Systems},
-  volume        = {30},
-  year          = {2017},
-  eprint        = {1706.03762},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/1706.03762}
-}
-
-@inproceedings{gulati2020conformer,
-  title     = {Conformer: Convolution-augmented Transformer for Speech Recognition},
-  author    = {Gulati, Anmol and Qin, James and Chiu, Chung-Cheng and Parmar, Niki and Zhang, Yu and Yu, Jiahui and Han, Wei and Wang, Shibo and Zhang, Zhengdong and Wu, Yonghui and Pang, Ruoming},
-  booktitle = {Interspeech 2020},
-  pages     = {5036--5040},
-  year      = {2020},
-  doi       = {10.21437/Interspeech.2020-3015},
-  url       = {https://doi.org/10.21437/Interspeech.2020-3015}
-}
-
-@inproceedings{radford2023whisper,
-  title         = {Robust Speech Recognition via Large-Scale Weak Supervision},
-  author        = {Radford, Alec and Kim, Jong Wook and Xu, Tao and Brockman, Greg and McLeavey, Christine and Sutskever, Ilya},
-  booktitle     = {Proceedings of the 40th International Conference on Machine Learning},
-  pages         = {28492--28518},
-  year          = {2023},
-  eprint        = {2212.04356},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/2212.04356}
-}
-
-@misc{krichli2025carelesswhisper,
-  title         = {CarelessWhisper: Turning Whisper into a Causal Streaming Model},
-  author        = {Krichli, Tomer and Raj, Bhiksha and Keshet, Joseph},
-  year          = {2025},
-  eprint        = {2508.12301},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/2508.12301}
-}
-
-@inproceedings{yu2021fastemit,
-  title     = {FastEmit: Low-Latency Streaming ASR with Sequence-Level Emission Regularization},
-  author    = {Yu, Jiahui and Chiu, Chung-Cheng and Li, Bo and Chang, Shuo-yiin and Sainath, Tara N. and He, Yanzhang and Narayanan, Arun and Han, Wei and Gulati, Anmol and Wu, Yonghui and Pang, Ruoming},
-  booktitle = {ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing},
-  pages     = {6004--6008},
-  year      = {2021},
-  doi       = {10.1109/ICASSP39728.2021.9413803},
-  url       = {https://doi.org/10.1109/ICASSP39728.2021.9413803}
-}
-
-@misc{pope2022transformer_inference,
-  title         = {Efficiently Scaling Transformer Inference},
-  author        = {Pope, Reiner and Douglas, Sholto and Chowdhery, Aakanksha and Devlin, Jacob and Bradbury, James and Levskaya, Anselm and Heek, Jonathan and Xiao, Kefan and Agrawal, Shivani and Dean, Jeff},
-  year          = {2022},
-  eprint        = {2211.05102},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/2211.05102}
-}
-
-@inproceedings{dao2022flashattention,
-  title         = {FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness},
-  author        = {Dao, Tri and Fu, Daniel Y. and Ermon, Stefano and Rudra, Atri and R{\'e}, Christopher},
-  booktitle     = {Advances in Neural Information Processing Systems},
-  volume        = {35},
-  pages         = {16344--16359},
-  year          = {2022},
-  eprint        = {2205.14135},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/2205.14135}
-}
-
-@misc{xiao2023attention_sinks,
-  title         = {Efficient Streaming Language Models with Attention Sinks},
-  author        = {Xiao, Guangxuan and Tian, Yuandong and Chen, Beidi and Han, Song and Lewis, Mike},
-  year          = {2023},
-  eprint        = {2309.17453},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/2309.17453}
-}
-
-@misc{xie2024mini_omni,
-  title         = {Mini-Omni: Language Models Can Hear, Talk While Thinking in Streaming},
-  author        = {Xie, Zhifei and Wu, Changqiao},
-  year          = {2024},
-  eprint        = {2408.16725},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/2408.16725}
-}
-
-@misc{silero2024vad,
-  title        = {Silero VAD: pre-trained enterprise-grade Voice Activity Detector},
-  author       = {{Silero Team}},
-  year         = {2024},
-  howpublished = {GitHub repository},
-  url          = {https://github.com/snakers4/silero-vad},
-  note         = {Accessed: 2025-12-19}
-}
-
-@inproceedings{budzianowski2018multiwoz,
-  title     = {MultiWOZ: A Large-Scale Multi-Domain Wizard-of-Oz Dataset for Task-Oriented Dialogue Modelling},
-  author    = {Budzianowski, Pawel and Wen, Tsung-Hsien and Tseng, Bo-Hsiang and Casanueva, Inigo and Ultes, Stefan and Ramadan, Osman and Gasic, Milica},
-  booktitle = {Proceedings of the 2018 Conference on Empirical Methods in Natural Language Processing},
-  pages     = {5016--5026},
-  year      = {2018},
-  doi       = {10.18653/v1/D18-1547},
-  url       = {https://aclanthology.org/D18-1547/}
-}
-
-@article{zhu2020crosswoz,
-  title   = {CrossWOZ: A Large-Scale Chinese Cross-Domain Task-Oriented Dialogue Dataset},
-  author  = {Zhu, Qi and Huang, Kaili and Zhang, Zheng and Zhu, Xiaoyan and Huang, Minlie},
-  journal = {Transactions of the Association for Computational Linguistics},
-  volume  = {8},
-  pages   = {281--295},
-  year    = {2020},
-  doi     = {10.1162/tacl_a_00314},
-  url     = {https://doi.org/10.1162/tacl_a_00314}
-}
-
-@misc{du2024cosyvoice2,
-  title         = {CosyVoice 2: Scalable Streaming Speech Synthesis with Large Language Models},
-  author        = {Du, Zhihao and others},
-  year          = {2024},
-  eprint        = {2412.10117},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/2412.10117}
-}
-
-@misc{yang2024qwen2,
-  title         = {Qwen2 Technical Report},
-  author        = {Yang, An and others},
-  year          = {2024},
-  eprint        = {2407.10671},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/2407.10671}
-}
-
-@misc{karakanta2021two,
-  title         = {The Two Paths to Speech Translation: A Survey of Cascaded and End-to-End Architectures},
-  author        = {Karakanta, Alina and Rivoudad, Marcely G. A. and Negri, Matteo},
-  year          = {2021},
-  eprint        = {2104.02052},
-  archivePrefix = {arXiv}
-}
-
-@inproceedings{inaguma2023multilingual,
-  title     = {Multilingual Speech-to-Speech Translation: A Survey of Cascaded and End-to-End Approaches},
-  author    = {Inaguma, Hirofumi and Duh, Kevin and Kawahara, Tatsuya and Watanabe, Shinji},
-  booktitle = {ASRU 2023},
-  year      = {2023}
-}
-```
+[20] N. Sethiya and C. K. Maurya, "End-to-End Speech-to-Text Translation: A Survey," *arXiv preprint arXiv:2312.01053*, 2023.
