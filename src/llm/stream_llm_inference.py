@@ -51,33 +51,69 @@ class StreamLLMInference:
             hf_endpoint (str, optional): Hugging Face 端点。
             hf_token (str, optional): Hugging Face API Token.
         """
+        # 设备标准化，支持 cuda:0/cuda:1
         if device == "auto":
-            device = "cuda" if torch.cuda.is_available() else "cpu"
+            device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        device = device.lower()
         logger.info(f"Loading LLM model {model_name} on {device}")
         logger.debug(f"HF_HOME: {hf_home}, HF_ENDPOINT: {hf_endpoint}")
         self.device = device
+        
+        # 优先从本地缓存加载（支持离线环境），如果失败再尝试在线下载
         try:
+            # 先尝试本地加载
             self.tokenizer = AutoTokenizer.from_pretrained(
                 model_name, 
                 cache_dir=hf_home, 
                 token=hf_token,
-                trust_remote_code=True, # 对于某些模型如Qwen是必要的
-                local_files_only=False  # 先尝试在线加载
+                trust_remote_code=True,
+                local_files_only=True  # 仅从本地加载，不访问网络
             )
-        except Exception as e:
-            raise RuntimeError(f"无法加载tokenizer: {e}")
+            logger.debug("Tokenizer 从本地缓存加载成功")
+        except Exception as local_e:
+            # 本地加载失败，尝试在线下载
+            logger.warning(f"Tokenizer 本地加载失败 ({local_e})，尝试从网络下载...")
+            try:
+                self.tokenizer = AutoTokenizer.from_pretrained(
+                    model_name, 
+                    cache_dir=hf_home, 
+                    token=hf_token,
+                    trust_remote_code=True,
+                    local_files_only=False
+                )
+                logger.info("Tokenizer 从网络下载成功")
+            except Exception as e:
+                raise RuntimeError(f"无法加载tokenizer: {e}")
+        
         try:
+            device_map = "auto" if device == "auto" else {"": device}
+            # 先尝试本地加载
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 torch_dtype="auto",
-                device_map= "auto", #device if device == "auto" else device, # device_map="auto" or device_map=device for single GPU
+                device_map=device_map,
                 cache_dir=hf_home,
                 token=hf_token,
-                trust_remote_code=True, # 对于某些模型如Qwen是必要的
-                local_files_only=False  # 先尝试在线加载
+                trust_remote_code=True,
+                local_files_only=True  # 仅从本地加载，不访问网络
             )
-        except Exception as e:
-            raise RuntimeError(f"无法加载模型: {e}")
+            logger.debug("LLM 模型从本地缓存加载成功")
+        except Exception as local_e:
+            # 本地加载失败，尝试在线下载
+            logger.warning(f"LLM 模型本地加载失败 ({local_e})，尝试从网络下载...")
+            try:
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    model_name,
+                    torch_dtype="auto",
+                    device_map=device_map,
+                    cache_dir=hf_home,
+                    token=hf_token,
+                    trust_remote_code=True,
+                    local_files_only=False
+                )
+                logger.info("LLM 模型从网络下载成功")
+            except Exception as e:
+                raise RuntimeError(f"无法加载模型: {e}")
         logger.info("LLM模型加载完成。")       
 
         self.model.eval() # 模型设置为推理模式

@@ -1,10 +1,13 @@
 # src/asr/faster_whisper_streamer.py
 
 from enum import Enum, auto
-from faster_whisper import WhisperModel
+import whisper
+import torch
 import numpy as np
 import time
 import logging
+import os
+from pathlib import Path
 from typing import List, Dict, Optional, Callable, Generator, Tuple, Union
 from dataclasses import dataclass, field
 import threading
@@ -22,6 +25,29 @@ load_dotenv()  # 加载 .env 文件中的环境变量
 # 获取当前模块的logger
 logger = get_logger(__name__)
 
+
+def _load_whisper_model_offline_first(model_size: str, device: str):
+    """
+    加载 Whisper 模型，自动使用本地缓存
+    
+    whisper.load_model 会自动检查和使用 ~/.cache/whisper/ 中的缓存。
+    如果模型已缓存，会直接加载；如果未缓存且有网络，会尝试下载。
+    
+    Args:
+        model_size: 模型大小 (tiny, base, small, medium, large, turbo, large-v1, large-v2, large-v3 等)
+        device: 设备 (cuda, cpu)
+    
+    Returns:
+        加载的 Whisper 模型
+    """
+    try:
+        # whisper.load_model 内置了完善的缓存机制，会自动使用 ~/.cache/whisper/
+        model = whisper.load_model(model_size, device=device)
+        logger.info(f"Whisper 模型 {model_size} 加载成功")
+        return model
+    except Exception as e:
+        raise RuntimeError(f"无法加载 Whisper 模型 {model_size}: {e}")
+
 # 常量定义
 DEFAULT_AUDIO_FORMAT = "float32"
 DEFAULT_SAMPLE_RATE = 16000
@@ -36,6 +62,26 @@ MAX_AUDIO_BUFFER_SIZE = 30  # 最大音频缓冲区大小（秒）
 MIN_SEGMENT_DURATION = 0.5  # 最小段长度（秒）
 TIMESTAMP_FORMAT = "%H:%M:%S.%f"  # 时间戳格式
 TIMESTAMP_PRECISION = 3  # 时间戳精度（毫秒）
+
+
+def _normalize_device(device: str | None) -> str:
+    """
+    将传入的设备描述符标准化为 whisper/torch 可接受的值。
+    支持:
+      - "auto": 自动选择 cuda (优先) 或 cpu
+      - "cuda", "cuda:0", "cuda:1" ...
+      - "cpu"
+    """
+    if not device or device.lower() == "auto":
+        return "cuda" if torch.cuda.is_available() else "cpu"
+    dev = device.lower()
+    if dev == "cuda" or dev.startswith("cuda"):
+        return dev
+    if dev == "cpu":
+        return "cpu"
+    # 回退：未知输入时也尝试直接交给 torch/whisper，但打印警告
+    logger.warning(f"Unknown device '{device}', fallback to torch default (cuda if available else cpu)")
+    return "cuda" if torch.cuda.is_available() else "cpu"
 
 def format_timestamp(precision: int = TIMESTAMP_PRECISION) -> str:
     """格式化当前时间戳为字符串"""
@@ -146,6 +192,8 @@ class StreamingASRProcessor:
     """
     流式ASR处理器
     实现语音段队列管理和流式文本输出
+    
+    Backend: openai-whisper (Native PyTorch implementation)
     """
 
     def __init__(
@@ -162,7 +210,7 @@ class StreamingASRProcessor:
         初始化流式ASR处理器
         
         Args:
-            model_size: faster-whisper 模型大小
+            model_size: whisper 模型大小 (openai-whisper)
             device: 推理设备
             compute_type: 计算类型，'auto'为自动选择
             recognition_threshold: 识别阈值，队列总长度达到此值时开始识别(秒)
@@ -170,20 +218,21 @@ class StreamingASRProcessor:
         """
         logger.info(f'Loading ASR model: {model_size} on {device}')
         
-        # 存储设备类型
-        self._device = device.lower()
+        # 标准化设备字符串，避免传入 "auto" 导致 torch.load map_location 错误
+        normalized_device = _normalize_device(device)
+        self._device = normalized_device
         
         # 根据设备自动选择计算类型
         if compute_type == 'auto':
             if self._device == 'cpu':
-                compute_type = 'int8'  # CPU使用int8
+                # compute_type = 'int8'  # CPU使用int8
                 logger.debug(f'Auto-selected compute type for CPU: {compute_type}')
             else:
-                compute_type = 'float16'  # GPU使用float16
+                # compute_type = 'float16'  # GPU使用float16
                 logger.debug(f'Auto-selected compute type for GPU: {compute_type}')
         
-        # 加载Whisper模型
-        self.model = WhisperModel(model_size, device=device, compute_type=compute_type)
+        # 加载Whisper模型（优先从本地缓存加载，支持离线环境）
+        self.model = _load_whisper_model_offline_first(model_size, normalized_device)
         
         # 存储模型大小以备后用
         self._model_size = model_size
@@ -285,9 +334,9 @@ class StreamingASRProcessor:
         
         report = {
             'model_info': {
-                'model_size': getattr(self.model, 'model_size', 'unknown'),
-                'device': getattr(self.model, 'device', 'unknown'),
-                'compute_type': getattr(self.model, 'compute_type', 'unknown')
+                'model_size': self._model_size,
+                'device': self._device,
+                'compute_type': 'float16' if self._device != 'cpu' else 'int8' # Approximate
             },
             'processing_metrics': metrics,
             'audio_info': {
@@ -337,6 +386,11 @@ class StreamingASRProcessor:
             if audio_data is not None:
                 if sample_rate is None:
                     raise ValueError("如果提供了audio_data，则必须提供sample_rate")
+                if sample_rate not in (16000, 8000):
+                    raise ValueError(
+                        f"Whisper/Silero VAD 仅支持 8k/16k 输入，收到 {sample_rate}，"
+                        "请在传入前将音频重采样到 16k（推荐）。"
+                    )
                 
                 # 确保音频数据是float32格式
                 if audio_data.dtype != np.float32:
@@ -351,54 +405,65 @@ class StreamingASRProcessor:
                 
                 logger.debug(f"使用提供的音频数据: shape={audio_data.shape}, sample_rate={sample_rate}, duration={audio_duration:.2f}s")
             else:
-                # 加载音频文件
+                # 加载音频文件并重采样到 self.sample_rate（默认 16k）
                 audio_data, sr = librosa.load(audio_path, sr=self.sample_rate)
                 sample_rate = int(sr)  # 确保类型为int
                 audio_duration = len(audio_data) / sample_rate
                 load_time = time.time() - start_time
                 
-                logger.info(f"加载音频文件: {audio_path}, 时长: {audio_duration:.2f}s")
+                logger.info(f"加载音频文件: {audio_path}, 时长: {audio_duration:.2f}s, sr={sample_rate}")
             
             # 使用Whisper进行完整转录
             transcription_start = time.time()
-            segments_result, info = self.model.transcribe(
+            # segments_result, info = self.model.transcribe(
+            #     audio_data,
+            #     beam_size=DEFAULT_BEAM_SIZE,  # 基线系统使用较高beam size以获得更好质量
+            #     # language="zh",
+            #     word_timestamps=True,
+            #     vad_filter=False,
+            #     temperature=DEFAULT_TEMPERATURE,
+            #     compression_ratio_threshold=DEFAULT_COMPRESSION_RATIO_THRESHOLD,
+            #     log_prob_threshold=DEFAULT_LOG_PROB_THRESHOLD,
+            #     no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD
+            # )
+            
+            result_obj = self.model.transcribe(
                 audio_data,
-                beam_size=DEFAULT_BEAM_SIZE,  # 基线系统使用较高beam size以获得更好质量
-                # language="zh",
+                beam_size=DEFAULT_BEAM_SIZE,
                 word_timestamps=True,
-                vad_filter=False,
                 temperature=DEFAULT_TEMPERATURE,
                 compression_ratio_threshold=DEFAULT_COMPRESSION_RATIO_THRESHOLD,
-                log_prob_threshold=DEFAULT_LOG_PROB_THRESHOLD,
-                no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD
+                logprob_threshold=DEFAULT_LOG_PROB_THRESHOLD,  # openai-whisper 参数名
+                no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD,
+                condition_on_previous_text=False # Usually good for streaming/chunks
             )
             
             transcription_time = time.time() - transcription_start
             
             # 整理转录结果
-            full_text = ""
+            full_text = result_obj['text'].strip()
             segments = []
             
-            for segment in segments_result:
-                segment_text = segment.text.strip()
-                full_text += segment_text
+            for segment in result_obj['segments']:
+                segment_text = segment['text'].strip()
+                # full_text += segment_text # Already in result_obj['text']
                 segments.append({
                     'text': segment_text,
-                    'start': segment.start,
-                    'end': segment.end,
+                    'start': segment['start'],
+                    'end': segment['end'],
                     'words': [
                         {
-                            'text': word.word,
-                            'start': word.start,
-                            'end': word.end,
-                            'probability': word.probability
+                            'text': word['word'],
+                            'start': word['start'],
+                            'end': word['end'],
+                            'probability': word['probability']
                         }
-                        for word in (segment.words or [])
+                        for word in (segment.get('words', []))
                     ]
                 })
             
             result = {
-                'text': full_text.strip(),
+                'text': full_text,
                 'segments': segments,
                 'timing': {
                     'audio_duration': audio_duration,
@@ -408,9 +473,9 @@ class StreamingASRProcessor:
                     'real_time_factor': transcription_time / audio_duration if audio_duration > 0 else 0
                 },
                 'info': {
-                    'language': info.language,
-                    'language_probability': info.language_probability,
-                    'duration': info.duration
+                    'language': result_obj.get('language', 'unknown'),
+                    'language_probability': 0.0, # Not directly returned by openai-whisper transcribe dict
+                    'duration': audio_duration # Approximation
                 }
             }
             
@@ -493,12 +558,24 @@ class StreamingASRProcessor:
             # 删除已处理的段
             if output_segment_indices:
                 # 确定在已输出的段中要保留的段序号
-                keep_segment: ASRAudioSegment = cache.segment_queue[output_segment_indices[-1] - self.prefix_segments + 1]
-                # 删除保留段数以前的所有段
-                for _ in range(len(cache.segment_queue)):  
-                    if keep_segment.id == cache.segment_queue[0].id:
-                        break
-                    cache.remove_first_segment()
+                # 保留策略：保留最后输出的段之后 prefix_segments 个段
+                last_output_idx = output_segment_indices[-1]
+                keep_from_idx = last_output_idx + 1 - self.prefix_segments
+                
+                # 确保索引有效
+                if keep_from_idx < 0:
+                    keep_from_idx = 0
+                if keep_from_idx >= len(cache.segment_queue):
+                    # 所有段都已输出，可以全部删除（但通常不会发生）
+                    keep_from_idx = len(cache.segment_queue)
+                
+                # 删除 keep_from_idx 之前的所有段
+                segments_to_remove = keep_from_idx
+                for _ in range(segments_to_remove):
+                    if cache.segment_queue:  # 确保队列不为空
+                        cache.remove_first_segment()
+                
+                logger.debug(f"删除了 {segments_to_remove} 个已处理段，剩余 {len(cache.segment_queue)} 个段")
 
             # 记录结束时间
             self.timing_events[TimingEventType.END_ASR] = time.perf_counter()
@@ -523,18 +600,28 @@ class StreamingASRProcessor:
             List[int]: 应该输出的段索引列表
         """
         queue_length = len(cache.segment_queue)
+        is_first_batch = cache.segment_queue[0].is_start if cache.segment_queue else False
         
         # 如果是流式结尾，输出所有剩余段
         if current_segment.is_final:
-            return list(range(self.prefix_segments, queue_length))
+            # 如果队列第一个段是开始段，说明前缀段还没有被输出过，需要从0开始输出所有段
+            if is_first_batch:
+                logger.debug(f"is_final=True 且 is_start=True，输出所有段 [0, {queue_length})")
+                return list(range(0, queue_length))
+            # 否则前缀段已经输出过，只输出剩余段（从 prefix_segments 开始）
+            start_idx = max(0, self.prefix_segments)  # 确保索引不为负
+            return list(range(start_idx, queue_length))
 
         # 如果是流式开始，输出保留段数之前的所有段
-        if cache.segment_queue[0].is_start:
-            logger.debug(f"queue_length: {queue_length}, suffix_segments_atleast: {self.suffix_segments_atleast},selecting {list(range(0, queue_length - self.suffix_segments_atleast))}")
-            return list(range(0, queue_length - self.suffix_segments_atleast))
+        if is_first_batch:
+            end_idx = max(0, queue_length - self.suffix_segments_atleast)
+            logger.debug(f"queue_length: {queue_length}, suffix_segments_atleast: {self.suffix_segments_atleast}, selecting {list(range(0, end_idx))}")
+            return list(range(0, end_idx))
         
         # 一般情况：输出中间段，不要输出前缀和后缀段
-        return list(range(self.prefix_segments, queue_length - self.suffix_segments_atleast))
+        start_idx = max(0, self.prefix_segments)
+        end_idx = max(start_idx, queue_length - self.suffix_segments_atleast)
+        return list(range(start_idx, end_idx))
         
     def _extract_output_text(self, cache: ASRCache, output_indices: List[int]) -> str:
         """
@@ -590,41 +677,52 @@ class StreamingASRProcessor:
         self.timing_events[TimingEventType.START_TRANSCRIBE] = time.perf_counter()
         
         
-        segments_result, info = self.model.transcribe(
+        # segments_result, info = self.model.transcribe(
+        #     combined_audio,
+        #     beam_size=DEFAULT_BEAM_SIZE,  # 使用常量
+        #     # language="zh",  # 明确指定中文，避免语言检测开销
+        #     word_timestamps=True,  # 启用词级时间戳，用于精确匹配
+        #     vad_filter=False,  # 关闭VAD过滤，因为我们已经用分段器处理过了
+        #     temperature=DEFAULT_TEMPERATURE,  # 使用常量
+        #     compression_ratio_threshold=DEFAULT_COMPRESSION_RATIO_THRESHOLD,
+        #     log_prob_threshold=DEFAULT_LOG_PROB_THRESHOLD,
+        #     no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD
+        # )
+        
+        result_obj = self.model.transcribe(
             combined_audio,
-            beam_size=DEFAULT_BEAM_SIZE,  # 使用常量
-            # language="zh",  # 明确指定中文，避免语言检测开销
-            word_timestamps=True,  # 启用词级时间戳，用于精确匹配
-            vad_filter=False,  # 关闭VAD过滤，因为我们已经用分段器处理过了
-            temperature=DEFAULT_TEMPERATURE,  # 使用常量
+            beam_size=DEFAULT_BEAM_SIZE,
+            word_timestamps=True,
+            temperature=DEFAULT_TEMPERATURE,
             compression_ratio_threshold=DEFAULT_COMPRESSION_RATIO_THRESHOLD,
-            log_prob_threshold=DEFAULT_LOG_PROB_THRESHOLD,
-            no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD
+            logprob_threshold=DEFAULT_LOG_PROB_THRESHOLD,  # openai-whisper 参数名
+            no_speech_threshold=DEFAULT_NO_SPEECH_THRESHOLD,
+            condition_on_previous_text=False
         )
             
         # 处理转录结果
         transcription_segments = []
-        for i, segment in enumerate(segments_result):
-            segment_text = segment.text.strip()
-            logger.debug(f"  段 {i+1}: [{segment.start:.2f}s-{segment.end:.2f}s] {segment_text}")
+        for i, segment in enumerate(result_obj['segments']):
+            segment_text = segment['text'].strip()
+            logger.debug(f"  段 {i+1}: [{segment['start']:.2f}s-{segment['end']:.2f}s] {segment_text}")
             
             # 性能优化：只在有词级时间戳时才处理
             words = []
-            if segment.words:
+            if 'words' in segment:
                 words = [
                     {
-                        'text': word.word,
-                        'start': word.start,
-                        'end': word.end,
-                        'probability': word.probability
+                        'text': word['word'], # openai-whisper key is 'word'
+                        'start': word['start'],
+                        'end': word['end'],
+                        'probability': word['probability']
                     }
-                    for word in segment.words
+                    for word in segment['words']
                 ]
             
             transcription_segments.append({
                 'text': segment_text,
-                'start': segment.start,
-                'end': segment.end,
+                'start': segment['start'],
+                'end': segment['end'],
                 'words': words
             })
 
@@ -638,9 +736,9 @@ class StreamingASRProcessor:
         result = {
             'segments': transcription_segments,
             'info': {
-                'language': info.language,
-                'language_probability': info.language_probability,
-                'duration': info.duration
+                'language': result_obj.get('language', 'unknown'),
+                'language_probability': 0.0,
+                'duration': total_duration # Using buffer duration
             },
             'timing': {
                 'transcription_time': transcription_time,

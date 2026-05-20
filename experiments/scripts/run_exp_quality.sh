@@ -23,15 +23,21 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-CONDA_ENV="${CONDA_ENV:-streamllm}"
 ASR_DEVICE="${ASR_DEVICE:-auto}"
 ASR_MODEL_SIZE=""
 MAX_SAMPLES=""
+MAX_SAMPLES_PER_GROUP=""
+DURATION_GROUPS=""
 DATASET="all"
 LOG_LEVEL="INFO"
 WARMUP_ROUNDS="2"
 CHUNK_DURATION="500"
 OUTPUT_DIR="experiments/results/exp3_quality"
+PREFIX_SEGMENTS=""
+SUFFIX_SEGMENTS=""
+RECOGNITION_THRESHOLD=""
+BATCH_SIZE=""
+NO_RESUME=""
 
 print_help() {
     echo -e "${BLUE}========================================${NC}"
@@ -48,34 +54,38 @@ print_help() {
     echo "  help        显示帮助"
     echo ""
     echo "选项:"
-    echo "  --max-samples N       最大样本数"
-    echo "  --asr-device          ASR 设备 (auto/cuda/cpu)"
-    echo "  --asr-model-size      ASR 模型 (tiny/base/small/medium/large)"
-    echo "  --chunk-duration      流式分块时长 ms (默认 500)"
-    echo "  --warmup-rounds       预热轮数 (默认 2)"
-    echo "  --output-dir          输出目录"
-    echo "  --log-level           日志级别 (DEBUG/INFO/WARNING/ERROR)"
+    echo "  --max-samples N               最大样本数"
+    echo "  --max-samples-per-group N     每个时长分组的最大样本数（确保各组均衡）"
+    echo "  --duration-groups g1 g2       指定分组（默认: medium long very_long）"
+    echo "  --asr-device                  ASR 设备 (auto/cuda/cuda:0/cuda:1/cpu)"
+    echo "  --asr-model-size              ASR 模型 (tiny/base/small/medium/large)"
+    echo "  --chunk-duration              流式分块时长 ms (默认 500)"
+    echo "  --warmup-rounds               预热轮数 (默认 2)"
+    echo "  --output-dir                  输出目录"
+    echo "  --log-level                   日志级别 (DEBUG/INFO/WARNING/ERROR)"
+    echo "  --prefix-segments             ASR 前缀段数 (默认: 1)"
+    echo "  --suffix-segments             ASR 后缀段数 (默认: 1)"
+    echo "  --recognition-threshold       ASR 识别阈值秒数 (默认: 2.0)"
+    echo "  --batch-size N                每处理 N 个样本保存一次检查点 (默认: 100)"
+    echo "  --no-resume                   不从检查点恢复，从头开始运行"
     echo ""
     echo "示例:"
     echo "  $0 full --asr-device cuda --asr-model-size base"
     echo "  $0 crosswoz --max-samples 100"
+    echo "  $0 full --duration-groups long very_long extra_long --max-samples-per-group 100"
+    echo "  $0 full --batch-size 50        # 更频繁保存检查点"
+    echo "  $0 full --no-resume            # 从头开始，忽略已有检查点"
 }
 
 log_info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-activate_conda() {
-    if [[ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]]; then
-        source "$HOME/miniconda3/etc/profile.d/conda.sh"
-    elif [[ -f "$HOME/anaconda3/etc/profile.d/conda.sh" ]]; then
-        source "$HOME/anaconda3/etc/profile.d/conda.sh"
-    elif [[ -f "/opt/conda/etc/profile.d/conda.sh" ]]; then
-        source "/opt/conda/etc/profile.d/conda.sh"
-    elif [[ -f "/root/miniconda3/etc/profile.d/conda.sh" ]]; then
-        source "/root/miniconda3/etc/profile.d/conda.sh"
+check_uv() {
+    if ! command -v uv &> /dev/null; then
+        log_error "uv 未安装，请先安装 uv: curl -LsSf https://astral.sh/uv/install.sh | sh"
+        exit 1
     fi
-    conda activate "$CONDA_ENV" || { log_error "无法激活 conda 环境 '$CONDA_ENV'"; exit 1; }
-    log_info "已激活 conda 环境: $CONDA_ENV"
+    log_info "使用 uv 运行实验"
 }
 
 MODE="${1:-help}"
@@ -84,12 +94,26 @@ shift || true
 while [[ $# -gt 0 ]]; do
     case $1 in
         --max-samples) MAX_SAMPLES="$2"; shift 2 ;;
+        --max-samples-per-group) MAX_SAMPLES_PER_GROUP="$2"; shift 2 ;;
+        --duration-groups)
+            shift
+            DURATION_GROUPS_ARRAY=()
+            while [[ $# -gt 0 && "$1" != --* ]]; do
+                DURATION_GROUPS_ARRAY+=("$1"); shift
+            done
+            DURATION_GROUPS="${DURATION_GROUPS_ARRAY[*]}"
+            ;;
         --asr-device) ASR_DEVICE="$2"; shift 2 ;;
         --asr-model-size) ASR_MODEL_SIZE="$2"; shift 2 ;;
         --chunk-duration) CHUNK_DURATION="$2"; shift 2 ;;
         --warmup-rounds) WARMUP_ROUNDS="$2"; shift 2 ;;
         --output-dir) OUTPUT_DIR="$2"; shift 2 ;;
         --log-level) LOG_LEVEL="$2"; shift 2 ;;
+        --prefix-segments) PREFIX_SEGMENTS="$2"; shift 2 ;;
+        --suffix-segments) SUFFIX_SEGMENTS="$2"; shift 2 ;;
+        --recognition-threshold) RECOGNITION_THRESHOLD="$2"; shift 2 ;;
+        --batch-size) BATCH_SIZE="$2"; shift 2 ;;
+        --no-resume) NO_RESUME="true"; shift ;;
         *)
             log_error "未知参数: $1"
             print_help
@@ -105,6 +129,27 @@ build_args() {
     if [[ -n "$MAX_SAMPLES" ]]; then
         args="$args --max-samples $MAX_SAMPLES"
     fi
+    if [[ -n "$MAX_SAMPLES_PER_GROUP" ]]; then
+        args="$args --max-samples-per-group $MAX_SAMPLES_PER_GROUP"
+    fi
+    if [[ -n "$DURATION_GROUPS" ]]; then
+        args="$args --duration-groups $DURATION_GROUPS"
+    fi
+    if [[ -n "$PREFIX_SEGMENTS" ]]; then
+        args="$args --prefix-segments $PREFIX_SEGMENTS"
+    fi
+    if [[ -n "$SUFFIX_SEGMENTS" ]]; then
+        args="$args --suffix-segments $SUFFIX_SEGMENTS"
+    fi
+    if [[ -n "$RECOGNITION_THRESHOLD" ]]; then
+        args="$args --recognition-threshold $RECOGNITION_THRESHOLD"
+    fi
+    if [[ -n "$BATCH_SIZE" ]]; then
+        args="$args --batch-size $BATCH_SIZE"
+    fi
+    if [[ -n "$NO_RESUME" ]]; then
+        args="$args --no-resume"
+    fi
     echo "$args"
 }
 
@@ -115,7 +160,7 @@ run_experiment() {
     log_info "运行实验三..."
     log_info "参数: $args"
     echo ""
-    activate_conda
+    check_uv
     uv run python -m experiments.scripts.run_exp_quality $args
 }
 

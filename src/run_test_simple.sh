@@ -63,8 +63,15 @@ echo "额外参数: $@"
 echo "=================================================="
 
 # 构建命令
-export LD_LIBRARY_PATH="/usr/local/app/jupyterlab/yanjiu/streamllm/.venv/lib/python3.10/site-packages/nvidia/cudnn/lib/:$LD_LIBRARY_PATH"
+# 使用项目内虚拟环境的 CUDA 依赖（如未安装可忽略）
+export LD_LIBRARY_PATH="${PROJECT_ROOT}/.venv/lib/python3.10/site-packages/nvidia/cudnn/lib/:$LD_LIBRARY_PATH"
 # uv run python -m src.run_test_simple --mode both --log-level DEBUG --save-results --asr-model-size large --asr-device cuda --llm-device cuda
+# export LD_LIBRARY_PATH="/mhh/project/streamllm/.venv/lib/python3.10/site-packages/nvidia/cudnn/lib:$LD_LIBRARY_PATH"
+
+# uv run python -m src.run_test_simple --mode both --log-level DEBUG --save-results --audio /mhh/project/streamllm/experiments/datasets/processed/audio/crosswoz/crosswoz_98_turn4.wav
+
+# uv run python -m src.run_test_simple --mode both --log-level DEBUG --save-results --audio /mhh/project/streamllm/experiments/datasets/processed/audio/crosswoz/crosswoz_98_turn4.wav  --asr-device cuda:0 --llm-device cuda:1
+
 
 CMD="python -m src.run_test_simple --mode $MODE"
 

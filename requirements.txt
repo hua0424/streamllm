@@ -2,8 +2,8 @@
 # 核心依赖
 transformers
 torch
-ctranslate2
-faster-whisper
+openai-whisper
+tiktoken
 
 # 数据处理与科学计算
 numpy

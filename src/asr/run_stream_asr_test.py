@@ -205,6 +205,7 @@ class MultiThreadStreamingASR:
         try:
             # 创建分段器状态
             segmenter_state = self.segmenter.create_state()
+            segments_emitted = 0  # 跟踪已输出的段数
             
             while not self.stop_event.is_set():
                 try:
@@ -220,7 +221,7 @@ class MultiThreadStreamingASR:
                         segment_id = f"seg_{stream_segment.segment_id:03d}"
                         
                         # 判断是否为开始或结束段
-                        is_start = (len(self.audio_segment_queue.queue) == 0)
+                        is_start = (segments_emitted == 0)  # 第一个输出的段标记为 is_start
                         is_final = (self.audio_generation_complete.is_set() and
                                   self.audio_chunk_queue.empty() and
                                   len(segmenter_state.accumulated_audio) == 0)
@@ -234,6 +235,7 @@ class MultiThreadStreamingASR:
                         
                         # 将音频段放入队列
                         self.audio_segment_queue.put(asr_segment)
+                        segments_emitted += 1
                     
                     # 标记任务完成
                     self.audio_chunk_queue.task_done()
@@ -250,7 +252,9 @@ class MultiThreadStreamingASR:
             
             if remaining_segment is not None and len(remaining_segment.audio) > 0:
                 segment_id = f"seg_{remaining_segment.segment_id:03d}"
-                asr_segment = convert_audio_segment(remaining_segment, segment_id, False, True)
+                # 如果是第一个段，标记为 is_start
+                is_start = (segments_emitted == 0)
+                asr_segment = convert_audio_segment(remaining_segment, segment_id, is_start, True)
                 
                 logger.info(f"Generated final segment {segment_id}: [{asr_segment.start_time:.2f}s-{asr_segment.end_time:.2f}s]")
                 

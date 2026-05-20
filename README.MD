@@ -8,7 +8,7 @@
 
 ### 核心特性
 
-- **流式 ASR (Streaming ASR)**: 基于 `faster-whisper` 和 `Silero VAD` 的实时语音识别。支持动态音频分段、重叠窗口识别和上下文感知，以在保证准确率的同时降低延迟。
+- **流式 ASR (Streaming ASR)**: 基于 `openai-whisper` (PyTorch) 与 `Silero VAD` 的实时语音识别。支持动态音频分段、重叠窗口识别和上下文感知，以在保证准确率的同时降低延迟。
 - **流式 LLM (Streaming LLM)**: 基于 `transformers` 的低延迟文本生成。利用 KV Cache (键值缓存) 技术，支持流式文本片段输入（Incremental Prompting），避免重复计算历史上下文。
 - **端到端流水线**: 完整的 "音频流 -> 分段 -> ASR流式转录 -> LLM流式输入 -> LLM流式生成" 链路，并提供详细的延迟性能分析。
 
@@ -41,7 +41,7 @@ src/
 ### 2.2 核心模块详解
 
 #### 自动语音识别 (ASR)
-- **引擎**: `faster-whisper` (基于 CTranslate2 加速的 Whisper 实现)。
+- **引擎**: `openai-whisper` (官方 PyTorch 实现)。
 - **分段**: 使用 `Silero VAD` 进行实时语音活动检测，智能切分音频流。
 - **流式策略**: 
     - 维护一个音频缓冲区 (`ASRCache`)。
@@ -60,11 +60,13 @@ src/
 ### 3.1 环境配置
 
 1. **Python环境**: 推荐 Python 3.10+
-2. **依赖安装**:
+2. **依赖安装（uv 推荐）**:
    ```bash
-   pip install -r requirements.txt
+   # 创建/同步虚拟环境
+   uv venv --python 3.10
+   uv sync
    ```
-   *注意: 需确保安装了对应 CUDA 版本的 `torch` 和 `ctranslate2` 以获得最佳性能。*
+   如需使用 pip，可参考 `requirements.txt`（需确保安装匹配 CUDA 版本的 `torch`）。
 
 3. **环境变量配置**:
    项目根目录下创建 `.env` 文件 (参考 `.env.example`，如果存在):
@@ -75,7 +77,7 @@ src/
 
    # 模型配置
    LLM_MODEL_NAME="Qwen/Qwen2.5-0.5B-Instruct"  # 推荐使用小模型进行测试
-   ASR_MODEL_NAME="base"                         # faster-whisper 模型大小 (tiny/base/small/medium/large)
+   ASR_MODEL_NAME="base"                         # whisper 模型大小 (tiny/base/small/medium/large)
 
    # Hugging Face 缓存
    HF_HOME="./cache"
@@ -93,6 +95,8 @@ src/
 ```bash
 # 运行对比测试 (Streaming vs Non-Streaming)
 ./src/run_test_simple.sh both
+# 或使用 uv（无需手动激活虚拟环境）
+uv run python -m src.run_test_simple --mode both --audio /path/to/your/audio.wav
 
 # 指定音频文件运行
 ./src/run_test_simple.sh both --audio /path/to/your/audio.wav

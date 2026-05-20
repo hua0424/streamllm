@@ -25,6 +25,7 @@ import json
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, Dict, Any
+import librosa
 
 # 导入项目模块
 from src.utils.logging_utils import get_logger, set_global_log_level
@@ -32,7 +33,7 @@ from src.asr.streamaudio_segmenter import StreamAudioSegmenter
 from src.asr.faster_whisper_streamer import StreamingASRProcessor, ASRCache, ASRAudioSegment
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.asr.run_stream_asr_test import convert_audio_segment
-from src.config import LLM_MODEL_NAME, ASR_MODEL_NAME, RESULTS_DIR
+from src.config import LLM_MODEL_NAME, ASR_MODEL_NAME, RESULTS_DIR, TARGET_SAMPLE_RATE
 
 # 设置日志
 logger = get_logger(__name__)
@@ -142,6 +143,10 @@ class BasePipelineTest:
         if not os.path.exists(self.audio_path):
             raise FileNotFoundError(f"Audio file not found: {self.audio_path}")
         self.audio_data, self.sample_rate = sf.read(self.audio_path, dtype='float32')
+        if self.sample_rate != TARGET_SAMPLE_RATE:
+            logger.info(f"Resampling audio from {self.sample_rate} Hz to {TARGET_SAMPLE_RATE} Hz for ASR/VAD compatibility")
+            self.audio_data = librosa.resample(self.audio_data, orig_sr=self.sample_rate, target_sr=TARGET_SAMPLE_RATE)
+            self.sample_rate = TARGET_SAMPLE_RATE
         
         # 转单声道
         if len(self.audio_data.shape) > 1:
@@ -552,6 +557,9 @@ class StreamPipelineTest(BasePipelineTest):
         transcriber_thread.join()
         
         # INFO级别输出最后一段文本的时间
+        if self.timings["last_text_time"] == 0:
+            # 若无文本输出，也保持时间线一致，避免负数
+            self.timings["last_text_time"] = self.timings["start_time"]
         logger.info(f"[ASR] Last text generated at {self.timings['last_text_time'] - self.timings['start_time']:.3f}s")
         
         self.asr_done.set()
@@ -724,6 +732,10 @@ def run_comparison(args):
     audio_data, sample_rate = sf.read(args.audio, dtype='float32')
     if len(audio_data.shape) > 1:
         audio_data = audio_data.mean(axis=1)
+    if sample_rate != TARGET_SAMPLE_RATE:
+        logger.info(f"Warmup audio resample: {sample_rate} -> {TARGET_SAMPLE_RATE}")
+        audio_data = librosa.resample(audio_data, orig_sr=sample_rate, target_sr=TARGET_SAMPLE_RATE)
+        sample_rate = TARGET_SAMPLE_RATE
     
     # 3. 模型预热
     shared_models.warmup(audio_data, sample_rate)
@@ -815,11 +827,9 @@ def main():
     
     # 设备参数 - ASR和LLM分开控制
     parser.add_argument("--asr-device", type=str, default="auto",
-                        choices=["auto", "cuda", "cpu"],
-                        help="Device for ASR model (auto/cuda/cpu)")
+                        help="Device for ASR model (e.g. auto/cuda/cuda:0/cuda:1/cpu)")
     parser.add_argument("--llm-device", type=str, default="auto",
-                        choices=["auto", "cuda", "cpu"],
-                        help="Device for LLM model (auto/cuda/cpu)")
+                        help="Device for LLM model (e.g. auto/cuda/cuda:0/cuda:1/cpu)")
     
     # ASR参数
     parser.add_argument("--asr-model-size", type=str, default=ASR_MODEL_NAME,

@@ -9,6 +9,10 @@
 
 运行示例（项目根目录）：
     uv run python -m experiments.scripts.run_exp_quality --dataset all --max-samples 200
+
+关键设计：
+- 增量保存：每处理 N 个样本自动保存检查点，防止中断丢失数据
+- 断点续传：支持从上次中断位置继续运行
 """
 
 import argparse
@@ -17,9 +21,10 @@ import sys
 import time
 import wave
 import gc
+import math
 from pathlib import Path
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 from dataclasses import dataclass, asdict
 
 import numpy as np
@@ -37,6 +42,35 @@ from src.asr.run_stream_asr_test import convert_audio_segment
 from src.config import ASR_MODEL_NAME
 
 logger = get_logger(__name__)
+
+# =============================================================================
+# 时长分组
+# =============================================================================
+
+DURATION_GROUPS = {
+    "short": (0, 5),
+    "medium": (5, 15),
+    "long": (15, 30),
+    "very_long": (30, 60),
+    "extra_long": (60, float("inf")),
+}
+
+
+def get_duration_group(duration: float) -> str:
+    for name, (lo, hi) in DURATION_GROUPS.items():
+        if lo <= duration < hi:
+            return name
+    return "extra_long"
+
+
+def _mark_error(result, reason: str) -> None:
+    if not reason:
+        return
+    if not getattr(result, "error", ""):
+        result.error = reason
+    elif reason not in result.error:
+        result.error = f"{result.error}; {reason}"
+
 
 # =============================================================================
 # 工具函数：WER / CER
@@ -62,8 +96,56 @@ def _levenshtein(seq1: List[str], seq2: List[str]) -> int:
     return dp[m][n]
 
 
-def cer(ref: str, hyp: str) -> float:
-    """字符级错误率"""
+def normalize_text(text: str, remove_punctuation: bool = True) -> str:
+    """
+    文本归一化，用于准确率计算前的预处理
+    
+    Args:
+        text: 原始文本
+        remove_punctuation: 是否移除标点符号（默认True）
+        
+    Returns:
+        归一化后的文本
+    
+    Notes:
+        - 流式ASR可能缺失标点符号，为公平比较需要统一移除
+        - 这是语音识别评估的标准做法
+    """
+    import re
+    import unicodedata
+    
+    # 先去除首尾空白
+    text = text.strip()
+    
+    if remove_punctuation:
+        # 移除中英文标点符号
+        # 中文标点
+        zh_punctuation = r'[，。！？、；：""''（）【】《》—…·]'
+        # 英文标点
+        en_punctuation = r'[,.!?;:\'"()\[\]{}<>\-_+=*/\\@#$%^&|`~]'
+        
+        text = re.sub(zh_punctuation, '', text)
+        text = re.sub(en_punctuation, '', text)
+    
+    # 移除多余空格
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    return text
+
+
+def cer(ref: str, hyp: str, normalize: bool = True) -> float:
+    """
+    字符级错误率 (Character Error Rate)
+    
+    Args:
+        ref: 参考文本
+        hyp: 假设文本（识别结果）
+        normalize: 是否在计算前进行文本归一化（移除标点）
+    """
+    if normalize:
+        ref = normalize_text(ref)
+        hyp = normalize_text(hyp)
+    
     ref_chars = list(ref.strip())
     hyp_chars = list(hyp.strip())
     if len(ref_chars) == 0:
@@ -71,8 +153,20 @@ def cer(ref: str, hyp: str) -> float:
     return _levenshtein(ref_chars, hyp_chars) / len(ref_chars)
 
 
-def wer(ref: str, hyp: str) -> float:
-    """词级错误率（以空格切分；中文场景可视作每字空格切分后再计算）"""
+def wer(ref: str, hyp: str, normalize: bool = True) -> float:
+    """
+    词级错误率 (Word Error Rate)
+    以空格切分；中文场景可视作每字空格切分后再计算
+    
+    Args:
+        ref: 参考文本
+        hyp: 假设文本（识别结果）
+        normalize: 是否在计算前进行文本归一化（移除标点）
+    """
+    if normalize:
+        ref = normalize_text(ref)
+        hyp = normalize_text(hyp)
+    
     ref_words = ref.strip().split()
     hyp_words = hyp.strip().split()
     if len(ref_words) == 0:
@@ -80,8 +174,16 @@ def wer(ref: str, hyp: str) -> float:
     return _levenshtein(ref_words, hyp_words) / len(ref_words)
 
 
-def zh_to_word_seq(text: str) -> str:
-    """将中文字符串转为空格分隔的“词”(逐字)，便于 WER 统一计算"""
+def zh_to_word_seq(text: str, normalize: bool = True) -> str:
+    """
+    将中文字符串转为空格分隔的"词"(逐字)，便于 WER 统一计算
+    
+    Args:
+        text: 原始中文文本
+        normalize: 是否先进行文本归一化（移除标点）
+    """
+    if normalize:
+        text = normalize_text(text)
     return " ".join(list(text.replace(" ", "")))
 
 
@@ -102,6 +204,7 @@ class SampleInfo:
     audio_duration: float
     language: str
     dataset: str
+    duration_group: str
 
 
 @dataclass
@@ -113,6 +216,7 @@ class ExperimentResult:
     turn_index: int
     text_length: int
     audio_duration: float
+    duration_group: str
     mode: str  # streaming / non-streaming
 
     transcript: str
@@ -198,6 +302,7 @@ def load_samples(json_dir: Path, audio_dir: Path, dataset_filter: Optional[str],
                         audio_duration=audio_duration,
                         language=data["language"],
                         dataset=data["dataset"],
+                        duration_group=get_duration_group(audio_duration),
                     )
                 )
             except Exception as e:
@@ -208,6 +313,56 @@ def load_samples(json_dir: Path, audio_dir: Path, dataset_filter: Optional[str],
     samples.sort(key=lambda x: x.audio_duration)
     logger.info(f"加载了 {len(samples)} 个样本")
     return samples
+
+
+def stratified_sample_by_group(
+    samples: List[SampleInfo],
+    target_groups: List[str],
+    samples_per_group: Optional[int] = None,
+    max_total: Optional[int] = None,
+) -> List[SampleInfo]:
+    """
+    按时长分组分层抽样，保障各组均衡。
+    优先取分组内时长较短的样本以降低运行成本（稳定复现）。
+    
+    Args:
+        samples: 样本列表
+        target_groups: 目标分组列表
+        samples_per_group: 每组最大样本数，None 表示不限制
+        max_total: 总样本数上限
+    
+    Returns:
+        抽样后的样本列表
+    """
+    buckets: Dict[str, List[SampleInfo]] = {g: [] for g in target_groups}
+    for s in samples:
+        if s.duration_group in buckets:
+            buckets[s.duration_group].append(s)
+
+    for g in buckets:
+        buckets[g].sort(key=lambda x: x.audio_duration)
+
+    if samples_per_group is None and max_total:
+        samples_per_group = math.ceil(max_total / len(target_groups))
+
+    selected: List[SampleInfo] = []
+    for g in target_groups:
+        grp = buckets.get(g, [])
+        take_n = samples_per_group or len(grp)
+        
+        # 记录抽样情况
+        if samples_per_group and len(grp) > samples_per_group:
+            logger.info(f"  {g}: 从 {len(grp)} 个样本中选取 {take_n} 个")
+        else:
+            logger.info(f"  {g}: {len(grp)} 个样本")
+        
+        selected.extend(grp[:take_n])
+
+    if max_total:
+        selected = selected[:max_total]
+
+    logger.info(f"分层抽样分组 {target_groups}, 每组取 {samples_per_group or 'ALL'}, 最终 {len(selected)} 条")
+    return selected
 
 
 # =============================================================================
@@ -225,13 +380,14 @@ class SharedASR:
 
     def initialize(self):
         logger.info("加载 ASR 模型...")
+        logger.info(f"ASR 参数: prefix_segments={self.args.prefix_segments}, suffix_segments={self.args.suffix_segments}, threshold={self.args.recognition_threshold}")
         self.asr = StreamingASRProcessor(
             model_size=self.args.asr_model_size,
             device=self.args.asr_device,
             compute_type="auto",
-            recognition_threshold=1.0,
-            prefix_segments=1,
-            suffix_segments_atleast=1,
+            recognition_threshold=self.args.recognition_threshold,
+            prefix_segments=self.args.prefix_segments,
+            suffix_segments_atleast=self.args.suffix_segments,
         )
 
     def set_warmup_audio(self, audio: np.ndarray, sr: int):
@@ -263,6 +419,80 @@ class SharedASR:
 
 
 # =============================================================================
+# 检查点管理（增量保存与断点续传）
+# =============================================================================
+
+def get_checkpoint_path(output_dir: Path) -> Path:
+    """获取检查点文件路径"""
+    return output_dir / "checkpoint.json"
+
+
+def load_checkpoint(output_dir: Path) -> Tuple[List[ExperimentResult], set]:
+    """
+    加载检查点
+    
+    Returns:
+        (已保存的结果列表, 已完成的样本ID集合)
+    """
+    checkpoint_path = get_checkpoint_path(output_dir)
+    
+    if not checkpoint_path.exists():
+        return [], set()
+    
+    try:
+        with open(checkpoint_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        results = []
+        for r in data.get('results', []):
+            result = ExperimentResult(**r)
+            results.append(result)
+        
+        completed_ids = set(data.get('completed_sample_ids', []))
+        
+        logger.info(f"加载检查点: {len(results)} 条结果, {len(completed_ids)} 个已完成样本")
+        return results, completed_ids
+        
+    except Exception as e:
+        logger.warning(f"加载检查点失败: {e}, 将从头开始")
+        return [], set()
+
+
+def save_checkpoint(
+    results: List[ExperimentResult],
+    completed_sample_ids: set,
+    output_dir: Path,
+    config: Dict[str, Any]
+):
+    """
+    保存检查点
+    
+    Args:
+        results: 当前所有结果
+        completed_sample_ids: 已完成的样本ID集合
+        output_dir: 输出目录
+        config: 实验配置
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_path = get_checkpoint_path(output_dir)
+    
+    checkpoint_data = {
+        'config': config,
+        'results': [asdict(r) for r in results],
+        'completed_sample_ids': list(completed_sample_ids),
+        'last_update': datetime.now().isoformat()
+    }
+    
+    # 写入临时文件后重命名，确保原子性
+    temp_path = checkpoint_path.with_suffix('.tmp')
+    with open(temp_path, 'w', encoding='utf-8') as f:
+        json.dump(checkpoint_data, f, indent=2, ensure_ascii=False)
+    
+    temp_path.replace(checkpoint_path)
+    logger.info(f"检查点已保存: {len(results)} 条结果")
+
+
+# =============================================================================
 # 实验执行
 # =============================================================================
 
@@ -273,10 +503,42 @@ class QualityExperiment:
         self.args = args
         self.results: List[ExperimentResult] = []
 
-    def run_all(self, samples: List[SampleInfo]) -> List[ExperimentResult]:
-        total = len(samples)
-        for i, s in enumerate(samples):
-            logger.info(f"[{i+1}/{total}] 样本 {s.sample_id} ({s.language}) 长度 {s.audio_duration:.2f}s")
+    def run_all(
+        self, 
+        samples: List[SampleInfo],
+        output_dir: Path,
+        batch_size: int = 100,
+        config: Dict[str, Any] = None
+    ) -> List[ExperimentResult]:
+        """
+        运行所有样本的实验（支持增量保存和断点续传）
+        
+        Args:
+            samples: 样本列表
+            output_dir: 输出目录（用于保存检查点）
+            batch_size: 每处理多少样本保存一次检查点
+            config: 实验配置（用于保存到检查点）
+            
+        Returns:
+            所有实验结果
+        """
+        # 加载检查点
+        existing_results, completed_ids = load_checkpoint(output_dir)
+        self.results = existing_results
+        
+        # 过滤已完成的样本
+        pending_samples = [s for s in samples if s.sample_id not in completed_ids]
+        
+        if len(pending_samples) < len(samples):
+            logger.info(f"断点续传: 跳过 {len(samples) - len(pending_samples)} 个已完成样本")
+        
+        total_original = len(samples)
+        processed_in_batch = 0
+        
+        for i, s in enumerate(pending_samples):
+            # 显示进度时包含已完成的数量
+            done_count = len(completed_ids) + i + 1
+            logger.info(f"[{done_count}/{total_original}] 样本 {s.sample_id} ({s.language}) 长度 {s.audio_duration:.2f}s")
             audio, sr = sf.read(str(s.audio_path), dtype="float32")
             if audio.ndim > 1:
                 audio = audio.mean(axis=1)
@@ -292,9 +554,23 @@ class QualityExperiment:
             streaming = self._run_streaming(s, audio, sr)
 
             self.results.extend([non_stream, streaming])
+            completed_ids.add(s.sample_id)
+            processed_in_batch += 1
 
             if (i + 1) % 10 == 0:
                 clear_gpu_memory()
+            
+            # 每 batch_size 个样本保存一次检查点
+            if processed_in_batch >= batch_size:
+                save_checkpoint(self.results, completed_ids, output_dir, config or {})
+                processed_in_batch = 0
+                logger.info(f"✓ 已保存检查点 ({len(completed_ids)}/{total_original} 完成)")
+        
+        # 最后保存一次（确保所有结果都被保存）
+        if processed_in_batch > 0:
+            save_checkpoint(self.results, completed_ids, output_dir, config or {})
+            logger.info(f"✓ 最终检查点已保存 ({len(completed_ids)}/{total_original} 完成)")
+        
         return self.results
 
     def _run_non_streaming(self, sample: SampleInfo, audio: np.ndarray, sr: int) -> ExperimentResult:
@@ -306,6 +582,7 @@ class QualityExperiment:
             turn_index=sample.turn_index,
             text_length=sample.text_length,
             audio_duration=sample.audio_duration,
+            duration_group=sample.duration_group,
             mode="non-streaming",
             transcript="",
             wer=0.0,
@@ -328,6 +605,11 @@ class QualityExperiment:
                 res.wer = wer(ref_text, res.transcript)
             res.cer = cer(ref_text, res.transcript)
             res.asr_time_ms = (res.last_text_time - res.audio_load_time) * 1000
+            if not res.transcript:
+                _mark_error(res, "asr_no_text")
+            if res.asr_time_ms < 0:
+                res.asr_time_ms = max(0.0, res.asr_time_ms)
+                _mark_error(res, "invalid_timing")
         except Exception as e:
             res.error = str(e)
             logger.error(f"非流式失败 {sample.sample_id}: {e}")
@@ -345,6 +627,7 @@ class QualityExperiment:
             turn_index=sample.turn_index,
             text_length=sample.text_length,
             audio_duration=sample.audio_duration,
+            duration_group=sample.duration_group,
             mode="streaming",
             transcript="",
             wer=0.0,
@@ -380,6 +663,7 @@ class QualityExperiment:
 
             def seg_worker():
                 state = segmenter.create_state()
+                segments_emitted = 0  # 跟踪已输出的段数
                 while True:
                     try:
                         chunk = audio_q.get(timeout=0.1)
@@ -392,16 +676,17 @@ class QualityExperiment:
                         seg = convert_audio_segment(
                             stream_seg,
                             segment_id=f"seg_{stream_seg.segment_id:03d}",
-                            is_start=stream_seg.segment_id == 1,
+                            is_start=(segments_emitted == 0),  # 第一个输出的段标记为 is_start
                             is_final=False,
                         )
                         seg_q.put(seg)
+                        segments_emitted += 1
                 rem, state = segmenter.flush(state)
                 if rem and len(rem.audio) > 0:
                     seg = convert_audio_segment(
                         rem,
                         segment_id=f"seg_{rem.segment_id:03d}",
-                        is_start=False,
+                        is_start=(segments_emitted == 0),  # 如果是第一个段，标记为 is_start
                         is_final=True,
                     )
                     seg_q.put(seg)
@@ -429,6 +714,15 @@ class QualityExperiment:
                     if is_final and final_received:
                         break
 
+                # 兜底：若还有残留等待段，强制再拉一次，防止短音频遗漏
+                while len(asr_cache.waiting_segment_queue) > 0 and not asr_cache.is_processing():
+                    asr_cache, text, is_final = self.models.asr.transcribe_audio_segment(asr_cache)
+                    if text:
+                        timings["last_text"] = time.time()
+                        texts.append(text)
+                    if is_final:
+                        break
+
             timings["start"] = time.time()
             threads = [
                 threading.Thread(target=audio_worker),
@@ -445,8 +739,9 @@ class QualityExperiment:
 
             # 防止 ASR 无输出时时间戳计算错误
             if timings["last_text"] == 0.0:
-                timings["last_text"] = time.time()
+                timings["last_text"] = timings["audio_end"]
                 logger.warning(f"ASR 未输出文本: {sample.sample_id}")
+                _mark_error(res, "asr_no_text")
 
             res.last_text_time = timings["last_text"]
             res.asr_time_ms = (timings["last_text"] - timings["audio_end"]) * 1000
@@ -458,6 +753,9 @@ class QualityExperiment:
             else:
                 res.wer = wer(ref_text, res.transcript)
             res.cer = cer(ref_text, res.transcript)
+            if res.asr_time_ms < 0:
+                res.asr_time_ms = max(0.0, res.asr_time_ms)
+                _mark_error(res, "invalid_timing")
 
         except Exception as e:
             res.error = str(e)
@@ -470,11 +768,13 @@ class QualityExperiment:
 # =============================================================================
 
 
-def compute_statistics(results: List[ExperimentResult], key: str) -> List[Statistics]:
+def compute_statistics(results: List[ExperimentResult], key: str, mode_filter: Optional[str] = None) -> List[Statistics]:
     stats: List[Statistics] = []
     buckets: Dict[str, List[ExperimentResult]] = {}
     for r in results:
         if r.error:
+            continue
+        if mode_filter and r.mode != mode_filter:
             continue
         if key == "overall":
             buckets.setdefault("overall", []).append(r)
@@ -525,6 +825,49 @@ def compute_mode_statistics(results: List[ExperimentResult]) -> List[Statistics]
     return stats
 
 
+def pair_and_recompute(results: List[ExperimentResult]) -> List[ExperimentResult]:
+    """
+    仅保留 streaming / non-streaming 均无 error 的样本对，
+    并将 WER/CER 计算为 streaming 相对 non-streaming 的差异。
+    - 参考文本：non-streaming 转写
+    - 假设文本：streaming 转写
+    - non-streaming 的 wer/cer 置为 0，作为参考基线
+    """
+    by_sample: Dict[str, Dict[str, ExperimentResult]] = {}
+    for r in results:
+        by_sample.setdefault(r.sample_id, {})[r.mode] = r
+
+    paired: List[ExperimentResult] = []
+    dropped = 0
+
+    for sample_id, modes in by_sample.items():
+        ns = modes.get("non-streaming")
+        st = modes.get("streaming")
+        if not ns or not st:
+            dropped += 1
+            continue
+        if ns.error or st.error:
+            dropped += 1
+            continue
+
+        ref = ns.transcript
+        hyp = st.transcript
+
+        if ns.language.lower().startswith("zh"):
+            st.wer = wer(zh_to_word_seq(ref), zh_to_word_seq(hyp))
+        else:
+            st.wer = wer(ref, hyp)
+        st.cer = cer(ref, hyp)
+
+        ns.wer = 0.0
+        ns.cer = 0.0
+
+        paired.extend([ns, st])
+
+    logger.info(f"成对有效样本: {len(paired)//2} 对；丢弃: {dropped} (缺失或有错误)")
+    return paired
+
+
 def save_results(results: List[ExperimentResult], output_dir: Path, args, stats_dataset, stats_language, stats_overall, stats_mode):
     output_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -538,6 +881,11 @@ def save_results(results: List[ExperimentResult], output_dir: Path, args, stats_
             "warmup_rounds": args.warmup_rounds,
             "max_samples": args.max_samples,
             "dataset": args.dataset,
+            "duration_groups": args.duration_groups,
+            "max_samples_per_group": args.max_samples_per_group,
+            "prefix_segments": args.prefix_segments,
+            "suffix_segments": args.suffix_segments,
+            "recognition_threshold": args.recognition_threshold,
             "timestamp": ts,
         },
         "results": [asdict(r) for r in results],
@@ -559,12 +907,12 @@ def save_results(results: List[ExperimentResult], output_dir: Path, args, stats_
         w = csv.writer(f)
         w.writerow([
             "sample_id", "dataset", "language", "dialog_id", "turn_index", "text_length",
-            "audio_duration", "mode", "wer", "cer", "asr_time_ms", "error"
+            "audio_duration", "duration_group", "mode", "wer", "cer", "asr_time_ms", "error"
         ])
         for r in results:
             w.writerow([
                 r.sample_id, r.dataset, r.language, r.dialog_id, r.turn_index, r.text_length,
-                f"{r.audio_duration:.2f}", r.mode, f"{r.wer:.4f}", f"{r.cer:.4f}", f"{r.asr_time_ms:.2f}", r.error
+                f"{r.audio_duration:.2f}", r.duration_group, r.mode, f"{r.wer:.4f}", f"{r.cer:.4f}", f"{r.asr_time_ms:.2f}", r.error
             ])
     logger.info(f"CSV 结果: {csv_file}")
 
@@ -601,29 +949,55 @@ def main():
     parser.add_argument("--data-dir", type=str, default="experiments/datasets/processed", help="处理后的数据目录")
     parser.add_argument("--dataset", type=str, choices=["crosswoz", "multiwoz", "all"], default="all", help="数据集")
     parser.add_argument("--max-samples", type=int, default=None, help="最大样本数")
+    parser.add_argument("--duration-groups", nargs="+", default=["medium", "long", "very_long"],
+                        choices=list(DURATION_GROUPS.keys()),
+                        help="分层抽样的时长分组（默认 medium/long/very_long）")
+    parser.add_argument("--max-samples-per-group", type=int, default=None,
+                        help="每个时长分组的最大样本数（确保各组均衡），None 表示不限制；未指定时若设置 --max-samples 将自动均分")
+    parser.add_argument("--samples-per-group", type=int, default=None, dest="max_samples_per_group",
+                        help="(已弃用，请使用 --max-samples-per-group)")  # 兼容旧参数
 
-    parser.add_argument("--asr-device", type=str, default="auto", choices=["auto", "cuda", "cpu"], help="ASR 设备")
+    parser.add_argument("--asr-device", type=str, default="auto", help="ASR 设备 (auto/cuda/cuda:0/cuda:1/cpu)")
     parser.add_argument("--asr-model-size", type=str, default=ASR_MODEL_NAME, choices=["tiny", "base", "small", "medium", "large"], help="ASR 模型大小")
     parser.add_argument("--chunk-duration", type=int, default=500, help="流式音频块时长 ms")
     parser.add_argument("--warmup-rounds", type=int, default=2, help="模型预热轮数")
+    
+    # ASR 流式参数
+    parser.add_argument("--prefix-segments", type=int, default=1, help="ASR 前缀段数（影响上下文和延迟，默认1）")
+    parser.add_argument("--suffix-segments", type=int, default=1, help="ASR 后缀段数（影响准确率和延迟，默认1）")
+    parser.add_argument("--recognition-threshold", type=float, default=2.0, help="ASR 识别阈值（秒）")
 
     parser.add_argument("--output-dir", type=str, default="experiments/results/exp3_quality", help="输出目录")
+    
+    # 断点续传参数
+    parser.add_argument("--batch-size", type=int, default=100, help="每处理多少样本保存一次检查点（默认100）")
+    parser.add_argument("--no-resume", action="store_true", help="不从检查点恢复，从头开始运行")
     parser.add_argument("--log-level", type=str, default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"], help="日志级别")
 
     args = parser.parse_args()
 
     set_global_log_level(args.log_level)
 
+    # 处理设备参数（支持 cuda:0, cuda:1 等具体设备）
+    import torch
     if args.asr_device == "auto":
-        import torch
         args.asr_device = "cuda" if torch.cuda.is_available() else "cpu"
 
     logger.info("=" * 60)
     logger.info("实验三：准确率与质量验证")
     logger.info("=" * 60)
-    logger.info(f"数据集: {args.dataset}, 最大样本: {args.max_samples}")
+    logger.info(f"数据集: {args.dataset}")
+    logger.info(f"目标分组: {args.duration_groups}")
+    if args.max_samples_per_group:
+        logger.info(f"每组样本上限: {args.max_samples_per_group}")
+    if args.max_samples:
+        logger.info(f"总样本上限: {args.max_samples}")
     logger.info(f"ASR 设备: {args.asr_device}, 模型: {args.asr_model_size}")
     logger.info(f"chunk: {args.chunk_duration} ms, 预热: {args.warmup_rounds}")
+    logger.info(f"ASR prefix_segments: {args.prefix_segments}, suffix_segments: {args.suffix_segments}")
+    logger.info(f"ASR recognition_threshold: {args.recognition_threshold}s")
+    logger.info(f"批次大小（检查点间隔）: {args.batch_size}")
+    logger.info(f"断点续传: {'禁用' if args.no_resume else '启用'}")
     logger.info("=" * 60)
 
     data_dir = PROJECT_ROOT / args.data_dir
@@ -631,10 +1005,26 @@ def main():
     audio_dir = data_dir / "audio"
     output_dir = PROJECT_ROOT / args.output_dir
 
+    # 如果指定了 --no-resume，删除检查点文件
+    if args.no_resume:
+        checkpoint_path = get_checkpoint_path(output_dir)
+        if checkpoint_path.exists():
+            checkpoint_path.unlink()
+            logger.info("已删除旧的检查点文件，从头开始运行")
+
     dataset_filter = None if args.dataset == "all" else args.dataset
-    samples = load_samples(json_dir, audio_dir, dataset_filter, args.max_samples)
-    if not samples:
+    raw_samples = load_samples(json_dir, audio_dir, dataset_filter, None)
+    if not raw_samples:
         logger.error("没有可用样本，请先运行数据处理管线")
+        sys.exit(1)
+    samples = stratified_sample_by_group(
+        raw_samples,
+        target_groups=args.duration_groups,
+        samples_per_group=args.max_samples_per_group,
+        max_total=args.max_samples
+    )
+    if not samples:
+        logger.error("分层抽样后无可用样本，请调整分组或增加数据")
         sys.exit(1)
 
     shared = SharedASR(args)
@@ -652,16 +1042,41 @@ def main():
     shared.set_warmup_audio(audio, sr)
     shared.warmup(rounds=args.warmup_rounds)
 
+    # 构建实验配置（用于检查点）
+    experiment_config = {
+        "asr_model": args.asr_model_size,
+        "asr_device": args.asr_device,
+        "chunk_duration_ms": args.chunk_duration,
+        "warmup_rounds": args.warmup_rounds,
+        "max_samples": args.max_samples,
+        "dataset": args.dataset,
+        "duration_groups": args.duration_groups,
+        "samples_per_group": args.max_samples_per_group,
+        "prefix_segments": args.prefix_segments,
+        "suffix_segments": args.suffix_segments,
+        "recognition_threshold": args.recognition_threshold,
+    }
+
+    # 运行实验（支持断点续传）
     exp = QualityExperiment(shared, args)
-    results = exp.run_all(samples)
+    results = exp.run_all(
+        samples,
+        output_dir=output_dir,
+        batch_size=args.batch_size,
+        config=experiment_config
+    )
+
+    # 成对过滤并重算 WER/CER（streaming 相对 non-streaming）
+    paired_results = pair_and_recompute(results)
 
     # 按 mode 统计（论文核心对比：streaming vs non-streaming）
-    stats_mode = compute_mode_statistics(results)
-    stats_dataset = compute_statistics(results, "dataset")
-    stats_language = compute_statistics(results, "language")
-    stats_overall = compute_statistics(results, "overall")
+    stats_mode = compute_mode_statistics(paired_results)
+    # 语言/数据集/整体统计仅基于 streaming 相对 non-streaming 的误差
+    stats_dataset = compute_statistics(paired_results, "dataset", mode_filter="streaming")
+    stats_language = compute_statistics(paired_results, "language", mode_filter="streaming")
+    stats_overall = compute_statistics(paired_results, "overall", mode_filter="streaming")
 
-    save_results(results, output_dir, args, stats_dataset, stats_language, stats_overall, stats_mode)
+    save_results(paired_results, output_dir, args, stats_dataset, stats_language, stats_overall, stats_mode)
 
     # 打印核心对比结果
     print("\n" + "=" * 60)

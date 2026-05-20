@@ -21,6 +21,8 @@
 - 共享模型：流式和非流式测试共享同一个 ASR 和 LLM 实例
 - 状态重置：每次测试前重置所有状态，确保公平性
 - 内存管理：定期清理 GPU 缓存
+- 增量保存：每处理 N 个样本自动保存检查点，防止中断丢失数据
+- 断点续传：支持从上次中断位置继续运行
 """
 
 import argparse
@@ -304,13 +306,14 @@ class SharedModels:
         
         # ASR
         logger.info(f"加载 ASR 模型: {self.args.asr_model_size} on {self.args.asr_device}")
+        logger.info(f"ASR 参数: prefix_segments={self.args.prefix_segments}, suffix_segments={self.args.suffix_segments}, threshold={self.args.recognition_threshold}")
         self.asr_processor = StreamingASRProcessor(
             model_size=self.args.asr_model_size,
             device=self.args.asr_device,
             compute_type="auto",
-            recognition_threshold=1.0,
-            prefix_segments=1,
-            suffix_segments_atleast=1
+            recognition_threshold=self.args.recognition_threshold,
+            prefix_segments=self.args.prefix_segments,
+            suffix_segments_atleast=self.args.suffix_segments
         )
         
         # LLM
@@ -768,26 +771,51 @@ class LatencyExperiment:
         
         return result
     
-    def run_all(self, samples: List[SampleInfo]) -> List[ExperimentResult]:
+    def run_all(
+        self, 
+        samples: List[SampleInfo],
+        output_dir: Path,
+        batch_size: int = 100,
+        config: Dict[str, Any] = None
+    ) -> List[ExperimentResult]:
         """
-        运行所有样本的实验
+        运行所有样本的实验（支持增量保存和断点续传）
         
         Args:
             samples: 样本列表
+            output_dir: 输出目录（用于保存检查点）
+            batch_size: 每处理多少样本保存一次检查点
+            config: 实验配置（用于保存到检查点）
             
         Returns:
             所有实验结果
         """
-        total = len(samples)
+        # 加载检查点
+        existing_results, completed_ids = load_checkpoint(output_dir)
+        self.results = existing_results
         
-        for i, sample in enumerate(samples):
-            logger.info(f"\n[{i+1}/{total}] 测试样本: {sample.sample_id}")
+        # 过滤已完成的样本
+        pending_samples = [s for s in samples if s.sample_id not in completed_ids]
+        
+        if len(pending_samples) < len(samples):
+            logger.info(f"断点续传: 跳过 {len(samples) - len(pending_samples)} 个已完成样本")
+        
+        total_original = len(samples)
+        total_pending = len(pending_samples)
+        processed_in_batch = 0
+        
+        for i, sample in enumerate(pending_samples):
+            # 显示进度时包含已完成的数量
+            done_count = len(completed_ids) + i + 1
+            logger.info(f"\n[{done_count}/{total_original}] 测试样本: {sample.sample_id}")
             logger.info(f"  音频时长: {sample.audio_duration:.2f}s, 分组: {sample.duration_group}")
             
             streaming_result, non_streaming_result = self.run_single_sample(sample)
             
             self.results.append(streaming_result)
             self.results.append(non_streaming_result)
+            completed_ids.add(sample.sample_id)
+            processed_in_batch += 1
             
             # 打印单次结果
             if not streaming_result.error and not non_streaming_result.error:
@@ -801,8 +829,94 @@ class LatencyExperiment:
             if (i + 1) % 5 == 0:
                 clear_gpu_memory()
                 logger.debug("已清理 GPU 内存")
+            
+            # 每 batch_size 个样本保存一次检查点
+            if processed_in_batch >= batch_size:
+                save_checkpoint(self.results, completed_ids, output_dir, config or {})
+                processed_in_batch = 0
+                logger.info(f"✓ 已保存检查点 ({len(completed_ids)}/{total_original} 完成)")
+        
+        # 最后保存一次（确保所有结果都被保存）
+        if processed_in_batch > 0:
+            save_checkpoint(self.results, completed_ids, output_dir, config or {})
+            logger.info(f"✓ 最终检查点已保存 ({len(completed_ids)}/{total_original} 完成)")
         
         return self.results
+
+
+# =============================================================================
+# 检查点管理（增量保存与断点续传）
+# =============================================================================
+
+def get_checkpoint_path(output_dir: Path) -> Path:
+    """获取检查点文件路径"""
+    return output_dir / "checkpoint.json"
+
+
+def load_checkpoint(output_dir: Path) -> Tuple[List[ExperimentResult], set]:
+    """
+    加载检查点
+    
+    Returns:
+        (已保存的结果列表, 已完成的样本ID集合)
+    """
+    checkpoint_path = get_checkpoint_path(output_dir)
+    
+    if not checkpoint_path.exists():
+        return [], set()
+    
+    try:
+        with open(checkpoint_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        results = []
+        for r in data.get('results', []):
+            # 处理 Path 类型
+            result = ExperimentResult(**r)
+            results.append(result)
+        
+        completed_ids = set(data.get('completed_sample_ids', []))
+        
+        logger.info(f"加载检查点: {len(results)} 条结果, {len(completed_ids)} 个已完成样本")
+        return results, completed_ids
+        
+    except Exception as e:
+        logger.warning(f"加载检查点失败: {e}, 将从头开始")
+        return [], set()
+
+
+def save_checkpoint(
+    results: List[ExperimentResult],
+    completed_sample_ids: set,
+    output_dir: Path,
+    config: Dict[str, Any]
+):
+    """
+    保存检查点
+    
+    Args:
+        results: 当前所有结果
+        completed_sample_ids: 已完成的样本ID集合
+        output_dir: 输出目录
+        config: 实验配置
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_path = get_checkpoint_path(output_dir)
+    
+    checkpoint_data = {
+        'config': config,
+        'results': [asdict(r) for r in results],
+        'completed_sample_ids': list(completed_sample_ids),
+        'last_update': datetime.now().isoformat()
+    }
+    
+    # 写入临时文件后重命名，确保原子性
+    temp_path = checkpoint_path.with_suffix('.tmp')
+    with open(temp_path, 'w', encoding='utf-8') as f:
+        json.dump(checkpoint_data, f, indent=2, ensure_ascii=False)
+    
+    temp_path.replace(checkpoint_path)
+    logger.info(f"检查点已保存: {len(results)} 条结果")
 
 
 # =============================================================================
@@ -893,6 +1007,9 @@ def save_results(
             "chunk_duration_ms": args.chunk_duration,
             "max_tokens": args.max_tokens,
             "warmup_rounds": args.warmup_rounds,
+            "prefix_segments": args.prefix_segments,
+            "suffix_segments": args.suffix_segments,
+            "recognition_threshold": args.recognition_threshold,
             "timestamp": timestamp
         },
         "results": [asdict(r) for r in results],
@@ -1003,9 +1120,9 @@ def main():
     
     # 设备参数
     parser.add_argument('--asr-device', type=str, default='auto',
-                        choices=['auto', 'cuda', 'cpu'], help='ASR 设备')
+                        help='ASR 设备 (auto/cuda/cuda:0/cuda:1/cpu)')
     parser.add_argument('--llm-device', type=str, default='auto',
-                        choices=['auto', 'cuda', 'cpu'], help='LLM 设备')
+                        help='LLM 设备 (auto/cuda/cuda:0/cuda:1/cpu)')
     
     # 模型参数
     parser.add_argument('--asr-model-size', type=str, default=ASR_MODEL_NAME,
@@ -1022,10 +1139,24 @@ def main():
     parser.add_argument('--warmup-rounds', type=int, default=3,
                         help='模型预热轮数（默认3轮）')
     
+    # ASR 流式参数
+    parser.add_argument('--prefix-segments', type=int, default=1,
+                        help='ASR 前缀段数（影响上下文和延迟，默认1）')
+    parser.add_argument('--suffix-segments', type=int, default=1,
+                        help='ASR 后缀段数（影响准确率和延迟，默认1）')
+    parser.add_argument('--recognition-threshold', type=float, default=2.0,
+                        help='ASR 识别阈值（秒），队列总长度达到此值时开始识别')
+    
     # 输出参数
     parser.add_argument('--output-dir', type=str, 
                         default='experiments/results/exp1_latency',
                         help='结果输出目录')
+    
+    # 断点续传参数
+    parser.add_argument('--batch-size', type=int, default=100,
+                        help='每处理多少样本保存一次检查点（默认100）')
+    parser.add_argument('--no-resume', action='store_true',
+                        help='不从检查点恢复，从头开始运行')
     parser.add_argument('--log-level', type=str, default='INFO',
                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
                         help='日志级别')
@@ -1035,12 +1166,11 @@ def main():
     # 设置日志
     set_global_log_level(args.log_level)
     
-    # 处理设备参数
+    # 处理设备参数（支持 cuda:0, cuda:1 等具体设备）
+    import torch
     if args.asr_device == 'auto':
-        import torch
         args.asr_device = 'cuda' if torch.cuda.is_available() else 'cpu'
     if args.llm_device == 'auto':
-        import torch
         args.llm_device = 'cuda' if torch.cuda.is_available() else 'cpu'
     
     # 打印配置
@@ -1054,6 +1184,11 @@ def main():
     logger.info(f"ASR 模型: {args.asr_model_size}")
     logger.info(f"LLM 模型: {args.llm_model_name}")
     logger.info(f"预热轮数: {args.warmup_rounds}")
+    logger.info(f"ASR prefix_segments: {args.prefix_segments}")
+    logger.info(f"ASR suffix_segments: {args.suffix_segments}")
+    logger.info(f"ASR recognition_threshold: {args.recognition_threshold}s")
+    logger.info(f"批次大小（检查点间隔）: {args.batch_size}")
+    logger.info(f"断点续传: {'禁用' if args.no_resume else '启用'}")
     logger.info("=" * 60)
     
     # 路径设置
@@ -1061,6 +1196,13 @@ def main():
     json_dir = data_dir / "json"
     audio_dir = data_dir / "audio"
     output_dir = PROJECT_ROOT / args.output_dir
+    
+    # 如果指定了 --no-resume，删除检查点文件
+    if args.no_resume:
+        checkpoint_path = get_checkpoint_path(output_dir)
+        if checkpoint_path.exists():
+            checkpoint_path.unlink()
+            logger.info("已删除旧的检查点文件，从头开始运行")
     
     # 加载样本
     dataset_filter = None if args.dataset == 'all' else args.dataset
@@ -1087,9 +1229,28 @@ def main():
     shared_models.set_warmup_audio(audio_data, sample_rate)
     shared_models.warmup(warmup_rounds=args.warmup_rounds)
     
-    # 运行实验
+    # 构建实验配置（用于检查点）
+    experiment_config = {
+        "asr_model": args.asr_model_size,
+        "llm_model": args.llm_model_name,
+        "asr_device": args.asr_device,
+        "llm_device": args.llm_device,
+        "chunk_duration_ms": args.chunk_duration,
+        "max_tokens": args.max_tokens,
+        "warmup_rounds": args.warmup_rounds,
+        "prefix_segments": args.prefix_segments,
+        "suffix_segments": args.suffix_segments,
+        "recognition_threshold": args.recognition_threshold,
+    }
+    
+    # 运行实验（支持断点续传）
     experiment = LatencyExperiment(shared_models, args)
-    results = experiment.run_all(samples)
+    results = experiment.run_all(
+        samples, 
+        output_dir=output_dir,
+        batch_size=args.batch_size,
+        config=experiment_config
+    )
     
     # 计算统计
     statistics = calculate_group_statistics(results)

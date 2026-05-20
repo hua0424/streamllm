@@ -1,0 +1,4 @@
+group,sample_count,avg_duration_s,baseline_ttft_mean_ms,streaming_asr_ttft_mean_ms,full_streaming_ttft_mean_ms,asr_gain_ms,kv_gain_ms,total_gain_ms,total_gain_ratio_%
+long,110,21.51,1698.88,1064.18,1084.17,634.70,-19.99,614.71,36.2
+very_long,151,42.43,3300.58,1155.09,1152.36,2145.49,2.73,2148.22,65.1
+extra_long,244,83.75,6518.40,1269.22,2382.41,5249.18,-1113.19,4135.98,63.5

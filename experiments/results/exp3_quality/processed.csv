@@ -1,0 +1,5 @@
+,multiwoz,,crosswoz,,asr_time_ms
+,wer_mean,cer_mean,wer_mean,cer_mean,
+pre1&suf1,0.0895 ,0.0196 ,0.0083 ,0.0203 ,1327.48 
+pre1&suf0(default),0.0813 ,0.0221 ,0.0118 ,0.0292 ,1224.96 
+pre0&suf0,0.0619 ,0.0226 ,0.0210 ,0.0500 ,1086.16 
