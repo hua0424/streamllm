@@ -46,7 +46,7 @@ MO Haihua1
 
 **1.3 级联系统的全链路优化**
 
-除了单独优化ASR或者LM之外，全链路协同调度对减少整体延迟也很重要。传统级联语音对话系统在模块间是完全串行处理的，下游模块必须等上游模块完全输出后才能启动，这样一来语音结束端点后的计算链路就无法重叠了。近期研究的另一项研究是关于端到端流式语音对话模型的实现，旨在达到接近实时交互的延迟效果，即在语音持续进行输入的同时，系统能够进行推理并生成相应的输出\[13\]；另一方面，在仍保留级联架构的场景里，流水线并行是更通用的工程方案：ASR输出部分文本片段后，LLM就能提前增量预填充并持续刷新KV Cache，把原本语音输入结束之后的计算提前移到用户发声阶段并行完成，能有效压缩语音结束端点后的等待时长。
+除了单独优化ASR或者LLM之外，全链路协同调度对减少整体延迟也很重要。在语音翻译等语音处理任务中，级联方案长期作为常见系统范式存在，其优势在于可复用成熟的单任务模型、模块替换灵活，但也会带来中间表示损失、误差传播以及模块间延迟累积等问题\[19-20\]。近期端到端流式语音对话模型，如Mini-Omni、Moshi和LLaMA-Omni，尝试绕过传统ASR-LLM-TTS串行链路，通过语音原生建模和流式生成追求更低交互延迟\[13,21-22\]。另一方面，在仍保留级联架构的场景里，流水线并行是更通用的工程方案：ASR输出部分文本片段后，LLM就能提前增量预填充并持续刷新KV Cache，把原本语音输入结束之后的计算提前移到用户发声阶段并行完成，能有效压缩语音结束端点后的等待时长。
 
 **1.4 本文主要研究内容**
 
@@ -410,4 +410,12 @@ Table 5 English
 
 \[17\] Z. Du et al., "CosyVoice 2: Scalable Streaming Speech Synthesis with Large Language Models," arXiv preprint arXiv:2412.10117, 2024. \[Online\]. Available: https://arxiv.org/abs/2412.10117
 
-1. A. Yang \*et al.\*, "Qwen2 Technical Report," \*arXiv preprint arXiv:2407.10671\*, 2024. \[Online\]. Available: https://arxiv.org/abs/2407.10671
+\[18\] A. Yang et al., "Qwen2 Technical Report," arXiv preprint arXiv:2407.10671, 2024. \[Online\]. Available: https://arxiv.org/abs/2407.10671
+
+\[19\] M. Sperber and M. Paulik, "Speech Translation and the End-to-End Promise: Taking Stock of Where We Are," in Proc. ACL, 2020, pp. 7409–7421.
+
+\[20\] L. Bentivogli et al., "Cascade versus Direct Speech Translation: Do the Differences Still Make a Difference?," in Proc. ACL-IJCNLP, 2021, pp. 2873–2887.
+
+\[21\] A. Défossez et al., "Moshi: a speech-text foundation model for real-time dialogue," arXiv preprint arXiv:2410.00037, 2024. \[Online\]. Available: https://arxiv.org/abs/2410.00037
+
+\[22\] Q. Fang et al., "LLaMA-Omni: Seamless Speech Interaction with Large Language Models," arXiv preprint arXiv:2409.06666, 2024. \[Online\]. Available: https://arxiv.org/abs/2409.06666
