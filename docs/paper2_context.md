@@ -134,13 +134,15 @@ KV cache 是连续序列，并不天然知道 role 边界——role 信息在原
 | 组件 | 选定方案 | 备注 |
 |---|---|---|
 | 流式 ASR | 沿用一期的 Whisper streaming | 与一期保持一致便于对比 |
-| 软触发分类器 | Qwen 3 0.6B 或 Qwen 2.5 0.5B，直接 prompt 不微调 | 仅作辅助模块 |
-| 主 LLM | 沿用一期方案（基于 transformers 库） | 与一期保持一致 |
-| LLM 推理框架 | transformers 库（沿用一期）| KV 操作主要用 DynamicCache 的 crop 接口 |
+| **软触发分类器** | **TEN Turn Detection**（Qwen 0.5B 微调，Apache 2.0） | 文本侧检测，与 KV prefill 并行，零额外耗时；不做选型消融 |
+| 主 LLM | 沿用一期方案（基于 transformers 库），验证 0.5B / 实验 7B | 与一期实验对齐 |
+| LLM 推理框架 | transformers 库（沿用一期）| KV 操作显式断言/转换为 `DynamicCache`，用 `crop` 接口 |
 | **流式断句** | **stream2sentence** | LLM token stream → 句子/片段 chunk |
 | **流式 TTS** | **CosyVoice 2** | 句子级输入，输出端流式合成，首块 ~45ms |
-| 重写模型 | Qwen 2.5 0.5B / Qwen 3 0.6B | 直接 prompt，无需微调 |
+| **重写模型** | **Qwen3-0.6B-Instruct**，直接 prompt 不微调 | 并行运行，延迟隐藏在用户说话期内 |
 | 评测 benchmark | HumDial-FDBench（ICASSP 2026）+ 自构造英文打断场景集 | FD-Bench v1.5 作参考 |
+
+**三个 LLM 实例完全独立部署，不复用权重**，模拟真实多服务工程。详见 §3.5。
 
 ### 3.1 关于 stream2sentence（核心选型，已确认）
 
@@ -210,6 +212,34 @@ for sentence_chunk in generate_sentences(
 - 有 word boundaries
 - 但输出端流式要先给完整句子，不适合作为对接 LLM 的主选
 - 可作为保底 baseline
+
+### 3.5 软触发的两阈值机制（论文核心图来源）
+
+软触发**不等同于传统端点检测**（YES/NO 硬决策）。它输出连续置信度，配两个阈值：
+
+- **推测阈值**（激进）：超过即触发主 LLM decode 进入推测生成（可被作废）
+- **提交阈值**（保守）：超过才允许 TTS 开始播放给用户
+
+调整两阈值得到 **"推测浪费率 vs TTFT" trade-off 曲线**（§五"核心 trade-off 曲线"指的就是这条）。
+
+文本侧软触发的推理时间与一期已有的 KV prefill 阶段**并行运行**，挂在 prefill 的延迟阴影里，**实际零额外端到端耗时** —— 这是选 TEN（文本侧）而不是 Smart-Turn（音频侧 20ms）的关键架构依据。
+
+### 3.6 硬件配置与多模型部署架构（已确定）
+
+| 角色 | 硬件 | 用途 |
+|---|---|---|
+| 设计/写作主机 | 当前机 | 仅论文写作与方案讨论，不运行代码 |
+| 验证主机 | 5070 Ti 16GB | 主 LLM 用 0.5B 跑通 pipeline |
+| 实验主机 | 3090 24GB × 2（48GB 总） | 主 LLM 用 7B，与一期实验对齐 |
+
+**3090×2 分卡部署（7B fp16 主 LLM）**：
+
+| 卡 | 驻留模型 | 估算显存 |
+|---|---|---|
+| 卡 0 | 主 LLM(~14GB) + 长 KV(2-4GB) + Whisper-small(~1GB) | 17-19GB |
+| 卡 1 | CosyVoice2-0.5B(~2-3GB) + TEN Turn Detection(~1-2GB) + Qwen3-0.6B 重写(~1-2GB) | 5-7GB |
+
+**`src/config.py` 二期需要扩展为按模块指定 device**（main_llm / asr / tts / trigger / rewriter 各一项），一期只支持 asr_device + llm_device 两路。
 
 ### 3.4 端到端 Pipeline 模块清单
 
@@ -285,7 +315,9 @@ for sentence_chunk in generate_sentences(
 
 ## 六、需要在 Claude Code 中确认的关键问题
 
-二期工程实现前必须搞清楚的问题（这些问题决定二期方案的实现路径）：
+> **状态（2026-05-21）**：Q1-Q8 全部已基于一期源码核实并回答完毕，结论见下方各 Q 的"**答**"块。关键技术决策已写入 `docs/decisions.md`（D-001 至 D-004）。
+
+
 
 ### Q1：一期用的 transformers KV cache 接口是哪种？
 - 老版本 `Tuple[Tuple[Tensor, Tensor]]`
@@ -294,10 +326,14 @@ for sentence_chunk in generate_sentences(
 
 **关键**：二期要做 KV 截断，用 `DynamicCache.crop()` 是最直接的，需要确认一期是否已经用了这套接口
 
+**答**：**一期对 cache 类型不可知** —— `stream_llm_inference.py:264, 304` 把 `outputs.past_key_values` 当作不透明对象直接塞进自定义 `KVCache` 数据类，从未调 cache 方法。transformers 4.36+ 默认返回 `DynamicCache`，所以 `crop()` 大概率能用。**二期决策（D-001）**：新增 KV 操作模块显式断言/转换为 `DynamicCache`，并在 `KVCache` 数据类新增 `seq_length` 字段（避免靠 `pre_attention_mask.shape[1]` 间接推断）。
+
 ### Q2：一期"流式 prefill"是怎么实现的？
 - 每个片段单独调用 `model(input_ids=新片段, past_key_values=旧cache)` 让 transformers 自动 append？
 - 还是手动管理 `past_key_values` 的拼接？
 - 是否处理了 position_ids 的连续性？
+
+**答**：**让 transformers 自动 append，但 attention_mask 与 position_ids 都手动显式给齐**（`stream_llm_inference.py:266-306` `_add_stream_prompt`）。`attention_mask` 用 `torch.cat` 全长拼出，`position_ids` 用 `torch.arange(past_length, past_length+current_length)` 显式算出，`past_length` 取自 `pre_attention_mask.shape[1]`。**对二期的含义**：crop 后只要同步把 `pre_attention_mask` 截短、position_ids 用新 past_length 重算 —— 一期写法可原样复用。**陷阱**：`pre_attention_mask` 是 past_length 的真相来源，crop 时必须同步修，否则 position_ids 全错。
 
 ### Q3：chat template 如何处理？
 - 一次性完整 `apply_chat_template` 然后切片？
@@ -305,21 +341,46 @@ for sentence_chunk in generate_sentences(
 
 **这个问题对二期极其重要**——决定截断+追加 `<|im_end|>` KV 的实现方式
 
+**答**：**手工字符串拼接**（`stream_llm_inference.py:124-140, 159-193`）。初始化时用 dummy message 套模板取出 `generation_prompt` 字符串（即 `<|im_end|>\n<|im_start|>assistant\n` 这段），保存。首次 prefill：套模板拿到 system 前缀 + user role 开头，剔除 generation_prompt，拼上真实 prompt；流式追加：每个 final 片段当裸文本直接 prefill，无特殊 token；结束时拼上 `generation_prompt` 关闭 user 并打开 assistant。**对二期 KV 截断 + role 重建的直接含义**：一期已经掌握"裸字符串拼特殊 token"模式，二期"截到 token N → 追加 `<|im_end|>` → 打开 user role"可沿用同一模式 —— 构造 `assistant_close_then_user_open = "<|im_end|>\n<|im_start|>user\n"` 走 `_add_stream_prompt` 注入即可。该字符串需从同一 tokenizer 的 chat_template 推导（写工具函数）。
+
 ### Q4：generate（生成回复）用什么接口？
 - `model.generate()` 的流式版本（streamer）→ 需要用 stopping_criteria 才能打断
 - 手动写的 token-by-token 循环 → 容易加打断逻辑
 
+**答**：**手写 token-by-token 循环**（`stream_llm_inference.py:195-245`）。打断只需消费者停止迭代 + 在 LLM worker 里抛弃 generator，无需 stopping_criteria。**但有 bug**：`generate()` 内部更新了本地 `past_key_values` 但**没有写回 `pre_cache`** —— 一期没把 assistant token 的 KV 累积下来（详见 Q5）。**二期改造**：让 `generate()` 每 yield 一个 token 时同步把 KV / attention_mask / token_id 写回 caller 可见的容器，等价于维护一个"实时增长的 assistant-side KVCache"，这正是被打断时要 crop 的对象。
+
 ### Q5：一期有没有处理多轮对话的 KV cache 累积？
+
+**答**：**一期没做**。`generate()` 结束后 caller 拿到的 `kv_cache` 还是 prefill 结束时的快照，assistant 生成的 token 既没进 `past_key_values` 也没进 `pre_input_ids`/`pre_attention_mask`。一期只跑单轮。**对二期的含义**：这是二期必须新建的能力 —— 在 `generate()` 里维护 `assistant_kv: DynamicCache` + `assistant_token_ids` + **每个 token 与 sentence chunk 的归属映射**（反向映射表的源头）。下一轮 user 输入直接 `_add_stream_prompt` 续上，前提是 generate 末尾已盖上 `<|im_end|>\n<|im_start|>user\n` 的 KV。
 
 ### Q6：ASR 与 LLM 的衔接粒度？
 - ASR 输出是 partial transcript 还是 final transcript？
 - 一期"流式 prefill"基于哪种粒度触发？
 
+**答**：**final segment 级**，不是 partial transcript。`faster_whisper_streamer.py:591-624` 只把"既不是前缀也不是后缀"的中间段输出为 final；LLM worker 每收一个 final 片段做一次 `cache_prompt(is_end=False)`，流结束才 `is_end=True` 触发 generate。**对二期的含义**：用户侧 final 粒度与 assistant 侧 stream2sentence chunk 粒度对称，反向映射表两端粒度匹配。但一期 ASR `recognition_threshold=1.0s`、`prefix_segments=1` 意味着 final 片段最小间隔 ~1 秒，可能影响软触发响应度，二期可能需调细 ASR 粒度（牺牲 WER 换响应）。
+
 ### Q7：LLM 规模与硬件？
 关系到二期重写模型并行运行、以及 CosyVoice 2 共卡部署的可行性
 
+**答**：见 §3.6。验证机 5070 Ti 16GB（主 LLM 0.5B 跑通 pipeline），实验机 3090×2=48GB（主 LLM 7B，与一期对齐），三个 LLM 实例独立部署不复用权重。详细分卡布局见 §3.6。
+
 ### Q8：一期有没有接 TTS？
 如果没有，二期相当于要从零搭流式 TTS 管线（stream2sentence + CosyVoice 2 + 播放器），需估算工作量
+
+**答**：**一期完全没有**，`src/` 下只有 `asr/` 和 `llm/`，`run_test_simple.py` LLM worker 末尾就是 `print(token)`。二期新增模块工作量估算：
+
+| 模块 | 工作量 | 新代码量 |
+|---|---|---|
+| `src/tts/` CosyVoice2 流式封装 + 打断停止 | 大 | 300-500 行 |
+| `src/tts/sentence_chunker.py` stream2sentence 接入 + LLM token range 标注 | 中 | 150-250 行 |
+| `src/player/` 异步播放器 + 实际播放位置回报 | 中 | 200-300 行 |
+| `src/dialogue/timeline.py` 反向映射表（token↔fragment↔chunk↔playback） | 大 | 300-500 行 |
+| `src/llm/` 改造 KV crop + role 重建 + assistant 累积 | 中 | 100-200 行新增 + 150 行改造 |
+| `src/dialogue/trigger.py` 软触发（TEN） | 小 | 100-150 行 |
+| `src/dialogue/rewriter.py` 重写（Qwen3-0.6B） | 小 | 100-150 行 |
+| `src/dialogue/orchestrator.py` 总编排（替代 run_test_simple） | 大 | 400-600 行 |
+
+**总计 ~1700-2700 行新代码 + stream_llm_inference.py 中等改造**。反向映射表 + KV crop/role 重建是论文工程贡献核心。
 
 ---
 
@@ -327,9 +388,9 @@ for sentence_chunk in generate_sentences(
 
 在 Claude Code 中按以下顺序推进：
 
-1. **代码审查**（Claude Code 读 src 目录）：回答上面 Q1-Q8
-2. **架构评估**：基于一期代码现状，评估二期的代码改动范围
-3. **关键技术验证**（建议先做以下 mini-验证）：
+1. ✅ **代码审查**（Claude Code 读 src 目录）：回答 Q1-Q8 —— **2026-05-21 完成**
+2. ✅ **架构评估**：基于一期代码现状，评估二期的代码改动范围 —— **2026-05-21 完成**（见 Q8 答）
+3. **关键技术验证**（建议先做以下 mini-验证，需在 5070 Ti 验证机上跑）：
    - **stream2sentence 接入测试**：与 LLM 的流式 token 输出对接，验证句子片段输出延迟与正确性
    - **CosyVoice 2 流式合成测试**：测首块延迟、内部 buffer 大小、被打断时如何停止合成
    - **transformers DynamicCache 操作测试**：crop 截断 + 追加新 KV 的端到端可行性
@@ -354,6 +415,19 @@ for sentence_chunk in generate_sentences(
 - **不要用 TADA 作为主选 TTS**：官方不支持流式输出，改造工作量大且偏离论文核心。可作为对照组
 - **不要追求"真正的输入端流式 TTS"**：开源世界目前没有合适方案，业界标准做法就是 stream2sentence 这类句子级 chunking + 输出端流式 TTS
 - **KV 截断粒度不必精确到单个 token**：以 stream2sentence 的片段边界为单位即可，这对人类对话感知精度足够，且大幅简化实现
+
+---
+
+## 九、当前状态时间线（里程碑日志）
+
+| 日期 | 里程碑 | 产出 |
+|---|---|---|
+| 2026-05-21 | 一期代码审查完成 | Q1-Q8 全部回答，明确二期改造点与陷阱 |
+| 2026-05-21 | 技术选型完整收口 | 软触发选 TEN Turn Detection、重写选 Qwen3-0.6B、KV 走 DynamicCache.crop |
+| 2026-05-21 | 硬件与部署架构确定 | 验证机 5070 Ti / 实验机 3090×2，三 LLM 独立部署，分卡布局见 §3.6 |
+| 2026-05-21 | 二期分支建立 | `bargeincache` 已切，与一期 main 隔离 |
+
+**下一个里程碑（待启动）**：在 5070 Ti 验证机上做关键技术验证（§七 步骤 3 的 5 个 mini demo），优先级最高的是 **DynamicCache.crop + role 重建端到端 demo**（直接证伪/证实论文核心机制）。
 
 ---
 
