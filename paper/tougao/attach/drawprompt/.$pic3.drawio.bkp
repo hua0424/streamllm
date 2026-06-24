@@ -1,0 +1,176 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="图3 流式并行架构逻辑拓扑">
+    <mxGraphModel dx="1200" dy="780" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1180" pageHeight="590" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===================== LANE SEPARATORS (faint) ===================== -->
+        <mxCell id="sep1" style="endArrow=none;html=1;strokeColor=#e3e3e3;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="20" y="118" as="sourcePoint" /><mxPoint x="1160" y="118" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="sep2" style="endArrow=none;html=1;strokeColor=#e3e3e3;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="20" y="202" as="sourcePoint" /><mxPoint x="1160" y="202" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="sep3" style="endArrow=none;html=1;strokeColor=#e3e3e3;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="20" y="286" as="sourcePoint" /><mxPoint x="1160" y="286" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <!-- ===================== LEFT THREAD-LANE LABELS ===================== -->
+        <mxCell id="L1" value="Audio Input&#xa;16 kHz PCM&#xa;&#xa;Thread 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cfe2f3;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;fontColor=#2f4d6e;" vertex="1" parent="1">
+          <mxGeometry x="24" y="48" width="134" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="L2" value="Streaming Audio&#xa;Segmenter&#xa;&#xa;Thread 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;fontColor=#2f4d6e;" vertex="1" parent="1">
+          <mxGeometry x="24" y="132" width="134" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="L3" value="Context-Aware&#xa;ASR Engine&#xa;&#xa;Thread 3 (collector + transcriber)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;fontColor=#5b3a76;" vertex="1" parent="1">
+          <mxGeometry x="24" y="216" width="134" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="L4" value="Incremental LLM&#xa;Inference&#xa;&#xa;Thread 4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;fontColor=#4d6e3a;" vertex="1" parent="1">
+          <mxGeometry x="24" y="300" width="134" height="92" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== LANE 1 : AUDIO ===================== -->
+        <mxCell id="cAudio" value="Audio Chunk Generator&#xa;continuous 16 kHz PCM &#183; 500 ms chunks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cfe2f3;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="210" y="52" width="178" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="Q1" value="audio_chunk_queue&#xa;&#9646; &#9646; &#9646; &#9646;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=9;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="410" y="54" width="138" height="44" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== LANE 2 : SEGMENTER ===================== -->
+        <mxCell id="sStream" value="StreamState" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9aa9bd;dashed=1;dashPattern=4 4;fontSize=9;fontColor=#5a6b85;" vertex="1" parent="1">
+          <mxGeometry x="300" y="138" width="86" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cVAD" value="Silero VAD &amp; Segmentation&#xa;&#8594; speech segments" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="410" y="136" width="180" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="Q2" value="audio_segment_queue&#xa;&#9646; &#9646; &#9646; &#9646;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=9;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="612" y="138" width="138" height="44" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== LANE 3 : ASR ===================== -->
+        <mxCell id="sASRCache" value="ASRCache" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b39ac4;dashed=1;dashPattern=4 4;fontSize=9;fontColor=#6a4a86;" vertex="1" parent="1">
+          <mxGeometry x="502" y="222" width="86" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cASR" value="Streaming ASR (Whisper)&#xa;sliding-window context &#8212; Fig. 4&#xa;&#8594; stable transcript chunks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="612" y="218" width="190" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="Q3" value="text_chunk_queue&#xa;&#9646; &#9646; &#9646; &#9646;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=9;fontColor=#555555;" vertex="1" parent="1">
+          <mxGeometry x="824" y="222" width="138" height="44" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== LANE 4 : LLM ===================== -->
+        <mxCell id="cLLM" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef7ec;strokeColor=#82b366;strokeWidth=1.5;verticalAlign=top;fontSize=10;fontStyle=1;fontColor=#4d6e3a;" vertex="1" parent="1">
+          <mxGeometry x="824" y="300" width="256" height="92" as="geometry" />
+        </mxCell>
+        <mxCell id="cLLMtitle" value="Incremental LLM Inference (Prefill &amp; Generation)" style="text;html=1;align=center;fontSize=9;fontStyle=1;fontColor=#4d6e3a;" vertex="1" parent="1">
+          <mxGeometry x="828" y="304" width="248" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="subPrefill" value="Incremental Prefill&#xa;&amp; KV-Cache Update" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="836" y="328" width="130" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="subGen" value="Response&#xa;Generation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="976" y="328" width="94" height="54" as="geometry" />
+        </mxCell>
+        <mxCell id="kvCache" value="KV Cache (VRAM)&#xa;past_key_values&#xa;attention_mask" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="700" y="312" width="100" height="64" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== END MARKER + OUTPUT ===================== -->
+        <mxCell id="nEnd" value="End Marker / End of Speech&#xa;control signal (from VAD)" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;fontColor=#995500;" vertex="1" parent="1">
+          <mxGeometry x="930" y="244" width="180" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="outFirst" value="First Token&#xa;(TTFT)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9cc97f;strokeColor=#5b8a3a;fontSize=10;fontStyle=1;fontColor=#2f4d1e;" vertex="1" parent="1">
+          <mxGeometry x="1096" y="332" width="72" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="outTokens" value="&#8594; subsequent output tokens" style="text;html=1;align=left;fontSize=9;fontColor=#5b7a44;" vertex="1" parent="1">
+          <mxGeometry x="1086" y="382" width="90" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== MAIN DATAFLOW (waterfall) ===================== -->
+        <mxCell id="a1" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cAudio" target="Q1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" value="audio chunks" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;fontSize=9;fontColor=#333333;exitX=0.4;exitY=1;exitDx=0;exitDy=0;entryX=0.4;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Q1" target="cVAD">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cVAD" target="Q2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" value="speech segments" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;fontSize=9;fontColor=#333333;exitX=0.4;exitY=1;exitDx=0;exitDy=0;entryX=0.4;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Q2" target="cASR">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="cASR" target="Q3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a6" value="stable text chunks" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;fontSize=9;fontColor=#333333;exitX=0.4;exitY=1;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="Q3" target="subPrefill">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a7" style="endArrow=block;html=1;strokeColor=#8a8a8a;strokeWidth=1.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="subPrefill" target="subGen">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a8" value="first token" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;fontSize=9;fontColor=#333333;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="subGen" target="outFirst">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- KV cache update/reuse -->
+        <mxCell id="kv1" value="update / reuse" style="endArrow=block;startArrow=block;html=1;strokeColor=#6c8ebf;strokeWidth=1.5;fontSize=9;fontColor=#3b5b80;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="kvCache" target="subPrefill">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <!-- End marker -> response generation -->
+        <mxCell id="end1" value="trigger generation" style="endArrow=block;html=1;strokeColor=#d79b00;strokeWidth=2;dashed=1;dashPattern=6 4;fontSize=9;fontColor=#995500;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="nEnd" target="subGen">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- state associations -->
+        <mxCell id="st1" style="endArrow=none;html=1;strokeColor=#bbbbbb;strokeWidth=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sStream" target="cVAD">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="st2" style="endArrow=none;html=1;strokeColor=#bbbbbb;strokeWidth=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="sASRCache" target="cASR">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== BOTTOM : PIPELINE PARALLELISM (Gantt) ===================== -->
+        <mxCell id="divider" style="endArrow=none;html=1;strokeColor=#cccccc;strokeWidth=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="20" y="404" as="sourcePoint" /><mxPoint x="1160" y="404" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="gTitle" value="Pipeline parallelism &#8212; temporal overlap" style="text;html=1;align=left;fontSize=11;fontStyle=1;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="24" y="410" width="320" height="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="barA" value="Audio arrival &amp; streaming ASR  (during user speech)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="180" y="434" width="540" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="barB" value="LLM incremental prefill  (KV-Cache update)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="380" y="466" width="470" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="barC" value="Generation &amp; First Token output" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="800" y="498" width="280" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- End-of-Speech marker line -->
+        <mxCell id="eos" value="" style="endArrow=none;html=1;strokeColor=#d79b00;strokeWidth=1.5;dashed=1;dashPattern=4 4;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="800" y="430" as="sourcePoint" /><mxPoint x="800" y="528" as="targetPoint" /></mxGeometry>
+        </mxCell>
+        <mxCell id="eosLbl" value="End of Speech" style="text;html=1;align=center;fontSize=9;fontStyle=1;fontColor=#995500;" vertex="1" parent="1">
+          <mxGeometry x="744" y="414" width="112" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="overlapLbl" value="prefill overlaps with speech" style="text;html=1;align=center;fontSize=8;fontStyle=2;fontColor=#888888;" vertex="1" parent="1">
+          <mxGeometry x="400" y="490" width="320" height="12" as="geometry" />
+        </mxCell>
+
+        <!-- time axis -->
+        <mxCell id="timeAxis" value="time" style="endArrow=block;html=1;strokeColor=#999999;strokeWidth=1.5;fontSize=9;fontColor=#777777;fontStyle=2;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry"><mxPoint x="180" y="534" as="sourcePoint" /><mxPoint x="1090" y="534" as="targetPoint" /></mxGeometry>
+        </mxCell>
+
+        <!-- caption -->
+        <mxCell id="caption" value="Producer&#8211;consumer queues let ASR transcription and LLM prefill overlap with the user&#8217;s speech; after End-of-Speech only the last chunk and thread synchronization remain on the critical path." style="text;html=1;align=center;fontSize=9;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="60" y="552" width="1060" height="28" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

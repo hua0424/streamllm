@@ -76,7 +76,7 @@ MO Haihua1
 
 **图1 Whisper 模型整体架构与特征降采样示意图**
 
-Fig.1 English
+Fig. 1 Overall architecture of the Whisper model and schematic of feature downsampling
 
 为解决上述问题，流式化改造一般采用“分段输入、重叠上下文及稳定提交”的组合。本文在前端利用 VAD 对连续 PCM 流进行实时检测，将语音区间切分为若干可处理的音频片段，再通过一个音频缓冲区用来累积近期音频段，除当前目标片段外，还把其前后相邻的音频拼接起来当作上下文，这样能缓解边界处信息的缺失。为避免把不稳定的片段末尾文本提前输出，本文利用 Whisper 的时间戳与词级对齐能力，对输出加“局部一致性”约束，只输出能完全在目标音频片段时长内中的文本段，从而形成可增量、可对齐的文本流，给下一步的 LLM 做增量预填充提供稳定输入。
 
@@ -110,7 +110,7 @@ LLM 的文本生成过程本质上是自回归的 (Auto-regressive)：模型在�
 
 **图2 基于 KV Cache 的推理机制示意**
 
-Fig.1 English
+Fig. 2 Schematic of the KV Cache-based inference mechanism
 
 ![image\_11](/tmp/markit-images-g4LPo2/image_11.x-wmf) (4)
 
@@ -144,7 +144,7 @@ TTFT 是衡量交互实时性的核心指标，直接关联用户的主观等待
 
 **图3 流式并行架构逻辑拓扑图**
 
-Fig.3 English
+Fig. 3 Logical topology of the streaming parallel architecture
 
 本系统的核心设计愿景是实现从传统的“全量接收-全量处理”范式向“增量接收-流式处理”范式的转移(Paradigm Shift)，从而在理论边界上最小化首字延迟 (Time to First Token, TTFT)。系统的逻辑拓扑如图 3-1 所示。图中展示了基于多线程生产者-消费者队列的流式并行数据流向。音频以固定时长的 PCM 块持续进入分段模块，Silero VAD \[14\] 在累计缓冲区上进行活动检测并输出语音段；ASR 模块将若干语音段拼接后调用 Whisper \[7\] 进行转录，并按前缀/后缀上下文策略输出稳定文本片段；文本片段经线程安全队列传递给 LLM 模块，持续更新 KV Cache 并在收到终止标记后启动生成，从而尽可能将 LLM 的预填充计算前移并与音频输入过程重叠。
 
@@ -176,7 +176,7 @@ Fig.3 English
 
 **图 4 上下文感知 ASR 滑动窗口机制示意图**
 
-Fig.3 English
+Fig. 4 Schematic of the context-aware ASR sliding-window mechanism
 
 首先，执行窗口更新。设![image\_35](/tmp/markit-images-g4LPo2/image_35.x-wmf)为时刻t的音频段队列。当新的音频段到达时，系统先将其加入等待队列，并在转录线程中批量并入主队列得到![image\_36](/tmp/markit-images-g4LPo2/image_36.x-wmf)；当队列累计时长满足触发阈值![image\_37](/tmp/markit-images-g4LPo2/image_37.x-wmf)，且队列长度满足 ![image\_38](/tmp/markit-images-g4LPo2/image_38.x-wmf)(或者收到了最后一个语音段时，ASR模型M对临时队列中的所有音频段进行拼接后执行一次文本转录，生成原始转录结果。在工程实现中，往往还会增加一个最短识别阈值进行控制，用于避免过短窗口造成的频繁调用与不稳定输出。
 
@@ -198,7 +198,7 @@ Fig.3 English
 
 **图 5 LLM KV Cache 增量更新机制示意图**
 
-Fig.5 English
+Fig. 5 Schematic of the LLM KV Cache incremental update mechanism
 
 **3.3.3 复杂度分析**
 
@@ -220,7 +220,7 @@ Fig.5 English
 
 **表1 对话数据累积方式**
 
-Table 1 English
+Table 1 Dialogue data accumulation strategy
 
 | 轮次 | 用户 | 客服 | 数据文本 |
 | --- | --- | --- | --- |
@@ -246,7 +246,7 @@ Table 1 English
 
 **表2 音频时长分组**
 
-Table 2 English
+Table 2 Audio duration grouping
 
 | 组名 | 时长(s) | 典型场景 | 实验聚焦 |
 | --- | --- | --- | --- |
@@ -280,7 +280,7 @@ Table 2 English
 
 **图 6 System A与System B的TTFT随时长变化趋势**
 
-Fig.6 English
+Fig. 6 TTFT trends of System A and System B over input duration
 
 其中X轴为音频真实时长 (秒)，Y轴为端到端 TTFT（毫秒）。System A曲线随时长近似单调上升，反映端点后串行等待的累积；System B在 long 及以上区间趋于平缓，呈现由固定分片粒度与尾部调度开销主导的近似上界。两条曲线在15秒附近出现拐点，意味着流式并行的覆盖收益开始超过其固定开销。
 
@@ -288,7 +288,7 @@ Fig.6 English
 
 **表3 不同语音时长分组下的 TTFT 统计**
 
-Table 3 English
+Table 3 TTFT statistics across audio-duration groups
 
 | 组名 | 样本数 | 平均时长(s) | 流式TTFT(ms) | 非流式TTFT(ms) | 改进(%) |
 | --- | --- | --- | --- | --- | --- |
@@ -314,7 +314,7 @@ Table 3 English
 
 **表4 核心模块消融实验结果**
 
-Table 4 English
+Table 4 Ablation results of core modules
 
 | 组名 | 平均时长(s) | Baseline TTFT(ms) | Streaming ASR Only TTFT(ms) | Full Streaming TTFT(ms) | ASR improvement (ms) | KV Cache improvement (ms) |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -336,7 +336,7 @@ Table 4 English
 
 **表5 不同上下文窗口配置下的准确率与耗时对比**
 
-Table 5 English
+Table 5 Accuracy and latency comparison under different context-window configurations
 
 | 上下文配置 | multiwoz wer\_mean | multiwoz cer\_mean | crosswoz wer\_mean | crosswoz cer\_mean | ASR耗时(ms) |
 | --- | --- | --- | --- | --- | --- |

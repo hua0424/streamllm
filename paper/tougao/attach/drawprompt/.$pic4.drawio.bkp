@@ -1,0 +1,76 @@
+<mxfile host="Electron">
+  <diagram name="图4 上下文感知ASR滑动窗口机制" id="0">
+    <mxGraphModel dx="1084" dy="659" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="760" pageHeight="320" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" parent="1" style="text;html=1;align=center;fontSize=12;fontStyle=1;fontColor=#333333;" value="Total Input Window to Model" vertex="1">
+          <mxGeometry height="18" width="320" x="170" y="16" as="geometry" />
+        </mxCell>
+
+        <mxCell id="bracket" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9aa9bd;strokeWidth=1.5;dashed=1;dashPattern=6 4;" value="" vertex="1">
+          <mxGeometry height="158" width="588" x="44" y="42" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ttArrow" parent="1" style="endArrow=block;html=1;strokeColor=#1f4e85;strokeWidth=2;" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="356" y="100" as="sourcePoint" />
+            <mxPoint x="356" y="68" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ttLbl" parent="1" style="text;html=1;align=center;fontSize=10;fontStyle=1;fontColor=#1f4e85;" value="Transcription Target" vertex="1">
+          <mxGeometry height="14" width="180" x="266" y="52" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rPrefix" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d6dce3;strokeColor=#9aa9bd;fontSize=12;fontStyle=1;fontColor=#445;verticalAlign=middle;" value="Prefix Context&#xa;&#xa;&#xa;&#xa;(frozen history · not re-emitted)" vertex="1">
+          <mxGeometry height="92" width="204" x="56" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="rCurrent" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2f6db5;strokeColor=#1f4e85;fontSize=13;fontStyle=1;fontColor=#ffffff;verticalAlign=middle;" value="Current Segment(s)&#xa;&#xa;&#xa;&#xa;(active inference → emitted)" vertex="1">
+          <mxGeometry height="92" width="200" x="260" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="rSuffix" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;dashed=1;dashPattern=6 4;fontSize=11;fontStyle=1;fontColor=#3b5b80;verticalAlign=middle;" value="Suffix Buffer&#xa;&#xa;&#xa;(future context ·&#xa;protects unstable tail)" vertex="1">
+          <mxGeometry height="92" width="150" x="460" y="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="tk1" parent="1" style="endArrow=none;html=1;strokeColor=#b8c2cf;strokeWidth=1;" edge="1"><mxGeometry relative="1" as="geometry"><mxPoint x="107" y="104" as="sourcePoint" /><mxPoint x="107" y="188" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="tk2" parent="1" style="endArrow=none;html=1;strokeColor=#b8c2cf;strokeWidth=1;" edge="1"><mxGeometry relative="1" as="geometry"><mxPoint x="158" y="104" as="sourcePoint" /><mxPoint x="158" y="188" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="tk3" parent="1" style="endArrow=none;html=1;strokeColor=#b8c2cf;strokeWidth=1;" edge="1"><mxGeometry relative="1" as="geometry"><mxPoint x="209" y="104" as="sourcePoint" /><mxPoint x="209" y="188" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="tk4" parent="1" style="endArrow=none;html=1;strokeColor=#6f9fd0;strokeWidth=1;" edge="1"><mxGeometry relative="1" as="geometry"><mxPoint x="310" y="104" as="sourcePoint" /><mxPoint x="310" y="188" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="tk5" parent="1" style="endArrow=none;html=1;strokeColor=#6f9fd0;strokeWidth=1;" edge="1"><mxGeometry relative="1" as="geometry"><mxPoint x="360" y="104" as="sourcePoint" /><mxPoint x="360" y="188" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="tk6" parent="1" style="endArrow=none;html=1;strokeColor=#6f9fd0;strokeWidth=1;" edge="1"><mxGeometry relative="1" as="geometry"><mxPoint x="410" y="104" as="sourcePoint" /><mxPoint x="410" y="188" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="tk7" parent="1" style="endArrow=none;html=1;strokeColor=#aac4e8;strokeWidth=1;" edge="1"><mxGeometry relative="1" as="geometry"><mxPoint x="510" y="104" as="sourcePoint" /><mxPoint x="510" y="188" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="tk8" parent="1" style="endArrow=none;html=1;strokeColor=#aac4e8;strokeWidth=1;" edge="1"><mxGeometry relative="1" as="geometry"><mxPoint x="560" y="104" as="sourcePoint" /><mxPoint x="560" y="188" as="targetPoint" /></mxGeometry></mxCell>
+
+        <mxCell id="iasLbl" parent="1" style="text;html=1;align=center;fontSize=9;fontStyle=2;fontColor=#777777;" value="incoming&#xa;audio stream" vertex="1">
+          <mxGeometry height="26" width="92" x="650" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="iasArrow" parent="1" style="endArrow=block;html=1;strokeColor=#888888;strokeWidth=1.5;" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="688" y="146" as="sourcePoint" />
+            <mxPoint x="612" y="146" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="dt1" parent="1" style="endArrow=none;html=1;strokeColor=#999999;strokeWidth=1;dashed=1;dashPattern=2 3;" edge="1"><mxGeometry relative="1" as="geometry"><mxPoint x="260" y="192" as="sourcePoint" /><mxPoint x="260" y="234" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="dt2" parent="1" style="endArrow=none;html=1;strokeColor=#999999;strokeWidth=1;dashed=1;dashPattern=2 3;" edge="1"><mxGeometry relative="1" as="geometry"><mxPoint x="360" y="192" as="sourcePoint" /><mxPoint x="360" y="234" as="targetPoint" /></mxGeometry></mxCell>
+        <mxCell id="dt3" parent="1" style="endArrow=none;html=1;strokeColor=#999999;strokeWidth=1;dashed=1;dashPattern=2 3;" edge="1"><mxGeometry relative="1" as="geometry"><mxPoint x="460" y="192" as="sourcePoint" /><mxPoint x="460" y="234" as="targetPoint" /></mxGeometry></mxCell>
+
+        <mxCell id="tStart" parent="1" style="text;html=1;align=center;fontSize=10;fontColor=#555555;" value="t&lt;sub&gt;start&lt;/sub&gt;" vertex="1"><mxGeometry height="14" width="50" x="235" y="218" as="geometry" /></mxCell>
+        <mxCell id="tCur" parent="1" style="text;html=1;align=center;fontSize=10;fontColor=#555555;" value="t&lt;sub&gt;current&lt;/sub&gt;" vertex="1"><mxGeometry height="14" width="60" x="330" y="218" as="geometry" /></mxCell>
+        <mxCell id="tEnd" parent="1" style="text;html=1;align=center;fontSize=10;fontColor=#555555;" value="t&lt;sub&gt;end&lt;/sub&gt;" vertex="1"><mxGeometry height="14" width="50" x="435" y="218" as="geometry" /></mxCell>
+
+        <mxCell id="timeAxis" parent="1" style="endArrow=block;html=1;strokeColor=#1f4e85;strokeWidth=2;fontSize=11;fontStyle=1;fontColor=#1f4e85;" edge="1" value="Time t">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="56" y="240" as="sourcePoint" />
+            <mxPoint x="612" y="240" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="note" parent="1" style="text;html=1;align=center;fontSize=9;fontColor=#666666;" value="Whisper transcribes the whole window in one pass; word-level timestamps map words back to segments, and only the timestamp-aligned stable region within Current Segments (between Prefix and Suffix) is emitted." vertex="1">
+          <mxGeometry height="30" width="688" x="44" y="276" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
