@@ -25,10 +25,12 @@
 **核心 framing**：
 > "面向用户感知一致性的级联式流式语音对话系统：基于推测生成与播放感知 KV 缓存管理的优化"
 
-**核心原则**（贯穿全篇）：
+**核心原则**（贯穿全篇，作为**组织性原则**使用）：
 > **对话历史 = 用户实际听到的内容**
 
 这是符合人类对话的根本原则：LLM 在内部生成了什么、TTS 合成了什么都不算，**只有让用户听到的内容才能进入对话历史**。这个原则直接定义了 KV 缓存的去留边界。
+
+> **⚠️ prior-art 护栏（D-006，2026-05-21 novelty 核查后加）**：这句原则**不是本论文的 insight，不能作为创新点 headline**。OpenAI Realtime API（`conversation.item.truncate`）、Azure Voice Live（`auto_truncate`，官方文档几乎逐字写过此原则）、LiveKit Agents 均已在商用系统层面实现"按播放位置截断上下文"。本论文的创新点已重新定位为**"首个开源、可复现的级联式播放感知上下文一致性管理实现 + 具体 KV 机制（`DynamicCache.crop` + role 边界重建）+ 可量化对比"**。写 intro/related work 时**必须显式引用这三个商用系统为 prior art**。详见 `docs/research_novelty_check.md` 与 `docs/decisions.md` D-006。
 
 ### 2.2 整体 Pipeline 设计
 
@@ -426,8 +428,19 @@ for sentence_chunk in generate_sentences(
 | 2026-05-21 | 技术选型完整收口 | 软触发选 TEN Turn Detection、重写选 Qwen3-0.6B、KV 走 DynamicCache.crop |
 | 2026-05-21 | 硬件与部署架构确定 | 验证机 5070 Ti / 实验机 3090×2，三 LLM 独立部署，分卡布局见 §3.6 |
 | 2026-05-21 | 二期分支建立 | `bargeincache` 已切，与一期 main 隔离 |
+| 2026-05-21 | 论文目标与定位确定 | 硕士毕业论文，**一个月内完成编写**；定位为工程/系统贡献（D-005），贡献 3 作可砍缓冲 |
+| 2026-05-21 | 启动 novelty 对抗核查 | deep-research（Task wi2gfobgx）核查贡献 2「播放感知 KV 截断」是否已被发表，产出带引用报告 |
+| 2026-05-21 | novelty 核查完成 | **结论 (C) 部分重叠**：概念被 OpenAI Realtime/Azure Voice Live/LiveKit 商用系统 pre-empt，但**无学术/开源级联先例**。完整报告见 `docs/research_novelty_check.md`。需按报告重新定位（工程/系统贡献，对齐 D-005） |
 
-**下一个里程碑（待启动）**：在 5070 Ti 验证机上做关键技术验证（§七 步骤 3 的 5 个 mini demo），优先级最高的是 **DynamicCache.crop + role 重建端到端 demo**（直接证伪/证实论文核心机制）。
+| 2026-05-21 | 论文重新定位确定 | **D-006 accepted**：创新点定位为"开源可复现级联实现 + KV 机制 + 可量化对比"，intro 引用商用系统为 prior art；"最强 novelty 杠杆"实验列为锦上添花不进主线 |
+
+| 2026-05-21 | 论文大纲搭建完成 | `paper2/outline.md`（现代 AI 系统论文八章式，非一期模板）；含贡献映射、prior-art 防御结构、实验最小集分级、篇幅与写作顺序建议。**二期论文正文产物统一放 `paper2/` 目录**，与一期 `paper/` 隔离 |
+
+| 2026-05-21 | 标题定稿 + 第二章初稿完成 | 标题：《播放感知的级联式流式语音对话上下文管理》；`paper2/chapter2_related_work.md`（含差异表，遵守 D-006 prior-art 护栏） |
+
+| 2026-05-21 | 实验设计定稿 | `/experiment-agent` plan 模式产出 `paper2/experiment_design.md`（D-007 四项基础决策 + 被测条件 + 指标定义 + 各实验规格 + **instrumentation 埋点清单**）。埋点清单=`src/dialogue/` 编码验收标准 |
+
+**下一个里程碑（待启动）**：修复 venv（`uv sync`）→ 按 handoff 方向1 设计反向映射表数据结构 → 验证机上编码主 pipeline（边写 §6 埋点边写论文第四/五章）。第一个 mini demo：DynamicCache.crop + role 重建。
 
 ---
 
