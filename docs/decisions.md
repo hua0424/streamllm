@@ -5,6 +5,31 @@
 
 ---
 
+## D-008（2026-05-21）反向映射表数据结构设计（PlaybackTimeline）
+
+**决策**：
+- 反向映射表实现为 **`PlaybackTimeline`**，落 `src/dialogue/timeline.py`。主干 = 按生成顺序排列的 **`FragmentRecord` 列表**（片段是截断单位，故以片段为主轴）。
+- `FragmentRecord` 字段：`fragment_id / text / token_start,token_end / chunk_ids / sample_start,sample_end / status`（status ∈ SPECULATIVE/SYNTHESIZING/ENQUEUED/PLAYING/PLAYED/DISCARDED）。
+- 反向查询：`playback_ms → samples → 二分查找命中片段 → token 边界`（sample_start 单调，O(log n)）。
+- 并发：**一把锁罩整个 timeline**（操作极小，对话速率下竞争可忽略，不过早拆锁）；`played_samples` 游标原子 int 单独走。
+- "已合成未播放"处理：打断时游标之后的 SYNTHESIZING/ENQUEUED 片段标 DISCARDED、token 被 crop。
+- **mid-fragment 截断语义（选 A）**：打断落在片段中间时，该片段算"已听到"，截断到其 `token_end`（物理仍为片段边界）；若该片段被部分播放（partial）则置 rewrite 标记，供贡献3重写。
+
+**背景**：handoff 方向1 的核心数据结构，KV 截断/推测浪费率/播放感知截断都依赖它。CPU + 0.5B 可验证，不需 GPU。
+
+**理由**：片段主轴与"截断单位=片段"一致；单锁避免过早优化；选 A 与核心原则"历史=用户听到内容"及 P2"mid-fragment 触发重写"自洽。
+
+**影响**：
+- `src/dialogue/timeline.py` 实现 + `run_timeline_test.py` smoke（纯 Python，本机 CPU 可跑）
+- 打断链路 `on_barge_in(playback_samples)` 返回 crop_token_end / discarded_ids / partial 标记，供 KV crop 与重写触发
+- 对应 `experiment_design.md` §6 反向映射表落盘埋点
+
+**环境备注**：本机 5070 Ti(sm_120) 当前 torch(cu121,≤sm_90) 不兼容，GPU 暂不可用（这是 handoff 所称"venv 损坏"的真因）。策略：核心 KV 逻辑先 CPU+0.5B 验证；需 CosyVoice2/全链路时再升 torch→cu128（兼容 3090）。
+
+**状态**：accepted
+
+---
+
 ## D-007（2026-05-21）实验设计四项基础决策（/experiment-agent plan 模式）
 
 **决策**：

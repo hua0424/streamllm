@@ -440,7 +440,11 @@ for sentence_chunk in generate_sentences(
 
 | 2026-05-21 | 实验设计定稿 | `/experiment-agent` plan 模式产出 `paper2/experiment_design.md`（D-007 四项基础决策 + 被测条件 + 指标定义 + 各实验规格 + **instrumentation 埋点清单**）。埋点清单=`src/dialogue/` 编码验收标准 |
 
-**下一个里程碑（待启动）**：修复 venv（`uv sync`）→ 按 handoff 方向1 设计反向映射表数据结构 → 验证机上编码主 pipeline（边写 §6 埋点边写论文第四/五章）。第一个 mini demo：DynamicCache.crop + role 重建。
+| 2026-07-01 | 反向映射表落地 + CPU 验证 | `src/dialogue/timeline.py`（`PlaybackTimeline`，D-008）+ `run_timeline_test.py` smoke **24/24 PASS**（纯 Python，本机 CPU 跑通，不受 GPU/torch 不兼容影响）。修正了片段边界的 count 语义 off-by-one |
+
+**环境现状**：本机 5070 Ti(sm_120) 与当前 torch(cu121,≤sm_90) 不兼容，GPU 暂不可用；纯逻辑模块 CPU 可验。需 CosyVoice2/全链路时升 torch→cu128（兼容 3090）。
+
+**下一个里程碑（进行中）**：`src/llm/stream_llm_inference.py` 改造——`generate()` 边生成边累积可 crop 的 assistant-side KVCache（Q4/Q5）+ `DynamicCache.crop` + role 重建（Q3）。这是第一个需要跑 0.5B LLM 的 mini demo（CPU 可 smoke），把 PlaybackTimeline 的 `crop_token_end` 接到真实 KV 上。
 
 ---
 
