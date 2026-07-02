@@ -446,6 +446,10 @@ for sentence_chunk in generate_sentences(
 
 | 2026-07-02 | LLM KV 机制落地 + GPU 验证 | `stream_llm_inference.py` 新增 `AccumKVCache` + `generate_accumulating`/`crop_to_token`/`reopen_user_role`/`open_assistant_role`/`prefill_user_text`（一期方法零改动）。`run_kvcrop_test.py` 0.5B GPU **ALL PASS**：累积→crop→role重建→续轮 KV 三长度(seq/mask/DynamicCache)全程一致，裁到 4 token 后仍连贯续生成多轮 |
 
+| 2026-07-02 | 打断→反查→截断 端到端 demo | `src/dialogue/run_bargein_demo.py`：PlaybackTimeline + crop_to_token 拼接，0.5B GPU **ALL PASS**。可视化核心命题：生成16token、播到60%打断→只把听到的12token进KV/历史、作废4token、续轮基于"听到的历史"连贯生成。逐 token-id 校验裁剪前缀正确 |
+
+**HF_HOME 已迁至 `/workspace/hfhome`**（本验证机；`.env` 改动**未提交**，因 `.env` 被跟踪且原为实验机配置）。
+
 **环境现状**：本机 5070 Ti GPU 可用（torch 2.8.0+cu128），可跑 0.5B 全链路验证。
 **环境坑（验证机）**：① `.env` 的 `HF_HOME=/mhh/model/hfhome` 在本机为空（无缓存）；② `.env` 的 `HF_TOKEN` 已失效，会导致公开模型也 401——**下载模型时需 `HF_TOKEN=` 清空**；③ `.env` 的 `LLM_MODEL_NAME=Qwen/Qwen2-7B-Instruct` 是实验模型，验证机代码应显式传 `model_name="Qwen/Qwen2.5-0.5B-Instruct"`。
 
