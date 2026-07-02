@@ -1,27 +1,28 @@
 # src/dialogue/orchestrator.py
 """
-DialogueOrchestrator —— 二期编排闭环 + 实验指标埋点 + 截断模式开关。
+DialogueOrchestrator —— 二期编排闭环 + 实验指标埋点 + 截断模式开关 + 推测-作废（C1）。
 
 闭环（见 docs/paper2_context.md §2.2）：
-  用户输入 → LLM 流式生成(推测, cap) → stream2sentence 断句(带 token 区间)
+  用户输入(可增量) → [软触发: conf>=spec_th → 推测生成(可作废)] → stream2sentence 断句
     → TTS 流式合成(时长) → 播放器登记进度 → PlaybackTimeline 建映射
-    → [打断: 反查听到位置 → 按 truncation_mode 决定进历史的边界 → crop → 重建 role]
+    → [打断: 反查听到位置 → 按 truncation_mode 决定进历史边界 → crop → 重建 role]
     → 累积下一轮 → 循环
 
-截断模式（experiment_design.md §2 被测条件）：
-  - "playback"  (B-ours) : 进历史 = 用户实际听到的（crop 到听到边界）——本文方法
-  - "generation"(B-gen)  : 进历史 = LLM 已生成的全部（不 crop）——朴素对照
-  - "synthesis" (B-syn)  : 进历史 = TTS 已合成的（本模型里≈全部生成，标注为近似）
+两条入口：
+  - user_turn(text, barge_in_fraction)      一次性全文（无推测；E3 等既有 harness 用）
+  - speculative_turn(segments, ...)          增量段输入 + 软触发推测-作废（E2/A3 用）
+    确定性模拟（P1）：段序列即 ASR final 片段流（Q6 粒度），最后一段喂完 = 用户真实说完。
+    推测状态机：无推测 & conf>=spec_th → 注入 generation_prompt 并预生成 spec_chunk 个 token；
+    新段到来 & 有活跃推测 → 作废（KV crop 回推测起点，token 计入浪费）；
+    说完时推测存活 → 直接复用（TTFT≈0），否则现场生成。
 
-指标埋点（experiment_design.md §6）：每轮产出 TurnMetrics（token 计数、推测浪费率、
-未听到却进历史的 token 数=E3 的幻觉面、生成墙钟/首 token 时延、mouth-to-ear 建模值）。
-
-确定性编排（P1）：打断以程序化播放比例注入，可复现。软触发用"到点即生成"占位；
-real CosyVoice2 通过替换 tts 实现接入（D-010）。
+截断模式（experiment_design.md §2）：playback(B-ours) / generation(B-gen) / synthesis(B-syn)。
+指标（§6）：TurnMetrics 含打断浪费 + 推测浪费(spec_*) + TTFT_effective。
 """
 
 import time
 from dataclasses import dataclass, field
+from itertools import chain
 from typing import List, Optional
 
 from src.dialogue.timeline import PlaybackTimeline
@@ -40,16 +41,24 @@ TRUNCATION_MODES = ("playback", "generation", "synthesis")
 class TurnMetrics:
     turn_id: int
     truncation_mode: str
-    n_generated: int            # 本轮生成 token 数
+    n_generated: int            # 本轮最终生成 token 数（不含被作废推测）
     n_heard: int                # 用户实际听到（播放位置对齐）
     n_in_history: int           # 进入历史/KV 的 token 数（依 truncation_mode）
-    n_wasted: int               # 生成但未进历史（被作废）= n_generated - n_in_history
-    n_unheard_in_history: int   # 进了历史但用户没听到 = n_in_history - n_heard（E3 幻觉面）
-    waste_rate: float           # n_wasted / n_generated
+    n_wasted: int               # 打断浪费：生成但未进历史 = n_generated - n_in_history
+    n_unheard_in_history: int   # 进了历史但用户没听到（E3 幻觉面）
+    waste_rate: float           # 打断浪费率 n_wasted / n_generated
     gen_wall_ms: float          # 生成+断句+TTS 循环墙钟
-    first_token_ms: float       # 到首 token 时延（TTFT_text 近似）
+    first_token_ms: float       # 首 token 相对参考时刻（user_turn: 生成开始；spec: 用户说完）
     mouth_to_ear_ms: float      # 建模：first_token_ms + TTS 首块延迟
-    total_audio_s: float        # 本轮合成音频总时长
+    total_audio_s: float
+    # ---- 推测（C1 / E2）指标；user_turn 路径下为 0/None ----
+    n_speculations: int = 0             # 本轮启动过几次推测
+    n_invalidated: int = 0              # 被作废几次
+    spec_wasted_tokens: int = 0         # 被作废推测生成的 token 总数
+    spec_survived: bool = False         # 说完时是否有存活推测
+    ready_tokens_at_user_end: int = 0   # 用户说完瞬间已就绪的 token 数
+    spec_waste_rate: float = 0.0        # spec_wasted / (spec_wasted + n_generated)
+    trigger_confs: List[float] = field(default_factory=list)
 
 
 @dataclass
@@ -66,12 +75,21 @@ class TurnResult:
     fragments: List[SentenceFragment] = field(default_factory=list)
 
 
+@dataclass
+class _ActiveSpec:
+    base_seq_len: int                       # 推测起点（user 内容末尾，crop 回滚点）
+    tokens: List[tuple] = field(default_factory=list)   # [(text, rel_idx)]
+    eos_hit: bool = False
+    t_first_token: Optional[float] = None   # 推测首 token 墙钟
+
+
 class DialogueOrchestrator:
     def __init__(self, llm: StreamLLMInference, tts: StreamingTTS, *,
                  system_prompt: str = "You are a helpful assistant. Reply in English.",
                  language: str = "en", tokenizer: str = "nltk",
                  max_speculative_tokens: int = 48,
-                 truncation_mode: str = "playback"):
+                 truncation_mode: str = "playback",
+                 trigger=None, spec_threshold: float = 0.5, spec_chunk: int = 16):
         if truncation_mode not in TRUNCATION_MODES:
             raise ValueError(f"truncation_mode 须为 {TRUNCATION_MODES}")
         self.llm = llm
@@ -81,27 +99,35 @@ class DialogueOrchestrator:
         self.tokenizer = tokenizer
         self.max_spec = max_speculative_tokens
         self.truncation_mode = truncation_mode
+        self.trigger = trigger                   # LLMSoftTrigger 或 None（不推测）
+        self.spec_threshold = spec_threshold     # 推测阈值（激进度，E2 扫描对象）
+        self.spec_chunk = spec_chunk             # 每次推测预生成 token 上限（§八：限制推测长度）
         self.acc: Optional[StreamLLMInference.AccumKVCache] = None
         self.turn_id = 0
         self._started = False
 
+    # ------------------------------------------------------------- 内部工具
     def _timed_tokens(self, gen):
-        """包裹 token 生成器以记录首 token 时间。"""
+        """包裹 token 迭代器以记录首 token 墙钟时刻。"""
         self._t_first = None
         for tok in gen:
             if self._t_first is None:
                 self._t_first = time.perf_counter()
             yield tok
 
-    def _assistant_turn(self, barge_in_fraction: Optional[float]) -> TurnResult:
+    def _finish_assistant(self, token_iter, barge_in_fraction: Optional[float],
+                          t_ref: float, spec_stats: dict) -> TurnResult:
+        """
+        后半段（生成消费→断句→TTS→timeline→打断→crop→reopen→metrics）。
+        token_iter: (text, rel_idx) 迭代器；t_ref: first_token_ms 的参考时刻。
+        """
         timeline = PlaybackTimeline(turn_id=self.turn_id)
         player = SimulatedPlayer(timeline)
         fragments: List[SentenceFragment] = []
 
         t_start = time.perf_counter()
-        self._t_first = None
         for frag in chunk_llm_tokens(
-            self._timed_tokens(self.llm.generate_accumulating(self.acc, max_new_tokens=self.max_spec)),
+            self._timed_tokens(token_iter),
             language=self.language, tokenizer=self.tokenizer,
         ):
             fid = timeline.add_fragment(frag.text, frag.token_start, frag.token_end)
@@ -109,39 +135,29 @@ class DialogueOrchestrator:
                 player.enqueue(fid, chunk)
             fragments.append(frag)
         gen_wall_ms = (time.perf_counter() - t_start) * 1000
-        first_token_ms = ((self._t_first - t_start) * 1000) if self._t_first else 0.0
+        first_token_ms = ((self._t_first - t_ref) * 1000) if self._t_first else 0.0
 
         full_ids = list(self.acc.assistant_token_ids)      # crop 前完整生成
         n_gen = len(full_ids)
 
-        # 反查听到位置（只读，不改状态）；再按 truncation_mode 决定进历史边界
         if barge_in_fraction is not None and player.total_samples > 0:
             player.seek_fraction(barge_in_fraction)
             res = timeline.barge_in_readonly()
-            heard_rel = res.crop_token_end
-            partial = res.partial
-            interrupted = True
+            heard_rel, partial, interrupted = res.crop_token_end, res.partial, True
         else:
-            heard_rel = n_gen
-            partial = False
-            interrupted = False
+            heard_rel, partial, interrupted = n_gen, False, False
 
-        if self.truncation_mode == "playback":
-            keep_rel = heard_rel                       # B-ours：只留听到的
-        else:
-            keep_rel = n_gen                           # B-gen / B-syn：留全部生成
-
+        keep_rel = heard_rel if self.truncation_mode == "playback" else n_gen
         keep = self.acc.assistant_start + keep_rel
-        self.llm.crop_to_token(self.acc, keep)         # keep==seq_length 时等价 no-op
+        self.llm.crop_to_token(self.acc, keep)             # keep==seq_length 时等价 no-op
 
         heard_text = self.llm.tokenizer.decode(full_ids[:heard_rel], skip_special_tokens=True)
         history_text = self.llm.tokenizer.decode(full_ids[:keep_rel], skip_special_tokens=True)
         unheard_in_hist = self.llm.tokenizer.decode(full_ids[heard_rel:keep_rel], skip_special_tokens=True)
 
-        # 关闭 assistant、打开 user（为下一轮）
-        self.llm.reopen_user_role(self.acc)
+        self.llm.reopen_user_role(self.acc)                # 关闭 assistant、打开 user
 
-        total_audio_s = player.total_samples / 16000.0
+        spec_wasted = spec_stats.get("wasted", 0)
         metrics = TurnMetrics(
             turn_id=self.turn_id, truncation_mode=self.truncation_mode,
             n_generated=n_gen, n_heard=heard_rel, n_in_history=keep_rel,
@@ -149,16 +165,26 @@ class DialogueOrchestrator:
             waste_rate=(n_gen - keep_rel) / n_gen if n_gen else 0.0,
             gen_wall_ms=gen_wall_ms, first_token_ms=first_token_ms,
             mouth_to_ear_ms=first_token_ms + self.tts.first_chunk_latency_ms,
-            total_audio_s=total_audio_s,
+            total_audio_s=player.total_samples / 16000.0,
+            n_speculations=spec_stats.get("n_spec", 0),
+            n_invalidated=spec_stats.get("n_inval", 0),
+            spec_wasted_tokens=spec_wasted,
+            spec_survived=spec_stats.get("survived", False),
+            ready_tokens_at_user_end=spec_stats.get("ready", 0),
+            spec_waste_rate=spec_wasted / (spec_wasted + n_gen) if (spec_wasted + n_gen) else 0.0,
+            trigger_confs=spec_stats.get("confs", []),
         )
         return TurnResult(
-            turn_id=self.turn_id, user_text="", full_assistant_text=self.llm.tokenizer.decode(full_ids, skip_special_tokens=True),
-            history_text=history_text, heard_text=heard_text, unheard_in_history_text=unheard_in_hist,
+            turn_id=self.turn_id, user_text="",
+            full_assistant_text=self.llm.tokenizer.decode(full_ids, skip_special_tokens=True),
+            history_text=history_text, heard_text=heard_text,
+            unheard_in_history_text=unheard_in_hist,
             interrupted=interrupted, partial=partial, metrics=metrics, fragments=fragments,
         )
 
+    # ------------------------------------------------------------- 入口 1：一次性全文
     def user_turn(self, user_text: str, barge_in_fraction: Optional[float] = None) -> TurnResult:
-        """走一轮对话。barge_in_fraction: None=完整听完；0..1=在该播放比例处打断。"""
+        """一次性全文输入（无推测）。E3 等既有 harness 的入口，行为与旧版一致。"""
         self.turn_id += 1
         if not self._started:
             kv = self.llm.cache_prompt(user_text, is_end=True, system_prompt=self.system_prompt)
@@ -168,13 +194,101 @@ class DialogueOrchestrator:
             self.llm.prefill_user_text(self.acc, user_text)
             self.llm.open_assistant_role(self.acc)
 
-        r = self._assistant_turn(barge_in_fraction)
+        t_ref = time.perf_counter()
+        r = self._finish_assistant(
+            self.llm.generate_accumulating(self.acc, max_new_tokens=self.max_spec),
+            barge_in_fraction, t_ref, spec_stats={},
+        )
         r.user_text = user_text
         m = r.metrics
         logger.info(f"[turn {self.turn_id}/{self.truncation_mode}] interrupted={r.interrupted} "
                     f"gen={m.n_generated} heard={m.n_heard} hist={m.n_in_history} "
                     f"waste={m.waste_rate:.0%} unheard_in_hist={m.n_unheard_in_history} "
                     f"TTFT~{m.first_token_ms:.0f}ms")
+        return r
+
+    # ------------------------------------------------------------- 入口 2：增量段 + 推测
+    def _start_speculation(self) -> _ActiveSpec:
+        spec = _ActiveSpec(base_seq_len=self.acc.seq_length)
+        self.llm.open_assistant_role(self.acc)     # 注入 generation_prompt，设 assistant_start
+        for text, idx in self.llm.generate_accumulating(self.acc, max_new_tokens=self.spec_chunk):
+            if spec.t_first_token is None:
+                spec.t_first_token = time.perf_counter()
+            spec.tokens.append((text, idx))
+        spec.eos_hit = len(spec.tokens) < self.spec_chunk
+        return spec
+
+    def _invalidate_speculation(self, spec: _ActiveSpec) -> int:
+        """作废推测：KV crop 回推测起点（user role 回到打开状态），返回浪费 token 数。"""
+        wasted = len(spec.tokens)
+        self.llm.crop_to_token(self.acc, spec.base_seq_len)
+        self.acc.assistant_start = self.acc.seq_length      # 同步占位，避免悬空
+        self.acc.assistant_token_ids = []
+        return wasted
+
+    def speculative_turn(self, segments: List[str],
+                         barge_in_fraction: Optional[float] = None) -> TurnResult:
+        """
+        增量段输入 + 软触发推测-作废（确定性模拟）。segments 为 ASR final 片段流，
+        最后一段喂完 = 用户真实说完（ground truth 端点，P1）。
+        需要 self.trigger 非 None，否则退化为无推测（仅增量 prefill）。
+        """
+        self.turn_id += 1
+        accum_text = ""
+        spec: Optional[_ActiveSpec] = None
+        stats = {"n_spec": 0, "n_inval": 0, "wasted": 0, "confs": []}
+
+        for seg in segments:
+            # 新段到来：活跃推测一律作废（用户还在说 → 早触发错误）
+            if spec is not None:
+                stats["n_inval"] += 1
+                stats["wasted"] += self._invalidate_speculation(spec)
+                spec = None
+            # prefill 本段
+            if not self._started:
+                kv = self.llm.cache_prompt(seg, is_end=False, system_prompt=self.system_prompt)
+                self.acc = self.llm.to_accum_cache(kv)
+                self.acc.assistant_start = self.acc.seq_length   # user 未结束，占位
+                self._started = True
+            else:
+                self.llm.prefill_user_text(self.acc, seg)
+            accum_text += seg
+            # 软触发评估（含最后一段——真实系统中"存活的推测"正是最后一个 final 片段
+            # 触发、其后无新语音的那次，推测计算被静音检测窗掩盖；确定性模拟等价处理）。
+            # 真实系统中 trigger 与 prefill 并行（D-003），此处顺序执行、不计入 TTFT。
+            if self.trigger is not None:
+                conf = self.trigger.confidence(accum_text)
+                stats["confs"].append(conf)
+                if conf >= self.spec_threshold:
+                    spec = self._start_speculation()
+                    stats["n_spec"] += 1
+
+        # ---- 用户真实说完 ----
+        t_user_end = time.perf_counter()
+        if spec is not None:
+            # 推测存活：回放已就绪 token，再续生成剩余
+            stats["survived"] = True
+            stats["ready"] = len(spec.tokens)
+            remaining = 0 if spec.eos_hit else self.max_spec - len(spec.tokens)
+            token_iter = chain(
+                iter(spec.tokens),
+                self.llm.generate_accumulating(self.acc, max_new_tokens=remaining)
+                if remaining > 0 else iter(()),
+            )
+        else:
+            # 无存活推测：现场打开 assistant 并生成
+            stats["survived"] = False
+            stats["ready"] = 0
+            self.llm.open_assistant_role(self.acc)
+            token_iter = self.llm.generate_accumulating(self.acc, max_new_tokens=self.max_spec)
+
+        r = self._finish_assistant(token_iter, barge_in_fraction, t_user_end, stats)
+        r.user_text = accum_text
+        m = r.metrics
+        logger.info(f"[spec-turn {self.turn_id} th={self.spec_threshold}] "
+                    f"spec={m.n_speculations} inval={m.n_invalidated} wasted={m.spec_wasted_tokens} "
+                    f"survived={m.spec_survived} ready={m.ready_tokens_at_user_end} "
+                    f"spec_waste={m.spec_waste_rate:.0%} TTFT_eff={m.first_token_ms:.0f}ms")
         return r
 
     def assert_kv_consistent(self) -> bool:

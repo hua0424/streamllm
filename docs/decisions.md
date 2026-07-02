@@ -5,6 +5,20 @@
 
 ---
 
+## D-011（2026-07-02）TEN 规格修正 + 软触发开发替身策略
+
+**决策**：
+- **规格修正**：TEN Turn Detection（TEN-framework/TEN_Turn_Detection）实测为 **7.6B 参数 / BF16 ~15GB**（HF API 确认），**不是 D-003 记录的"Qwen 0.5B 微调"**——当时调研信息有误。
+- **验证机（16G）装不下 TEN** → 定义统一 `SoftTrigger` 接口（文本→turn 完成度连续置信度），本机用 **prompted Qwen2.5-0.5B 作开发替身**（取 YES/NO 首 token logits softmax 为置信度；D-003 讨论时的备选方案），实验机同一接口加载 TEN 7B（取 finished/unfinished/wait 类别词概率）。
+- **实验机分卡布局仍成立**：卡 1 = TEN(15GB) + CosyVoice2(~3GB) + Qwen3-0.6B(~1.5GB) ≈ 19.5GB < 24GB，比 D-002 预估紧但可行。
+- 两阈值机制（§3.5）不变；软触发不是论文贡献，不做选型消融（D-003 原则不变）。
+
+**影响**：`src/dialogue/trigger.py` 按接口+双实现设计；E2/A3 在本机用替身出 harness 验证，实验机换 TEN 出正式数值；论文 §实现 需注明软触发模型规格。
+
+**状态**：accepted
+
+---
+
 ## D-010（2026-07-02）TTS 策略：Mock-first（时长 profile 驱动）+ real CosyVoice2 仅在实验机
 
 **决策**：
