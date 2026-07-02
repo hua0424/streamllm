@@ -1,0 +1,699 @@
+{
+  "curve": [
+    {
+      "threshold": 0.02,
+      "spec_waste_rate": 0.3043,
+      "ttft_eff_ms": 0.5,
+      "survived_rate": 1.0,
+      "avg_ready_tokens": 12.0,
+      "n": 6
+    },
+    {
+      "threshold": 0.05,
+      "spec_waste_rate": 0.2381,
+      "ttft_eff_ms": 0.0,
+      "survived_rate": 1.0,
+      "avg_ready_tokens": 12.0,
+      "n": 6
+    },
+    {
+      "threshold": 0.08,
+      "spec_waste_rate": 0.0588,
+      "ttft_eff_ms": 19.5,
+      "survived_rate": 0.333,
+      "avg_ready_tokens": 4.0,
+      "n": 6
+    },
+    {
+      "threshold": 0.12,
+      "spec_waste_rate": 0.0,
+      "ttft_eff_ms": 61.9,
+      "survived_rate": 0.0,
+      "avg_ready_tokens": 0.0,
+      "n": 6
+    },
+    {
+      "threshold": 0.2,
+      "spec_waste_rate": 0.0,
+      "ttft_eff_ms": 53.9,
+      "survived_rate": 0.0,
+      "avg_ready_tokens": 0.0,
+      "n": 6
+    },
+    {
+      "threshold": 0.4,
+      "spec_waste_rate": 0.0,
+      "ttft_eff_ms": 74.9,
+      "survived_rate": 0.0,
+      "avg_ready_tokens": 0.0,
+      "n": 6
+    },
+    {
+      "threshold": 1.1,
+      "spec_waste_rate": 0.0,
+      "ttft_eff_ms": 43.1,
+      "survived_rate": 0.0,
+      "avg_ready_tokens": 0.0,
+      "n": 6
+    }
+  ],
+  "records": [
+    {
+      "id": "fx1",
+      "threshold": 0.02,
+      "n_generated": 32,
+      "spec_wasted": 12,
+      "n_speculations": 2,
+      "n_invalidated": 1,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 2.8,
+      "confs": [
+        0.0674,
+        0.0952
+      ]
+    },
+    {
+      "id": "fx2",
+      "threshold": 0.02,
+      "n_generated": 32,
+      "spec_wasted": 12,
+      "n_speculations": 2,
+      "n_invalidated": 1,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 0.0,
+      "confs": [
+        0.0332,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx3",
+      "threshold": 0.02,
+      "n_generated": 32,
+      "spec_wasted": 12,
+      "n_speculations": 2,
+      "n_invalidated": 1,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 0.0,
+      "confs": [
+        0.0674,
+        0.1069
+      ]
+    },
+    {
+      "id": "fx4",
+      "threshold": 0.02,
+      "n_generated": 32,
+      "spec_wasted": 12,
+      "n_speculations": 2,
+      "n_invalidated": 1,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 0.0,
+      "confs": [
+        0.0674,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx5",
+      "threshold": 0.02,
+      "n_generated": 32,
+      "spec_wasted": 12,
+      "n_speculations": 2,
+      "n_invalidated": 1,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 0.0,
+      "confs": [
+        0.0952,
+        0.0601
+      ]
+    },
+    {
+      "id": "fx6",
+      "threshold": 0.02,
+      "n_generated": 32,
+      "spec_wasted": 24,
+      "n_speculations": 3,
+      "n_invalidated": 2,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 0.0,
+      "confs": [
+        0.0374,
+        0.0601,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx1",
+      "threshold": 0.05,
+      "n_generated": 32,
+      "spec_wasted": 12,
+      "n_speculations": 2,
+      "n_invalidated": 1,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 0.0,
+      "confs": [
+        0.0674,
+        0.0952
+      ]
+    },
+    {
+      "id": "fx2",
+      "threshold": 0.05,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 1,
+      "n_invalidated": 0,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 0.0,
+      "confs": [
+        0.0332,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx3",
+      "threshold": 0.05,
+      "n_generated": 32,
+      "spec_wasted": 12,
+      "n_speculations": 2,
+      "n_invalidated": 1,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 0.0,
+      "confs": [
+        0.0674,
+        0.1069
+      ]
+    },
+    {
+      "id": "fx4",
+      "threshold": 0.05,
+      "n_generated": 32,
+      "spec_wasted": 12,
+      "n_speculations": 2,
+      "n_invalidated": 1,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 0.0,
+      "confs": [
+        0.0674,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx5",
+      "threshold": 0.05,
+      "n_generated": 32,
+      "spec_wasted": 12,
+      "n_speculations": 2,
+      "n_invalidated": 1,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 0.0,
+      "confs": [
+        0.0952,
+        0.0601
+      ]
+    },
+    {
+      "id": "fx6",
+      "threshold": 0.05,
+      "n_generated": 32,
+      "spec_wasted": 12,
+      "n_speculations": 2,
+      "n_invalidated": 1,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 0.0,
+      "confs": [
+        0.0374,
+        0.0601,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx1",
+      "threshold": 0.08,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 1,
+      "n_invalidated": 0,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 0.0,
+      "confs": [
+        0.0674,
+        0.0952
+      ]
+    },
+    {
+      "id": "fx2",
+      "threshold": 0.08,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 20.5,
+      "confs": [
+        0.0332,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx3",
+      "threshold": 0.08,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 1,
+      "n_invalidated": 0,
+      "survived": true,
+      "ready": 12,
+      "ttft_eff_ms": 0.0,
+      "confs": [
+        0.0674,
+        0.1069
+      ]
+    },
+    {
+      "id": "fx4",
+      "threshold": 0.08,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 40.9,
+      "confs": [
+        0.0674,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx5",
+      "threshold": 0.08,
+      "n_generated": 32,
+      "spec_wasted": 12,
+      "n_speculations": 1,
+      "n_invalidated": 1,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 35.2,
+      "confs": [
+        0.0952,
+        0.0601
+      ]
+    },
+    {
+      "id": "fx6",
+      "threshold": 0.08,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 20.6,
+      "confs": [
+        0.0374,
+        0.0601,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx1",
+      "threshold": 0.12,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 20.1,
+      "confs": [
+        0.0674,
+        0.0952
+      ]
+    },
+    {
+      "id": "fx2",
+      "threshold": 0.12,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 74.6,
+      "confs": [
+        0.0332,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx3",
+      "threshold": 0.12,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 150.7,
+      "confs": [
+        0.0674,
+        0.1069
+      ]
+    },
+    {
+      "id": "fx4",
+      "threshold": 0.12,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 59.8,
+      "confs": [
+        0.0674,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx5",
+      "threshold": 0.12,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 20.8,
+      "confs": [
+        0.0952,
+        0.0601
+      ]
+    },
+    {
+      "id": "fx6",
+      "threshold": 0.12,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 45.2,
+      "confs": [
+        0.0374,
+        0.0601,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx1",
+      "threshold": 0.2,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 162.0,
+      "confs": [
+        0.0674,
+        0.0952
+      ]
+    },
+    {
+      "id": "fx2",
+      "threshold": 0.2,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 20.9,
+      "confs": [
+        0.0332,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx3",
+      "threshold": 0.2,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 44.9,
+      "confs": [
+        0.0674,
+        0.1069
+      ]
+    },
+    {
+      "id": "fx4",
+      "threshold": 0.2,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 54.1,
+      "confs": [
+        0.0674,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx5",
+      "threshold": 0.2,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 20.7,
+      "confs": [
+        0.0952,
+        0.0601
+      ]
+    },
+    {
+      "id": "fx6",
+      "threshold": 0.2,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 20.7,
+      "confs": [
+        0.0374,
+        0.0601,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx1",
+      "threshold": 0.4,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 43.5,
+      "confs": [
+        0.0674,
+        0.0952
+      ]
+    },
+    {
+      "id": "fx2",
+      "threshold": 0.4,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 155.5,
+      "confs": [
+        0.0332,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx3",
+      "threshold": 0.4,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 58.3,
+      "confs": [
+        0.0674,
+        0.1069
+      ]
+    },
+    {
+      "id": "fx4",
+      "threshold": 0.4,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 41.1,
+      "confs": [
+        0.0674,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx5",
+      "threshold": 0.4,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 41.2,
+      "confs": [
+        0.0952,
+        0.0601
+      ]
+    },
+    {
+      "id": "fx6",
+      "threshold": 0.4,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 109.5,
+      "confs": [
+        0.0374,
+        0.0601,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx1",
+      "threshold": 1.1,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 38.9,
+      "confs": [
+        0.0674,
+        0.0952
+      ]
+    },
+    {
+      "id": "fx2",
+      "threshold": 1.1,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 21.4,
+      "confs": [
+        0.0332,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx3",
+      "threshold": 1.1,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 87.2,
+      "confs": [
+        0.0674,
+        0.1069
+      ]
+    },
+    {
+      "id": "fx4",
+      "threshold": 1.1,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 51.0,
+      "confs": [
+        0.0674,
+        0.0757
+      ]
+    },
+    {
+      "id": "fx5",
+      "threshold": 1.1,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 20.4,
+      "confs": [
+        0.0952,
+        0.0601
+      ]
+    },
+    {
+      "id": "fx6",
+      "threshold": 1.1,
+      "n_generated": 32,
+      "spec_wasted": 0,
+      "n_speculations": 0,
+      "n_invalidated": 0,
+      "survived": false,
+      "ready": 0,
+      "ttft_eff_ms": 40.0,
+      "confs": [
+        0.0374,
+        0.0601,
+        0.0757
+      ]
+    }
+  ]
+}

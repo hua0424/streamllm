@@ -1,0 +1,230 @@
+{
+  "summary": {
+    "playback": {
+      "n": 9,
+      "unheard_reference_rate": 0.0,
+      "avg_unheard_tokens": 0.0
+    },
+    "generation": {
+      "n": 9,
+      "unheard_reference_rate": 0.556,
+      "avg_unheard_tokens": 12.2
+    }
+  },
+  "records": [
+    {
+      "id": "fx_wall",
+      "fraction": 0.25,
+      "condition": "playback",
+      "n_generated": 40,
+      "n_heard": 29,
+      "n_unheard_in_history": 0,
+      "referenced_unheard": false,
+      "matched_cues": [],
+      "waste_rate": 0.275
+    },
+    {
+      "id": "fx_wall",
+      "fraction": 0.25,
+      "condition": "generation",
+      "n_generated": 40,
+      "n_heard": 26,
+      "n_unheard_in_history": 14,
+      "referenced_unheard": false,
+      "matched_cues": [],
+      "waste_rate": 0.0
+    },
+    {
+      "id": "fx_wall",
+      "fraction": 0.5,
+      "condition": "playback",
+      "n_generated": 40,
+      "n_heard": 35,
+      "n_unheard_in_history": 0,
+      "referenced_unheard": false,
+      "matched_cues": [],
+      "waste_rate": 0.125
+    },
+    {
+      "id": "fx_wall",
+      "fraction": 0.5,
+      "condition": "generation",
+      "n_generated": 40,
+      "n_heard": 29,
+      "n_unheard_in_history": 11,
+      "referenced_unheard": true,
+      "matched_cues": [
+        "famous",
+        "impressive",
+        "structures"
+      ],
+      "waste_rate": 0.0
+    },
+    {
+      "id": "fx_wall",
+      "fraction": 0.75,
+      "condition": "playback",
+      "n_generated": 40,
+      "n_heard": 40,
+      "n_unheard_in_history": 0,
+      "referenced_unheard": false,
+      "matched_cues": [],
+      "waste_rate": 0.0
+    },
+    {
+      "id": "fx_wall",
+      "fraction": 0.75,
+      "condition": "generation",
+      "n_generated": 40,
+      "n_heard": 40,
+      "n_unheard_in_history": 0,
+      "referenced_unheard": false,
+      "matched_cues": [],
+      "waste_rate": 0.0
+    },
+    {
+      "id": "fx_city",
+      "fraction": 0.25,
+      "condition": "playback",
+      "n_generated": 40,
+      "n_heard": 22,
+      "n_unheard_in_history": 0,
+      "referenced_unheard": false,
+      "matched_cues": [],
+      "waste_rate": 0.45
+    },
+    {
+      "id": "fx_city",
+      "fraction": 0.25,
+      "condition": "generation",
+      "n_generated": 40,
+      "n_heard": 22,
+      "n_unheard_in_history": 18,
+      "referenced_unheard": true,
+      "matched_cues": [
+        "built",
+        "ming"
+      ],
+      "waste_rate": 0.0
+    },
+    {
+      "id": "fx_city",
+      "fraction": 0.5,
+      "condition": "playback",
+      "n_generated": 40,
+      "n_heard": 22,
+      "n_unheard_in_history": 0,
+      "referenced_unheard": false,
+      "matched_cues": [],
+      "waste_rate": 0.45
+    },
+    {
+      "id": "fx_city",
+      "fraction": 0.5,
+      "condition": "generation",
+      "n_generated": 40,
+      "n_heard": 22,
+      "n_unheard_in_history": 18,
+      "referenced_unheard": true,
+      "matched_cues": [
+        "built",
+        "ming"
+      ],
+      "waste_rate": 0.0
+    },
+    {
+      "id": "fx_city",
+      "fraction": 0.75,
+      "condition": "playback",
+      "n_generated": 40,
+      "n_heard": 40,
+      "n_unheard_in_history": 0,
+      "referenced_unheard": false,
+      "matched_cues": [],
+      "waste_rate": 0.0
+    },
+    {
+      "id": "fx_city",
+      "fraction": 0.75,
+      "condition": "generation",
+      "n_generated": 40,
+      "n_heard": 40,
+      "n_unheard_in_history": 0,
+      "referenced_unheard": false,
+      "matched_cues": [],
+      "waste_rate": 0.0
+    },
+    {
+      "id": "fx_palace",
+      "fraction": 0.25,
+      "condition": "playback",
+      "n_generated": 40,
+      "n_heard": 12,
+      "n_unheard_in_history": 0,
+      "referenced_unheard": false,
+      "matched_cues": [],
+      "waste_rate": 0.7
+    },
+    {
+      "id": "fx_palace",
+      "fraction": 0.25,
+      "condition": "generation",
+      "n_generated": 40,
+      "n_heard": 12,
+      "n_unheard_in_history": 28,
+      "referenced_unheard": true,
+      "matched_cues": [
+        "built"
+      ],
+      "waste_rate": 0.0
+    },
+    {
+      "id": "fx_palace",
+      "fraction": 0.5,
+      "condition": "playback",
+      "n_generated": 40,
+      "n_heard": 40,
+      "n_unheard_in_history": 0,
+      "referenced_unheard": false,
+      "matched_cues": [],
+      "waste_rate": 0.0
+    },
+    {
+      "id": "fx_palace",
+      "fraction": 0.5,
+      "condition": "generation",
+      "n_generated": 40,
+      "n_heard": 22,
+      "n_unheard_in_history": 18,
+      "referenced_unheard": true,
+      "matched_cues": [
+        "facts",
+        "palace",
+        "summer"
+      ],
+      "waste_rate": 0.0
+    },
+    {
+      "id": "fx_palace",
+      "fraction": 0.75,
+      "condition": "playback",
+      "n_generated": 40,
+      "n_heard": 37,
+      "n_unheard_in_history": 0,
+      "referenced_unheard": false,
+      "matched_cues": [],
+      "waste_rate": 0.075
+    },
+    {
+      "id": "fx_palace",
+      "fraction": 0.75,
+      "condition": "generation",
+      "n_generated": 40,
+      "n_heard": 37,
+      "n_unheard_in_history": 3,
+      "referenced_unheard": false,
+      "matched_cues": [],
+      "waste_rate": 0.0
+    }
+  ]
+}

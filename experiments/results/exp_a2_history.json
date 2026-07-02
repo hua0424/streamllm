@@ -1,0 +1,103 @@
+{
+  "records": [
+    {
+      "id": "fx_wall",
+      "policy": "naive",
+      "fraction": 0.45,
+      "partial": true,
+      "heard_text": "The Great Wall of China is a series of fortifications built by the Chinese Empire between the 7th and 14th centuries BC.",
+      "history_text": "The Great Wall of China is a series of fortifications built by the Chinese Empire between the 7th and 14th centuries BC.",
+      "rewrite_ms": 0.0,
+      "next_reply": "The Great Wall of China is a series of fortifications built by the Chinese Empire between the 7th and 14th centuries BC. It stretches over 13,000 miles",
+      "judge_coherence": null
+    },
+    {
+      "id": "fx_wall",
+      "policy": "mark",
+      "fraction": 0.45,
+      "partial": true,
+      "heard_text": "The Great Wall of China is a series of fortifications built by the Chinese Empire between the 7th and 14th centuries BC.",
+      "history_text": "The Great Wall of China is a series of fortifications built by the Chinese Empire between the 7th and 14th centuries BC. …",
+      "rewrite_ms": 0.0,
+      "next_reply": "The Great Wall of China is a series of fortifications built by the Chinese Empire between the 7th and 14th centuries BC. It is one of the most famous and impressive structures in",
+      "judge_coherence": null
+    },
+    {
+      "id": "fx_wall",
+      "policy": "rewrite",
+      "fraction": 0.45,
+      "partial": true,
+      "heard_text": "The Great Wall of China is a series of fortifications built by the Chinese Empire to protect its borders and to control trade.",
+      "history_text": "The Great Wall of China is a series of fortifications built by the Chinese Empire to protect its borders and control trade.",
+      "rewrite_ms": 815.1,
+      "next_reply": "The Great Wall of China stretches over 13,000 miles (21,000 kilometers) and is made up of over 14,000 miles (2",
+      "judge_coherence": null
+    },
+    {
+      "id": "fx_city",
+      "policy": "naive",
+      "fraction": 0.45,
+      "partial": true,
+      "heard_text": "The Forbidden City, also known as the Imperial Palace, is a historic palace complex located in Beijing, China.",
+      "history_text": "The Forbidden City, also known as the Imperial Palace, is a historic palace complex located in Beijing, China.",
+      "rewrite_ms": 0.0,
+      "next_reply": "The Forbidden City was built between 1406 and 1420 by the Ming Dynasty, which ruled China from 1368 to 1644. The palace",
+      "judge_coherence": null
+    },
+    {
+      "id": "fx_city",
+      "policy": "mark",
+      "fraction": 0.45,
+      "partial": true,
+      "heard_text": "The Forbidden City, also known as the Imperial Palace, is a historic palace complex located in Beijing, China.",
+      "history_text": "The Forbidden City, also known as the Imperial Palace, is a historic palace complex located in Beijing, China. …",
+      "rewrite_ms": 0.0,
+      "next_reply": "The Forbidden City was built between 1406 and 1420 by the Ming Dynasty, the last dynasty of the Chinese Ming Dynasty. It was built as a symbol of the imperial",
+      "judge_coherence": null
+    },
+    {
+      "id": "fx_city",
+      "policy": "rewrite",
+      "fraction": 0.45,
+      "partial": true,
+      "heard_text": "The Forbidden City, also known as the Imperial Palace, is a historic palace complex located in Beijing, China.",
+      "history_text": "The Forbidden City, also known as the Imperial Palace, is a historic palace complex located in Beijing, China.",
+      "rewrite_ms": 478.9,
+      "next_reply": "The Forbidden City was built between 1406 and 1420 by the Ming Dynasty, which ruled China from 1368 to 1644. It was",
+      "judge_coherence": null
+    },
+    {
+      "id": "fx_panda",
+      "policy": "naive",
+      "fraction": 0.45,
+      "partial": true,
+      "heard_text": "Giant pandas are a species of bear native to China. They are the largest bear species and are found in the mountainous regions of the country.",
+      "history_text": "Giant pandas are a species of bear native to China. They are the largest bear species and are found in the mountainous regions of the country.",
+      "rewrite_ms": 0.0,
+      "next_reply": "Giant pandas are herbivores and primarily eat bamboo. They are known for their ability to eat bamboo for years at a time, which allows them to store excess bamboo for later use. They are",
+      "judge_coherence": null
+    },
+    {
+      "id": "fx_panda",
+      "policy": "mark",
+      "fraction": 0.45,
+      "partial": true,
+      "heard_text": "Giant pandas are a species of bear native to China. They are the largest bear species and are found in the mountainous regions of the country.",
+      "history_text": "Giant pandas are a species of bear native to China. They are the largest bear species and are found in the mountainous regions of the country. …",
+      "rewrite_ms": 0.0,
+      "next_reply": "Giant pandas are herbivores and primarily eat bamboo. They are known for their ability to eat bamboo for years at a time, which is a unique adaptation for their diet. …",
+      "judge_coherence": null
+    },
+    {
+      "id": "fx_panda",
+      "policy": "rewrite",
+      "fraction": 0.45,
+      "partial": true,
+      "heard_text": "Sure, here are a few facts about giant pandas:\n\n1. Giant pandas are the largest species of panda and are found in the mountainous regions of China.\n\n",
+      "history_text": "Sure, here are a few facts about giant pandas:  \n1. Giant pandas are the largest species of panda and are found in the mountainous regions of China.",
+      "rewrite_ms": 2584.4,
+      "next_reply": "Giant pandas are herbivores and primarily eat bamboo. They are known for their ability to eat up to 100 pounds of bamboo per day.",
+      "judge_coherence": null
+    }
+  ]
+}

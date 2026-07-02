@@ -1,0 +1,89 @@
+{
+  "summary": {
+    "n": 5,
+    "a_ttft_ms": 24.8,
+    "b_ttft_eff_ms": 0.0,
+    "a_mouth_to_ear_ms_modeled": 2288.7,
+    "b_mouth_to_ear_ms_modeled": 45.0,
+    "ttft_improvement": 1.0,
+    "spec_threshold": 0.05,
+    "synth_rtf_placeholder": 0.3
+  },
+  "records": [
+    {
+      "id": "fx1",
+      "system_a": {
+        "ttft_ms": 33.2,
+        "gen_total_ms": 400.0,
+        "mouth_to_ear_ms": 2293.8,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.0,
+        "mouth_to_ear_ms": 45.0,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "fx2",
+      "system_a": {
+        "ttft_ms": 11.0,
+        "gen_total_ms": 400.6,
+        "mouth_to_ear_ms": 2463.1,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.0,
+        "mouth_to_ear_ms": 45.0,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "fx3",
+      "system_a": {
+        "ttft_ms": 14.9,
+        "gen_total_ms": 334.8,
+        "mouth_to_ear_ms": 2959.8,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.0,
+        "mouth_to_ear_ms": 45.0,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "fx4",
+      "system_a": {
+        "ttft_ms": 33.3,
+        "gen_total_ms": 504.8,
+        "mouth_to_ear_ms": 2886.1,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.0,
+        "mouth_to_ear_ms": 45.0,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "fx5",
+      "system_a": {
+        "ttft_ms": 31.5,
+        "gen_total_ms": 221.9,
+        "mouth_to_ear_ms": 840.7,
+        "n_tokens": 19
+      },
+      "system_b": {
+        "ttft_ms": 0.0,
+        "mouth_to_ear_ms": 45.0,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    }
+  ]
+}
