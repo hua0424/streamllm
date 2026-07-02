@@ -1,102 +1,116 @@
-# 二期工作交接文档（HANDOFF）
+# 二期实验执行交接文档（HANDOFF）
 
-> 面向接手的下一个 agent。本文档不重复 `paper2_context.md` / `decisions.md` 已有内容，只给定位、当前断点、下一步方向。先读那两份文档再读本文。
+> 面向接手的下一个 agent / 实验机会话。目标：**在实验机（3090 24G ×2）上跑出论文的正式实验数值**。
+> 本文档只讲"怎么跑、跑什么、要什么结果"；设计与指标定义见 `paper2/experiment_design.md`（含 §9' harness 状态表），决策史见 `docs/decisions.md`（D-001~D-012），项目全景见 `docs/paper2_context.md`。
+> （2026-05-21 的旧版 handoff 是设计期交接，已被本版取代，内容存于 git 历史。）
 
-**生成时间**：2026-05-21
-**分支**：`bargeincache`（二期专用，与一期 `main` 隔离）
-**当前阶段**：纯设计/规划，**本机不运行代码**（venv 已损坏，Python 路径失效；真要跑实验在 5070 Ti 验证机 / 3090×2 实验机上）
-
----
-
-## 一、必读材料（按顺序）
-
-| 文件 | 作用 |
-|---|---|
-| `docs/paper2_context.md` | **主交接文档**。二期方向、pipeline、技术选型、Q1-Q8 一期审查结论、§九里程碑日志 |
-| `docs/decisions.md` | 技术决策日志 D-001~D-004。每次新决策**倒序追加一条** |
-| `paper/thesis_outline.md` | 一期论文大纲（二期暂未单独建 outline） |
-| `src/llm/stream_llm_inference.py` | 一期 KV prefill 引擎，二期改造主战场 |
-| `src/asr/faster_whisper_streamer.py` | 一期流式 ASR，final 片段粒度衔接 LLM |
-| `src/run_test_simple.py` | 一期四线程流水线编排，二期 orchestrator 的参照 |
+**生成时间**：2026-07-02
+**分支**：`paper2`（HEAD `9567785`，已推送）
+**代码状态**：全部 6 个实验 harness 在验证机（5070 Ti，0.5B）跑通；经**两轮代码审查**（发现 3 BUG + 5 minor，全部修复，见 D-012），回归全绿。**已知零未修 BUG**。
 
 ---
 
-## 二、上一轮（2026-05-21）完成了什么
+## 一、实验机环境准备（一次性）
 
-1. 基于一期源码逐条回答了 `paper2_context.md` §六 **Q1-Q8**，结论内联写回该文档每个 Q 的"**答**"块。最关键三条：
-   - **Q3**：一期 chat template 是**手工字符串拼接** `generation_prompt`，二期 role 重建可沿用同一模式（构造 `<|im_end|>\n<|im_start|>user\n` 走 `_add_stream_prompt` 注入）
-   - **Q4/Q5**：一期 `generate()` **没把 assistant token 的 KV 写回 caller**，也没做多轮累积 —— 二期必须新建"边生成边累积可被 crop 的 assistant-side KVCache"
-   - **Q2**：一期 prefill 已显式管理 `attention_mask` + `position_ids`，crop 后只要同步截 `pre_attention_mask`、用新 past_length 重算 position_ids 即可复用
-2. 敲定技术选型（D-002~D-004）：软触发 = **TEN Turn Detection**（文本侧，与 KV prefill 并行零额外耗时）、重写 = **Qwen3-0.6B**、KV = **DynamicCache.crop**、硬件分卡布局（§3.6）
-3. 用户确认从 **方向 1（反向映射表数据结构设计）** 开始下一轮讨论 —— **这是本次交接的断点，尚未开始**
-
----
-
-## 三、下一步方向（接手后从这里继续）
-
-### 主任务：反向映射表（Reverse Mapping Table）数据结构设计
-
-这是论文工程贡献的**核心依赖项**，后续 KV 截断、推测浪费率统计、播放感知截断全部建立在它之上。目标是设计清楚四向映射：
-
-```
-LLM token_idx  ↔  text fragment_id  ↔  audio chunk_id  ↔  playback_ms
-（generate产出）  （stream2sentence）   （CosyVoice2产出）  （播放器回报）
+```bash
+git clone <repo> && cd streamllm && git checkout paper2   # 或已有仓库 git pull
+uv venv --python 3.10 && uv sync        # torch 2.8.0+cu128（兼容 3090 sm_86，D-009）
+cp .env.example .env                     # 然后按下表改
+export LD_LIBRARY_PATH=".venv/lib/python3.10/site-packages/nvidia/cudnn/lib:$LD_LIBRARY_PATH"
 ```
 
-讨论需要覆盖（建议作为 checklist 推进，**纯设计推演，不写实现代码**）：
+`.env` 实验机配置（P2_* 变量是二期模型开关，改这里即可全局换模型，**不用改代码**）：
 
-1. **每一层的产出时机与标识**
-   - LLM token：`generate()` 循环里每 yield 一个 token 拿到全局递增 idx
-   - fragment：stream2sentence 吐出一个 chunk 时，需记录它**起止覆盖的 token_idx 区间** `[start, end)` —— stream2sentence 本身不给 token 索引，要在喂给它的 generator 里自己计数对齐（**关键工程难点，要想清楚怎么不丢字符地对齐**）
-   - audio chunk：CosyVoice2 流式输出每个 chunk，记录其源 fragment_id
-   - playback_ms：播放器按已播放采样数 / 采样率回报
+```bash
+HF_HOME="<实验机模型缓存目录>"
+HF_TOKEN=""                                    # 留空匿名下载（历史 token 已失效，勿用）
+P2_LLM_MODEL_NAME="Qwen/Qwen2-7B-Instruct"     # 主 LLM 换 7B（与一期实验对齐）
+P2_TRIGGER_MODEL_NAME="TEN-framework/TEN_Turn_Detection"   # 软触发换 TEN 7B（见 §四.2）
+P2_REWRITER_MODEL_NAME="Qwen/Qwen3-0.6B"
+P2_DEVICE="cuda:1"                             # trigger/rewriter 放卡1；主 LLM 由 --asr/--llm 逻辑走卡0
+```
 
-2. **反向查询语义**：给定"当前实际播放到 T 毫秒" → 落在哪个 audio chunk → 哪个 fragment → 该 fragment 末尾对应的 token_idx N → `DynamicCache.crop(N)`
+分卡布局（D-002/D-011）：卡0 = 主 LLM 7B(~14G)+KV；卡1 = TEN 7B(~15G)+CosyVoice2(~3G)+Qwen3-0.6B(~1.5G) ≈ 19.5G<24G。
 
-3. **截断单位 = fragment 边界**（已在 §八否决"精确到单 token"）。物理 crop 到 fragment 末 token
-
-4. **"已合成未播放" buffer 的处理**：CosyVoice2 可能已合成但播放器还没播的部分，被打断时要丢弃 —— 映射表要能区分"已播放 fragment"与"已合成未播放 fragment"
-
-5. **并发边界**：generate 线程写 token↔fragment，TTS 线程写 fragment↔chunk，播放线程写 chunk↔playback，打断时主线程读全表做 crop。锁粒度怎么设计，避免打断响应被锁阻塞
-
-6. **数据结构落点**：建议落在 `src/dialogue/timeline.py`（见 Q8 工作量表），但**本轮只产出设计，不写代码**
-
-### 推进方式建议
-
-- 用户偏好：**先讨论清楚设计再动手**，每个技术决策记入 `docs/decisions.md`（倒序追加 D-005...）
-- 里程碑结束后**同步更新 `paper2_context.md` §九时间线**
-- 讨论可以用文字 + ASCII 时序图，不需要跑代码（本机无运行环境）
-
-### 方向 1 之后的排队议题（用户已认可的顺序 1→2→3）
-
-2. **role 边界 KV 重建的精确字符串构造**：从 Qwen2.5/Qwen3 chat_template 反推 assistant→user 切换字符串，验证 position_ids 接续正确性（纯文本推演可确认）
-3. **推测生成长度上限策略**：限前 N token / 第一句 / soft+hard cap，决定论文核心 trade-off 曲线横轴范围
+**环境验证**（跑通即环境 OK，纯逻辑不费时）：
+```bash
+uv run python -m src.dialogue.run_timeline_test      # 纯 Python，秒级
+HF_TOKEN= uv run python -m src.llm.run_kvcrop_test   # 首跑会下载 P2_LLM 模型
+HF_TOKEN= uv run python -m src.dialogue.run_speculative_test
+```
+三个都 `ALL PASS ✓` 才继续。
 
 ---
 
-## 四、注意事项 / 坑
+## 二、六个实验：命令、产出、预期结果
 
-- **不要在本机跑任何 Python/实验**：venv 损坏（uv-managed Python 路径失效），且本机定位为写作机。需要运行时明确告诉用户去验证机
-- **不要走 §八已否决的方向**：SNN、端点检测模型创新、打断类型分类、完整长回复推测、TADA 作主 TTS 等
-- **软触发/重写不是论文贡献**：选定模型即可，不做选型消融，别在这上面花实验精力
-- **保持论文 framing 锚点**：「对话历史 = 用户实际听到的内容」是所有 KV 去留判断的根原则
-- 一期 ASR final 片段间隔 ~1s（`recognition_threshold=1.0`），可能影响软触发响应度，方向 1 讨论时留意这个粒度约束
+全部从**项目根目录**跑；结果 JSON 入 `experiments/results/`；E2/E3 支持断点续传（中断重跑同命令即续）。每个脚本都有 `--model`（默认取 P2_LLM_MODEL_NAME）。
 
----
+| # | 命令 | 产出 | 预期结果形状（0.5B fixture 参考 → 7B 应更显著） |
+|---|---|---|---|
+| **E3**（核心） | `uv run python -m experiments.scripts.run_exp3_consistency --dialogues <MultiWOZ派生.json>` | `exp3_consistency.json`：summary 含 **loose/strict 双列**未听引用率 + 逐条 records（含 timeline 映射落盘） | loose：B-ours **恒 0%**（构造性保证，论文如此表述）vs B-gen 显著>0（fixture 67-75%）；strict：双列都>0，B-ours 的 strict 值=**片段粒度量化误差**（诚实补充列，见 §五.1 注意事项） |
+| **E2**（核心图） | `uv run python -m experiments.scripts.run_exp2_tradeoff --dialogues <segments格式.json>` | `exp2_tradeoff.json`：curve 数组（threshold→waste_rate/ttft_eff/存活率） | 单调 trade-off 曲线 + 明显拐点（fixture：th0.02→30%浪费/0.5ms ↔ th高→0%/43-75ms；**7B 的 TTFT 全额会到数百 ms，曲线张力更大**）。⚠️ 换 TEN 后阈值扫描区间必须重标（§四.2） |
+| **E1** | `uv run python -m experiments.scripts.run_exp1_latency --dialogues <segments格式.json>` | `exp1_latency.json`：A/B 的 TTFT + 建模 mouth-to-ear | B TTFT_eff ≈0 vs A 全额；m2e 建模值 B<<A。**real CosyVoice2 实测 m2e 见 §四.3** |
+| **A1** | `uv run python -m experiments.scripts.run_exp_a1_kvreuse --lengths 256 512 1024 2048 4096 8192` | `exp_a1_kvreuse.json`：crop/role/re-prefill 三条延迟 vs 上下文长度 | crop 亚 ms 近常数（barge-in 响应延迟卖点）；re-prefill 线性涨（**7B 下更陡，加速比更大**）。计时已用 median 抗噪；趋势异常只 WARN，见输出提示空载重跑 |
+| **A2** | `uv run python -m experiments.scripts.run_exp_a2_history --dialogues <turns格式.json>` | `exp_a2_history.json`：三策略历史样例 + rewrite_ms + **judge_coherence 字段（null，待 §四.4 填）** | 三策略跑通；rewrite mean 数百 ms（"可隐藏"论点）；连贯性结论靠 LLM-judge |
+| **A3** | 无独立脚本 | 复用 `exp2_tradeoff.json` 的 records | 逐阈值分解报告（与 E2 同数据） |
 
-## 五、建议调用的 skills
-
-- **`superpowers:brainstorming`** —— 方向 1 是开放式设计探讨（数据结构 + 并发模型），动手定方案前应先用它厘清需求与取舍。**这是接手后第一个该调用的 skill**
-- **`superpowers:writing-plans`** —— 当反向映射表设计收敛、准备转入 `src/dialogue/timeline.py` 实现时（届时需在验证机环境），用它把设计写成可执行 plan
-- **CodeGraph（`codegraph_*`）** —— 需要再查一期符号关系（如 `cache_prompt` / `_add_stream_prompt` / `generate` 的调用链与影响面）时优先用，比 grep 快且准
-- **`update-config`** —— 若需修复 venv / 配置运行环境时（仅验证机场景）
+**建议执行顺序**：A1（最快，验证 7B 环境）→ E3 → E2（最耗时，扫阈值×全数据）→ E1 → A2。
 
 ---
 
-## 六、关键路径速查
+## 三、实验数据准备（跑正式实验的前置）
 
-- 二期主文档：`docs/paper2_context.md`
-- 决策日志：`docs/decisions.md`
-- KV 引擎（改造核心）：`src/llm/stream_llm_inference.py:195-306`（generate + _add_stream_prompt）
-- chat template 处理：`src/llm/stream_llm_inference.py:124-193`
-- 流水线编排参照：`src/run_test_simple.py:288-620`
+本机验证全用内置 fixture；正式数值需要 **MultiWOZ 派生数据**（D-007 P4：英文为主）。三种输入格式（都是 JSON 列表）：
+
+1. **E3/A2 用 turns 格式**：`[{"id": "...", "turns": ["user轮1(被打断轮)", "probe轮2", "probe轮3", ...]}]`——turn1 要能引出多部分回答，probe 轮诱导复述（≥3 轮，§4）
+2. **E2/E1 用 segments 格式**：`[{"id": "...", "segments": ["片段1", " 片段2", ...]}]`——段边界=停顿点，部分首段句法上近似完整（制造假停顿）；段自带前导空格
+3. 规模（experiment_design.md §4）：每条件 50-100 段对话；从 MultiWOZ 的 user 轮抽取+切分（切分脚本**尚未写**，是实验机上第一件开发工作；一期 `experiments/datasets/tools/` 有 MultiWOZ 处理工具可参考）
+
+---
+
+## 四、实验机专属的四件未完成工作
+
+1. **MultiWOZ 派生数据脚本**（上面 §三.3）——纯文本处理，半天内
+2. **TEN 7B 接入**：`src/dialogue/trigger.py` 已备好 `TEN_CONFIG`（finished/unfinished/wait 类别词，同一代码路径）；接入 = `LLMSoftTrigger(TEN_CONFIG)` 或 .env 覆盖。**接入后必须重标 E2 阈值扫描区间**：先对若干完整/不完整句打印 `confidence()` 分布，据分布选 6-8 个扫描点替换 `run_exp2_tradeoff.py` 的 `DEFAULT_THRESHOLDS`
+3. **real CosyVoice2**（D-010）：按官方 requirements 装（pin torch 2.3.1+cu121，**建议独立 venv/conda 环境跑 TTS 服务**，勿污染主环境）。两个用途：① benchmark 出真实 TimingProfile（samples_per_char / first_chunk_latency_ms / SYNTH_RTF），替换 `src/tts/streaming_tts.py` 与 `run_exp1_latency.py` 里的占位值重跑 E1/E2/E3；② 实现 `StreamingTTS` 接口的 CosyVoice2 类，实测 E1 的 mouth-to-ear
+4. **LLM-judge**：E3 的 strict/loose 引用判定交叉验证（与规则检测器算 Cohen's κ）+ A2 的连贯性评分（填 `judge_coherence`）。用与主 LLM 不同家族的更强模型做裁判（experiment_design.md §9.3）；人工小样本 ~50 条验证 judge 可靠性（P3）
+
+---
+
+## 五、写论文的人需要知道的三个结果解读要点
+
+1. **E3 的 loose 0% 是构造性保证，不是实验发现**（D-012 BUG1 修正）——论文表述："B-ours 由机制保证历史不含未听片段（loose=0），实验量化的是 B-gen 的失败率与 B-ours 在严格 ground-truth 下的片段粒度量化误差（strict 列）"。strict 列在规则检测器下是**上界**（诱导复述型 probe 易误报），正式解读以 LLM-judge 交叉验证为准
+2. **barge-in 响应延迟 = 反查+crop（亚 ms、与上下文无关）**；role 重建（~十几 ms）不在关键路径（可延迟到下轮输入前）——A1 数据支撑"打断即停"卖点
+3. **B-syn（合成位置截断）在 Mock 同步合成下与 generation 等价**，只有接入异步 real CosyVoice2 后才可区分——论文不得称"已验证 B-syn"；若时间不够可砍（可砍项清单见 experiment_design.md §5 E4 与 D-005 贡献分层）
+
+---
+
+## 六、坑与提醒
+
+- **HF_TOKEN 必须为空/有效**：历史 token 已失效会让公开模型也 401（跑命令前缀 `HF_TOKEN=` 最稳）
+- 模型加载 offline-first：首跑联网下载后即可离线
+- `.env` 已 gitignore、每机自维护；勿提交真实 token
+- A1 若趋势 WARN：GPU 有其它负载，空载重跑（数据已落盘，不会丢）
+- E2/E3 断点续传按 (id, threshold/fraction, condition) 去重——**换数据集/模型后务必删旧结果 JSON 再跑**，否则旧记录混入聚合
+- 提交约定：短祈使句中文；决策倒序追加 `docs/decisions.md`；里程碑同步 `paper2_context.md` §九；改方法学同步 `paper2/experiment_design.md`
+
+---
+
+## 七、建议调用的 skills
+
+- **`code-review`（/code-review）**：写完 MultiWOZ 数据脚本 / CosyVoice2 接入类 / LLM-judge 后，跑一轮再进正式实验（本项目两轮审查抓出 3 个会污染实验数字的 BUG，值得保持）
+- **`verify`**：CosyVoice2 接入后验证真实音频链路行为
+- **`experiment-agent`（/experiment-agent）**：`validate` 模式可用于正式结果 JSON 的统计解读与 11 类统计谬误扫描（论文第六章写作前过一遍）；`run` 模式可托管长实验的监控
+- **`loop`（/loop）**：E2 全量扫描耗时较长，可配合后台监控
+
+---
+
+## 八、关键路径速查
+
+- 实验设计+harness 状态表：`paper2/experiment_design.md`（§9' 是总控表）
+- 编排器（所有实验的核心）：`src/dialogue/orchestrator.py`
+- 软触发（TEN 接入点）：`src/dialogue/trigger.py`（`TEN_CONFIG` 现成）
+- TTS 接口（CosyVoice2 实现点）：`src/tts/streaming_tts.py`（`StreamingTTS` ABC + `TimingProfile` 占位值）
+- 检测器（LLM-judge 交叉验证对象）：`src/dialogue/unheard_detector.py`
+- 论文正文：`paper2/`（outline.md + chapter2 初稿；第三章待写，指标定义与实验设计已咬合）
