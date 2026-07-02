@@ -51,6 +51,9 @@ class TurnMetrics:
     first_token_ms: float       # 首 token 相对参考时刻（user_turn: 生成开始；spec: 用户说完）
     mouth_to_ear_ms: float      # 建模：first_token_ms + TTS 首块延迟
     total_audio_s: float
+    # ---- 历史处理策略（贡献3 / A2）----
+    history_policy: str = "naive"       # naive / mark / rewrite
+    rewrite_ms: float = 0.0             # 重写耗时（架构上被用户说话隐藏，记录供验证）
     # ---- 推测（C1 / E2）指标；user_turn 路径下为 0/None ----
     n_speculations: int = 0             # 本轮启动过几次推测
     n_invalidated: int = 0              # 被作废几次
@@ -89,9 +92,14 @@ class DialogueOrchestrator:
                  language: str = "en", tokenizer: str = "nltk",
                  max_speculative_tokens: int = 48,
                  truncation_mode: str = "playback",
-                 trigger=None, spec_threshold: float = 0.5, spec_chunk: int = 16):
+                 trigger=None, spec_threshold: float = 0.5, spec_chunk: int = 16,
+                 history_policy: str = "naive", rewriter=None, mark_text: str = " …"):
         if truncation_mode not in TRUNCATION_MODES:
             raise ValueError(f"truncation_mode 须为 {TRUNCATION_MODES}")
+        if history_policy not in ("naive", "mark", "rewrite"):
+            raise ValueError("history_policy 须为 naive/mark/rewrite")
+        if history_policy == "rewrite" and rewriter is None:
+            raise ValueError("history_policy=rewrite 需要传入 rewriter（HistoryRewriter）")
         self.llm = llm
         self.tts = tts
         self.system_prompt = system_prompt
@@ -102,6 +110,9 @@ class DialogueOrchestrator:
         self.trigger = trigger                   # LLMSoftTrigger 或 None（不推测）
         self.spec_threshold = spec_threshold     # 推测阈值（激进度，E2 扫描对象）
         self.spec_chunk = spec_chunk             # 每次推测预生成 token 上限（§八：限制推测长度）
+        self.history_policy = history_policy     # 贡献3：naive / mark / rewrite
+        self.rewriter = rewriter                 # HistoryRewriter（rewrite 时必需）
+        self.mark_text = mark_text               # 标记法追加的打断标记（零模型成本）
         self.acc: Optional[StreamLLMInference.AccumKVCache] = None
         self.turn_id = 0
         self._started = False
@@ -155,6 +166,23 @@ class DialogueOrchestrator:
         history_text = self.llm.tokenizer.decode(full_ids[:keep_rel], skip_special_tokens=True)
         unheard_in_hist = self.llm.tokenizer.decode(full_ids[heard_rel:keep_rel], skip_special_tokens=True)
 
+        # ---- 贡献3：被打断轮的历史处理策略（assistant role 尚未关闭，追加/替换发生在此）----
+        rewrite_ms = 0.0
+        truly_truncated = interrupted and keep_rel < n_gen
+        if truly_truncated and self.history_policy == "mark":
+            # 标记法：在被截断的 assistant 内容尾部追加打断标记（零延迟零模型成本）。
+            # _prefill_text_p2 是"向当前打开的 role 追加裸文本"，此时打开的是 assistant。
+            self.llm.prefill_user_text(self.acc, self.mark_text)
+            history_text = history_text + self.mark_text
+        elif truly_truncated and self.history_policy == "rewrite" and partial and history_text.strip():
+            # 重写法：仅截断落在语义不完整处（partial）时启用。重写不新增信息；
+            # KV 层面替换被打断的 assistant 段（crop 回 assistant_start + prefill 重写文本）。
+            # 架构上重写与用户说话并行（延迟被隐藏）；此处同步执行并记录耗时供验证。
+            rewritten, rewrite_ms = self.rewriter.rewrite(history_text)
+            self.llm.crop_to_token(self.acc, self.acc.assistant_start)
+            self.llm.prefill_user_text(self.acc, rewritten)
+            history_text = rewritten
+
         self.llm.reopen_user_role(self.acc)                # 关闭 assistant、打开 user
 
         spec_wasted = spec_stats.get("wasted", 0)
@@ -173,6 +201,7 @@ class DialogueOrchestrator:
             ready_tokens_at_user_end=spec_stats.get("ready", 0),
             spec_waste_rate=spec_wasted / (spec_wasted + n_gen) if (spec_wasted + n_gen) else 0.0,
             trigger_confs=spec_stats.get("confs", []),
+            history_policy=self.history_policy, rewrite_ms=rewrite_ms,
         )
         return TurnResult(
             turn_id=self.turn_id, user_text="",
