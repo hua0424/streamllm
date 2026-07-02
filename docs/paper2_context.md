@@ -458,8 +458,12 @@ for sentence_chunk in generate_sentences(
 **已跑通并验证的二期核心（本机 0.5B GPU）**：反向映射表 → KV累积/crop/role重建 → 断句+token映射 → 编排闭环(Mock TTS+播放器) → 指标埋点 + B-ours/B-gen 对照。**论文贡献2主链路全部在真模型上验证通过**。
 | 2026-07-02 | E3 一致性实验 harness | `src/dialogue/unheard_detector.py`（规则版未听引用检测）+ `experiments/scripts/run_exp3_consistency.py`（MultiWOZ 适配器+fixture / 打断场景 / B-ours vs B-gen / 增量保存）。fixture 18 场景验证：**B-ours 未听引用率 0.0% / B-gen 55.6%**，harness 自检 PASS。E3 决策：数据集 MultiWOZ 派生、检测器规则版先行+LLM-judge 留实验机、已 push origin/paper2 |
 
-**尚未做**：E1 延迟 harness、E2 trade-off（需软触发 TEN，现"到点即生成"占位）、贡献3 重写模块、real CosyVoice2 + 真实 MultiWOZ + LLM-judge（均实验机）。
-**E3 harness 上实验机清单**：① 换真实 MultiWOZ（`--dialogues`，格式见脚本 `load_dialogues`）② LLM-judge 替换/交叉验证规则检测器 ③ 主 LLM 换 7B ④ TimingProfile 填真实 CosyVoice2 benchmark。
+| 2026-07-02 | C1 软触发+推测-作废 + E2 harness | trigger.py（替身 AUC~0.80；**D-011：TEN 实测 7.6B 非 0.5B**，实验机同接口换入）+ orchestrator 推测状态机 + E2 曲线：th0.02→waste30.4%/TTFT0.5ms…th≥0.12→0%/43-75ms，拐点清晰 |
+| 2026-07-02 | 贡献3 三策略 + A2 harness | rewriter.py（Qwen3-0.6B）+ history_policy(naive/mark/rewrite)；重写 mean~660ms 支撑"可隐藏"论点 |
+| 2026-07-02 | A1 微基准 + E1 harness | **barge-in 响应=反查+crop 仅 0.12-0.19ms 近常数**（role 重建不在关键路径）；re-prefill 14→63ms 线性；E1: A TTFT 24.8ms vs B 0ms，建模 m2e 2289 vs 45ms |
+
+**全部 6 个实验（E1/E2/E3/A1/A2/A3）的 harness 已在验证机 0.5B 跑通并自检 PASS**（A3 与 E2 共享数据）。完整状态表 + 实验机待办清单见 `paper2/experiment_design.md` §9'。
+**实验机总清单**：① 真实 MultiWOZ 派生数据 ② 主 LLM 7B ③ TEN 7B 软触发（阈值重标）④ real CosyVoice2（TimingProfile/SYNTH_RTF 实测替换 + mouth-to-ear 实测）⑤ LLM-judge（E3 交叉验证 + A2 连贯性评分）⑥ 可选：真实音频→流式 ASR 链路接入。
 
 **环境现状**：本机 5070 Ti GPU 可用（torch 2.8.0+cu128），可跑 0.5B 全链路验证。
 **环境坑（验证机）**：① `.env` 的 `HF_HOME=/mhh/model/hfhome` 在本机为空（无缓存）；② `.env` 的 `HF_TOKEN` 已失效，会导致公开模型也 401——**下载模型时需 `HF_TOKEN=` 清空**；③ `.env` 的 `LLM_MODEL_NAME=Qwen/Qwen2-7B-Instruct` 是实验模型，验证机代码应显式传 `model_name="Qwen/Qwen2.5-0.5B-Instruct"`。
