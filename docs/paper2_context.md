@@ -448,7 +448,15 @@ for sentence_chunk in generate_sentences(
 
 | 2026-07-02 | 打断→反查→截断 端到端 demo | `src/dialogue/run_bargein_demo.py`：PlaybackTimeline + crop_to_token 拼接，0.5B GPU **ALL PASS**。可视化核心命题：生成16token、播到60%打断→只把听到的12token进KV/历史、作废4token、续轮基于"听到的历史"连贯生成。逐 token-id 校验裁剪前缀正确 |
 
-**HF_HOME 已迁至 `/workspace/hfhome`**（本验证机；`.env` 改动**未提交**，因 `.env` 被跟踪且原为实验机配置）。
+| 2026-07-02 | stream2sentence 接入 | `src/tts/sentence_chunker.py`：句子→assistant token 区间映射（非空白字符计数对齐），英文 smoke 非空白守恒 PASS |
+| 2026-07-02 | 编排闭环端到端跑通 | `src/tts/streaming_tts.py`(接口+Mock)、`src/player/`、`src/dialogue/orchestrator.py`。3 轮对话 demo ALL PASS：打断只留"听到内容"进历史、KV 三长度全程一致、多轮连贯。**论文核心贡献已是一条跑通的闭环**（真实 ASR/TTS/软触发为 swap-in） |
+
+| 2026-07-02 | 指标埋点 + 截断模式开关 | orchestrator 加 TurnMetrics(§6 埋点：浪费率/未听却进历史/TTFT/mouth-to-ear) + truncation_mode(B-ours/B-gen/B-syn)。`run_conditions_demo` 量化 E3 差异：B-ours 历史 unheard=0、B-gen unheard>0（幻觉土壤） |
+
+**HF_HOME 已迁至 `/workspace/hfhome`**（本验证机）；`.env` 已停止 git 跟踪，改用 `.env.example` 模板，每机自维护。
+
+**已跑通并验证的二期核心（本机 0.5B GPU）**：反向映射表 → KV累积/crop/role重建 → 断句+token映射 → 编排闭环(Mock TTS+播放器) → 指标埋点 + B-ours/B-gen 对照。**论文贡献2主链路全部在真模型上验证通过**。
+**尚未做**：完整实验 harness（数据集构造 + 批量跑 + 未听内容引用率检测器/LLM-judge）、软触发 TEN（现"到点即生成"占位）、贡献3 重写模块、real CosyVoice2（实验机）。
 
 **环境现状**：本机 5070 Ti GPU 可用（torch 2.8.0+cu128），可跑 0.5B 全链路验证。
 **环境坑（验证机）**：① `.env` 的 `HF_HOME=/mhh/model/hfhome` 在本机为空（无缓存）；② `.env` 的 `HF_TOKEN` 已失效，会导致公开模型也 401——**下载模型时需 `HF_TOKEN=` 清空**；③ `.env` 的 `LLM_MODEL_NAME=Qwen/Qwen2-7B-Instruct` 是实验模型，验证机代码应显式传 `model_name="Qwen/Qwen2.5-0.5B-Instruct"`。
