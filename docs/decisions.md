@@ -5,6 +5,30 @@
 
 ---
 
+## D-010（2026-07-02）TTS 策略：Mock-first（时长 profile 驱动）+ real CosyVoice2 仅在实验机
+
+**决策**：
+- **验证机（本机 Blackwell）永不装 real CosyVoice2**——它硬 pin torch==2.3.1+cu121，与 sm_120 根本不兼容（正是 D-009 升级掉的版本）。
+- 编排闭环用 **Mock TTS**：由**真实测得的时长 profile**（每字符≈多少采样、首块延迟≈45ms）驱动，与真机**时序等价**。定义 `StreamingTTS` 接口，Mock 与 CosyVoice2 都是其实现（swap-in）。
+- **real CosyVoice2 只在实验机（3090 Ampere，官方 pin 可装）跑**，且仅用于：① E1 的 mouth-to-ear 最可信数字；② 定性 demo。
+- 工作流：本机把**全部实验代码**用 Mock 跑通验证 → 上实验机直接换 real CosyVoice2 实现跑出最终结果。
+
+**背景**：CosyVoice2 官方 requirements pin torch==2.3.1/transformers==4.51.3/cu121，与本机 torch 2.8+cu128 冲突。经分析（见下）其对实验的贡献可归约为"时长 + 延迟 profile"。
+
+**理由（CosyVoice2 在实验中的真实角色）**：
+- 全部实验指标都是**时序或文本**类，无一需要真听音频；P1 已定确定性程序注入，不需实时交互播放。
+- CosyVoice2 对实验只贡献两样：**片段音频时长**（驱动模拟播放时钟，可用一次性测得的 profile 参数化）+ **首块延迟**（mouth-to-ear，最好真机 live 测）。
+- assistant 文本每次动态生成且依赖打断，无法预烤成固定音频集；故 CosyVoice2 是"一次性 characterize + 实验机 live 少量指标"，而非"预处理后丢弃"，也非"每个实验都 live"。
+
+**影响**：
+- 新增 `src/tts/streaming_tts.py`（接口 + TimingProfile + MockStreamingTTS）、`src/player/`（SimulatedPlayer）、`src/dialogue/orchestrator.py`（编排闭环）
+- TimingProfile 初值为占位（英文 ~1000 samples/char、首块 45ms），**上实验机后用真实 benchmark 替换**
+- CosyVoice2 实现类留待实验机；接口先定死
+
+**状态**：accepted
+
+---
+
 ## D-009（2026-07-01）torch 升级到 cu128 以支持 Blackwell（5070 Ti）
 
 **决策**：`pyproject.toml` 的 PyTorch 栈从 cu121 升到 **cu128 / torch 2.8.0 trio**：
