@@ -456,7 +456,10 @@ for sentence_chunk in generate_sentences(
 **HF_HOME 已迁至 `/workspace/hfhome`**（本验证机）；`.env` 已停止 git 跟踪，改用 `.env.example` 模板，每机自维护。
 
 **已跑通并验证的二期核心（本机 0.5B GPU）**：反向映射表 → KV累积/crop/role重建 → 断句+token映射 → 编排闭环(Mock TTS+播放器) → 指标埋点 + B-ours/B-gen 对照。**论文贡献2主链路全部在真模型上验证通过**。
-**尚未做**：完整实验 harness（数据集构造 + 批量跑 + 未听内容引用率检测器/LLM-judge）、软触发 TEN（现"到点即生成"占位）、贡献3 重写模块、real CosyVoice2（实验机）。
+| 2026-07-02 | E3 一致性实验 harness | `src/dialogue/unheard_detector.py`（规则版未听引用检测）+ `experiments/scripts/run_exp3_consistency.py`（MultiWOZ 适配器+fixture / 打断场景 / B-ours vs B-gen / 增量保存）。fixture 18 场景验证：**B-ours 未听引用率 0.0% / B-gen 55.6%**，harness 自检 PASS。E3 决策：数据集 MultiWOZ 派生、检测器规则版先行+LLM-judge 留实验机、已 push origin/paper2 |
+
+**尚未做**：E1 延迟 harness、E2 trade-off（需软触发 TEN，现"到点即生成"占位）、贡献3 重写模块、real CosyVoice2 + 真实 MultiWOZ + LLM-judge（均实验机）。
+**E3 harness 上实验机清单**：① 换真实 MultiWOZ（`--dialogues`，格式见脚本 `load_dialogues`）② LLM-judge 替换/交叉验证规则检测器 ③ 主 LLM 换 7B ④ TimingProfile 填真实 CosyVoice2 benchmark。
 
 **环境现状**：本机 5070 Ti GPU 可用（torch 2.8.0+cu128），可跑 0.5B 全链路验证。
 **环境坑（验证机）**：① `.env` 的 `HF_HOME=/mhh/model/hfhome` 在本机为空（无缓存）；② `.env` 的 `HF_TOKEN` 已失效，会导致公开模型也 401——**下载模型时需 `HF_TOKEN=` 清空**；③ `.env` 的 `LLM_MODEL_NAME=Qwen/Qwen2-7B-Instruct` 是实验模型，验证机代码应显式传 `model_name="Qwen/Qwen2.5-0.5B-Instruct"`。
