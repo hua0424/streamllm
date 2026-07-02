@@ -214,15 +214,24 @@ class DialogueOrchestrator:
             if f.has_audio and f.sample_end > f.sample_start:
                 frac_in = (timeline.played_samples - f.sample_start) / (f.sample_end - f.sample_start)
                 frac_in = min(max(frac_in, 0.0), 1.0)
-                strict_tail = f.text[int(round(frac_in * len(f.text))):]
-        strict_unheard = strict_tail + unheard_in_hist
+                cut = int(round(frac_in * len(f.text)))
+                # 切点吸附到词边界（向前找空白）：避免半个词进 strict 尾部——
+                # 半词会让 cue 检测器误报（子串命中完整词）或漏报（<6 字符被丢）
+                while cut > 0 and not f.text[cut - 1].isspace():
+                    cut -= 1
+                strict_tail = f.text[cut:]
+        # 用空格连接，防止片段边界两词粘连破坏词边界 cue 提取
+        strict_unheard = (strict_tail + " " + unheard_in_hist).strip() if strict_tail else unheard_in_hist
 
         # ---- 贡献3：被打断轮的历史处理策略（assistant role 尚未关闭，追加/替换发生在此）----
         rewrite_ms = 0.0
         kv_reused_len, kv_recomputed_len = keep, 0
         # "被打断"的用户感知语义：有片段被丢弃（keep_rel<n_gen）**或**被打断片段只播了一半
-        # （partial——即使它是最后一个片段、无 token 被丢，用户体验仍是打断，标记/重写应生效）
-        truly_truncated = interrupted and (keep_rel < n_gen or partial)
+        # （partial——即使它是最后一个片段、无 token 被丢，用户体验仍是打断，标记/重写应生效）。
+        # 历史策略仅在 playback 模式下语义成立：generation/synthesis 的历史含未听内容，
+        # 标记会被追加到"未听文本之后"、位置错误（re-review NEW-MINOR）。
+        truly_truncated = (interrupted and (keep_rel < n_gen or partial)
+                           and self.truncation_mode == "playback")
         if truly_truncated and self.history_policy == "mark":
             # 标记法：在被截断的 assistant 内容尾部追加打断标记（零延迟零模型成本）。
             # _prefill_text_p2 是"向当前打开的 role 追加裸文本"，此时打开的是 assistant。

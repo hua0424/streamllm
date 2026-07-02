@@ -38,7 +38,7 @@ def main():
     logger.info("二期 KV crop / role 重建 smoke test")
     logger.info("=" * 60)
 
-    # 验证机用 0.5B 小模型（不用 .env 里的 7B 实验模型）；device auto→cuda
+    # 模型走 P2_LLM_MODEL_NAME（默认 0.5B；.env 覆盖后 smoke 也会用覆盖值，注意显存）
     llm = StreamLLMInference(model_name=P2_LLM_MODEL_NAME, eval_mode=False)
     logger.info(f"device={llm.device}, role_switch={llm._role_switch_to_user!r}")
 

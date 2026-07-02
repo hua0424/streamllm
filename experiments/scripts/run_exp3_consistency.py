@@ -134,8 +134,9 @@ def run(dialogues, out_path: Path, max_spec: int, model_name: str):
         rs = [r for r in records if r["condition"] == cond]
         if not rs:
             continue
-        loose = sum(r["referenced_unheard"] for r in rs) / len(rs)
-        strict = sum(r["referenced_unheard_strict"] for r in rs) / len(rs)
+        # .get 容错：断点续传若混入旧 schema 记录（无 strict 字段）不崩溃
+        loose = sum(r.get("referenced_unheard", False) for r in rs) / len(rs)
+        strict = sum(r.get("referenced_unheard_strict", False) for r in rs) / len(rs)
         avg_unheard = sum(r["n_unheard_in_history"] for r in rs) / len(rs)
         summary[cond] = {"n": len(rs),
                          "unheard_reference_rate_loose": round(loose, 3),

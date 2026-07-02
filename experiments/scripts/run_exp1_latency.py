@@ -5,8 +5,9 @@
 
 指标（experiment_design.md §5 E1）：
   - TTFT_text：用户说完 → LLM 首 token（本机真实测量，核心对比）
-  - mouth-to-ear：说完 → 听到首块音频（**建模值**：B=TTFT+TTS首块延迟；
-    A=TTFT+全部生成+完整合成(音频时长×RTF)。正式数值实验机 real CosyVoice2 测）
+  - mouth-to-ear：说完 → 听到首块音频（**建模值**：B=首个句子片段就绪+TTS首块延迟
+    （断句攒首片段的时间已计入）；A=全部生成+完整合成(音频时长×RTF)。
+    正式数值实验机 real CosyVoice2 测）
   - barge-in 响应延迟：见 run_exp_a1_kvreuse（反查+crop，0.12-0.19ms 近常数）
 
 System A：等完整 user 文本 → 一次性全量 prefill → 生成（一期非流式路径）→
