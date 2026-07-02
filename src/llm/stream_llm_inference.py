@@ -1,6 +1,6 @@
 # src/llm/stream_llm_inference.py
 import argparse
-from transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer
+from transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer, DynamicCache
 import torch
 import time
 import traceback
@@ -139,6 +139,13 @@ class StreamLLMInference:
         self.generation_prompt = full_template[index + len(init_user_text):]
         logger.debug(f"generator_text:{self.generation_prompt}")
 
+        # 二期（bargeincache）：从 generation_prompt 派生"关闭 assistant + 打开 user"的角色切换串。
+        # generation_prompt 形如 "<|im_end|>\n<|im_start|>assistant\n"（ChatML）。
+        assert self.generation_prompt.rstrip().endswith("assistant"), \
+            f"unexpected generation_prompt (need ChatML assistant open): {self.generation_prompt!r}"
+        self._role_switch_to_user = self.generation_prompt.replace("assistant\n", "user\n")
+        logger.debug(f"role_switch_to_user:{self._role_switch_to_user!r}")
+
         # 用于记录详细延迟的变量
         self.timing_events:Dict[StreamLLMInference.TimingEventType, float] = {}
 
@@ -149,6 +156,26 @@ class StreamLLMInference:
             self.pre_input_ids = pre_input_ids
             self.pre_attention_mask = pre_attention_mask
             self.next_token_logits = next_token_logits # 新增：保存最后的logits
+
+    class AccumKVCache:
+        """
+        二期（bargeincache）：边生成边累积、可被 crop 的 assistant-side KV 容器。
+
+        与一期 KVCache 的区别（见 docs/paper2_context.md Q4/Q5、docs/decisions.md D-001/D-008）：
+        - past_key_values 显式为 DynamicCache（支持 crop）
+        - 显式维护 seq_length（= attention_mask.shape[1] = past_key_values.get_seq_length()），
+          crop 时三者同步，避免靠 shape 间接推断
+        - 记录 assistant_start（本轮 assistant 内容起始的 KV 位置）与
+          assistant_token_ids（本轮已生成的 assistant token），供反向映射与推测回滚
+        """
+        def __init__(self, past_key_values, attention_mask, next_token_logits,
+                     seq_length: int, assistant_start: int, assistant_token_ids=None):
+            self.past_key_values = past_key_values        # DynamicCache
+            self.attention_mask = attention_mask          # [1, seq_length]，全 1
+            self.next_token_logits = next_token_logits    # 续生成所需的最后 logits（crop 后置 None）
+            self.seq_length = seq_length
+            self.assistant_start = assistant_start
+            self.assistant_token_ids = assistant_token_ids if assistant_token_ids is not None else []
 
     def get_last_timings(self):
         return self.timing_events
@@ -243,6 +270,144 @@ class StreamLLMInference:
             self.timing_events[self.TimingEventType.END_FUNCTION] = time.perf_counter()
 
         return None
+
+    # ===================================================================
+    # 二期（bargeincache）新增：assistant-side KV 累积 + 播放感知 crop + role 重建
+    # 一期的 generate()/cache_prompt()/once_add_and_generate() 保持不动（一期可复现）
+    # ===================================================================
+
+    def _as_dynamic_cache(self, pkv) -> DynamicCache:
+        """把 past_key_values 统一为 DynamicCache（legacy tuple 则转换）。见 D-001。"""
+        if isinstance(pkv, DynamicCache):
+            return pkv
+        return DynamicCache.from_legacy_cache(pkv)
+
+    def to_accum_cache(self, pre_cache: "StreamLLMInference.KVCache") -> "StreamLLMInference.AccumKVCache":
+        """
+        把一期 cache_prompt(is_end=True) 产出的 KVCache 包装为二期 AccumKVCache。
+        此时 KV 里已含 system+user+generation_prompt（assistant role 已打开），
+        assistant_start = 当前序列长度（后续生成的 token 从这里开始）。
+        """
+        seq_len = pre_cache.pre_attention_mask.shape[1]
+        return self.AccumKVCache(
+            past_key_values=self._as_dynamic_cache(pre_cache.past_key_values),
+            attention_mask=pre_cache.pre_attention_mask,
+            next_token_logits=pre_cache.next_token_logits,
+            seq_length=seq_len,
+            assistant_start=seq_len,
+            assistant_token_ids=[],
+        )
+
+    def generate_accumulating(self, cache: "StreamLLMInference.AccumKVCache",
+                              max_new_tokens=50, temperature=0.1, top_p=0.9,
+                              repetition_penalty=1.1):
+        """
+        二期版流式生成：边生成边把 assistant token 的 KV 写回 cache（可被 crop）。
+        yield (token_text, assistant_relative_idx)。第 i 个 assistant token 占据
+        KV 位置 assistant_start + i；生成后 cache.seq_length == assistant_start + 已生成数。
+        打断只需消费侧停止迭代；cache 即为可被 crop 的对象。
+        """
+        if cache is None or cache.next_token_logits is None:
+            raise Exception("AccumKVCache 未初始化或缺少起始 logits")
+        next_token_logits = cache.next_token_logits
+        for _ in range(max_new_tokens):
+            next_token_id = self._decode_logits(next_token_logits, temperature, top_p, repetition_penalty)
+            is_eos = next_token_id.item() == self.tokenizer.eos_token_id
+            token_text = self.tokenizer.decode(next_token_id[0], skip_special_tokens=True)
+            rel_idx = len(cache.assistant_token_ids)  # 该 token 的 assistant 相对下标
+
+            # 显式拼 attention_mask 与 position_ids（与一期 _add_stream_prompt 同风格，Q2）
+            gen_attention_mask = torch.cat(
+                [cache.attention_mask,
+                 torch.ones((1, 1), device=self.device, dtype=cache.attention_mask.dtype)],
+                dim=-1,
+            )
+            position_ids = torch.tensor([[cache.seq_length]], dtype=torch.long, device=self.device)
+            with torch.no_grad():
+                outputs = self.model(
+                    input_ids=next_token_id,
+                    attention_mask=gen_attention_mask,
+                    position_ids=position_ids,
+                    past_key_values=cache.past_key_values,
+                    use_cache=True,
+                    return_dict=True,
+                )
+            cache.past_key_values = outputs.past_key_values
+            cache.attention_mask = gen_attention_mask
+            cache.seq_length += 1
+            cache.assistant_token_ids.append(int(next_token_id.item()))
+            next_token_logits = outputs.logits[:, -1, :]
+            cache.next_token_logits = next_token_logits
+
+            yield token_text, rel_idx
+            if is_eos:
+                break
+
+    def crop_to_token(self, cache: "StreamLLMInference.AccumKVCache",
+                      keep_seq_len: int) -> "StreamLLMInference.AccumKVCache":
+        """
+        播放感知 KV 截断（贡献2核心）：把 KV 裁到绝对长度 keep_seq_len（保留 [0, keep_seq_len)）。
+        keep_seq_len 由编排层依据 PlaybackTimeline 反查得到（= assistant_start + 听到的 assistant token 数；
+        推测整段作废时 = assistant_start）。crop 后同步截短 attention_mask、更新 seq_length（Q2 陷阱）。
+        crop 不重算 logits，next_token_logits 置 None——续轮会经 reopen/prefill 重新产生。
+        """
+        keep_seq_len = int(keep_seq_len)
+        if not (0 <= keep_seq_len <= cache.seq_length):
+            raise ValueError(f"keep_seq_len {keep_seq_len} 越界 (0..{cache.seq_length})")
+        cache.past_key_values.crop(keep_seq_len)
+        cache.attention_mask = cache.attention_mask[:, :keep_seq_len]
+        cache.seq_length = keep_seq_len
+        kept_assistant = max(0, keep_seq_len - cache.assistant_start)
+        cache.assistant_token_ids = cache.assistant_token_ids[:kept_assistant]
+        cache.next_token_logits = None
+        logger.debug(f"[p2] crop → seq_length={cache.seq_length}, kept_assistant={kept_assistant}")
+        return cache
+
+    def _prefill_text_p2(self, cache: "StreamLLMInference.AccumKVCache",
+                         text: str) -> "StreamLLMInference.AccumKVCache":
+        """二期内部：把裸文本（含特殊 token）prefill 进 KV，显式管理 mask/position_ids。"""
+        if not text:
+            raise Exception("prefill 文本为空")
+        inputs = self.tokenizer(text, return_tensors="pt", add_special_tokens=False).to(self.device)
+        ids = inputs.input_ids
+        n = ids.shape[1]
+        if n == 0:
+            raise Exception("prefill 文本无有效 token")
+        attn = torch.cat(
+            [cache.attention_mask, torch.ones(ids.shape, device=self.device, dtype=cache.attention_mask.dtype)],
+            dim=-1,
+        )
+        position_ids = torch.arange(cache.seq_length, cache.seq_length + n,
+                                    dtype=torch.long, device=self.device).unsqueeze(0)
+        with torch.no_grad():
+            outputs = self.model(
+                input_ids=ids,
+                attention_mask=attn,
+                position_ids=position_ids,
+                past_key_values=cache.past_key_values,
+                use_cache=True,
+                return_dict=True,
+            )
+        cache.past_key_values = outputs.past_key_values
+        cache.attention_mask = attn
+        cache.seq_length += n
+        cache.next_token_logits = outputs.logits[:, -1, :]
+        return cache
+
+    def reopen_user_role(self, cache: "StreamLLMInference.AccumKVCache") -> "StreamLLMInference.AccumKVCache":
+        """crop 后重建 role 边界：注入 "<|im_end|>\\n<|im_start|>user\\n" 关闭 assistant、打开 user（Q3）。"""
+        return self._prefill_text_p2(cache, self._role_switch_to_user)
+
+    def open_assistant_role(self, cache: "StreamLLMInference.AccumKVCache") -> "StreamLLMInference.AccumKVCache":
+        """关闭 user、打开新 assistant（注入 generation_prompt）；之后可再 generate_accumulating。"""
+        cache = self._prefill_text_p2(cache, self.generation_prompt)
+        cache.assistant_start = cache.seq_length   # 新一轮 assistant 内容起点
+        cache.assistant_token_ids = []
+        return cache
+
+    def prefill_user_text(self, cache: "StreamLLMInference.AccumKVCache", text: str) -> "StreamLLMInference.AccumKVCache":
+        """向当前打开的 user role 追加用户新输入文本（裸文本，续累积）。"""
+        return self._prefill_text_p2(cache, text)
 
     def _init_kv_cache(self, prompt_text) -> KVCache:
         """

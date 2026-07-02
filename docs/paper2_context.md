@@ -444,7 +444,10 @@ for sentence_chunk in generate_sentences(
 
 | 2026-07-01 | torch 升级 cu128（D-009） | 本机 5070 Ti GPU **已解锁**：torch 2.8.0+cu128，sm_120 matmul 跑通；一期栈回归正常、`DynamicCache.crop` 可用、timeline 测试仍 PASS。同版本兼容 3090 |
 
-**环境现状**：本机 5070 Ti GPU 可用（torch 2.8.0+cu128）。可跑 0.5B 全链路验证。
+| 2026-07-02 | LLM KV 机制落地 + GPU 验证 | `stream_llm_inference.py` 新增 `AccumKVCache` + `generate_accumulating`/`crop_to_token`/`reopen_user_role`/`open_assistant_role`/`prefill_user_text`（一期方法零改动）。`run_kvcrop_test.py` 0.5B GPU **ALL PASS**：累积→crop→role重建→续轮 KV 三长度(seq/mask/DynamicCache)全程一致，裁到 4 token 后仍连贯续生成多轮 |
+
+**环境现状**：本机 5070 Ti GPU 可用（torch 2.8.0+cu128），可跑 0.5B 全链路验证。
+**环境坑（验证机）**：① `.env` 的 `HF_HOME=/mhh/model/hfhome` 在本机为空（无缓存）；② `.env` 的 `HF_TOKEN` 已失效，会导致公开模型也 401——**下载模型时需 `HF_TOKEN=` 清空**；③ `.env` 的 `LLM_MODEL_NAME=Qwen/Qwen2-7B-Instruct` 是实验模型，验证机代码应显式传 `model_name="Qwen/Qwen2.5-0.5B-Instruct"`。
 
 **下一个里程碑（进行中）**：`src/llm/stream_llm_inference.py` 改造——`generate()` 边生成边累积可 crop 的 assistant-side KVCache（Q4/Q5）+ `DynamicCache.crop` + role 重建（Q3）。这是第一个需要跑 0.5B LLM 的 mini demo（CPU 可 smoke），把 PlaybackTimeline 的 `crop_token_end` 接到真实 KV 上。
 
