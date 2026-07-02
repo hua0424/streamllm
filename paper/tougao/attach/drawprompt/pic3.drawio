@@ -1,6 +1,6 @@
 <mxfile host="Electron">
   <diagram name="图3 流式并行架构逻辑拓扑" id="0">
-    <mxGraphModel dx="1084" dy="659" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1180" pageHeight="590" math="0" shadow="0">
+    <mxGraphModel dx="1212" dy="736" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1180" pageHeight="590" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -22,70 +22,70 @@
             <mxPoint x="1160" y="286" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="L1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cfe2f3;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;fontColor=#2f4d6e;" value="Audio Input&#xa;16 kHz PCM&#xa;&#xa;Thread 1" vertex="1">
+        <mxCell id="L1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cfe2f3;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;fontColor=#2f4d6e;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;Audio Input&lt;br&gt;16 kHz PCM&lt;br&gt;Thread 1&lt;/font&gt;" vertex="1">
           <mxGeometry height="60" width="134" x="24" y="48" as="geometry" />
         </mxCell>
-        <mxCell id="L2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;fontColor=#2f4d6e;" value="Streaming Audio&#xa;Segmenter&#xa;&#xa;Thread 2" vertex="1">
+        <mxCell id="L2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;fontColor=#2f4d6e;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;Streaming Audio&lt;br&gt;Segmenter&lt;br&gt;Thread 2&lt;/font&gt;" vertex="1">
           <mxGeometry height="60" width="134" x="24" y="132" as="geometry" />
         </mxCell>
-        <mxCell id="L3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;fontColor=#5b3a76;" value="Context-Aware&lt;br&gt;ASR Engine&lt;br&gt;Thread 3 (collector + transcriber)" vertex="1">
+        <mxCell id="L3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;fontColor=#5b3a76;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;Context-Aware&lt;br&gt;ASR Engine&lt;br&gt;Thread 3 (collector + transcriber)&lt;/font&gt;" vertex="1">
           <mxGeometry height="60" width="134" x="24" y="216" as="geometry" />
         </mxCell>
         <mxCell id="L4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;fontColor=#4d6e3a;" value="Incremental LLM&#xa;Inference&#xa;&#xa;Thread 4" vertex="1">
           <mxGeometry height="92" width="134" x="24" y="300" as="geometry" />
         </mxCell>
-        <mxCell id="cAudio" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cfe2f3;strokeColor=#6c8ebf;fontSize=11;" value="Audio Chunk Generator&#xa;continuous 16 kHz PCM · 500 ms chunks" vertex="1">
+        <mxCell id="cAudio" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cfe2f3;strokeColor=#6c8ebf;fontSize=11;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;Audio Chunk Generator&lt;br&gt;continuous 16 kHz PCM · 500 ms chunks&lt;/font&gt;" vertex="1">
           <mxGeometry height="48" width="178" x="179" y="52" as="geometry" />
         </mxCell>
-        <mxCell id="Q1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=9;fontColor=#555555;" value="audio_chunk_queue&#xa;▮ ▮ ▮ ▮" vertex="1">
+        <mxCell id="Q1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=9;fontColor=#555555;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;audio_chunk_queue&lt;br&gt;▮ ▮ ▮ ▮&lt;/font&gt;" vertex="1">
           <mxGeometry height="44" width="138" x="379" y="54" as="geometry" />
         </mxCell>
-        <mxCell id="sStream" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9aa9bd;dashed=1;dashPattern=4 4;fontSize=9;fontColor=#5a6b85;" value="StreamState" vertex="1">
+        <mxCell id="sStream" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9aa9bd;dashed=1;dashPattern=4 4;fontSize=9;fontColor=#5a6b85;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;StreamState&lt;/font&gt;" vertex="1">
           <mxGeometry height="40" width="86" x="252" y="138" as="geometry" />
         </mxCell>
-        <mxCell id="cVAD" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" value="Silero VAD &amp; Segmentation&#xa;→ speech segments" vertex="1">
+        <mxCell id="cVAD" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;Silero VAD &amp;amp; Segmentation&lt;br&gt;→ speech segments&lt;/font&gt;" vertex="1">
           <mxGeometry height="48" width="180" x="362" y="136" as="geometry" />
         </mxCell>
-        <mxCell id="Q2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=9;fontColor=#555555;" value="audio_segment_queue&#xa;▮ ▮ ▮ ▮" vertex="1">
+        <mxCell id="Q2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=9;fontColor=#555555;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;audio_segment_queue&lt;br&gt;▮ ▮ ▮ ▮&lt;/font&gt;" vertex="1">
           <mxGeometry height="44" width="138" x="564" y="138" as="geometry" />
         </mxCell>
-        <mxCell id="sASRCache" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b39ac4;dashed=1;dashPattern=4 4;fontSize=9;fontColor=#6a4a86;" value="ASRCache" vertex="1">
+        <mxCell id="sASRCache" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b39ac4;dashed=1;dashPattern=4 4;fontSize=9;fontColor=#6a4a86;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;ASRCache&lt;/font&gt;" vertex="1">
           <mxGeometry height="40" width="86" x="434" y="222" as="geometry" />
         </mxCell>
-        <mxCell id="cASR" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="Streaming ASR (Whisper)&#xa;sliding-window context — Fig. 4&#xa;→ stable transcript chunks" vertex="1">
+        <mxCell id="cASR" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;Streaming ASR (Whisper)&lt;br&gt;sliding-window context — Fig. 4&lt;br&gt;→ stable transcript chunks&lt;/font&gt;" vertex="1">
           <mxGeometry height="52" width="190" x="544" y="218" as="geometry" />
         </mxCell>
-        <mxCell id="Q3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=9;fontColor=#555555;" value="text_chunk_queue&#xa;▮ ▮ ▮ ▮" vertex="1">
+        <mxCell id="Q3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=9;fontColor=#555555;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;text_chunk_queue&lt;br&gt;▮ ▮ ▮ ▮&lt;/font&gt;" vertex="1">
           <mxGeometry height="44" width="138" x="756" y="222" as="geometry" />
         </mxCell>
         <mxCell id="cLLM" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eef7ec;strokeColor=#82b366;strokeWidth=1.5;verticalAlign=top;fontSize=10;fontStyle=1;fontColor=#4d6e3a;" value="" vertex="1">
-          <mxGeometry height="92" width="256" x="775" y="300" as="geometry" />
+          <mxGeometry height="92" width="256" x="745" y="300" as="geometry" />
         </mxCell>
-        <mxCell id="cLLMtitle" parent="1" style="text;html=1;align=center;fontSize=9;fontStyle=1;fontColor=#4d6e3a;" value="Incremental LLM Inference (Prefill &amp; Generation)" vertex="1">
-          <mxGeometry height="14" width="248" x="779" y="304" as="geometry" />
+        <mxCell id="cLLMtitle" parent="1" style="text;html=1;align=center;fontSize=9;fontStyle=1;fontColor=#4d6e3a;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;Incremental LLM Inference (Prefill &amp;amp; Generation)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="14" width="248" x="749" y="304" as="geometry" />
         </mxCell>
-        <mxCell id="subPrefill" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="Incremental Prefill&#xa;&amp; KV-Cache Update" vertex="1">
-          <mxGeometry height="54" width="130" x="787" y="328" as="geometry" />
+        <mxCell id="subPrefill" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;Incremental Prefill&lt;br&gt;&amp;amp; KV-Cache Update&lt;/font&gt;" vertex="1">
+          <mxGeometry height="54" width="130" x="757" y="328" as="geometry" />
         </mxCell>
-        <mxCell id="subGen" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" value="Response&#xa;Generation" vertex="1">
-          <mxGeometry height="54" width="94" x="927" y="328" as="geometry" />
+        <mxCell id="subGen" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;fontStyle=1;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;Response&lt;br&gt;Generation&lt;/font&gt;" vertex="1">
+          <mxGeometry height="54" width="94" x="897" y="328" as="geometry" />
         </mxCell>
-        <mxCell id="kvCache" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" value="KV Cache (VRAM)&#xa;past_key_values&#xa;attention_mask" vertex="1">
-          <mxGeometry height="64" width="100" x="651" y="312" as="geometry" />
+        <mxCell id="kvCache" parent="1" style="shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;KV Cache (VRAM)&lt;br&gt;past_key_values&lt;br&gt;attention_mask&lt;/font&gt;" vertex="1">
+          <mxGeometry height="72" width="141" x="522" y="310" as="geometry" />
         </mxCell>
-        <mxCell id="nEnd" parent="1" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;fontColor=#995500;" value="End Marker / End of Speech&#xa;control signal (from VAD)" vertex="1">
+        <mxCell id="nEnd" parent="1" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;fontColor=#995500;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;End Marker / End of Speech&lt;br&gt;control signal (from VAD)&lt;/font&gt;" vertex="1">
           <mxGeometry height="36" width="180" x="940" y="243" as="geometry" />
         </mxCell>
-        <mxCell id="outFirst" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9cc97f;strokeColor=#5b8a3a;fontSize=10;fontStyle=1;fontColor=#2f4d1e;" value="First Token&#xa;(TTFT)" vertex="1">
-          <mxGeometry height="46" width="72" x="1047" y="332" as="geometry" />
+        <mxCell id="outFirst" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9cc97f;strokeColor=#5b8a3a;fontSize=10;fontStyle=1;fontColor=#2f4d1e;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;First Token&lt;br&gt;(TTFT)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="46" width="72" x="1064" y="332" as="geometry" />
         </mxCell>
-        <mxCell id="outTokens" parent="1" style="text;html=1;align=left;fontSize=9;fontColor=#5b7a44;" value="→ subsequent output tokens" vertex="1">
+        <mxCell id="outTokens" parent="1" style="text;html=1;align=left;fontSize=9;fontColor=#5b7a44;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;→ subsequent output tokens&lt;/font&gt;" vertex="1">
           <mxGeometry height="24" width="90" x="1057" y="382" as="geometry" />
         </mxCell>
         <mxCell id="a1" edge="1" parent="1" source="cAudio" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="Q1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="a2" edge="1" parent="1" source="Q1" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;fontSize=9;fontColor=#333333;exitX=0.4;exitY=1;exitDx=0;exitDy=0;entryX=0.4;entryY=0;entryDx=0;entryDy=0;" target="cVAD" value="audio chunks">
+        <mxCell id="a2" edge="1" parent="1" source="Q1" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;fontSize=9;fontColor=#333333;exitX=0.4;exitY=1;exitDx=0;exitDy=0;entryX=0.4;entryY=0;entryDx=0;entryDy=0;" target="cVAD" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;audio chunks&lt;/font&gt;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="a3" edge="1" parent="1" source="cVAD" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="Q2">
@@ -100,7 +100,7 @@
             <mxPoint x="755" y="244" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="a6" edge="1" parent="1" source="Q3" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;fontSize=9;fontColor=#333333;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;" target="subPrefill" value="stable text chunks">
+        <mxCell id="a6" edge="1" parent="1" source="Q3" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;fontSize=9;fontColor=#333333;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;" target="subPrefill" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;stable text chunks&lt;/font&gt;">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="782.2" y="265.9999999999999" as="sourcePoint" />
           </mxGeometry>
@@ -108,13 +108,13 @@
         <mxCell id="a7" edge="1" parent="1" source="subPrefill" style="endArrow=block;html=1;strokeColor=#8a8a8a;strokeWidth=1.5;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="subGen">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="a8" edge="1" parent="1" source="subGen" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;fontSize=9;fontColor=#333333;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="outFirst" value="first token">
+        <mxCell id="a8" edge="1" parent="1" source="subGen" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;fontSize=9;fontColor=#333333;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="outFirst" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;first token&lt;/font&gt;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="kv1" edge="1" parent="1" source="kvCache" style="endArrow=block;startArrow=block;html=1;strokeColor=#6c8ebf;strokeWidth=1.5;fontSize=9;fontColor=#3b5b80;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="subPrefill" value="update / reuse">
+        <mxCell id="kv1" edge="1" parent="1" source="kvCache" style="endArrow=block;startArrow=block;html=1;strokeColor=#6c8ebf;strokeWidth=1.5;fontSize=9;fontColor=#3b5b80;exitX=0;exitY=0;exitDx=141;exitDy=46;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitPerimeter=0;" target="subPrefill" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;update / reuse&lt;/font&gt;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="end1" edge="1" parent="1" source="nEnd" style="endArrow=block;html=1;strokeColor=#d79b00;strokeWidth=2;dashed=1;dashPattern=6 4;fontSize=9;fontColor=#995500;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="subGen" value="trigger generation">
+        <mxCell id="end1" edge="1" parent="1" source="nEnd" style="endArrow=block;html=1;strokeColor=#d79b00;strokeWidth=2;dashed=1;dashPattern=6 4;fontSize=9;fontColor=#995500;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="subGen" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;trigger generation&lt;/font&gt;">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="st1" edge="1" parent="1" source="sStream" style="endArrow=none;html=1;strokeColor=#bbbbbb;strokeWidth=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="cVAD">
@@ -129,16 +129,16 @@
             <mxPoint x="1160" y="404" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="gTitle" parent="1" style="text;html=1;align=left;fontSize=11;fontStyle=1;fontColor=#333333;" value="Pipeline parallelism — temporal overlap" vertex="1">
+        <mxCell id="gTitle" parent="1" style="text;html=1;align=left;fontSize=11;fontStyle=1;fontColor=#333333;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;Pipeline parallelism — temporal overlap&lt;/font&gt;" vertex="1">
           <mxGeometry height="16" width="320" x="24" y="410" as="geometry" />
         </mxCell>
-        <mxCell id="barA" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" value="Audio arrival &amp; streaming ASR  (during user speech)" vertex="1">
+        <mxCell id="barA" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;Audio arrival &amp;amp; streaming ASR  (during user speech)&lt;/font&gt;" vertex="1">
           <mxGeometry height="24" width="593" x="180" y="434" as="geometry" />
         </mxCell>
-        <mxCell id="barB" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;" value="LLM incremental prefill  (KV-Cache update)" vertex="1">
+        <mxCell id="barB" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=9;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;LLM incremental prefill  (KV-Cache update)&lt;/font&gt;" vertex="1">
           <mxGeometry height="24" width="441" x="349" y="466" as="geometry" />
         </mxCell>
-        <mxCell id="barC" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" value="Generation &amp; First Token output" vertex="1">
+        <mxCell id="barC" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;Generation &amp;amp; First Token output&lt;/font&gt;" vertex="1">
           <mxGeometry height="24" width="320" x="792" y="498" as="geometry" />
         </mxCell>
         <mxCell id="eos" edge="1" parent="1" style="endArrow=none;html=1;strokeColor=#d79b00;strokeWidth=1.5;dashed=1;dashPattern=4 4;" value="">
@@ -147,19 +147,19 @@
             <mxPoint x="774" y="528" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="eosLbl" parent="1" style="text;html=1;align=center;fontSize=9;fontStyle=1;fontColor=#995500;" value="End of Speech" vertex="1">
+        <mxCell id="eosLbl" parent="1" style="text;html=1;align=center;fontSize=9;fontStyle=1;fontColor=#995500;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;End of Speech&lt;/font&gt;" vertex="1">
           <mxGeometry height="14" width="112" x="718" y="414" as="geometry" />
         </mxCell>
-        <mxCell id="overlapLbl" parent="1" style="text;html=1;align=center;fontSize=8;fontStyle=2;fontColor=#888888;" value="prefill overlaps with speech" vertex="1">
+        <mxCell id="overlapLbl" parent="1" style="text;html=1;align=center;fontSize=8;fontStyle=2;fontColor=#888888;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;prefill overlaps with speech&lt;/font&gt;" vertex="1">
           <mxGeometry height="12" width="320" x="400" y="490" as="geometry" />
         </mxCell>
-        <mxCell id="timeAxis" edge="1" parent="1" style="endArrow=block;html=1;strokeColor=#999999;strokeWidth=1.5;fontSize=9;fontColor=#777777;fontStyle=2;" value="time">
+        <mxCell id="timeAxis" edge="1" parent="1" style="endArrow=block;html=1;strokeColor=#999999;strokeWidth=1.5;fontSize=9;fontColor=#777777;fontStyle=2;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;time&lt;/font&gt;">
           <mxGeometry relative="1" as="geometry">
             <mxPoint x="180" y="534" as="sourcePoint" />
             <mxPoint x="1116" y="534" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="caption" parent="1" style="text;html=1;align=center;fontSize=9;fontColor=#666666;" value="Producer–consumer queues let ASR transcription and LLM prefill overlap with the user’s speech; after End-of-Speech only the last chunk and thread synchronization remain on the critical path." vertex="1">
+        <mxCell id="caption" parent="1" style="text;html=1;align=center;fontSize=9;fontColor=#666666;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 14px;&quot;&gt;Producer–consumer queues let ASR transcription and LLM prefill overlap with the user’s speech; after End-of-Speech only the last chunk and thread synchronization remain on the critical path.&lt;/font&gt;" vertex="1">
           <mxGeometry height="28" width="1060" x="60" y="552" as="geometry" />
         </mxCell>
       </root>

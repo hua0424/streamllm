@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
 """
-Plot TTFT vs audio duration for Experiment 1.
+Generate the SVG vector figure for Experiment 1 TTFT vs audio duration.
 - System A (non-streaming baseline): linear fit as theoretical linear growth (dashed).
 - System B (streaming): bucketed mean of measured TTFT (solid).
 """
 
+import argparse
 from pathlib import Path
 from typing import Tuple
 
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+
+
+DEFAULT_SUMMARY_FILE = "exp1_summary_20251210_024430.csv"
+DEFAULT_OUTPUT_FILE = "exp1_latency_ttft.svg"
 
 
 def load_data(csv_path: Path) -> pd.DataFrame:
@@ -64,10 +72,11 @@ def plot_ttft(summary_path: Path, output_path: Path) -> None:
     x_stream, y_stream = build_streaming_trend(streaming)
 
     sns.set_theme(style="whitegrid")
-    plt.figure(figsize=(8.5, 5.2))
+    matplotlib.rcParams["svg.fonttype"] = "path"
+    fig, ax = plt.subplots(figsize=(8.5, 5.2))
 
     # sample scatter (faded to show distribution)
-    plt.scatter(
+    ax.scatter(
         streaming["audio_duration"],
         streaming["ttft_ms"],
         s=12,
@@ -75,7 +84,7 @@ def plot_ttft(summary_path: Path, output_path: Path) -> None:
         color="#1f77b4",
         label="System B samples",
     )
-    plt.scatter(
+    ax.scatter(
         non_streaming["audio_duration"],
         non_streaming["ttft_ms"],
         s=12,
@@ -85,14 +94,14 @@ def plot_ttft(summary_path: Path, output_path: Path) -> None:
     )
 
     # smoothed curves
-    plt.plot(
+    ax.plot(
         x_stream,
         y_stream,
         color="#1f77b4",
         linewidth=2.2,
         label="System B bucketed mean",
     )
-    plt.plot(
+    ax.plot(
         x_line,
         y_line,
         color="#ff7f0e",
@@ -101,19 +110,38 @@ def plot_ttft(summary_path: Path, output_path: Path) -> None:
         label="System A linear fit (theoretical growth)",
     )
 
-    plt.xlabel("Audio Duration (s)")
-    plt.ylabel("Latency (ms)")
-    plt.title("TTFT vs Audio Duration (Experiment 1)")
-    plt.legend()
-    plt.tight_layout()
+    ax.set_xlabel("Audio Duration (s)")
+    ax.set_ylabel("Latency (ms)")
+    ax.set_title("TTFT vs Audio Duration (Experiment 1)")
+    ax.legend()
+    fig.tight_layout()
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=300)
+    fig.savefig(output_path, format="svg", dpi=300)
+    plt.close(fig)
     print(f"Figure saved to: {output_path}")
 
 
-if __name__ == "__main__":
+def parse_args() -> argparse.Namespace:
     base_dir = Path(__file__).resolve().parent
-    summary_file = base_dir / "exp1_summary_20251210_024430.csv"
-    output_file = base_dir / "exp1_latency_ttft.png"
-    plot_ttft(summary_file, output_file)
+    parser = argparse.ArgumentParser(
+        description="Generate the Experiment 1 TTFT figure as an SVG vector image."
+    )
+    parser.add_argument(
+        "--summary",
+        type=Path,
+        default=base_dir / DEFAULT_SUMMARY_FILE,
+        help="Path to the Experiment 1 summary CSV.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=base_dir / DEFAULT_OUTPUT_FILE,
+        help="Path to the output SVG file.",
+    )
+    return parser.parse_args()
+
+
+if __name__ == "__main__":
+    args = parse_args()
+    plot_ttft(args.summary, args.output)
 

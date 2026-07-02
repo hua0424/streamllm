@@ -1,0 +1,126 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="Fig2-KVCache-Mechanism" id="fig2-kvcache">
+    <mxGraphModel dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ===== Panels ===== -->
+        <mxCell id="panelL" value="" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;strokeWidth=1.5;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="20" y="45" width="410" height="495" as="geometry" />
+        </mxCell>
+        <mxCell id="panelR" value="" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1.5;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="470" y="45" width="410" height="495" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Sub-titles ===== -->
+        <mxCell id="titleL" value="Without KV Cache &#8212; Repeated Forward" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="32" y="55" width="386" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="titleR" value="With KV Cache &#8212; State Reuse" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="482" y="55" width="386" height="28" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Step captions ===== -->
+        <mxCell id="stepL" value="Generation step t : recompute all tokens" style="text;html=1;align=center;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="32" y="88" width="386" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="stepR" value="Generation step t : reuse cache, add one token" style="text;html=1;align=center;fontSize=11;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="482" y="88" width="386" height="18" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Token rows ===== -->
+        <!-- Left tokens: all recomputed (red) -->
+        <mxCell id="tL1" value="x&#8321;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1"><mxGeometry x="92" y="114" width="46" height="28" as="geometry" /></mxCell>
+        <mxCell id="tL2" value="x&#8322;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1"><mxGeometry x="144" y="114" width="46" height="28" as="geometry" /></mxCell>
+        <mxCell id="tL3" value="x&#8323;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1"><mxGeometry x="196" y="114" width="46" height="28" as="geometry" /></mxCell>
+        <mxCell id="tL4" value="x&#8324;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" vertex="1" parent="1"><mxGeometry x="248" y="114" width="46" height="28" as="geometry" /></mxCell>
+        <mxCell id="tL5" value="x&#8348;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="300" y="114" width="46" height="28" as="geometry" /></mxCell>
+
+        <!-- Right tokens: x1..x4 cached (gray), xt new (green) -->
+        <mxCell id="tR1" value="x&#8321;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=12;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="542" y="114" width="46" height="28" as="geometry" /></mxCell>
+        <mxCell id="tR2" value="x&#8322;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=12;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="594" y="114" width="46" height="28" as="geometry" /></mxCell>
+        <mxCell id="tR3" value="x&#8323;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=12;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="646" y="114" width="46" height="28" as="geometry" /></mxCell>
+        <mxCell id="tR4" value="x&#8324;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=12;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="698" y="114" width="46" height="28" as="geometry" /></mxCell>
+        <mxCell id="tR5" value="x&#8348;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="750" y="114" width="46" height="28" as="geometry" /></mxCell>
+
+        <!-- ===== Matrix labels ===== -->
+        <mxCell id="mlblL" value="Attention mask (causal)" style="text;html=1;align=center;fontSize=10;fontColor=#999999;" vertex="1" parent="1"><mxGeometry x="110" y="152" width="190" height="16" as="geometry" /></mxCell>
+        <mxCell id="mlblR" value="Attention mask (causal)" style="text;html=1;align=center;fontSize=10;fontColor=#999999;" vertex="1" parent="1"><mxGeometry x="560" y="152" width="190" height="16" as="geometry" /></mxCell>
+
+        <!-- ===== Matrix axis labels (borrowed from draft) ===== -->
+        <mxCell id="yAxisL" value="Query step &#8595; (generated tokens)" style="text;html=1;align=center;fontSize=9;fontColor=#888888;horizontal=0;" vertex="1" parent="1"><mxGeometry x="100" y="180" width="22" height="140" as="geometry" /></mxCell>
+        <mxCell id="xAxisL" value="Key/Value step &#8594; (context history)" style="text;html=1;align=center;fontSize=9;fontColor=#888888;" vertex="1" parent="1"><mxGeometry x="110" y="327" width="190" height="14" as="geometry" /></mxCell>
+        <mxCell id="yAxisR" value="Query step &#8595; (generated tokens)" style="text;html=1;align=center;fontSize=9;fontColor=#888888;horizontal=0;" vertex="1" parent="1"><mxGeometry x="550" y="180" width="22" height="140" as="geometry" /></mxCell>
+        <mxCell id="xAxisR" value="Key/Value step &#8594; (context history)" style="text;html=1;align=center;fontSize=9;fontColor=#888888;" vertex="1" parent="1"><mxGeometry x="560" y="327" width="190" height="14" as="geometry" /></mxCell>
+
+        <!-- ===== Matrix bounding boxes (dashed, behind cells) ===== -->
+        <mxCell id="mboxL" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#cccccc;dashed=1;" vertex="1" parent="1"><mxGeometry x="130" y="175" width="150" height="150" as="geometry" /></mxCell>
+        <mxCell id="mboxR" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#cccccc;dashed=1;" vertex="1" parent="1"><mxGeometry x="580" y="175" width="150" height="150" as="geometry" /></mxCell>
+
+        <!-- ===== LEFT matrix: lower-triangular all red (recomputed) ===== -->
+        <mxCell id="mL11" value="K&#8321;&#xa;V&#8321;" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;fontColor=#b85450;" vertex="1" parent="1"><mxGeometry x="130" y="175" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL21" value="" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="130" y="205" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL22" value="K&#8322;&#xa;V&#8322;" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;fontColor=#b85450;" vertex="1" parent="1"><mxGeometry x="160" y="205" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL31" value="" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="130" y="235" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL32" value="" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="160" y="235" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL33" value="K&#8323;&#xa;V&#8323;" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;fontColor=#b85450;" vertex="1" parent="1"><mxGeometry x="190" y="235" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL41" value="" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="130" y="265" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL42" value="" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="160" y="265" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL43" value="" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="190" y="265" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL44" value="K&#8324;&#xa;V&#8324;" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;fontColor=#b85450;" vertex="1" parent="1"><mxGeometry x="220" y="265" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL51" value="" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="130" y="295" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL52" value="" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="160" y="295" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL53" value="" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="190" y="295" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL54" value="" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="220" y="295" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mL55" value="K&#8348;&#xa;V&#8348;" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;fontColor=#b85450;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="250" y="295" width="30" height="30" as="geometry" /></mxCell>
+
+        <!-- ===== RIGHT matrix: rows 1-4 gray (cached), row 5 green (new) ===== -->
+        <mxCell id="mR11" value="K&#8321;&#xa;V&#8321;" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=9;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="580" y="175" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR21" value="" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" vertex="1" parent="1"><mxGeometry x="580" y="205" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR22" value="K&#8322;&#xa;V&#8322;" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=9;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="610" y="205" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR31" value="" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" vertex="1" parent="1"><mxGeometry x="580" y="235" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR32" value="" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" vertex="1" parent="1"><mxGeometry x="610" y="235" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR33" value="K&#8323;&#xa;V&#8323;" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=9;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="640" y="235" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR41" value="" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" vertex="1" parent="1"><mxGeometry x="580" y="265" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR42" value="" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" vertex="1" parent="1"><mxGeometry x="610" y="265" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR43" value="" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" vertex="1" parent="1"><mxGeometry x="640" y="265" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR44" value="K&#8324;&#xa;V&#8324;" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=9;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="670" y="265" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR51" value="" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="580" y="295" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR52" value="" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="610" y="295" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR53" value="" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="640" y="295" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR54" value="" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="670" y="295" width="30" height="30" as="geometry" /></mxCell>
+        <mxCell id="mR55" value="K&#8348;&#xa;V&#8348;" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;fontColor=#5a7d4f;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="700" y="295" width="30" height="30" as="geometry" /></mxCell>
+
+        <!-- legend for right matrix -->
+        <mxCell id="legGray" value="" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" vertex="1" parent="1"><mxGeometry x="746" y="205" width="14" height="14" as="geometry" /></mxCell>
+        <mxCell id="legGrayT" value="cached (reused)" style="text;html=1;align=left;fontSize=9;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="762" y="203" width="110" height="16" as="geometry" /></mxCell>
+        <mxCell id="legGreen" value="" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="746" y="225" width="14" height="14" as="geometry" /></mxCell>
+        <mxCell id="legGreenT" value="computed now (q&#8348;)" style="text;html=1;align=left;fontSize=9;fontColor=#666666;" vertex="1" parent="1"><mxGeometry x="762" y="223" width="110" height="16" as="geometry" /></mxCell>
+
+        <!-- ===== Annotations under matrices ===== -->
+        <mxCell id="annL" value="All cells recomputed every step:&#xa;self-attention over all N tokens" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fbe5e3;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1"><mxGeometry x="40" y="348" width="370" height="34" as="geometry" /></mxCell>
+        <mxCell id="annR" value="Only the new row (q&#8348;) is computed;&#xa;previous K,V are reused from the cache" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f3e6;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1"><mxGeometry x="490" y="348" width="370" height="34" as="geometry" /></mxCell>
+
+        <!-- ===== Big-O badges ===== -->
+        <mxCell id="boL" value="Per-step cost &#8776; O(N&#178;)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=14;" vertex="1" parent="1"><mxGeometry x="110" y="390" width="230" height="34" as="geometry" /></mxCell>
+        <mxCell id="boR" value="Per-step cost &#8776; O(N)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=14;" vertex="1" parent="1"><mxGeometry x="560" y="390" width="230" height="34" as="geometry" /></mxCell>
+
+        <!-- ===== Bottom blocks ===== -->
+        <mxCell id="botL" value="No reuse: K,V for x&#8321;&#8230;x&#8348; are&#xa;recomputed at every step" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fbe5e3;strokeColor=#b85450;fontSize=10;" vertex="1" parent="1"><mxGeometry x="70" y="448" width="310" height="64" as="geometry" /></mxCell>
+
+        <mxCell id="cacheBox" value="Past Key/Value Cache (VRAM)&#xa;K&#8321;,V&#8321; &#8230; K&#8348;&#8331;&#8321;,V&#8348;&#8331;&#8321;  (cached)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" vertex="1" parent="1"><mxGeometry x="480" y="448" width="200" height="64" as="geometry" /></mxCell>
+        <mxCell id="computeBox" value="Compute Q&#8348;,K&#8348;,V&#8348;&#xa;(new token only)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" vertex="1" parent="1"><mxGeometry x="710" y="448" width="158" height="64" as="geometry" /></mxCell>
+        <mxCell id="appendEdge" value="append K&#8348;,V&#8348;" style="endArrow=classic;html=1;rounded=0;strokeColor=#82b366;fontSize=9;fontColor=#5a7d4f;" edge="1" parent="1" source="computeBox" target="cacheBox">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ===== Bottom summary bar ===== -->
+        <mxCell id="bottomNote" value="KV Cache reuses cached Key/Value states to cut the per-step decoding cost from O(N&#178;) to O(N); it does not remove the O(M&#178;) cost of the initial prompt prefill." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="20" y="552" width="860" height="38" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
