@@ -442,7 +442,9 @@ for sentence_chunk in generate_sentences(
 
 | 2026-07-01 | 反向映射表落地 + CPU 验证 | `src/dialogue/timeline.py`（`PlaybackTimeline`，D-008）+ `run_timeline_test.py` smoke **24/24 PASS**（纯 Python，本机 CPU 跑通，不受 GPU/torch 不兼容影响）。修正了片段边界的 count 语义 off-by-one |
 
-**环境现状**：本机 5070 Ti(sm_120) 与当前 torch(cu121,≤sm_90) 不兼容，GPU 暂不可用；纯逻辑模块 CPU 可验。需 CosyVoice2/全链路时升 torch→cu128（兼容 3090）。
+| 2026-07-01 | torch 升级 cu128（D-009） | 本机 5070 Ti GPU **已解锁**：torch 2.8.0+cu128，sm_120 matmul 跑通；一期栈回归正常、`DynamicCache.crop` 可用、timeline 测试仍 PASS。同版本兼容 3090 |
+
+**环境现状**：本机 5070 Ti GPU 可用（torch 2.8.0+cu128）。可跑 0.5B 全链路验证。
 
 **下一个里程碑（进行中）**：`src/llm/stream_llm_inference.py` 改造——`generate()` 边生成边累积可 crop 的 assistant-side KVCache（Q4/Q5）+ `DynamicCache.crop` + role 重建（Q3）。这是第一个需要跑 0.5B LLM 的 mini demo（CPU 可 smoke），把 PlaybackTimeline 的 `crop_token_end` 接到真实 KV 上。
 

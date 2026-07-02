@@ -5,6 +5,33 @@
 
 ---
 
+## D-009（2026-07-01）torch 升级到 cu128 以支持 Blackwell（5070 Ti）
+
+**决策**：`pyproject.toml` 的 PyTorch 栈从 cu121 升到 **cu128 / torch 2.8.0 trio**：
+- index：`https://download.pytorch.org/whl/cu121` → `.../cu128`
+- `torch==2.8.0`、`torchvision==0.23.0`、`torchaudio==2.8.0`（cu128，cp310 均已确认可得）
+- **移除** 5 个显式 `nvidia-*-cu12==12.1.*` / `cudnn==9.1.0.*` pin，由 torch cu128 wheel 传递依赖自动拉取 12.8.x / cudnn 9.10
+
+**背景**：验证机 5070 Ti 是 Blackwell sm_120，旧 torch(cu121，≤sm_90) 不认这块卡（此即 handoff 所称"venv 损坏"真因）。
+
+**理由**：cu128 支持 sm_120，且**向下兼容 Ampere sm_86（3090 实验机）**——同一份 pyproject/lock 两台机器通用，无需分叉。选 2.8.0 而非更新的 2.9/2.10/2.11：成熟稳定、Blackwell 支持完善。
+
+**验证**（本机 5070 Ti，2026-07-01）：
+- `torch 2.8.0+cu128`，`cuda available: True`，`capability (12,0)`，2048² matmul 真跑在 GPU 上 ✓
+- 一期栈回归：transformers 4.57.1 / whisper / ctranslate2 4.6.0 / faster_whisper / silero_vad 全部 import 正常；`DynamicCache.crop` 存在 ✓
+- `run_timeline_test` 仍 ALL PASS ✓
+
+**影响**：
+- `pyproject.toml` + `uv.lock` 已改（未提交，待用户决定 commit 时机）
+- 本机 GPU 解锁：可跑 0.5B 全链路验证（含 CosyVoice2/Whisper GPU 路径）
+- `run_test_simple.sh` 的 `LD_LIBRARY_PATH=.../nvidia/cudnn/lib` 仍有效（cudnn 9.10 仍装在该路径）
+
+**回退**：`git checkout pyproject.toml uv.lock && uv sync` 即回到 cu121。
+
+**状态**：accepted
+
+---
+
 ## D-008（2026-05-21）反向映射表数据结构设计（PlaybackTimeline）
 
 **决策**：

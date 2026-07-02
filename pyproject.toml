@@ -19,33 +19,30 @@ dependencies = [
     "python-dotenv>=1.1.0",
     "scipy>=1.15.3",
     "silero-vad>=5.1.2",
-    "torch>=2.4.0",
-    "torchaudio>=2.4.0",
-    "torchvision>=0.19.0",
+    # cu128 构建以支持 Blackwell (RTX 5070 Ti, sm_120)；同时兼容 Ampere (3090, sm_86)。
+    # nvidia-*-cu12 运行库不再显式 pin，由 torch cu128 wheel 传递依赖拉取匹配的 12.8.x / cudnn 9.x。
+    "torch==2.8.0",
+    "torchaudio==2.8.0",
+    "torchvision==0.23.0",
     "tqdm>=4.66.5",
     "transformers>=4.52.3",
-    "nvidia-cublas-cu12==12.1.*",
-    "nvidia-cuda-cupti-cu12==12.1.*",
-    "nvidia-cuda-nvrtc-cu12==12.1.*",
-    "nvidia-cuda-runtime-cu12==12.1.*",
-    "nvidia-cudnn-cu12==9.1.0.*",
     "seaborn>=0.13.2",
 ]
 
 [tool.uv.sources]
 torch = [
-  { index = "pytorch-cu121" },
+  { index = "pytorch-cu128" },
 ]
 torchvision = [
-  { index = "pytorch-cu121" },
+  { index = "pytorch-cu128" },
 ]
 torchaudio = [
-  { index = "pytorch-cu121" },
+  { index = "pytorch-cu128" },
 ]
 
 
 
 [[tool.uv.index]]
-name = "pytorch-cu121"
-url = "https://download.pytorch.org/whl/cu121"
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
 explicit = true 
