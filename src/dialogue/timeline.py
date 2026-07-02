@@ -230,6 +230,14 @@ class PlaybackTimeline:
             res = self._resolve_barge_in_locked(pos)
             return "".join(self._by_id[fid].text for fid in res.heard_fragment_ids)
 
+    def get_fragment(self, fragment_id: int) -> FragmentRecord:
+        """按 id 取片段记录（供严格 ground-truth 切分、边界注入等反查用）。"""
+        with self._lock:
+            rec = self._by_id.get(fragment_id)
+            if rec is None:
+                raise KeyError(f"unknown fragment_id {fragment_id}")
+            return rec
+
     def snapshot(self) -> List[FragmentRecord]:
         """返回当前所有片段记录的浅拷贝列表（供落盘埋点，见 experiment_design.md §6）。"""
         with self._lock:

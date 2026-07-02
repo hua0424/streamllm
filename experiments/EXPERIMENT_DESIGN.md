@@ -1,5 +1,10 @@
 # 实验设计方案：级联式语音对话系统的延迟优化
 
+> **二期（paper2 分支）实验**：播放感知 KV 缓存管理与推测生成的 6 个实验（E1/E2/E3/A1/A2/A3）
+> 的设计、指标定义与 harness 状态见 **`paper2/experiment_design.md`**；对应脚本为
+> `experiments/scripts/run_exp1_latency.py / run_exp2_tradeoff.py / run_exp3_consistency.py /
+> run_exp_a1_kvreuse.py / run_exp_a2_history.py`。本文档为一期（延迟优化）实验的设计。
+
 本文档用于规划硕士学位论文《级联式语音对话系统的延迟优化》的实验部分。实验旨在验证流式处理（Streaming）与 KV 缓存预填充（KV Cache Prefill）技术在降低长语音交互延迟方面的有效性。
 
 ## 一、 实验目录结构

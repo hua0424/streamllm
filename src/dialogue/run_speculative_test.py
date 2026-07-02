@@ -15,6 +15,8 @@
 from src.dialogue.orchestrator import DialogueOrchestrator
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.tts.streaming_tts import MockStreamingTTS, TimingProfile
+from src.config import P2_LLM_MODEL_NAME
+from src.utils.check_utils import make_check
 from src.utils.logging_utils import get_logger, set_global_log_level
 
 logger = get_logger(__name__)
@@ -32,10 +34,7 @@ class FakeTrigger:
         return c
 
 
-def _check(name, cond):
-    logger.info(f"  [{'PASS' if cond else 'FAIL'}] {name}")
-    if not cond:
-        raise AssertionError(name)
+_check = make_check(logger)
 
 
 SEGS = ["Book me a flight to Beijing.",
@@ -55,7 +54,7 @@ def main():
     logger.info("=" * 62)
     logger.info("推测-作废状态机 smoke（FakeTrigger）")
     logger.info("=" * 62)
-    llm = StreamLLMInference(model_name="Qwen/Qwen2.5-0.5B-Instruct", eval_mode=False)
+    llm = StreamLLMInference(model_name=P2_LLM_MODEL_NAME, eval_mode=False)
 
     # ---- S1 假停顿：两段都高置信 → 触发→作废→再触发→存活 ----
     logger.info("S1 假停顿（0.9, 0.9）")

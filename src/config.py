@@ -39,6 +39,14 @@ LLM_MODEL_NAME = os.getenv("LLM_MODEL_NAME", "Qwen/Qwen2.5-0.5B-Instruct")
 ASR_MODEL_NAME = os.getenv("ASR_MODEL_NAME", "tiny")
 
 # ==============================================================================
+# 二期（paper2）模型配置 —— 验证机默认小模型；实验机通过 .env 覆盖（如 7B / TEN 7B）
+# ==============================================================================
+P2_LLM_MODEL_NAME = os.getenv("P2_LLM_MODEL_NAME", "Qwen/Qwen2.5-0.5B-Instruct")
+P2_TRIGGER_MODEL_NAME = os.getenv("P2_TRIGGER_MODEL_NAME", "Qwen/Qwen2.5-0.5B-Instruct")
+P2_REWRITER_MODEL_NAME = os.getenv("P2_REWRITER_MODEL_NAME", "Qwen/Qwen3-0.6B")
+P2_DEVICE = os.getenv("P2_DEVICE", "cuda")
+
+# ==============================================================================
 # Hugging Face 配置
 # ==============================================================================
 HF_ENDPOINT = os.getenv("HF_ENDPOINT")

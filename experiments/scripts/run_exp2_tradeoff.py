@@ -25,7 +25,7 @@ from src.dialogue.trigger import LLMSoftTrigger
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.tts.streaming_tts import MockStreamingTTS, TimingProfile
 from src.utils.logging_utils import get_logger, set_global_log_level
-from src.config import RESULTS_DIR
+from src.config import RESULTS_DIR, P2_LLM_MODEL_NAME
 
 logger = get_logger(__name__)
 
@@ -53,8 +53,9 @@ def load_dialogues(path):
     return FIXTURE
 
 
-def run(dialogues, thresholds, out_path: Path, max_spec: int, spec_chunk: int):
-    llm = StreamLLMInference(model_name="Qwen/Qwen2.5-0.5B-Instruct", eval_mode=False)
+def run(dialogues, thresholds, out_path: Path, max_spec: int, spec_chunk: int,
+        model_name: str = P2_LLM_MODEL_NAME):
+    llm = StreamLLMInference(model_name=model_name, eval_mode=False)
     trigger = LLMSoftTrigger()   # 开发替身；实验机换 TEN_CONFIG
 
     records = []
@@ -117,6 +118,7 @@ def run(dialogues, thresholds, out_path: Path, max_spec: int, spec_chunk: int):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dialogues", type=str, default=None)
+    ap.add_argument("--model", type=str, default=P2_LLM_MODEL_NAME, help="主 LLM（实验机传 7B）")
     ap.add_argument("--thresholds", type=float, nargs="+", default=DEFAULT_THRESHOLDS)
     ap.add_argument("--max-spec", type=int, default=32)
     ap.add_argument("--spec-chunk", type=int, default=12)
@@ -129,7 +131,8 @@ def main():
     logger.info("实验二 E2：推测浪费率 vs TTFT trade-off harness")
     logger.info("=" * 72)
     dialogues = load_dialogues(args.dialogues)
-    curve = run(dialogues, args.thresholds, Path(args.out), args.max_spec, args.spec_chunk)
+    curve = run(dialogues, args.thresholds, Path(args.out), args.max_spec, args.spec_chunk,
+                model_name=args.model)
 
     # harness 自检：曲线两端方向正确（最激进浪费 >= 最保守浪费；最保守 TTFT >= 最激进 TTFT）
     if len(curve) >= 2:

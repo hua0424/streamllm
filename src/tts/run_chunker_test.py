@@ -13,15 +13,14 @@ sentence_chunker smoke：LLM token 流 → 断句 + token 区间映射，验证�
 
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.tts.sentence_chunker import chunk_llm_tokens, _nws
+from src.config import P2_LLM_MODEL_NAME
+from src.utils.check_utils import make_check
 from src.utils.logging_utils import get_logger, set_global_log_level
 
 logger = get_logger(__name__)
 
 
-def _check(name, cond):
-    logger.info(f"  [{'PASS' if cond else 'FAIL'}] {name}")
-    if not cond:
-        raise AssertionError(name)
+_check = make_check(logger)
 
 
 def main():
@@ -30,7 +29,7 @@ def main():
     logger.info("sentence_chunker smoke test（英文 + nltk）")
     logger.info("=" * 60)
 
-    llm = StreamLLMInference(model_name="Qwen/Qwen2.5-0.5B-Instruct", eval_mode=False)
+    llm = StreamLLMInference(model_name=P2_LLM_MODEL_NAME, eval_mode=False)
     kv = llm.cache_prompt("Introduce Beijing and Shanghai in three short sentences.",
                           is_end=True, system_prompt="You are a helpful assistant. Reply in English.")
     acc = llm.to_accum_cache(kv)

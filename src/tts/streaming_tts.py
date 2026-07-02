@@ -65,6 +65,11 @@ class StreamingTTS(ABC):
     def first_chunk_latency_ms(self) -> float:
         ...
 
+    @property
+    def sample_rate(self) -> int:
+        """输出音频采样率（下游换算 samples↔秒 统一从这里取，勿硬编码）。"""
+        return DEFAULT_SAMPLE_RATE
+
 
 class MockStreamingTTS(StreamingTTS):
     """时长 profile 驱动的 Mock：不产真波形，只按 profile 给出与真机等价的时长/分块。"""
@@ -75,6 +80,10 @@ class MockStreamingTTS(StreamingTTS):
     @property
     def first_chunk_latency_ms(self) -> float:
         return self.profile.first_chunk_latency_ms
+
+    @property
+    def sample_rate(self) -> int:
+        return self.profile.sample_rate
 
     def synthesize(self, text: str) -> Generator[AudioChunk, None, None]:
         total = self.profile.n_samples_for_text(text)

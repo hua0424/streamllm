@@ -1,11 +1,11 @@
 {
   "config": {
+    "model": "Qwen/Qwen2.5-0.5B-Instruct",
     "lengths": [
       256,
       512,
       1024,
-      2048,
-      4096
+      2048
     ],
     "crop_tokens": 32,
     "repeats": 5,
@@ -16,47 +16,38 @@
     {
       "ctx_len": 275,
       "keep_len": 243,
-      "crop_only_ms": 0.164,
-      "role_rebuild_ms": 22.36,
-      "crop_role_ms": 22.53,
-      "reprefill_ms": 14.1,
-      "speedup": 0.6
+      "crop_only_ms": 0.141,
+      "role_rebuild_ms": 12.59,
+      "crop_role_ms": 12.73,
+      "reprefill_ms": 9.74,
+      "speedup": 0.8
     },
     {
       "ctx_len": 527,
       "keep_len": 495,
-      "crop_only_ms": 0.124,
-      "role_rebuild_ms": 19.92,
-      "crop_role_ms": 20.04,
-      "reprefill_ms": 10.96,
-      "speedup": 0.5
+      "crop_only_ms": 0.131,
+      "role_rebuild_ms": 12.81,
+      "crop_role_ms": 12.94,
+      "reprefill_ms": 11.43,
+      "speedup": 0.9
     },
     {
       "ctx_len": 1031,
       "keep_len": 999,
-      "crop_only_ms": 0.152,
-      "role_rebuild_ms": 12.21,
-      "crop_role_ms": 12.36,
-      "reprefill_ms": 17.91,
-      "speedup": 1.4
+      "crop_only_ms": 0.13,
+      "role_rebuild_ms": 11.97,
+      "crop_role_ms": 12.1,
+      "reprefill_ms": 19.27,
+      "speedup": 1.6
     },
     {
       "ctx_len": 2060,
       "keep_len": 2028,
-      "crop_only_ms": 0.194,
-      "role_rebuild_ms": 24.53,
-      "crop_role_ms": 24.72,
-      "reprefill_ms": 32.97,
-      "speedup": 1.3
-    },
-    {
-      "ctx_len": 4097,
-      "keep_len": 4065,
-      "crop_only_ms": 0.139,
-      "role_rebuild_ms": 17.22,
-      "crop_role_ms": 17.36,
-      "reprefill_ms": 63.22,
-      "speedup": 3.6
+      "crop_only_ms": 0.189,
+      "role_rebuild_ms": 12.51,
+      "crop_role_ms": 12.7,
+      "reprefill_ms": 34.98,
+      "speedup": 2.8
     }
   ]
 }

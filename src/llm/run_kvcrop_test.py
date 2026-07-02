@@ -14,15 +14,14 @@
 
 import torch
 from src.llm.stream_llm_inference import StreamLLMInference
+from src.config import P2_LLM_MODEL_NAME
+from src.utils.check_utils import make_check
 from src.utils.logging_utils import get_logger, set_global_log_level
 
 logger = get_logger(__name__)
 
 
-def _check(name: str, cond: bool):
-    logger.info(f"  [{'PASS' if cond else 'FAIL'}] {name}")
-    if not cond:
-        raise AssertionError(name)
+_check = make_check(logger)
 
 
 def _consistent(cache, tag: str):
@@ -40,7 +39,7 @@ def main():
     logger.info("=" * 60)
 
     # 验证机用 0.5B 小模型（不用 .env 里的 7B 实验模型）；device auto→cuda
-    llm = StreamLLMInference(model_name="Qwen/Qwen2.5-0.5B-Instruct", eval_mode=False)
+    llm = StreamLLMInference(model_name=P2_LLM_MODEL_NAME, eval_mode=False)
     logger.info(f"device={llm.device}, role_switch={llm._role_switch_to_user!r}")
 
     # ---- 建初始 KV：system + user + generation_prompt（assistant role 打开）----

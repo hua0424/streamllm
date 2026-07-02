@@ -5,6 +5,24 @@
 
 ---
 
+## D-012（2026-07-02）实验前代码审查结论与修复
+
+**决策**：实验开跑前对 `7facaba...HEAD`（二期全部实现+实验代码）做两轴审查（Standards/Spec），确认 3 个 BUG 并全部修复；§6 埋点缺口补齐；配置集中化整改。
+
+**关键修复**：
+1. **E3 指标框架修正（review BUG1，最重要）**：选 A 语义下 playback 的"未听引用率=0"是**构造性保证而非实验发现**——论文必须如此表述，实验量化的是 B-gen 失败率。新增 **strict 严格 ground-truth 列**（P1 语义：被打断片段内未播尾部按播放采样比例切分、计入 unheard 检测）——playback 的 strict>0 量化**片段级截断粒度的量化误差**（D-008 选 A/§八取舍的代价），成为 E3 的诚实补充结果。
+2. **E1 公平性（BUG2）**：System A 改用与 B 相同的 system prompt（原用默认中文 prompt 导致生成不可比）；mouth-to-ear 建模改为 `first_fragment_ms + TTS首块延迟`（原用首 token 时刻，忽略断句攒首片段的时间）；"B 的 prefill 与说话重叠"是一期机制、属被测系统本身，注释澄清非偏置。
+3. **chunker 越界（BUG3）**：纯空白句直接跳过（原兜底推进会偷下一片段首 token 使 crop 点偏移）；token_end 钳制到实际生成数（原可越界致 crop_to_token 崩溃）。
+4. **§6 埋点补齐**：8 个时间戳落盘（timestamps dict，模拟量标注）、`ttft_text_ms`（§3 定义可测）、KV 复用计数器/复用率（rewrite<1）、反向映射 timeline_records 落盘、E3 增加 boundary 边界对照注入（P2）。
+5. **配置集中化**：新增 `P2_LLM/TRIGGER/REWRITER_MODEL_NAME`、`P2_DEVICE`（src/config.py，.env 可覆盖）——实验机换 7B 只需 .env 或 `--model`；采样率经 `StreamingTTS.sample_rate` 取；`_check` 收拢至 `src/utils/check_utils.py`。
+6. **B-syn 措辞修正**：Mock 同步合成下与 generation 等价，仅异步 real TTS 可区分，文档不再称"已验证"。
+
+**已知未修（记录为接受的债务）**：`spec_stats` 字典应为 dataclass；offline-first 加载块三处重复；`_timed_tokens` 的 `self._t_first` 侧信道；E1/A1/A2 无断点续传（微基准快速可重跑）；fixture 规模小（真实数据在实验机）。
+
+**状态**：accepted
+
+---
+
 ## D-011（2026-07-02）TEN 规格修正 + 软触发开发替身策略
 
 **决策**：

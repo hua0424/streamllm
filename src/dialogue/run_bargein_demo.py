@@ -21,6 +21,8 @@
 
 from src.dialogue.timeline import PlaybackTimeline
 from src.llm.stream_llm_inference import StreamLLMInference
+from src.config import P2_LLM_MODEL_NAME
+from src.utils.check_utils import make_check
 from src.utils.logging_utils import get_logger, set_global_log_level
 
 logger = get_logger(__name__)
@@ -29,10 +31,7 @@ TOKENS_PER_FRAGMENT = 4      # 模拟 stream2sentence：每 4 个 token 成一�
 SAMPLES_PER_TOKEN = 1600     # 模拟 TTS：每 token 约 0.1s @16k
 
 
-def _check(name, cond):
-    logger.info(f"  [{'PASS' if cond else 'FAIL'}] {name}")
-    if not cond:
-        raise AssertionError(name)
+_check = make_check(logger)
 
 
 def main():
@@ -41,7 +40,7 @@ def main():
     logger.info("打断 → 反查 → KV 截断 端到端 demo")
     logger.info("=" * 60)
 
-    llm = StreamLLMInference(model_name="Qwen/Qwen2.5-0.5B-Instruct", eval_mode=False)
+    llm = StreamLLMInference(model_name=P2_LLM_MODEL_NAME, eval_mode=False)
 
     # ---- 1. 用户一轮，累积生成 ----
     kv = llm.cache_prompt("用一句话介绍北京。", is_end=True)

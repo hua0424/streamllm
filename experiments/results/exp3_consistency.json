@@ -1,14 +1,16 @@
 {
   "summary": {
     "playback": {
-      "n": 9,
-      "unheard_reference_rate": 0.0,
+      "n": 12,
+      "unheard_reference_rate_loose": 0.0,
+      "unheard_reference_rate_strict": 0.667,
       "avg_unheard_tokens": 0.0
     },
     "generation": {
-      "n": 9,
-      "unheard_reference_rate": 0.556,
-      "avg_unheard_tokens": 12.2
+      "n": 12,
+      "unheard_reference_rate_loose": 0.75,
+      "unheard_reference_rate_strict": 0.917,
+      "avg_unheard_tokens": 11.7
     }
   },
   "records": [
@@ -16,215 +18,1910 @@
       "id": "fx_wall",
       "fraction": 0.25,
       "condition": "playback",
+      "partial": true,
       "n_generated": 40,
-      "n_heard": 29,
+      "n_heard": 21,
       "n_unheard_in_history": 0,
+      "strict_unheard_chars": 62,
       "referenced_unheard": false,
+      "referenced_unheard_strict": true,
       "matched_cues": [],
-      "waste_rate": 0.275
+      "matched_cues_strict": [
+        "built",
+        "chinese",
+        "empire",
+        "fications",
+        "thousands",
+        "years"
+      ],
+      "waste_rate": 0.475,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 21,
+          "chunk_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "sample_start": 0,
+          "sample_end": 88000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 21,
+          "token_end": 40,
+          "chunk_ids": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ],
+          "sample_start": 88000,
+          "sample_end": 147000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 357.11,
+        "first_tts_chunk": 746.37,
+        "first_audio_played": 791.37,
+        "barge_in_injected": 1012.32,
+        "tts_stop": 1012.32,
+        "kv_crop_done": 1012.44
+      }
     },
     {
       "id": "fx_wall",
       "fraction": 0.25,
       "condition": "generation",
-      "n_generated": 40,
-      "n_heard": 26,
-      "n_unheard_in_history": 14,
-      "referenced_unheard": false,
-      "matched_cues": [],
-      "waste_rate": 0.0
-    },
-    {
-      "id": "fx_wall",
-      "fraction": 0.5,
-      "condition": "playback",
-      "n_generated": 40,
-      "n_heard": 35,
-      "n_unheard_in_history": 0,
-      "referenced_unheard": false,
-      "matched_cues": [],
-      "waste_rate": 0.125
-    },
-    {
-      "id": "fx_wall",
-      "fraction": 0.5,
-      "condition": "generation",
+      "partial": true,
       "n_generated": 40,
       "n_heard": 29,
       "n_unheard_in_history": 11,
+      "strict_unheard_chars": 134,
       "referenced_unheard": true,
+      "referenced_unheard_strict": true,
       "matched_cues": [
         "famous",
         "impressive",
         "structures"
       ],
-      "waste_rate": 0.0
+      "matched_cues_strict": [
+        "built",
+        "centuries",
+        "chinese",
+        "empire",
+        "famous",
+        "fications",
+        "impressive",
+        "structures"
+      ],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 29,
+          "chunk_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "sample_start": 0,
+          "sample_end": 99000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 29,
+          "token_end": 40,
+          "chunk_ids": [
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ],
+          "sample_start": 99000,
+          "sample_end": 146000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 9.18,
+        "first_tts_chunk": 377.93,
+        "first_audio_played": 422.93,
+        "barge_in_injected": 514.54,
+        "tts_stop": 514.54,
+        "kv_crop_done": 514.57
+      }
+    },
+    {
+      "id": "fx_wall",
+      "fraction": 0.5,
+      "condition": "playback",
+      "partial": true,
+      "n_generated": 40,
+      "n_heard": 33,
+      "n_unheard_in_history": 0,
+      "strict_unheard_chars": 64,
+      "referenced_unheard": false,
+      "referenced_unheard_strict": true,
+      "matched_cues": [],
+      "matched_cues_strict": [
+        "against",
+        "invasions",
+        "millennium",
+        "nomadic",
+        "protect",
+        "tribes"
+      ],
+      "waste_rate": 0.175,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 33,
+          "chunk_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "sample_start": 0,
+          "sample_end": 128000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 33,
+          "token_end": 40,
+          "chunk_ids": [
+            16,
+            17,
+            18
+          ],
+          "sample_start": 128000,
+          "sample_end": 150000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 40.0,
+        "first_tts_chunk": 775.46,
+        "first_audio_played": 820.46,
+        "barge_in_injected": 908.68,
+        "tts_stop": 908.68,
+        "kv_crop_done": 908.81
+      }
+    },
+    {
+      "id": "fx_wall",
+      "fraction": 0.5,
+      "condition": "generation",
+      "partial": true,
+      "n_generated": 40,
+      "n_heard": 32,
+      "n_unheard_in_history": 8,
+      "strict_unheard_chars": 79,
+      "referenced_unheard": true,
+      "referenced_unheard_strict": true,
+      "matched_cues": [
+        "famous"
+      ],
+      "matched_cues_strict": [
+        "during",
+        "dynasty",
+        "empire",
+        "famous",
+        "ming"
+      ],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 32,
+          "chunk_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "sample_start": 0,
+          "sample_end": 101000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 32,
+          "token_end": 40,
+          "chunk_ids": [
+            13,
+            14,
+            15,
+            16
+          ],
+          "sample_start": 101000,
+          "sample_end": 126000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 37.0,
+        "first_tts_chunk": 1001.88,
+        "first_audio_played": 1046.88,
+        "barge_in_injected": 1094.07,
+        "tts_stop": 1094.07,
+        "kv_crop_done": 1094.09
+      }
     },
     {
       "id": "fx_wall",
       "fraction": 0.75,
       "condition": "playback",
+      "partial": true,
       "n_generated": 40,
-      "n_heard": 40,
+      "n_heard": 33,
       "n_unheard_in_history": 0,
+      "strict_unheard_chars": 22,
       "referenced_unheard": false,
+      "referenced_unheard_strict": true,
       "matched_cues": [],
-      "waste_rate": 0.0
+      "matched_cues_strict": [
+        "nomadic",
+        "tribes"
+      ],
+      "waste_rate": 0.175,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 33,
+          "chunk_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "sample_start": 0,
+          "sample_end": 128000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 33,
+          "token_end": 40,
+          "chunk_ids": [
+            16,
+            17,
+            18
+          ],
+          "sample_start": 128000,
+          "sample_end": 146000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 11.46,
+        "first_tts_chunk": 1044.85,
+        "first_audio_played": 1089.85,
+        "barge_in_injected": 1125.75,
+        "tts_stop": 1125.75,
+        "kv_crop_done": 1125.86
+      }
     },
     {
       "id": "fx_wall",
       "fraction": 0.75,
       "condition": "generation",
+      "partial": true,
       "n_generated": 40,
       "n_heard": 40,
       "n_unheard_in_history": 0,
+      "strict_unheard_chars": 49,
       "referenced_unheard": false,
+      "referenced_unheard_strict": false,
       "matched_cues": [],
-      "waste_rate": 0.0
+      "matched_cues_strict": [],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 21,
+          "chunk_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "sample_start": 0,
+          "sample_end": 88000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 21,
+          "token_end": 40,
+          "chunk_ids": [
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19
+          ],
+          "sample_start": 88000,
+          "sample_end": 159000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 8.8,
+        "first_tts_chunk": 233.31,
+        "first_audio_played": 278.31,
+        "barge_in_injected": 455.88,
+        "tts_stop": 455.88,
+        "kv_crop_done": 455.9
+      }
+    },
+    {
+      "id": "fx_wall",
+      "fraction": "boundary",
+      "condition": "playback",
+      "partial": false,
+      "n_generated": 40,
+      "n_heard": 29,
+      "n_unheard_in_history": 0,
+      "strict_unheard_chars": 0,
+      "referenced_unheard": false,
+      "referenced_unheard_strict": false,
+      "matched_cues": [],
+      "matched_cues_strict": [],
+      "waste_rate": 0.275,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 29,
+          "chunk_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "sample_start": 0,
+          "sample_end": 99000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 29,
+          "token_end": 40,
+          "chunk_ids": [
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ],
+          "sample_start": 99000,
+          "sample_end": 146000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 9.56,
+        "first_tts_chunk": 546.67,
+        "first_audio_played": 591.67,
+        "barge_in_injected": 713.08,
+        "tts_stop": 713.08,
+        "kv_crop_done": 713.19
+      }
+    },
+    {
+      "id": "fx_wall",
+      "fraction": "boundary",
+      "condition": "generation",
+      "partial": false,
+      "n_generated": 40,
+      "n_heard": 26,
+      "n_unheard_in_history": 14,
+      "strict_unheard_chars": 58,
+      "referenced_unheard": true,
+      "referenced_unheard_strict": true,
+      "matched_cues": [
+        "china",
+        "great",
+        "wall"
+      ],
+      "matched_cues_strict": [
+        "china",
+        "great",
+        "wall"
+      ],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 26,
+          "chunk_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "sample_start": 0,
+          "sample_end": 110000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 26,
+          "token_end": 39,
+          "chunk_ids": [
+            14,
+            15,
+            16,
+            17,
+            18,
+            19
+          ],
+          "sample_start": 110000,
+          "sample_end": 153000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 39,
+          "token_end": 40,
+          "chunk_ids": [
+            20
+          ],
+          "sample_start": 153000,
+          "sample_end": 156000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 9.6,
+        "first_tts_chunk": 389.28,
+        "first_audio_played": 434.28,
+        "barge_in_injected": 638.29,
+        "tts_stop": 638.29,
+        "kv_crop_done": 638.32
+      }
     },
     {
       "id": "fx_city",
       "fraction": 0.25,
       "condition": "playback",
+      "partial": true,
       "n_generated": 40,
       "n_heard": 22,
       "n_unheard_in_history": 0,
+      "strict_unheard_chars": 72,
       "referenced_unheard": false,
+      "referenced_unheard_strict": true,
       "matched_cues": [],
-      "waste_rate": 0.45
+      "matched_cues_strict": [
+        "china"
+      ],
+      "waste_rate": 0.45,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 4,
+          "chunk_ids": [
+            0,
+            1,
+            2
+          ],
+          "sample_start": 0,
+          "sample_end": 17000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 4,
+          "token_end": 22,
+          "chunk_ids": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "sample_start": 17000,
+          "sample_end": 93000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 22,
+          "token_end": 40,
+          "chunk_ids": [
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "sample_start": 93000,
+          "sample_end": 130000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 9.4,
+        "first_tts_chunk": 60.69,
+        "first_audio_played": 105.69,
+        "barge_in_injected": 502.37,
+        "tts_stop": 502.37,
+        "kv_crop_done": 502.48
+      }
     },
     {
       "id": "fx_city",
       "fraction": 0.25,
       "condition": "generation",
+      "partial": true,
       "n_generated": 40,
       "n_heard": 22,
       "n_unheard_in_history": 18,
+      "strict_unheard_chars": 119,
       "referenced_unheard": true,
+      "referenced_unheard_strict": true,
       "matched_cues": [
         "built",
         "ming"
       ],
-      "waste_rate": 0.0
+      "matched_cues_strict": [
+        "built",
+        "china",
+        "complex",
+        "ming",
+        "palace"
+      ],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 4,
+          "chunk_ids": [
+            0,
+            1,
+            2
+          ],
+          "sample_start": 0,
+          "sample_end": 17000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 4,
+          "token_end": 22,
+          "chunk_ids": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "sample_start": 17000,
+          "sample_end": 93000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 22,
+          "token_end": 40,
+          "chunk_ids": [
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "sample_start": 93000,
+          "sample_end": 130000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 30.99,
+        "first_tts_chunk": 59.11,
+        "first_audio_played": 104.11,
+        "barge_in_injected": 528.3,
+        "tts_stop": 528.3,
+        "kv_crop_done": 528.35
+      }
     },
     {
       "id": "fx_city",
       "fraction": 0.5,
       "condition": "playback",
+      "partial": true,
       "n_generated": 40,
       "n_heard": 22,
       "n_unheard_in_history": 0,
+      "strict_unheard_chars": 33,
       "referenced_unheard": false,
+      "referenced_unheard_strict": false,
       "matched_cues": [],
-      "waste_rate": 0.45
+      "matched_cues_strict": [],
+      "waste_rate": 0.45,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 4,
+          "chunk_ids": [
+            0,
+            1,
+            2
+          ],
+          "sample_start": 0,
+          "sample_end": 17000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 4,
+          "token_end": 22,
+          "chunk_ids": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "sample_start": 17000,
+          "sample_end": 93000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 22,
+          "token_end": 40,
+          "chunk_ids": [
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "sample_start": 93000,
+          "sample_end": 130000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 92.01,
+        "first_tts_chunk": 302.86,
+        "first_audio_played": 347.86,
+        "barge_in_injected": 2689.64,
+        "tts_stop": 2689.64,
+        "kv_crop_done": 2689.76
+      }
     },
     {
       "id": "fx_city",
       "fraction": 0.5,
       "condition": "generation",
+      "partial": true,
       "n_generated": 40,
       "n_heard": 22,
       "n_unheard_in_history": 18,
+      "strict_unheard_chars": 80,
       "referenced_unheard": true,
+      "referenced_unheard_strict": true,
       "matched_cues": [
         "built",
         "ming"
       ],
-      "waste_rate": 0.0
+      "matched_cues_strict": [
+        "built",
+        "china",
+        "ming",
+        "omplex"
+      ],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 4,
+          "chunk_ids": [
+            0,
+            1,
+            2
+          ],
+          "sample_start": 0,
+          "sample_end": 17000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 4,
+          "token_end": 22,
+          "chunk_ids": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "sample_start": 17000,
+          "sample_end": 93000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 22,
+          "token_end": 40,
+          "chunk_ids": [
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "sample_start": 93000,
+          "sample_end": 130000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 9.98,
+        "first_tts_chunk": 65.15,
+        "first_audio_played": 110.15,
+        "barge_in_injected": 758.0,
+        "tts_stop": 758.0,
+        "kv_crop_done": 758.03
+      }
     },
     {
       "id": "fx_city",
       "fraction": 0.75,
       "condition": "playback",
+      "partial": true,
       "n_generated": 40,
       "n_heard": 40,
       "n_unheard_in_history": 0,
+      "strict_unheard_chars": 39,
       "referenced_unheard": false,
+      "referenced_unheard_strict": true,
       "matched_cues": [],
-      "waste_rate": 0.0
+      "matched_cues_strict": [
+        "built",
+        "ming"
+      ],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 4,
+          "chunk_ids": [
+            0,
+            1,
+            2
+          ],
+          "sample_start": 0,
+          "sample_end": 17000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 4,
+          "token_end": 22,
+          "chunk_ids": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "sample_start": 17000,
+          "sample_end": 93000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 22,
+          "token_end": 40,
+          "chunk_ids": [
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "sample_start": 93000,
+          "sample_end": 130000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 12.34,
+        "first_tts_chunk": 66.09,
+        "first_audio_played": 111.09,
+        "barge_in_injected": 526.28,
+        "tts_stop": 526.28,
+        "kv_crop_done": 526.31
+      }
     },
     {
       "id": "fx_city",
       "fraction": 0.75,
       "condition": "generation",
+      "partial": true,
       "n_generated": 40,
       "n_heard": 40,
       "n_unheard_in_history": 0,
+      "strict_unheard_chars": 39,
       "referenced_unheard": false,
+      "referenced_unheard_strict": true,
       "matched_cues": [],
-      "waste_rate": 0.0
-    },
-    {
-      "id": "fx_palace",
-      "fraction": 0.25,
-      "condition": "playback",
-      "n_generated": 40,
-      "n_heard": 12,
-      "n_unheard_in_history": 0,
-      "referenced_unheard": false,
-      "matched_cues": [],
-      "waste_rate": 0.7
-    },
-    {
-      "id": "fx_palace",
-      "fraction": 0.25,
-      "condition": "generation",
-      "n_generated": 40,
-      "n_heard": 12,
-      "n_unheard_in_history": 28,
-      "referenced_unheard": true,
-      "matched_cues": [
-        "built"
+      "matched_cues_strict": [
+        "built",
+        "ming"
       ],
-      "waste_rate": 0.0
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 4,
+          "chunk_ids": [
+            0,
+            1,
+            2
+          ],
+          "sample_start": 0,
+          "sample_end": 17000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 4,
+          "token_end": 22,
+          "chunk_ids": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "sample_start": 17000,
+          "sample_end": 93000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 22,
+          "token_end": 40,
+          "chunk_ids": [
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "sample_start": 93000,
+          "sample_end": 130000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 10.42,
+        "first_tts_chunk": 39.48,
+        "first_audio_played": 84.48,
+        "barge_in_injected": 1212.89,
+        "tts_stop": 1212.89,
+        "kv_crop_done": 1212.95
+      }
     },
     {
-      "id": "fx_palace",
-      "fraction": 0.5,
+      "id": "fx_city",
+      "fraction": "boundary",
       "condition": "playback",
+      "partial": false,
       "n_generated": 40,
-      "n_heard": 40,
+      "n_heard": 22,
       "n_unheard_in_history": 0,
+      "strict_unheard_chars": 0,
       "referenced_unheard": false,
+      "referenced_unheard_strict": false,
       "matched_cues": [],
-      "waste_rate": 0.0
+      "matched_cues_strict": [],
+      "waste_rate": 0.45,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 4,
+          "chunk_ids": [
+            0,
+            1,
+            2
+          ],
+          "sample_start": 0,
+          "sample_end": 17000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 4,
+          "token_end": 22,
+          "chunk_ids": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "sample_start": 17000,
+          "sample_end": 93000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 22,
+          "token_end": 40,
+          "chunk_ids": [
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "sample_start": 93000,
+          "sample_end": 130000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 10.34,
+        "first_tts_chunk": 39.83,
+        "first_audio_played": 84.83,
+        "barge_in_injected": 479.33,
+        "tts_stop": 479.33,
+        "kv_crop_done": 479.45
+      }
     },
     {
-      "id": "fx_palace",
-      "fraction": 0.5,
+      "id": "fx_city",
+      "fraction": "boundary",
       "condition": "generation",
+      "partial": false,
       "n_generated": 40,
       "n_heard": 22,
       "n_unheard_in_history": 18,
+      "strict_unheard_chars": 46,
       "referenced_unheard": true,
+      "referenced_unheard_strict": true,
       "matched_cues": [
-        "facts",
+        "built",
+        "ming"
+      ],
+      "matched_cues_strict": [
+        "built",
+        "ming"
+      ],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 4,
+          "chunk_ids": [
+            0,
+            1,
+            2
+          ],
+          "sample_start": 0,
+          "sample_end": 17000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 4,
+          "token_end": 22,
+          "chunk_ids": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "sample_start": 17000,
+          "sample_end": 93000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 22,
+          "token_end": 40,
+          "chunk_ids": [
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "sample_start": 93000,
+          "sample_end": 130000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 37.96,
+        "first_tts_chunk": 66.15,
+        "first_audio_played": 111.15,
+        "barge_in_injected": 767.9,
+        "tts_stop": 767.9,
+        "kv_crop_done": 767.92
+      }
+    },
+    {
+      "id": "fx_palace",
+      "fraction": 0.25,
+      "condition": "playback",
+      "partial": true,
+      "n_generated": 40,
+      "n_heard": 12,
+      "n_unheard_in_history": 0,
+      "strict_unheard_chars": 23,
+      "referenced_unheard": false,
+      "referenced_unheard_strict": true,
+      "matched_cues": [],
+      "matched_cues_strict": [
+        "beijing",
+        "located"
+      ],
+      "waste_rate": 0.7,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 12,
+          "chunk_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sample_start": 0,
+          "sample_end": 56000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 12,
+          "token_end": 40,
+          "chunk_ids": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ],
+          "sample_start": 56000,
+          "sample_end": 147000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 9.48,
+        "first_tts_chunk": 157.28,
+        "first_audio_played": 202.28,
+        "barge_in_injected": 529.2,
+        "tts_stop": 529.2,
+        "kv_crop_done": 529.31
+      }
+    },
+    {
+      "id": "fx_palace",
+      "fraction": 0.25,
+      "condition": "generation",
+      "partial": true,
+      "n_generated": 40,
+      "n_heard": 22,
+      "n_unheard_in_history": 18,
+      "strict_unheard_chars": 136,
+      "referenced_unheard": true,
+      "referenced_unheard_strict": true,
+      "matched_cues": [
+        "built",
         "palace",
         "summer"
       ],
-      "waste_rate": 0.0
+      "matched_cues_strict": [
+        "beijing",
+        "built",
+        "china",
+        "garden",
+        "imperial",
+        "located",
+        "palace",
+        "summer"
+      ],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 4,
+          "chunk_ids": [
+            0,
+            1
+          ],
+          "sample_start": 0,
+          "sample_end": 16000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 4,
+          "token_end": 22,
+          "chunk_ids": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "sample_start": 16000,
+          "sample_end": 91000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 22,
+          "token_end": 33,
+          "chunk_ids": [
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "sample_start": 91000,
+          "sample_end": 130000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 3,
+          "token_start": 33,
+          "token_end": 40,
+          "chunk_ids": [
+            17,
+            18
+          ],
+          "sample_start": 130000,
+          "sample_end": 146000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 8.95,
+        "first_tts_chunk": 58.09,
+        "first_audio_played": 103.09,
+        "barge_in_injected": 507.61,
+        "tts_stop": 507.61,
+        "kv_crop_done": 507.65
+      }
+    },
+    {
+      "id": "fx_palace",
+      "fraction": 0.5,
+      "condition": "playback",
+      "partial": true,
+      "n_generated": 40,
+      "n_heard": 40,
+      "n_unheard_in_history": 0,
+      "strict_unheard_chars": 89,
+      "referenced_unheard": false,
+      "referenced_unheard_strict": true,
+      "matched_cues": [],
+      "matched_cues_strict": [
+        "century",
+        "famous",
+        "imperial",
+        "largest",
+        "palaces",
+        "world"
+      ],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 12,
+          "chunk_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sample_start": 0,
+          "sample_end": 56000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 12,
+          "token_end": 40,
+          "chunk_ids": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ],
+          "sample_start": 56000,
+          "sample_end": 147000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 9.54,
+        "first_tts_chunk": 154.98,
+        "first_audio_played": 199.98,
+        "barge_in_injected": 492.93,
+        "tts_stop": 492.93,
+        "kv_crop_done": 492.97
+      }
+    },
+    {
+      "id": "fx_palace",
+      "fraction": 0.5,
+      "condition": "generation",
+      "partial": true,
+      "n_generated": 40,
+      "n_heard": 26,
+      "n_unheard_in_history": 14,
+      "strict_unheard_chars": 97,
+      "referenced_unheard": true,
+      "referenced_unheard_strict": true,
+      "matched_cues": [
+        "1",
+        "built",
+        "palace",
+        "summer"
+      ],
+      "matched_cues_strict": [
+        "1",
+        "beijing",
+        "built",
+        "china",
+        "garden",
+        "located",
+        "palace",
+        "summer"
+      ],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 4,
+          "chunk_ids": [
+            0,
+            1
+          ],
+          "sample_start": 0,
+          "sample_end": 16000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 4,
+          "token_end": 26,
+          "chunk_ids": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "sample_start": 16000,
+          "sample_end": 107000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 26,
+          "token_end": 37,
+          "chunk_ids": [
+            14,
+            15,
+            16,
+            17,
+            18
+          ],
+          "sample_start": 107000,
+          "sample_end": 146000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 3,
+          "token_start": 37,
+          "token_end": 40,
+          "chunk_ids": [
+            19,
+            20
+          ],
+          "sample_start": 146000,
+          "sample_end": 156000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 38.12,
+        "first_tts_chunk": 64.88,
+        "first_audio_played": 109.88,
+        "barge_in_injected": 1120.88,
+        "tts_stop": 1120.88,
+        "kv_crop_done": 1120.91
+      }
     },
     {
       "id": "fx_palace",
       "fraction": 0.75,
       "condition": "playback",
+      "partial": true,
       "n_generated": 40,
       "n_heard": 37,
       "n_unheard_in_history": 0,
+      "strict_unheard_chars": 35,
       "referenced_unheard": false,
+      "referenced_unheard_strict": true,
       "matched_cues": [],
-      "waste_rate": 0.075
+      "matched_cues_strict": [
+        "architecture",
+        "chinese",
+        "imperial"
+      ],
+      "waste_rate": 0.075,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 12,
+          "chunk_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sample_start": 0,
+          "sample_end": 56000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 12,
+          "token_end": 37,
+          "chunk_ids": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ],
+          "sample_start": 56000,
+          "sample_end": 149000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 37,
+          "token_end": 40,
+          "chunk_ids": [
+            19,
+            20
+          ],
+          "sample_start": 149000,
+          "sample_end": 160000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 79.12,
+        "first_tts_chunk": 930.04,
+        "first_audio_played": 975.04,
+        "barge_in_injected": 1872.96,
+        "tts_stop": 1872.96,
+        "kv_crop_done": 1873.06
+      }
     },
     {
       "id": "fx_palace",
       "fraction": 0.75,
       "condition": "generation",
+      "partial": true,
       "n_generated": 40,
       "n_heard": 37,
       "n_unheard_in_history": 3,
+      "strict_unheard_chars": 49,
       "referenced_unheard": false,
+      "referenced_unheard_strict": true,
       "matched_cues": [],
-      "waste_rate": 0.0
+      "matched_cues_strict": [
+        "architecture",
+        "chinese",
+        "imperial"
+      ],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 12,
+          "chunk_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sample_start": 0,
+          "sample_end": 56000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 12,
+          "token_end": 37,
+          "chunk_ids": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ],
+          "sample_start": 56000,
+          "sample_end": 149000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 37,
+          "token_end": 40,
+          "chunk_ids": [
+            19,
+            20
+          ],
+          "sample_start": 149000,
+          "sample_end": 160000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 10.98,
+        "first_tts_chunk": 410.12,
+        "first_audio_played": 455.12,
+        "barge_in_injected": 1317.94,
+        "tts_stop": 1317.94,
+        "kv_crop_done": 1317.96
+      }
+    },
+    {
+      "id": "fx_palace",
+      "fraction": "boundary",
+      "condition": "playback",
+      "partial": false,
+      "n_generated": 40,
+      "n_heard": 40,
+      "n_unheard_in_history": 0,
+      "strict_unheard_chars": 0,
+      "referenced_unheard": false,
+      "referenced_unheard_strict": false,
+      "matched_cues": [],
+      "matched_cues_strict": [],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 12,
+          "chunk_ids": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "sample_start": 0,
+          "sample_end": 56000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 12,
+          "token_end": 40,
+          "chunk_ids": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18
+          ],
+          "sample_start": 56000,
+          "sample_end": 147000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 32.21,
+        "first_tts_chunk": 163.1,
+        "first_audio_played": 208.1,
+        "barge_in_injected": 1174.69,
+        "tts_stop": 1174.69,
+        "kv_crop_done": 1174.71
+      }
+    },
+    {
+      "id": "fx_palace",
+      "fraction": "boundary",
+      "condition": "generation",
+      "partial": false,
+      "n_generated": 40,
+      "n_heard": 22,
+      "n_unheard_in_history": 18,
+      "strict_unheard_chars": 70,
+      "referenced_unheard": true,
+      "referenced_unheard_strict": true,
+      "matched_cues": [
+        "1",
+        "built",
+        "palace",
+        "summer"
+      ],
+      "matched_cues_strict": [
+        "1",
+        "built",
+        "palace",
+        "summer"
+      ],
+      "waste_rate": 0.0,
+      "kv_reuse_rate": 1.0,
+      "timeline": [
+        {
+          "fragment_id": 0,
+          "token_start": 0,
+          "token_end": 4,
+          "chunk_ids": [
+            0,
+            1
+          ],
+          "sample_start": 0,
+          "sample_end": 16000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 1,
+          "token_start": 4,
+          "token_end": 22,
+          "chunk_ids": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "sample_start": 16000,
+          "sample_end": 93000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 2,
+          "token_start": 22,
+          "token_end": 33,
+          "chunk_ids": [
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "sample_start": 93000,
+          "sample_end": 132000,
+          "status": "SYNTHESIZING"
+        },
+        {
+          "fragment_id": 3,
+          "token_start": 33,
+          "token_end": 40,
+          "chunk_ids": [
+            17,
+            18
+          ],
+          "sample_start": 132000,
+          "sample_end": 148000,
+          "status": "SYNTHESIZING"
+        }
+      ],
+      "timestamps": {
+        "user_speech_end": 0.0,
+        "trigger_fire": 0.0,
+        "first_llm_token": 9.64,
+        "first_tts_chunk": 39.82,
+        "first_audio_played": 84.82,
+        "barge_in_injected": 516.63,
+        "tts_stop": 516.63,
+        "kv_crop_done": 516.66
+      }
     }
   ]
 }

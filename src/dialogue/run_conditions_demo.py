@@ -16,19 +16,18 @@ E3 对照骨架 demo：同一对话+打断，B-ours(playback) vs B-gen(generatio
 from src.dialogue.orchestrator import DialogueOrchestrator
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.tts.streaming_tts import MockStreamingTTS, TimingProfile
+from src.config import P2_LLM_MODEL_NAME
+from src.utils.check_utils import make_check
 from src.utils.logging_utils import get_logger, set_global_log_level
 
 logger = get_logger(__name__)
 
 
-def _check(name, cond):
-    logger.info(f"  [{'PASS' if cond else 'FAIL'}] {name}")
-    if not cond:
-        raise AssertionError(name)
+_check = make_check(logger)
 
 
 def run_one(mode: str):
-    llm = StreamLLMInference(model_name="Qwen/Qwen2.5-0.5B-Instruct", eval_mode=False)
+    llm = StreamLLMInference(model_name=P2_LLM_MODEL_NAME, eval_mode=False)
     tts = MockStreamingTTS(TimingProfile())
     orch = DialogueOrchestrator(llm, tts, max_speculative_tokens=40, truncation_mode=mode)
     # 固定对话与打断点，两模式可比

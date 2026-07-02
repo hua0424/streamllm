@@ -1,10 +1,10 @@
 {
   "summary": {
     "n": 5,
-    "a_ttft_ms": 24.8,
+    "a_ttft_ms": 44.5,
     "b_ttft_eff_ms": 0.0,
-    "a_mouth_to_ear_ms_modeled": 2288.7,
-    "b_mouth_to_ear_ms_modeled": 45.0,
+    "a_mouth_to_ear_ms_modeled": 2670.4,
+    "b_mouth_to_ear_ms_modeled": 106.3,
     "ttft_improvement": 1.0,
     "spec_threshold": 0.05,
     "synth_rtf_placeholder": 0.3
@@ -13,14 +13,14 @@
     {
       "id": "fx1",
       "system_a": {
-        "ttft_ms": 33.2,
-        "gen_total_ms": 400.0,
-        "mouth_to_ear_ms": 2293.8,
+        "ttft_ms": 100.7,
+        "gen_total_ms": 965.5,
+        "mouth_to_ear_ms": 2840.5,
         "n_tokens": 32
       },
       "system_b": {
         "ttft_ms": 0.0,
-        "mouth_to_ear_ms": 45.0,
+        "mouth_to_ear_ms": 220.3,
         "spec_survived": true,
         "spec_wasted": 16
       }
@@ -28,14 +28,14 @@
     {
       "id": "fx2",
       "system_a": {
-        "ttft_ms": 11.0,
-        "gen_total_ms": 400.6,
-        "mouth_to_ear_ms": 2463.1,
+        "ttft_ms": 65.7,
+        "gen_total_ms": 662.9,
+        "mouth_to_ear_ms": 2856.7,
         "n_tokens": 32
       },
       "system_b": {
         "ttft_ms": 0.0,
-        "mouth_to_ear_ms": 45.0,
+        "mouth_to_ear_ms": 175.2,
         "spec_survived": true,
         "spec_wasted": 0
       }
@@ -43,14 +43,14 @@
     {
       "id": "fx3",
       "system_a": {
-        "ttft_ms": 14.9,
-        "gen_total_ms": 334.8,
-        "mouth_to_ear_ms": 2959.8,
+        "ttft_ms": 31.9,
+        "gen_total_ms": 351.5,
+        "mouth_to_ear_ms": 2657.7,
         "n_tokens": 32
       },
       "system_b": {
         "ttft_ms": 0.0,
-        "mouth_to_ear_ms": 45.0,
+        "mouth_to_ear_ms": 45.4,
         "spec_survived": true,
         "spec_wasted": 16
       }
@@ -58,14 +58,14 @@
     {
       "id": "fx4",
       "system_a": {
-        "ttft_ms": 33.3,
-        "gen_total_ms": 504.8,
-        "mouth_to_ear_ms": 2886.1,
+        "ttft_ms": 10.7,
+        "gen_total_ms": 370.2,
+        "mouth_to_ear_ms": 2526.5,
         "n_tokens": 32
       },
       "system_b": {
         "ttft_ms": 0.0,
-        "mouth_to_ear_ms": 45.0,
+        "mouth_to_ear_ms": 45.2,
         "spec_survived": true,
         "spec_wasted": 16
       }
@@ -73,14 +73,14 @@
     {
       "id": "fx5",
       "system_a": {
-        "ttft_ms": 31.5,
-        "gen_total_ms": 221.9,
-        "mouth_to_ear_ms": 840.7,
-        "n_tokens": 19
+        "ttft_ms": 13.4,
+        "gen_total_ms": 558.1,
+        "mouth_to_ear_ms": 2470.6,
+        "n_tokens": 32
       },
       "system_b": {
         "ttft_ms": 0.0,
-        "mouth_to_ear_ms": 45.0,
+        "mouth_to_ear_ms": 45.3,
         "spec_survived": true,
         "spec_wasted": 16
       }

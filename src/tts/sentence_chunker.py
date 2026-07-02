@@ -80,14 +80,23 @@ def chunk_llm_tokens(
     prev_end = 0      # 上一片段的 token_end（下一片段的 token_start）
 
     for sentence in generate_sentences(_feeder(), language=language, tokenizer=tokenizer, **kwargs):
+        if _nws(sentence) == 0:
+            # 纯空白句：不占非空白游标、TTS 也不会合成，直接跳过——
+            # 否则兜底推进会偷走下一片段的首 token，使 KV crop 点偏移（review BUG3）
+            continue
         cursor += _nws(sentence)
         # 末 token = 第一个 nws_end[i] >= cursor 的 i
         end_idx = bisect.bisect_left(nws_end, cursor)
         if end_idx >= len(nws_end):
             end_idx = len(nws_end) - 1
         token_end = end_idx + 1
-        if token_end <= prev_end:          # 兜底：保证区间前进（纯空白句等边缘情况）
+        if token_end <= prev_end:          # 兜底：保证区间前进（对齐漂移等边缘情况）
             token_end = prev_end + 1
+        if token_end > len(nws_end):       # 钳制：区间绝不超过实际已生成 token 数，
+            logger.warning(f"[chunker] token_end 越界钳制 {token_end}->{len(nws_end)}")
+            token_end = len(nws_end)       # 否则下游 crop_to_token 会越界（review BUG3）
+            if token_end <= prev_end:
+                continue                   # 已无 token 可分配，丢弃该（异常）句
         frag = SentenceFragment(text=sentence, token_start=prev_end, token_end=token_end)
         logger.debug(f"[chunker] frag tokens[{frag.token_start},{frag.token_end}) '{sentence[:30]}'")
         yield frag

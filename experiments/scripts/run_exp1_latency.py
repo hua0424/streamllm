@@ -29,7 +29,7 @@ from src.dialogue.trigger import LLMSoftTrigger
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.tts.streaming_tts import MockStreamingTTS, TimingProfile
 from src.utils.logging_utils import get_logger, set_global_log_level
-from src.config import RESULTS_DIR
+from src.config import RESULTS_DIR, P2_LLM_MODEL_NAME
 
 logger = get_logger(__name__)
 
@@ -44,11 +44,18 @@ FIXTURE = [
 SYNTH_RTF = 0.3   # 非流式合成耗时 = 音频时长 × RTF（占位；实验机实测 CosyVoice2 替换）
 
 
+# 与 B-ours（orchestrator 默认）完全一致的 system prompt —— 两系统生成内容才可比（review BUG2-①）
+SYSTEM_PROMPT = "You are a helpful assistant. Reply in English."
+
+
 def run_system_a(llm, profile: TimingProfile, full_text: str, max_tokens: int):
-    """非流式基线：全量 prefill → 生成全部 → 完整合成（建模）。"""
+    """非流式基线：说完后才开始全量 prefill → 生成全部 → 完整合成（建模）。
+    注：B 的 prefill 与用户说话重叠（一期流式 prefill 机制，是被测系统本身的一部分），
+    A 在说完后支付全额 prefill——这是 E1 对比的语义（A=非流式基线），非不公平偏置。"""
     t0 = time.perf_counter()
     first_ms, n_tok, out = None, 0, []
-    for tok in llm.once_add_and_generate(full_text, max_new_tokens=max_tokens):
+    for tok in llm.once_add_and_generate(full_text, system_prompt=SYSTEM_PROMPT,
+                                         max_new_tokens=max_tokens):
         if first_ms is None:
             first_ms = (time.perf_counter() - t0) * 1000
         out.append(tok)
@@ -65,6 +72,7 @@ def run_system_a(llm, profile: TimingProfile, full_text: str, max_tokens: int):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dialogues", type=str, default=None)
+    ap.add_argument("--model", type=str, default=P2_LLM_MODEL_NAME, help="主 LLM（实验机传 7B）")
     ap.add_argument("--spec-threshold", type=float, default=0.05, help="B-ours 软触发阈值（E2 拐点附近）")
     ap.add_argument("--max-tokens", type=int, default=32)
     ap.add_argument("--out", type=str, default=str(Path(RESULTS_DIR) / "exp1_latency.json"))
@@ -82,7 +90,7 @@ def main():
         logger.warning("使用内置 fixture（验证 harness / 概念数值，正式数值实验机）")
         dialogues = FIXTURE
 
-    llm = StreamLLMInference(model_name="Qwen/Qwen2.5-0.5B-Instruct", eval_mode=False)
+    llm = StreamLLMInference(model_name=args.model, eval_mode=False)
     trigger = LLMSoftTrigger()
     profile = TimingProfile()
 

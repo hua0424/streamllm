@@ -13,6 +13,7 @@ PlaybackTimeline smoke test（纯 Python，无需 GPU/torch）。
 """
 
 from src.dialogue.timeline import PlaybackTimeline, FragmentStatus
+from src.utils.check_utils import make_check
 from src.utils.logging_utils import get_logger, set_global_log_level
 
 logger = get_logger(__name__)
@@ -38,11 +39,7 @@ def _build_reply() -> PlaybackTimeline:
     return tl
 
 
-def _check(name: str, cond: bool):
-    status = "PASS" if cond else "FAIL"
-    logger.info(f"  [{status}] {name}")
-    if not cond:
-        raise AssertionError(name)
+_check = make_check(logger)
 
 
 def test_mid_fragment():

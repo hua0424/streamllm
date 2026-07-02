@@ -11,6 +11,7 @@
 """
 
 from src.dialogue.trigger import LLMSoftTrigger
+from src.utils.check_utils import make_check
 from src.utils.logging_utils import get_logger, set_global_log_level
 
 logger = get_logger(__name__)
@@ -31,10 +32,7 @@ INCOMPLETE = [
 ]
 
 
-def _check(name, cond):
-    logger.info(f"  [{'PASS' if cond else 'FAIL'}] {name}")
-    if not cond:
-        raise AssertionError(name)
+_check = make_check(logger)
 
 
 def main():

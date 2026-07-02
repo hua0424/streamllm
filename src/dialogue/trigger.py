@@ -21,7 +21,7 @@ from typing import List, Optional
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from src.config import HF_HOME
+from src.config import HF_HOME, P2_DEVICE, P2_TRIGGER_MODEL_NAME
 from src.utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
@@ -34,12 +34,12 @@ class TriggerConfig:
     user_template: str              # {text} 处填入累积的用户文本
     positive_words: List[str]       # 判"已完成"的类别词（取首 token）
     negative_words: List[str]       # 判"未完成"的类别词
-    device: str = "cuda"
+    device: str = P2_DEVICE         # 集中于 src/config.py（.env 可覆盖），勿硬编码
 
 
-# 验证机开发替身（D-011）：prompted Qwen2.5-0.5B
+# 验证机开发替身（D-011）：prompted Qwen2.5-0.5B（模型名走 config，实验机 .env 覆盖）
 QWEN05B_DEV_CONFIG = TriggerConfig(
-    model_name="Qwen/Qwen2.5-0.5B-Instruct",
+    model_name=P2_TRIGGER_MODEL_NAME,
     system_prompt=(
         "Task: decide if the speaker has FINISHED their sentence.\n"
         "A FINISHED utterance is a grammatically complete question or request.\n"

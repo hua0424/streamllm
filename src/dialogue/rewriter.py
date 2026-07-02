@@ -20,7 +20,7 @@ from typing import Tuple
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from src.config import HF_HOME
+from src.config import HF_HOME, P2_DEVICE, P2_REWRITER_MODEL_NAME
 from src.utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
@@ -34,7 +34,7 @@ REWRITE_SYSTEM = (
 
 
 class HistoryRewriter:
-    def __init__(self, model_name: str = "Qwen/Qwen3-0.6B", device: str = "cuda",
+    def __init__(self, model_name: str = P2_REWRITER_MODEL_NAME, device: str = P2_DEVICE,
                  hf_home: str = HF_HOME, max_new_tokens: int = 80):
         if device == "cuda" and not torch.cuda.is_available():
             device = "cpu"

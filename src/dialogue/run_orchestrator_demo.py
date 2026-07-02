@@ -15,15 +15,14 @@
 from src.dialogue.orchestrator import DialogueOrchestrator
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.tts.streaming_tts import MockStreamingTTS, TimingProfile
+from src.config import P2_LLM_MODEL_NAME
+from src.utils.check_utils import make_check
 from src.utils.logging_utils import get_logger, set_global_log_level
 
 logger = get_logger(__name__)
 
 
-def _check(name, cond):
-    logger.info(f"  [{'PASS' if cond else 'FAIL'}] {name}")
-    if not cond:
-        raise AssertionError(name)
+_check = make_check(logger)
 
 
 def _report(r):
@@ -41,7 +40,7 @@ def main():
     logger.info("编排闭环 demo：Mock TTS + 播放器 + 确定性打断")
     logger.info("=" * 64)
 
-    llm = StreamLLMInference(model_name="Qwen/Qwen2.5-0.5B-Instruct", eval_mode=False)
+    llm = StreamLLMInference(model_name=P2_LLM_MODEL_NAME, eval_mode=False)
     tts = MockStreamingTTS(TimingProfile())   # 占位 profile，上实验机换真实 benchmark
     orch = DialogueOrchestrator(llm, tts, max_speculative_tokens=40)
 

@@ -159,14 +159,19 @@
 |---|---|---|---|
 | E1 延迟 | `run_exp1_latency.py` | A TTFT 24.8ms vs B 0ms；建模 m2e 2289 vs 45ms | 7B + real CosyVoice2 实测 mouth-to-ear、SYNTH_RTF 实测替换 |
 | E2 trade-off（核心图） | `run_exp2_tradeoff.py` | 曲线：th0.02→waste30.4%/TTFT0.5ms … th≥0.12→0%/43-75ms，拐点 0.05-0.08 | 7B + TEN 7B（阈值区间按 TEN 分布重标）+ 真实 MultiWOZ |
-| E3 一致性（核心） | `run_exp3_consistency.py` | B-ours 未听引用率 0% vs B-gen 55.6% | 真实 MultiWOZ + LLM-judge 交叉验证 + 7B |
+| E3 一致性（核心） | `run_exp3_consistency.py` | **loose**（片段级）：B-ours 0%（**构造性保证**，非实验发现）vs B-gen 55.6%；**strict**（P1 严格 GT，含被打断片段未播尾部）：双列报告，playback 的 strict>0 = 片段粒度量化误差 | 真实 MultiWOZ + LLM-judge 交叉验证 + 7B |
 | A1 KV 复用 | `run_exp_a1_kvreuse.py` | crop 0.12-0.19ms 近常数；re-prefill 14→63ms 线性；4k 处 3.6x | 7B 重跑（差距更陡）|
 | A2 历史策略 | `run_exp_a2_history.py` | 三策略跑通；重写 mean~660ms 可隐藏 | LLM-judge 连贯性评分（judge 字段已预留）|
 | A3 激进度扫描 | 与 E2 共享 records（逐阈值分解，无需独立脚本） | 同 E2 | 同 E2 |
 
 **共用组件已验证**：软触发（开发替身 AUC~0.80；TEN 7B 实验机换入，D-011）、推测-作废状态机、
-截断模式开关（B-ours/B-gen/B-syn）、Mock TTS TimingProfile（实验机 benchmark 替换）、
+截断模式开关（B-ours/B-gen；**B-syn 在 Mock 同步合成下与 generation 等价，仅接入异步 real TTS
+后才可区分，不得称"已验证"**）、Mock TTS TimingProfile（实验机 benchmark 替换）、
 规则版未听引用检测器（LLM-judge 交叉验证留实验机）。
+**§6 埋点补齐（2026-07-02 审查后）**：TurnMetrics.timestamps 落盘 8 个 §6 时间戳（模拟量已
+标注）、`ttft_text_ms`（§3 定义的 trigger_fire→首token）、`kv_reused/recomputed_len` 与
+`kv_reuse_rate`（rewrite 策略下 <1）、`TurnResult.timeline_records` 反向映射落盘、
+E3 增加 P2 的"boundary"片段边界对照注入与 strict GT 双列。
 **barge-in 响应延迟**关键路径=反查+crop（亚 ms、与上下文无关）；role 重建不在关键路径（可延迟）。
 **ASR 真实音频链路**：一期已证 TTFT 与语音长度关系；二期 harness 用确定性文本段驱动（P1），
 真实音频→流式 ASR 接入在实验机（有数据）时进行，属可选增强而非必需。
