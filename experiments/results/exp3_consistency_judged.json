@@ -1,16 +1,17 @@
 {
-  "summary": {
-    "playback": {
-      "n": 12,
-      "unheard_reference_rate_loose": 0.0,
-      "unheard_reference_rate_strict": 0.583,
-      "avg_unheard_tokens": 0.0
+  "judge_model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "judge_summary": {
+    "loose": {
+      "n": 24,
+      "rule_rate": 0.375,
+      "judge_rate": 0.25,
+      "cohen_kappa": 0.714
     },
-    "generation": {
-      "n": 12,
-      "unheard_reference_rate_loose": 0.75,
-      "unheard_reference_rate_strict": 1.0,
-      "avg_unheard_tokens": 11.5
+    "strict": {
+      "n": 24,
+      "rule_rate": 0.792,
+      "judge_rate": 0.333,
+      "cohen_kappa": 0.233
     }
   },
   "records": [
@@ -91,7 +92,9 @@
         "barge_in_injected": 1326.76,
         "tts_stop": 1326.76,
         "kv_crop_done": 1326.93
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_wall",
@@ -174,7 +177,9 @@
         "barge_in_injected": 682.05,
         "tts_stop": 682.05,
         "kv_crop_done": 682.08
-      }
+      },
+      "judge_referenced_unheard": true,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_wall",
@@ -244,7 +249,9 @@
         "barge_in_injected": 2867.58,
         "tts_stop": 2867.58,
         "kv_crop_done": 2867.61
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_wall",
@@ -326,7 +333,9 @@
         "barge_in_injected": 1029.87,
         "tts_stop": 1029.87,
         "kv_crop_done": 1029.9
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_wall",
@@ -396,7 +405,9 @@
         "barge_in_injected": 1097.16,
         "tts_stop": 1097.16,
         "kv_crop_done": 1097.32
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_wall",
@@ -475,7 +486,9 @@
         "barge_in_injected": 668.44,
         "tts_stop": 668.44,
         "kv_crop_done": 668.48
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_wall",
@@ -560,7 +573,9 @@
         "barge_in_injected": 2879.46,
         "tts_stop": 2879.46,
         "kv_crop_done": 2879.58
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_wall",
@@ -637,7 +652,9 @@
         "barge_in_injected": 821.46,
         "tts_stop": 821.46,
         "kv_crop_done": 821.48
-      }
+      },
+      "judge_referenced_unheard": true,
+      "judge_referenced_unheard_strict": true
     },
     {
       "id": "fx_city",
@@ -721,7 +738,9 @@
         "barge_in_injected": 608.0,
         "tts_stop": 608.0,
         "kv_crop_done": 608.13
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_city",
@@ -812,7 +831,9 @@
         "barge_in_injected": 1430.98,
         "tts_stop": 1430.98,
         "kv_crop_done": 1431.01
-      }
+      },
+      "judge_referenced_unheard": true,
+      "judge_referenced_unheard_strict": true
     },
     {
       "id": "fx_city",
@@ -896,7 +917,9 @@
         "barge_in_injected": 2183.66,
         "tts_stop": 2183.66,
         "kv_crop_done": 2183.9
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_city",
@@ -985,7 +1008,9 @@
         "barge_in_injected": 1048.94,
         "tts_stop": 1048.94,
         "kv_crop_done": 1048.97
-      }
+      },
+      "judge_referenced_unheard": true,
+      "judge_referenced_unheard_strict": true
     },
     {
       "id": "fx_city",
@@ -1070,7 +1095,9 @@
         "barge_in_injected": 1670.96,
         "tts_stop": 1670.96,
         "kv_crop_done": 1671.0
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": true
     },
     {
       "id": "fx_city",
@@ -1155,7 +1182,9 @@
         "barge_in_injected": 593.47,
         "tts_stop": 593.47,
         "kv_crop_done": 593.51
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": true
     },
     {
       "id": "fx_city",
@@ -1237,7 +1266,9 @@
         "barge_in_injected": 1632.93,
         "tts_stop": 1632.93,
         "kv_crop_done": 1633.09
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_city",
@@ -1325,7 +1356,9 @@
         "barge_in_injected": 998.17,
         "tts_stop": 998.17,
         "kv_crop_done": 998.2
-      }
+      },
+      "judge_referenced_unheard": true,
+      "judge_referenced_unheard_strict": true
     },
     {
       "id": "fx_palace",
@@ -1413,7 +1446,9 @@
         "barge_in_injected": 1749.12,
         "tts_stop": 1749.12,
         "kv_crop_done": 1749.27
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": true
     },
     {
       "id": "fx_palace",
@@ -1523,7 +1558,9 @@
         "barge_in_injected": 800.4,
         "tts_stop": 800.4,
         "kv_crop_done": 800.43
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_palace",
@@ -1623,7 +1660,9 @@
         "barge_in_injected": 637.36,
         "tts_stop": 637.36,
         "kv_crop_done": 637.47
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_palace",
@@ -1728,7 +1767,9 @@
         "barge_in_injected": 685.2,
         "tts_stop": 685.2,
         "kv_crop_done": 685.24
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_palace",
@@ -1821,7 +1862,9 @@
         "barge_in_injected": 541.97,
         "tts_stop": 541.97,
         "kv_crop_done": 542.1
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_palace",
@@ -1911,7 +1954,9 @@
         "barge_in_injected": 790.5,
         "tts_stop": 790.5,
         "kv_crop_done": 790.56
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_palace",
@@ -1996,7 +2041,9 @@
         "barge_in_injected": 908.47,
         "tts_stop": 908.47,
         "kv_crop_done": 908.59
-      }
+      },
+      "judge_referenced_unheard": false,
+      "judge_referenced_unheard_strict": false
     },
     {
       "id": "fx_palace",
@@ -2097,7 +2144,9 @@
         "barge_in_injected": 1907.03,
         "tts_stop": 1907.03,
         "kv_crop_done": 1907.05
-      }
+      },
+      "judge_referenced_unheard": true,
+      "judge_referenced_unheard_strict": true
     }
   ]
 }

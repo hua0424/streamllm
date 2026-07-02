@@ -1,0 +1,127 @@
+{
+  "judge_model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "judge_summary": {
+    "mark": {
+      "n": 3,
+      "mean_coherence": 2.67
+    },
+    "naive": {
+      "n": 3,
+      "mean_coherence": 3.67
+    },
+    "rewrite": {
+      "n": 3,
+      "mean_coherence": 3.67
+    }
+  },
+  "records": [
+    {
+      "id": "fx_wall",
+      "policy": "naive",
+      "fraction": 0.45,
+      "partial": true,
+      "interrupted_perceived": true,
+      "heard_text": "The Great Wall of China is a series of fortifications built by the Chinese Empire between the 7th and 14th centuries BC.",
+      "history_text": "The Great Wall of China is a series of fortifications built by the Chinese Empire between the 7th and 14th centuries BC.",
+      "rewrite_ms": 0.0,
+      "next_reply": "The Great Wall of China is a series of fortifications built by the Chinese Empire between the 7th and 14th centuries BC. It stretches over 13,000 miles",
+      "judge_coherence": 4
+    },
+    {
+      "id": "fx_wall",
+      "policy": "mark",
+      "fraction": 0.45,
+      "partial": true,
+      "interrupted_perceived": true,
+      "heard_text": "The Great Wall of China is a series of fortifications built by the Chinese Empire in the 2nd millennium BC to protect against invasions by nomadic tribes.",
+      "history_text": "The Great Wall of China is a series of fortifications built by the Chinese Empire in the 2nd millennium BC to protect against invasions by nomadic tribes. …",
+      "rewrite_ms": 0.0,
+      "next_reply": "The Great Wall of China is a series of fortifications built by the Chinese Empire in the 2nd millennium BC to protect against invasions by nomadic tribes. It stretches over 13,",
+      "judge_coherence": 3
+    },
+    {
+      "id": "fx_wall",
+      "policy": "rewrite",
+      "fraction": 0.45,
+      "partial": true,
+      "interrupted_perceived": true,
+      "heard_text": "The Great Wall of China is a series of fortifications built by the Chinese Empire between the 7th and 14th centuries BC.",
+      "history_text": "The Great Wall of China is a series of fortifications built by the Chinese Empire between the 7th and 14th centuries BC.",
+      "rewrite_ms": 1331.1,
+      "next_reply": "The Great Wall of China is a series of fortifications built by the Chinese Empire between the 7th and 14th centuries BC. It stretches over 13,000 miles",
+      "judge_coherence": 4
+    },
+    {
+      "id": "fx_city",
+      "policy": "naive",
+      "fraction": 0.45,
+      "partial": true,
+      "interrupted_perceived": true,
+      "heard_text": "The Forbidden City, also known as the Imperial Palace, is a historic palace complex located in Beijing, China.",
+      "history_text": "The Forbidden City, also known as the Imperial Palace, is a historic palace complex located in Beijing, China.",
+      "rewrite_ms": 0.0,
+      "next_reply": "The Forbidden City was built between 1406 and 1420 by the Ming Dynasty, which ruled China from 1368 to 1644. The palace",
+      "judge_coherence": 4
+    },
+    {
+      "id": "fx_city",
+      "policy": "mark",
+      "fraction": 0.45,
+      "partial": true,
+      "interrupted_perceived": true,
+      "heard_text": "The Forbidden City, also known as the Imperial Palace, is a historic palace complex located in Beijing, China.",
+      "history_text": "The Forbidden City, also known as the Imperial Palace, is a historic palace complex located in Beijing, China. …",
+      "rewrite_ms": 0.0,
+      "next_reply": "The Forbidden City was built between 1406 and 1420 by the Ming Dynasty, which ruled China from 1368 to 1644. It was",
+      "judge_coherence": 3
+    },
+    {
+      "id": "fx_city",
+      "policy": "rewrite",
+      "fraction": 0.45,
+      "partial": true,
+      "interrupted_perceived": true,
+      "heard_text": "The Forbidden City, also known as the Imperial Palace, is a historic palace complex located in Beijing, China.",
+      "history_text": "The Forbidden City, also known as the Imperial Palace, is a historic palace complex located in Beijing, China.",
+      "rewrite_ms": 899.8,
+      "next_reply": "The Forbidden City was built between 1406 and 1420 by the Ming Dynasty, which ruled China from 1368 to 1644. The palace",
+      "judge_coherence": 4
+    },
+    {
+      "id": "fx_panda",
+      "policy": "naive",
+      "fraction": 0.45,
+      "partial": true,
+      "interrupted_perceived": true,
+      "heard_text": "Giant pandas are a species of bear native to China. They are the largest bear species and are known for their distinctive black and white fur.",
+      "history_text": "Giant pandas are a species of bear native to China. They are the largest bear species and are known for their distinctive black and white fur.",
+      "rewrite_ms": 0.0,
+      "next_reply": "Giant pandas are herbivores and primarily eat bamboo. They are known to consume up to 100 pounds of bamboo per day.",
+      "judge_coherence": 3
+    },
+    {
+      "id": "fx_panda",
+      "policy": "mark",
+      "fraction": 0.45,
+      "partial": true,
+      "interrupted_perceived": true,
+      "heard_text": "Giant pandas are a species of bear native to China. They are the largest bear species and are known for their distinctive black and white fur.",
+      "history_text": "Giant pandas are a species of bear native to China. They are the largest bear species and are known for their distinctive black and white fur. …",
+      "rewrite_ms": 0.0,
+      "next_reply": "Giant pandas are herbivores and primarily eat bamboo. They are known to consume up to 100 pounds of bamboo per day. …",
+      "judge_coherence": 2
+    },
+    {
+      "id": "fx_panda",
+      "policy": "rewrite",
+      "fraction": 0.45,
+      "partial": true,
+      "interrupted_perceived": true,
+      "heard_text": "Giant pandas are a species of bear native to China. They are the largest bear species and are known for their distinctive black and white fur.",
+      "history_text": "Giant pandas are a species of bear native to China. They are the largest bear species and are known for their distinctive black and white fur.",
+      "rewrite_ms": 1824.0,
+      "next_reply": "Giant pandas are herbivores and primarily eat bamboo. They are known to consume up to 90% of their body weight in bamboo each day.",
+      "judge_coherence": 3
+    }
+  ]
+}

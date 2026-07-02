@@ -106,6 +106,10 @@ def run(dialogues, out_path: Path, max_spec: int, model_name: str):
                 rec = {
                     "id": dlg["id"], "fraction": frac, "condition": cond,
                     "partial": r1.partial,
+                    # LLM-judge（run_llm_judge.py）需要的原文本
+                    "unheard_text": r1.unheard_in_history_text,
+                    "strict_unheard_text": r1.strict_unheard_in_history_text,
+                    "probe_replies": replies,
                     "n_generated": r1.metrics.n_generated, "n_heard": r1.metrics.n_heard,
                     "n_unheard_in_history": r1.metrics.n_unheard_in_history,
                     "strict_unheard_chars": len(r1.strict_unheard_in_history_text.strip()),

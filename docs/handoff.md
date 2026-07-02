@@ -69,12 +69,37 @@ HF_TOKEN= uv run python -m src.dialogue.run_speculative_test
 
 ---
 
-## 四、实验机专属的四件未完成工作
+## 四、实验机准备步骤（脚本已全部备好并本机验证，2026-07-02——**照单执行即可**）
 
-1. **MultiWOZ 派生数据脚本**（上面 §三.3）——纯文本处理，半天内
-2. **TEN 7B 接入**：`src/dialogue/trigger.py` 已备好 `TEN_CONFIG`（finished/unfinished/wait 类别词，同一代码路径）；接入 = `LLMSoftTrigger(TEN_CONFIG)` 或 .env 覆盖。**接入后必须重标 E2 阈值扫描区间**：先对若干完整/不完整句打印 `confidence()` 分布，据分布选 6-8 个扫描点替换 `run_exp2_tradeoff.py` 的 `DEFAULT_THRESHOLDS`
-3. **real CosyVoice2**（D-010）：按官方 requirements 装（pin torch 2.3.1+cu121，**建议独立 venv/conda 环境跑 TTS 服务**，勿污染主环境）。两个用途：① benchmark 出真实 TimingProfile（samples_per_char / first_chunk_latency_ms / SYNTH_RTF），替换 `src/tts/streaming_tts.py` 与 `run_exp1_latency.py` 里的占位值重跑 E1/E2/E3；② 实现 `StreamingTTS` 接口的 CosyVoice2 类，实测 E1 的 mouth-to-ear
-4. **LLM-judge**：E3 的 strict/loose 引用判定交叉验证（与规则检测器算 Cohen's κ）+ A2 的连贯性评分（填 `judge_coherence`）。用与主 LLM 不同家族的更强模型做裁判（experiment_design.md §9.3）；人工小样本 ~50 条验证 judge 可靠性（P3）
+1. **派生 MultiWOZ 数据**（脚本已验证，兼容 2.0/2.1 与 2.2 格式，切分严格无损）：
+   ```bash
+   uv run python -m experiments.scripts.prepare_multiwoz_data \
+       --input experiments/datasets/raw_data/MultiWOZ/data.json \
+       --out-turns experiments/datasets/processed/p2_turns.json \
+       --out-segments experiments/datasets/processed/p2_segments.json --max-dialogues 100
+   ```
+2. **TEN 7B 接入 + 阈值重标**（标定脚本已验证，替身 AUC 0.84）：.env 设 `P2_TRIGGER_MODEL_NAME=TEN-framework/TEN_Turn_Detection` 后：
+   ```bash
+   HF_TOKEN= uv run python -m experiments.scripts.calibrate_trigger --config ten
+   # 产出 suggested_thresholds → 传给 run_exp2_tradeoff 的 --thresholds
+   # 脚本自带 AUC>=0.65 可分性体检，过不了会拒绝放行 E2
+   ```
+3. **real CosyVoice2**（⚠️ 唯一未真机验证的部分——适配器与 benchmark 已写好、编译通过）：
+   按官方 requirements 在**独立环境**装（pin torch 2.3.1+cu121，勿污染主 uv 环境）；
+   适配器 `src/tts/cosyvoice_tts.py`（StreamingTTS 接口，守卫式导入）；然后：
+   ```bash
+   uv run python -m experiments.scripts.benchmark_cosyvoice --ref-audio ref.wav
+   # 产出 cosyvoice_profile.json → 三个实测值回填 TimingProfile 与 SYNTH_RTF，重跑 E1/E2/E3
+   # E1 实测 mouth-to-ear：编排层 tts=CosyVoiceStreamingTTS(...)
+   ```
+4. **LLM-judge**（脚本已验证：替身裁判下 loose κ=0.71 / strict κ=0.23，印证规则 strict 是噪声上界、必须 judge 交叉）：
+   ```bash
+   HF_TOKEN= uv run python -m experiments.scripts.run_llm_judge e3 \
+       --results experiments/results/exp3_consistency.json --judge-model <与主LLM不同家族的强模型>
+   HF_TOKEN= uv run python -m experiments.scripts.run_llm_judge a2 \
+       --results experiments/results/exp_a2_history.json --judge-model <同上>
+   # 产出 *_judged.json（judge率 + Cohen κ / judge_coherence）；另抽 ~50 条人工验证裁判可靠性（P3）
+   ```
 
 ---
 
