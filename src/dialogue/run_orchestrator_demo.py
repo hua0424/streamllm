@@ -27,10 +27,12 @@ def _check(name, cond):
 
 
 def _report(r):
+    m = r.metrics
     logger.info(f"  完整生成 : {r.full_assistant_text!r}")
-    logger.info(f"  听到(历史): {r.heard_text!r}")
+    logger.info(f"  听到=历史: {r.heard_text!r}")
     if r.interrupted:
-        logger.info(f"  作废(未听): {r.discarded_text!r}  (partial={r.partial})")
+        wasted = r.full_assistant_text[len(r.heard_text):]
+        logger.info(f"  作废(未听): {wasted!r}  (partial={r.partial}, waste={m.waste_rate:.0%})")
 
 
 def main():
@@ -55,10 +57,11 @@ def main():
         _report(r)
         # 不变量校验
         _check("KV 三长度一致", orch.assert_kv_consistent())
-        _check("生成了 token", r.n_generated_tokens > 0)
+        _check("生成了 token", r.metrics.n_generated > 0)
         if r.interrupted:
-            _check("听到 token 数 <= 生成 token 数", r.n_heard_tokens <= r.n_generated_tokens)
+            _check("听到 token 数 <= 生成 token 数", r.metrics.n_heard <= r.metrics.n_generated)
             _check("heard 是 full 的字符前缀", r.full_assistant_text.startswith(r.heard_text))
+            _check("playback 模式下 history == heard", r.history_text == r.heard_text)
         else:
             _check("完整听完：heard == full", r.heard_text == r.full_assistant_text)
         _check("有片段产出", len(r.fragments) > 0)
