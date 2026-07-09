@@ -9,3 +9,4 @@ experiments/datasets/raw_data
 src/asr/test_result
 
 .cursor
+**/~$*
