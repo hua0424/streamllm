@@ -1,0 +1,141 @@
+\relax 
+\bibstyle{sn-basic}
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{ref1}
+\Newlabel{2}{2}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\citation{ref2}
+\citation{ref3}
+\citation{ref4}
+\citation{ref5}
+\citation{ref6}
+\citation{ref7}
+\citation{ref8}
+\citation{ref9}
+\newlabel{eq:total}{{1}{2}{Introduction}{equation.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{2}{Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Streaming Progress in Automatic Speech Recognition}{2}{subsection.2.1}\protected@file@percent }
+\citation{ref10}
+\citation{ref11}
+\citation{ref12}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}LLM Inference Acceleration}{3}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Full-Pipeline Optimization of Voice Dialogue Systems}{3}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Contributions of This Work}{3}{subsection.2.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Overall architecture of the Whisper model and schematic of feature downsampling}}{4}{figure.1}\protected@file@percent }
+\newlabel{fig:whisper}{{1}{4}{Overall architecture of the Whisper model and schematic of feature downsampling}{figure.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Principles and Methods}{4}{section.3}\protected@file@percent }
+\newlabel{sec:methods}{{3}{4}{Principles and Methods}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Automatic Speech Recognition}{4}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.1}Whisper Architecture and Its Offline Nature}{4}{subsubsection.3.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.1.2}Streaming Challenges and Our Approach}{4}{subsubsection.3.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}LLM Inference}{5}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Transformer Attention}{5}{subsubsection.3.2.1}\protected@file@percent }
+\newlabel{eq:attention}{{2}{5}{Transformer Attention}{equation.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.2}KV Cache: Mathematical Principle and Complexity}{5}{subsubsection.3.2.2}\protected@file@percent }
+\newlabel{eq:naive}{{3}{5}{KV Cache: Mathematical Principle and Complexity}{equation.3}{}}
+\newlabel{eq:kcache}{{4}{5}{KV Cache: Mathematical Principle and Complexity}{equation.4}{}}
+\newlabel{eq:vcache}{{5}{5}{KV Cache: Mathematical Principle and Complexity}{equation.5}{}}
+\citation{ref13}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Schematic of the KV Cache-based inference mechanism. Left: System A, naive inference without cache reuse; right: System B, incremental inference with KV cache.}}{6}{figure.2}\protected@file@percent }
+\newlabel{fig:kvcache}{{2}{6}{Schematic of the KV Cache-based inference mechanism. Left: System A, naive inference without cache reuse; right: System B, incremental inference with KV cache}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Evaluation Metrics}{6}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.1}Time to First Token}{6}{subsubsection.3.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.2}Word Error Rate}{6}{subsubsection.3.3.2}\protected@file@percent }
+\newlabel{eq:wer}{{6}{6}{Word Error Rate}{equation.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}System Design}{6}{section.4}\protected@file@percent }
+\newlabel{sec:design}{{4}{6}{System Design}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Overall Architecture}{6}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}Objective and Logical Topology}{6}{subsubsection.4.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}Key Engineering Details}{7}{subsubsection.4.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Streaming ASR Context Management}{7}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:asr-context}{{4.2}{7}{Streaming ASR Context Management}{subsection.4.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Strategy}{7}{subsubsection.4.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Dynamic VAD Segmentation}{7}{subsubsection.4.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Logical topology of the streaming parallel architecture}}{8}{figure.3}\protected@file@percent }
+\newlabel{fig:topology}{{3}{8}{Logical topology of the streaming parallel architecture}{figure.3}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}Sliding-Window Context Awareness}{8}{subsubsection.4.2.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Schematic of the context-aware ASR sliding-window mechanism}}{8}{figure.4}\protected@file@percent }
+\newlabel{fig:window}{{4}{8}{Schematic of the context-aware ASR sliding-window mechanism}{figure.4}{}}
+\newlabel{eq:trigger}{{7}{8}{Sliding-Window Context Awareness}{equation.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Incremental KV-Cache Prefilling for the LLM}{9}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:kv-prefill}{{4.3}{9}{Incremental KV-Cache Prefilling for the LLM}{subsection.4.3}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1}Strategy}{9}{subsubsection.4.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.2}Core Algorithm}{9}{subsubsection.4.3.2}\protected@file@percent }
+\citation{ref14}
+\citation{ref15}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Incremental KV cache prefill (StreamLLMInference)}}{10}{algorithm.1}\protected@file@percent }
+\newlabel{alg:prefill}{{1}{10}{Core Algorithm}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.3}Complexity Analysis}{10}{subsubsection.4.3.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Schematic of the LLM KV Cache incremental update mechanism}}{10}{figure.5}\protected@file@percent }
+\newlabel{fig:kvupdate}{{5}{10}{Schematic of the LLM KV Cache incremental update mechanism}{figure.5}{}}
+\newlabel{eq:cumcost}{{8}{10}{Complexity Analysis}{equation.8}{}}
+\citation{ref16}
+\citation{ref17}
+\citation{ref18,ref19}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Test Data Construction Pipeline}{11}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:data}{{4.4}{11}{Test Data Construction Pipeline}{subsection.4.4}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.1}Overview}{11}{subsubsection.4.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.2}Cumulative Dialogue Generation}{11}{subsubsection.4.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.3}Data Processing Pipeline}{11}{subsubsection.4.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.4.4}Test-Set Groups}{11}{subsubsection.4.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Experiments and Analysis}{11}{section.5}\protected@file@percent }
+\newlabel{sec:experiments}{{5}{11}{Experiments and Analysis}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Overview}{11}{subsection.5.1}\protected@file@percent }
+\citation{ref20}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Dialogue data accumulation strategy (example translated from Chinese)}}{12}{table.1}\protected@file@percent }
+\newlabel{tab:accum}{{1}{12}{Dialogue data accumulation strategy (example translated from Chinese)}{table.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Audio duration groups}}{12}{table.2}\protected@file@percent }
+\newlabel{tab:groups}{{2}{12}{Audio duration groups}{table.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Experiment 1: Latency versus Speech Length}{12}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.1}Setup and Environment}{12}{subsubsection.5.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces TTFT trends of System A and System B over input duration}}{13}{figure.6}\protected@file@percent }
+\newlabel{fig:trend}{{6}{13}{TTFT trends of System A and System B over input duration}{figure.6}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.2.2}Latency Trends}{13}{subsubsection.5.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Experiment 2: Ablation}{13}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.3.1}Setup}{13}{subsubsection.5.3.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces TTFT statistics across speech duration groups}}{14}{table.3}\protected@file@percent }
+\newlabel{tab:ttft}{{3}{14}{TTFT statistics across speech duration groups}{table.3}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.3.2}Quantifying Contributions}{14}{subsubsection.5.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Experiment 3: Accuracy and Quality Boundary}{14}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.1}Setup and Evaluation Method}{14}{subsubsection.5.4.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Ablation results of core modules}}{15}{table.4}\protected@file@percent }
+\newlabel{tab:ablation}{{4}{15}{Ablation results of core modules}{table.4}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.4.2}Accuracy--Latency Analysis}{15}{subsubsection.5.4.2}\protected@file@percent }
+\citation{ref21}
+\citation{ref22}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Accuracy and processing time under different context-window configurations}}{16}{table.5}\protected@file@percent }
+\newlabel{tab:context}{{5}{16}{Accuracy and processing time under different context-window configurations}{table.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion and Outlook}{16}{section.6}\protected@file@percent }
+\newlabel{sec:conclusion}{{6}{16}{Conclusion and Outlook}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Summary}{16}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Limitations}{16}{subsection.6.2}\protected@file@percent }
+\bibdata{sn-refs}
+\bibcite{ref1}{{1}{2024}{{OpenAI}}{{}}}
+\bibcite{ref2}{{2}{2020}{{Tan et~al.}}{{Tan, Sarkar, and Dehak}}}
+\bibcite{ref3}{{3}{2024}{{Prabhavalkar et~al.}}{{Prabhavalkar, Hori, Sainath, Schl{\"u}ter, and Watanabe}}}
+\bibcite{ref4}{{4}{2017}{{Vaswani et~al.}}{{Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez, Kaiser, and Polosukhin}}}
+\bibcite{ref5}{{5}{2022}{{Li}}{{}}}
+\bibcite{ref6}{{6}{2023}{{Radford et~al.}}{{Radford, Kim, Xu, Brockman, McLeavey, and Sutskever}}}
+\bibcite{ref7}{{7}{2025}{{Zheng et~al.}}{{Zheng, Chen, Qian et~al.}}}
+\bibcite{ref8}{{8}{2024}{{Zhu et~al.}}{{Zhu, Li, Liu, Ma, and Wang}}}
+\bibcite{ref9}{{9}{2022}{{Tay et~al.}}{{Tay, Dehghani, Bahri, and Metzler}}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Future Work}{17}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subparagraph}{Acknowledgements}{17}{section*.3}\protected@file@percent }
+\bibcite{ref10}{{10}{2025}{{Sethiya and Maurya}}{{}}}
+\bibcite{ref11}{{11}{2024}{{Yin et~al.}}{{Yin, Fu, Zhao, Li, Sun, Xu, and Chen}}}
+\bibcite{ref12}{{12}{2022}{{Mohamed et~al.}}{{Mohamed, Lee, Borgholt, Havtorn, Edin, Igel, Kirchhoff, Li, Livescu, Maal{\o }e, Sainath, and Watanabe}}}
+\bibcite{ref13}{{13}{2024}{{Silero Team}}{{}}}
+\bibcite{ref14}{{14}{2018}{{Budzianowski et~al.}}{{Budzianowski, Wen, Tseng, Casanueva, Ultes, Ramadan, and Ga{\v s}i{\'c}}}}
+\bibcite{ref15}{{15}{2020}{{Zhu et~al.}}{{Zhu, Huang, Zhang, Zhu, and Huang}}}
+\bibcite{ref16}{{16}{2024}{{Tan et~al.}}{{Tan, Chen, Liu, Cong, Zhang, Liu, Wang, Leng, Yi, He, Zhao, Qin, Soong, and Liu}}}
+\bibcite{ref17}{{17}{2024}{{Du et~al.}}{{Du, Chen, Zhang, Hu, Lu, Yang, Hu, Zheng, Gu, Ma, Gao, and Yan}}}
+\bibcite{ref18}{{18}{2023}{{Ni et~al.}}{{Ni, Young, Pandelea, Xue, and Cambria}}}
+\bibcite{ref19}{{19}{2020}{{Zhang et~al.}}{{Zhang, Takanobu, Zhu, Huang, and Zhu}}}
+\bibcite{ref20}{{20}{2024}{{Yang et~al.}}{{Yang, Yang, Hui, Zheng, Yu, Zhou et~al.}}}
+\bibcite{ref21}{{21}{2009}{{Stivers et~al.}}{{Stivers, Enfield, Brown, Englert, Hayashi, Heinemann, Hoymann, Rossano, de~Ruiter, Yoon, and Levinson}}}
+\bibcite{ref22}{{22}{2021}{{Skantze}}{{}}}
+\gdef \@abspage@last{18}

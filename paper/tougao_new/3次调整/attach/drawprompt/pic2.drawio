@@ -1,0 +1,213 @@
+<mxfile host="Electron">
+  <diagram name="Fig2-KVCache-Mechanism" id="fig2-kvcache">
+    <mxGraphModel dx="1030" dy="626" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="panelL" parent="1" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b85450;strokeWidth=1.5;verticalAlign=top;" value="" vertex="1">
+          <mxGeometry height="495" width="410" x="20" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="panelR" parent="1" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1.5;verticalAlign=top;" value="" vertex="1">
+          <mxGeometry height="495" width="410" x="470" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="titleL" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=13;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;Without KV Cache — Repeated Forward&lt;/font&gt;" vertex="1">
+          <mxGeometry height="28" width="386" x="32" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="titleR" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;With KV Cache — State Reuse&lt;/font&gt;" vertex="1">
+          <mxGeometry height="28" width="386" x="482" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="stepL" parent="1" style="text;html=1;align=center;fontSize=11;fontColor=#666666;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Generation step t : recompute all tokens&lt;/font&gt;" vertex="1">
+          <mxGeometry height="18" width="386" x="32" y="88" as="geometry" />
+        </mxCell>
+        <mxCell id="stepR" parent="1" style="text;html=1;align=center;fontSize=11;fontColor=#666666;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Generation step t : reuse cache, add one token&lt;/font&gt;" vertex="1">
+          <mxGeometry height="18" width="386" x="482" y="88" as="geometry" />
+        </mxCell>
+        <mxCell id="tL1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;x₁&lt;/font&gt;" vertex="1">
+          <mxGeometry height="28" width="46" x="92" y="114" as="geometry" />
+        </mxCell>
+        <mxCell id="tL2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;x₂&lt;/font&gt;" vertex="1">
+          <mxGeometry height="28" width="46" x="144" y="114" as="geometry" />
+        </mxCell>
+        <mxCell id="tL3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;x₃&lt;/font&gt;" vertex="1">
+          <mxGeometry height="28" width="46" x="196" y="114" as="geometry" />
+        </mxCell>
+        <mxCell id="tL4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontFamily=Helvetica;fontColor=default;fontStyle=0;align=center;verticalAlign=middle;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;x₄&lt;/font&gt;" vertex="1">
+          <mxGeometry height="28" width="46" x="248" y="114" as="geometry" />
+        </mxCell>
+        <mxCell id="tL5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=0;fontFamily=Helvetica;fontColor=default;align=center;verticalAlign=middle;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;xₜ&lt;/font&gt;" vertex="1">
+          <mxGeometry height="28" width="46" x="300" y="114" as="geometry" />
+        </mxCell>
+        <mxCell id="tR1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=12;fontColor=#666666;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;x₁&lt;/font&gt;" vertex="1">
+          <mxGeometry height="28" width="46" x="542" y="114" as="geometry" />
+        </mxCell>
+        <mxCell id="tR2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=12;fontColor=#666666;fontFamily=Helvetica;fontStyle=0;align=center;verticalAlign=middle;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;x₂&lt;/font&gt;" vertex="1">
+          <mxGeometry height="28" width="46" x="594" y="114" as="geometry" />
+        </mxCell>
+        <mxCell id="tR3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=12;fontColor=#666666;fontFamily=Helvetica;fontStyle=0;align=center;verticalAlign=middle;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;x₃&lt;/font&gt;" vertex="1">
+          <mxGeometry height="28" width="46" x="646" y="114" as="geometry" />
+        </mxCell>
+        <mxCell id="tR4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=12;fontColor=#666666;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;x₄&lt;/font&gt;" vertex="1">
+          <mxGeometry height="28" width="46" x="698" y="114" as="geometry" />
+        </mxCell>
+        <mxCell id="tR5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;xₜ&lt;/font&gt;" vertex="1">
+          <mxGeometry height="28" width="46" x="750" y="114" as="geometry" />
+        </mxCell>
+        <mxCell id="mlblL" parent="1" style="text;html=1;align=center;fontSize=11;fontColor=#999999;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Attention mask (causal)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="16" width="190" x="110" y="152" as="geometry" />
+        </mxCell>
+        <mxCell id="mlblR" parent="1" style="text;html=1;align=center;fontSize=11;fontColor=#999999;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Attention mask (causal)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="16" width="190" x="560" y="152" as="geometry" />
+        </mxCell>
+        <mxCell id="yAxisL" parent="1" style="text;html=1;align=center;fontSize=11;fontColor=#888888;horizontal=0;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Query step ↓ (generated tokens)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="140" width="22" x="100" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="xAxisL" parent="1" style="text;html=1;align=center;fontSize=11;fontColor=#888888;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Key/Value step → (context history)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="14" width="190" x="138" y="327" as="geometry" />
+        </mxCell>
+        <mxCell id="yAxisR" parent="1" style="text;html=1;align=center;fontSize=11;fontColor=#888888;horizontal=0;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Query step ↓ (generated tokens)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="140" width="22" x="550" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="xAxisR" parent="1" style="text;html=1;align=center;fontSize=11;fontColor=#888888;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Key/Value step → (context history)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="14" width="190" x="588" y="325" as="geometry" />
+        </mxCell>
+        <mxCell id="mboxL" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#cccccc;dashed=1;" value="" vertex="1">
+          <mxGeometry height="150" width="150" x="130" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="mboxR" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#cccccc;dashed=1;" value="" vertex="1">
+          <mxGeometry height="150" width="150" x="580" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="mL11" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontColor=#b85450;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;K₁&lt;br&gt;V₁&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="30" x="130" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="mL21" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="130" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="mL22" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontColor=#b85450;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;K₂&lt;br&gt;V₂&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="30" x="160" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="mL31" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="130" y="235" as="geometry" />
+        </mxCell>
+        <mxCell id="mL32" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="160" y="235" as="geometry" />
+        </mxCell>
+        <mxCell id="mL33" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontColor=#b85450;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;K₃&lt;br&gt;V₃&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="30" x="190" y="235" as="geometry" />
+        </mxCell>
+        <mxCell id="mL41" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="130" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="mL42" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="160" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="mL43" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="190" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="mL44" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontColor=#b85450;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;K₄&lt;br&gt;V₄&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="30" x="220" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="mL51" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="130" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="mL52" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="160" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="mL53" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="190" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="mL54" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="220" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="mL55" parent="1" style="rounded=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontColor=#b85450;fontStyle=1;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Kₜ&lt;br&gt;Vₜ&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="30" x="250" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="mR11" parent="1" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=11;fontColor=#666666;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;K₁&lt;br&gt;V₁&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="30" x="580" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="mR21" parent="1" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="580" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="mR22" parent="1" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=11;fontColor=#666666;align=center;verticalAlign=middle;fontFamily=Helvetica;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;K₂&lt;br&gt;V₂&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="30" x="610" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="mR31" parent="1" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="580" y="235" as="geometry" />
+        </mxCell>
+        <mxCell id="mR32" parent="1" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="610" y="235" as="geometry" />
+        </mxCell>
+        <mxCell id="mR33" parent="1" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=11;fontColor=#666666;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;K₃&lt;br&gt;V₃&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="30" x="640" y="235" as="geometry" />
+        </mxCell>
+        <mxCell id="mR41" parent="1" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="580" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="mR42" parent="1" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="610" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="mR43" parent="1" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="640" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="mR44" parent="1" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;fontSize=11;fontColor=#666666;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;K₄&lt;br&gt;V₄&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="30" x="670" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="mR51" parent="1" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="580" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="mR52" parent="1" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="610" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="mR53" parent="1" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="640" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="mR54" parent="1" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="670" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="mR55" parent="1" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontColor=#5a7d4f;fontStyle=1;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Kₜ&lt;br&gt;Vₜ&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="30" x="700" y="295" as="geometry" />
+        </mxCell>
+        <mxCell id="legGray" parent="1" style="rounded=0;html=1;fillColor=#eeeeee;strokeColor=#999999;" value="" vertex="1">
+          <mxGeometry height="14" width="14" x="746" y="205" as="geometry" />
+        </mxCell>
+        <mxCell id="legGrayT" parent="1" style="text;html=1;align=left;fontSize=11;fontColor=#666666;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;cached (reused)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="16" width="110" x="762" y="203" as="geometry" />
+        </mxCell>
+        <mxCell id="legGreen" parent="1" style="rounded=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" value="" vertex="1">
+          <mxGeometry height="14" width="14" x="746" y="225" as="geometry" />
+        </mxCell>
+        <mxCell id="legGreenT" parent="1" style="text;html=1;align=left;fontSize=11;fontColor=#666666;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;computed now (qₜ)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="16" width="110" x="762" y="223" as="geometry" />
+        </mxCell>
+        <mxCell id="annL" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fbe5e3;strokeColor=#b85450;fontSize=11;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;All cells recomputed every step:&lt;br&gt;self-attention over all N tokens&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34" width="370" x="40" y="348" as="geometry" />
+        </mxCell>
+        <mxCell id="annR" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f3e6;strokeColor=#82b366;fontSize=11;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;Only the new row (qₜ) is computed;&lt;br&gt;previous K,V are reused from the cache&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34" width="370" x="490" y="348" as="geometry" />
+        </mxCell>
+        <mxCell id="boL" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=14;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;Per-step cost ≈ O(N²)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34" width="230" x="110" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="boR" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=14;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;Per-step cost ≈ O(N)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="34" width="230" x="560" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="botL" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fbe5e3;strokeColor=#b85450;fontSize=11;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;No reuse: K,V for x₁…xₜ are&lt;br&gt;recomputed at every step&lt;/font&gt;" vertex="1">
+          <mxGeometry height="64" width="310" x="70" y="448" as="geometry" />
+        </mxCell>
+        <mxCell id="cacheBox" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Past Key/Value Cache (VRAM)&lt;br&gt;K₁,V₁ … Kₜ₋₁,Vₜ₋₁  (cached)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="64" width="200" x="480" y="448" as="geometry" />
+        </mxCell>
+        <mxCell id="computeBox" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Compute Qₜ,Kₜ,Vₜ&lt;br&gt;(new token only)&lt;/font&gt;" vertex="1">
+          <mxGeometry height="64" width="158" x="710" y="448" as="geometry" />
+        </mxCell>
+        <mxCell id="appendEdge" edge="1" parent="1" source="computeBox" style="endArrow=classic;html=1;rounded=0;strokeColor=#82b366;fontSize=11;fontColor=#5a7d4f;" target="cacheBox" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;append Kₜ,Vₜ&lt;/font&gt;">
+          <mxGeometry relative="1" x="-0.4667" y="29" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="bottomNote" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;KV Cache reuses cached Key/Value states to cut the per-step decoding cost from O(N²) to O(N); it does not remove the O(M²) cost of the initial prompt prefill.&lt;/font&gt;" vertex="1">
+          <mxGeometry height="38" width="860" x="20" y="552" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
