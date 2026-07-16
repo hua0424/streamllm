@@ -1,6 +1,6 @@
 <mxfile host="Electron">
   <diagram name="图3 流式并行架构逻辑拓扑" id="0">
-    <mxGraphModel dx="2468" dy="783" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1180" pageHeight="590" math="0" shadow="0">
+    <mxGraphModel dx="2948" dy="1051" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1180" pageHeight="590" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -29,16 +29,16 @@
           <mxGeometry height="60" width="134" x="24" y="132" as="geometry" />
         </mxCell>
         <mxCell id="L3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;fontColor=#5b3a76;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Context-Aware&lt;br&gt;ASR Engine&lt;br&gt;Thread 3 (collector + transcriber)&lt;/font&gt;" vertex="1">
-          <mxGeometry height="60" width="134" x="24" y="216" as="geometry" />
+          <mxGeometry height="69" width="134" x="24" y="211" as="geometry" />
         </mxCell>
         <mxCell id="L4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;fontColor=#4d6e3a;" value="Incremental LLM&#xa;Inference&#xa;&#xa;Thread 4" vertex="1">
           <mxGeometry height="92" width="134" x="24" y="300" as="geometry" />
         </mxCell>
         <mxCell id="cAudio" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#cfe2f3;strokeColor=#6c8ebf;fontSize=11;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Audio Chunk Generator&lt;br&gt;continuous 16 kHz PCM · 500 ms chunks&lt;/font&gt;" vertex="1">
-          <mxGeometry height="48" width="178" x="179" y="52" as="geometry" />
+          <mxGeometry height="54" width="178" x="179" y="46" as="geometry" />
         </mxCell>
         <mxCell id="Q1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=11;fontColor=#555555;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;audio_chunk_queue&lt;br&gt;▮ ▮ ▮ ▮&lt;/font&gt;" vertex="1">
-          <mxGeometry height="44" width="138" x="379" y="54" as="geometry" />
+          <mxGeometry height="51" width="138" x="379" y="47" as="geometry" />
         </mxCell>
         <mxCell id="sStream" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#9aa9bd;dashed=1;dashPattern=4 4;fontSize=11;fontColor=#5a6b85;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;StreamState&lt;/font&gt;" vertex="1">
           <mxGeometry height="40" width="86" x="252" y="138" as="geometry" />
@@ -47,13 +47,13 @@
           <mxGeometry height="48" width="180" x="362" y="136" as="geometry" />
         </mxCell>
         <mxCell id="Q2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=11;fontColor=#555555;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;audio_segment_queue&lt;br&gt;▮ ▮ ▮ ▮&lt;/font&gt;" vertex="1">
-          <mxGeometry height="44" width="138" x="564" y="138" as="geometry" />
+          <mxGeometry height="44" width="154" x="564" y="138" as="geometry" />
         </mxCell>
         <mxCell id="sASRCache" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#b39ac4;dashed=1;dashPattern=4 4;fontSize=11;fontColor=#6a4a86;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;ASRCache&lt;/font&gt;" vertex="1">
           <mxGeometry height="40" width="86" x="434" y="222" as="geometry" />
         </mxCell>
         <mxCell id="cASR" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Streaming ASR (Whisper)&lt;br&gt;sliding-window context — Fig. 4&lt;br&gt;→ stable transcript chunks&lt;/font&gt;" vertex="1">
-          <mxGeometry height="52" width="190" x="544" y="218" as="geometry" />
+          <mxGeometry height="75" width="190" x="544" y="208" as="geometry" />
         </mxCell>
         <mxCell id="Q3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#999999;fontSize=11;fontColor=#555555;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;text_chunk_queue&lt;br&gt;▮ ▮ ▮ ▮&lt;/font&gt;" vertex="1">
           <mxGeometry height="44" width="138" x="756" y="222" as="geometry" />
@@ -74,10 +74,10 @@
           <mxGeometry height="72" width="141" x="522" y="310" as="geometry" />
         </mxCell>
         <mxCell id="nEnd" parent="1" style="rounded=1;whiteSpace=wrap;html=1;dashed=1;dashPattern=6 4;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;fontColor=#995500;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;End Marker / End of Speech&lt;br&gt;control signal (from VAD)&lt;/font&gt;" vertex="1">
-          <mxGeometry height="36" width="180" x="940" y="243" as="geometry" />
+          <mxGeometry height="47" width="194" x="926" y="220.5" as="geometry" />
         </mxCell>
         <mxCell id="outFirst" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9cc97f;strokeColor=#5b8a3a;fontSize=11;fontStyle=1;fontColor=#2f4d1e;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;First Token&lt;br&gt;(TTFT)&lt;/font&gt;" vertex="1">
-          <mxGeometry height="46" width="72" x="1102" y="332" as="geometry" />
+          <mxGeometry height="56" width="72" x="1102" y="328" as="geometry" />
         </mxCell>
         <mxCell id="outTokens" parent="1" style="text;html=1;align=left;fontSize=11;fontColor=#5b7a44;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;→ subsequent output tokens&lt;/font&gt;" vertex="1">
           <mxGeometry height="24" width="90" x="1044" y="382" as="geometry" />
@@ -92,7 +92,9 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="a4" edge="1" parent="1" source="Q2" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;fontSize=11;fontColor=#333333;exitX=0.4;exitY=1;exitDx=0;exitDy=0;entryX=0.4;entryY=0;entryDx=0;entryDy=0;" target="cASR" value="speech segments">
-          <mxGeometry relative="1" as="geometry" />
+          <mxGeometry relative="1" x="-0.3722" y="14" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="a5" edge="1" parent="1" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;">
           <mxGeometry relative="1" as="geometry">
@@ -101,7 +103,8 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="a6" edge="1" parent="1" source="Q3" style="endArrow=block;html=1;strokeColor=#333333;strokeWidth=2;fontSize=11;fontColor=#333333;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.3;entryY=0;entryDx=0;entryDy=0;" target="subPrefill" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;stable text chunks&lt;/font&gt;">
-          <mxGeometry relative="1" as="geometry">
+          <mxGeometry relative="1" x="-0.2568" y="-2" as="geometry">
+            <mxPoint x="-1" as="offset" />
             <mxPoint x="782.2" y="265.9999999999999" as="sourcePoint" />
           </mxGeometry>
         </mxCell>
@@ -115,7 +118,9 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="end1" edge="1" parent="1" source="nEnd" style="endArrow=block;html=1;strokeColor=#d79b00;strokeWidth=2;dashed=1;dashPattern=6 4;fontSize=11;fontColor=#995500;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="subGen" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;trigger generation&lt;/font&gt;">
-          <mxGeometry relative="1" as="geometry" />
+          <mxGeometry relative="1" x="-0.2053" y="-10" as="geometry">
+            <mxPoint y="1" as="offset" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="st1" edge="1" parent="1" source="sStream" style="endArrow=none;html=1;strokeColor=#bbbbbb;strokeWidth=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="cVAD">
           <mxGeometry relative="1" as="geometry" />

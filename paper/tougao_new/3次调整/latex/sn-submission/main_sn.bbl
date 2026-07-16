@@ -6,70 +6,6 @@
 \providecommand{\eprint}[2][]{\url{#2}}
  \bibcommenthead
 
-\bibitem[{{OpenAI}(2024)}]{ref1}
-{OpenAI} (2024) {GPT-4o} system card. arXiv preprint arXiv:241021276
-  \doi{10.48550/arXiv.2410.21276}
-
-\bibitem[{Tan et~al.(2020)Tan, Sarkar, and Dehak}]{ref2}
-Tan ZH, Sarkar AK, Dehak N (2020) {rVAD}: an unsupervised segment-based robust
-  voice activity detection method. Computer Speech \& Language 59:1--21.
-  \doi{10.1016/j.csl.2019.06.005}
-
-\bibitem[{Prabhavalkar et~al.(2024)Prabhavalkar, Hori, Sainath, Schl{\"u}ter,
-  and Watanabe}]{ref3}
-Prabhavalkar R, Hori T, Sainath TN, et~al (2024) End-to-end speech recognition:
-  a survey. IEEE/ACM Transactions on Audio, Speech, and Language Processing
-  32:325--351. \doi{10.1109/TASLP.2023.3328283}
-
-\bibitem[{Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones,
-  Gomez, Kaiser, and Polosukhin}]{ref4}
-Vaswani A, Shazeer N, Parmar N, et~al (2017) Attention is all you need. In:
-  Advances in Neural Information Processing Systems, vol~30. Curran Associates,
-  Red Hook, pp 5998--6008
-
-\bibitem[{Li(2022)}]{ref5}
-Li J (2022) Recent advances in end-to-end automatic speech recognition. APSIPA
-  Transactions on Signal and Information Processing 11(1).
-  \doi{10.1561/116.00000050}
-
-\bibitem[{Radford et~al.(2023)Radford, Kim, Xu, Brockman, McLeavey, and
-  Sutskever}]{ref6}
-Radford A, Kim JW, Xu T, et~al (2023) Robust speech recognition via large-scale
-  weak supervision. In: Proceedings of the 40th International Conference on
-  Machine Learning, vol 202. PMLR, pp 28492--28518
-
-\bibitem[{Zheng et~al.(2025)Zheng, Chen, Qian et~al.}]{ref7}
-Zheng Y, Chen Y, Qian B, et~al (2025) A review on edge large language models:
-  design, execution, and applications. ACM Computing Surveys 57(8):209.
-  \doi{10.1145/3719664}
-
-\bibitem[{Zhu et~al.(2024)Zhu, Li, Liu, Ma, and Wang}]{ref8}
-Zhu X, Li J, Liu Y, et~al (2024) A survey on model compression for large
-  language models. Transactions of the Association for Computational
-  Linguistics 12:1556--1577. \doi{10.1162/tacl_a_00704}
-
-\bibitem[{Tay et~al.(2022)Tay, Dehghani, Bahri, and Metzler}]{ref9}
-Tay Y, Dehghani M, Bahri D, et~al (2022) Efficient transformers: a survey. ACM
-  Computing Surveys 55(6):109. \doi{10.1145/3530811}
-
-\bibitem[{Sethiya and Maurya(2025)}]{ref10}
-Sethiya N, Maurya CK (2025) End-to-end speech-to-text translation: a survey.
-  Computer Speech \& Language 90:101751. \doi{10.1016/j.csl.2024.101751}
-
-\bibitem[{Yin et~al.(2024)Yin, Fu, Zhao, Li, Sun, Xu, and Chen}]{ref11}
-Yin S, Fu C, Zhao S, et~al (2024) A survey on multimodal large language models.
-  National Science Review 11(12):nwae403. \doi{10.1093/nsr/nwae403}
-
-\bibitem[{Mohamed et~al.(2022)Mohamed, Lee, Borgholt, Havtorn, Edin, Igel,
-  Kirchhoff, Li, Livescu, Maal{\o}e, Sainath, and Watanabe}]{ref12}
-Mohamed A, Lee Hy, Borgholt L, et~al (2022) Self-supervised speech
-  representation learning: a review. IEEE Journal of Selected Topics in Signal
-  Processing 16(6):1179--1210. \doi{10.1109/JSTSP.2022.3207050}
-
-\bibitem[{{Silero Team}(2024)}]{ref13}
-{Silero Team} (2024) Silero {VAD}: pre-trained enterprise-grade voice activity
-  detector. \url{https://github.com/snakers4/silero-vad}
-
 \bibitem[{Budzianowski et~al.(2018)Budzianowski, Wen, Tseng, Casanueva, Ultes,
   Ramadan, and Ga{\v s}i{\'c}}]{ref14}
 Budzianowski P, Wen TH, Tseng BH, et~al (2018) {MultiWOZ}: a large-scale
@@ -78,36 +14,56 @@ Budzianowski P, Wen TH, Tseng BH, et~al (2018) {MultiWOZ}: a large-scale
   Processing. Association for Computational Linguistics, Stroudsburg, pp
   5016--5026, \doi{10.18653/v1/D18-1547}
 
-\bibitem[{Zhu et~al.(2020)Zhu, Huang, Zhang, Zhu, and Huang}]{ref15}
-Zhu Q, Huang K, Zhang Z, et~al (2020) {CrossWOZ}: a large-scale {Chinese}
-  cross-domain task-oriented dialogue dataset. Transactions of the Association
-  for Computational Linguistics 8:281--295. \doi{10.1162/tacl_a_00314}
-
-\bibitem[{Tan et~al.(2024)Tan, Chen, Liu, Cong, Zhang, Liu, Wang, Leng, Yi, He,
-  Zhao, Qin, Soong, and Liu}]{ref16}
-Tan X, Chen J, Liu H, et~al (2024) {NaturalSpeech}: end-to-end text-to-speech
-  synthesis with human-level quality. IEEE Transactions on Pattern Analysis and
-  Machine Intelligence 46(6):4234--4245. \doi{10.1109/TPAMI.2024.3356232}
-
 \bibitem[{Du et~al.(2024)Du, Chen, Zhang, Hu, Lu, Yang, Hu, Zheng, Gu, Ma, Gao,
   and Yan}]{ref17}
 Du Z, Chen Q, Zhang S, et~al (2024) {CosyVoice}: a scalable multilingual
   zero-shot text-to-speech synthesizer based on supervised semantic tokens.
   arXiv preprint arXiv:240705407 \doi{10.48550/arXiv.2407.05407}
 
+\bibitem[{Li(2022)}]{ref5}
+Li J (2022) Recent advances in end-to-end automatic speech recognition. APSIPA
+  Transactions on Signal and Information Processing 11(1).
+  \doi{10.1561/116.00000050}
+
+\bibitem[{Mohamed et~al.(2022)Mohamed, Lee, Borgholt, Havtorn, Edin, Igel,
+  Kirchhoff, Li, Livescu, Maal{\o}e, Sainath, and Watanabe}]{ref12}
+Mohamed A, Lee Hy, Borgholt L, et~al (2022) Self-supervised speech
+  representation learning: a review. IEEE Journal of Selected Topics in Signal
+  Processing 16(6):1179--1210. \doi{10.1109/JSTSP.2022.3207050}
+
 \bibitem[{Ni et~al.(2023)Ni, Young, Pandelea, Xue, and Cambria}]{ref18}
 Ni J, Young T, Pandelea V, et~al (2023) Recent advances in deep learning based
   dialogue systems: a systematic survey. Artificial Intelligence Review
   56(4):3055--3155. \doi{10.1007/s10462-022-10248-8}
 
-\bibitem[{Zhang et~al.(2020)Zhang, Takanobu, Zhu, Huang, and Zhu}]{ref19}
-Zhang Z, Takanobu R, Zhu Q, et~al (2020) Recent advances and challenges in
-  task-oriented dialog systems. Science China Technological Sciences
-  63(10):2011--2027. \doi{10.1007/s11431-020-1692-3}
+\bibitem[{{OpenAI}(2024)}]{ref1}
+{OpenAI} (2024) {GPT-4o} system card. arXiv preprint arXiv:241021276
+  \doi{10.48550/arXiv.2410.21276}
 
-\bibitem[{Yang et~al.(2024)Yang, Yang, Hui, Zheng, Yu, Zhou et~al.}]{ref20}
-Yang A, Yang B, Hui B, et~al (2024) {Qwen2} technical report. arXiv preprint
-  arXiv:240710671 \doi{10.48550/arXiv.2407.10671}
+\bibitem[{Prabhavalkar et~al.(2024)Prabhavalkar, Hori, Sainath, Schl{\"u}ter,
+  and Watanabe}]{ref3}
+Prabhavalkar R, Hori T, Sainath TN, et~al (2024) End-to-end speech recognition:
+  a survey. IEEE/ACM Transactions on Audio, Speech, and Language Processing
+  32:325--351. \doi{10.1109/TASLP.2023.3328283}
+
+\bibitem[{Radford et~al.(2023)Radford, Kim, Xu, Brockman, McLeavey, and
+  Sutskever}]{ref6}
+Radford A, Kim JW, Xu T, et~al (2023) Robust speech recognition via large-scale
+  weak supervision. In: Proceedings of the 40th International Conference on
+  Machine Learning, vol 202. PMLR, pp 28492--28518
+
+\bibitem[{Sethiya and Maurya(2025)}]{ref10}
+Sethiya N, Maurya CK (2025) End-to-end speech-to-text translation: a survey.
+  Computer Speech \& Language 90:101751. \doi{10.1016/j.csl.2024.101751}
+
+\bibitem[{{Silero Team}(2024)}]{ref13}
+{Silero Team} (2024) Silero {VAD}: pre-trained enterprise-grade voice activity
+  detector. \url{https://github.com/snakers4/silero-vad}
+
+\bibitem[{Skantze(2021)}]{ref22}
+Skantze G (2021) Turn-taking in conversational systems and human-robot
+  interaction: a review. Computer Speech \& Language 67:101178.
+  \doi{10.1016/j.csl.2020.101178}
 
 \bibitem[{Stivers et~al.(2009)Stivers, Enfield, Brown, Englert, Hayashi,
   Heinemann, Hoymann, Rossano, de~Ruiter, Yoon, and Levinson}]{ref21}
@@ -115,9 +71,53 @@ Stivers T, Enfield NJ, Brown P, et~al (2009) Universals and cultural variation
   in turn-taking in conversation. Proceedings of the National Academy of
   Sciences 106(26):10587--10592. \doi{10.1073/pnas.0903616106}
 
-\bibitem[{Skantze(2021)}]{ref22}
-Skantze G (2021) Turn-taking in conversational systems and human-robot
-  interaction: a review. Computer Speech \& Language 67:101178.
-  \doi{10.1016/j.csl.2020.101178}
+\bibitem[{Tan et~al.(2024)Tan, Chen, Liu, Cong, Zhang, Liu, Wang, Leng, Yi, He,
+  Zhao, Qin, Soong, and Liu}]{ref16}
+Tan X, Chen J, Liu H, et~al (2024) {NaturalSpeech}: end-to-end text-to-speech
+  synthesis with human-level quality. IEEE Transactions on Pattern Analysis and
+  Machine Intelligence 46(6):4234--4245. \doi{10.1109/TPAMI.2024.3356232}
+
+\bibitem[{Tan et~al.(2020)Tan, Sarkar, and Dehak}]{ref2}
+Tan ZH, Sarkar AK, Dehak N (2020) {rVAD}: an unsupervised segment-based robust
+  voice activity detection method. Computer Speech \& Language 59:1--21.
+  \doi{10.1016/j.csl.2019.06.005}
+
+\bibitem[{Tay et~al.(2022)Tay, Dehghani, Bahri, and Metzler}]{ref9}
+Tay Y, Dehghani M, Bahri D, et~al (2022) Efficient transformers: a survey. ACM
+  Computing Surveys 55(6):109. \doi{10.1145/3530811}
+
+\bibitem[{Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones,
+  Gomez, Kaiser, and Polosukhin}]{ref4}
+Vaswani A, Shazeer N, Parmar N, et~al (2017) Attention is all you need. In:
+  Advances in Neural Information Processing Systems, vol~30. Curran Associates,
+  Red Hook, pp 5998--6008
+
+\bibitem[{Yang et~al.(2024)Yang, Yang, Hui, Zheng, Yu, Zhou et~al.}]{ref20}
+Yang A, Yang B, Hui B, et~al (2024) {Qwen2} technical report. arXiv preprint
+  arXiv:240710671 \doi{10.48550/arXiv.2407.10671}
+
+\bibitem[{Yin et~al.(2024)Yin, Fu, Zhao, Li, Sun, Xu, and Chen}]{ref11}
+Yin S, Fu C, Zhao S, et~al (2024) A survey on multimodal large language models.
+  National Science Review 11(12):nwae403. \doi{10.1093/nsr/nwae403}
+
+\bibitem[{Zhang et~al.(2020)Zhang, Takanobu, Zhu, Huang, and Zhu}]{ref19}
+Zhang Z, Takanobu R, Zhu Q, et~al (2020) Recent advances and challenges in
+  task-oriented dialog systems. Science China Technological Sciences
+  63(10):2011--2027. \doi{10.1007/s11431-020-1692-3}
+
+\bibitem[{Zheng et~al.(2025)Zheng, Chen, Qian et~al.}]{ref7}
+Zheng Y, Chen Y, Qian B, et~al (2025) A review on edge large language models:
+  design, execution, and applications. ACM Computing Surveys 57(8):209.
+  \doi{10.1145/3719664}
+
+\bibitem[{Zhu et~al.(2020)Zhu, Huang, Zhang, Zhu, and Huang}]{ref15}
+Zhu Q, Huang K, Zhang Z, et~al (2020) {CrossWOZ}: a large-scale {Chinese}
+  cross-domain task-oriented dialogue dataset. Transactions of the Association
+  for Computational Linguistics 8:281--295. \doi{10.1162/tacl_a_00314}
+
+\bibitem[{Zhu et~al.(2024)Zhu, Li, Liu, Ma, and Wang}]{ref8}
+Zhu X, Li J, Liu Y, et~al (2024) A survey on model compression for large
+  language models. Transactions of the Association for Computational
+  Linguistics 12:1556--1577. \doi{10.1162/tacl_a_00704}
 
 \end{thebibliography}

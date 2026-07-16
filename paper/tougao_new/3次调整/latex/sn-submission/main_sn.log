@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.11)  14 JUL 2026 18:51
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.11)  15 JUL 2026 16:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -954,11 +954,6 @@ Underfull \hbox (badness 10000) has occurred while \output is active
 
 
 ]
-Underfull \hbox (badness 1490) in paragraph at lines 51--52
-\OT1/cmr/m/n/10 tion (VAD) [[]], ASR, an LLM, and TTS---
- []
-
-
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
@@ -971,11 +966,11 @@ Underfull \hbox (badness 2393) in paragraph at lines 76--77
 \OT1/cmr/m/n/10 pipeline also mat-ters for over-all latency. In
  []
 
-<Fig1.pdf, id=237, 817.55438pt x 417.05812pt>
+<Fig1.pdf, id=237, 817.55438pt x 420.06938pt>
 File: Fig1.pdf Graphic file (type pdf)
 <use Fig1.pdf>
 Package pdftex.def Info: Fig1.pdf  used on input line 82.
-(pdftex.def)             Requested size: 455.24408pt x 232.23364pt.
+(pdftex.def)             Requested size: 455.24408pt x 233.91043pt.
 
 Underfull \hbox (badness 1184) in paragraph at lines 87--88
 \OT1/cmr/m/n/10 tem pro-cesses long speech, per-module laten-
@@ -1071,11 +1066,11 @@ Underfull \hbox (badness 1383) in paragraph at lines 185--186
 \OT1/cmr/m/n/10 other syn-chronously; they com-mu-ni-cate asyn-
  []
 
-<Fig3.pdf, id=562, 932.73468pt x 408.77719pt>
+<Fig3.pdf, id=562, 932.73468pt x 410.2828pt>
 File: Fig3.pdf Graphic file (type pdf)
 <use Fig3.pdf>
 Package pdftex.def Info: Fig3.pdf  used on input line 189.
-(pdftex.def)             Requested size: 455.24408pt x 199.51665pt.
+(pdftex.def)             Requested size: 455.24408pt x 200.25151pt.
 
 Underfull \hbox (badness 5022) in paragraph at lines 194--195
 []\OT1/cmr/m/n/10 State man-age-ment uses a hybrid state-
@@ -1318,11 +1313,11 @@ Underfull \hbox (badness 1122) in paragraph at lines 355--356
 []\OT1/cmr/m/n/10 The hard-ware plat-form uses two NVIDIA
  []
 
-<Fig6.pdf, id=831, 614.295pt x 375.804pt>
+<Fig6.pdf, id=831, 428.59402pt x 255.67848pt>
 File: Fig6.pdf Graphic file (type pdf)
 <use Fig6.pdf>
 Package pdftex.def Info: Fig6.pdf  used on input line 359.
-(pdftex.def)             Requested size: 216.24094pt x 132.2903pt.
+(pdftex.def)             Requested size: 216.24094pt x 129.00151pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
@@ -1477,37 +1472,77 @@ Underfull \hbox (badness 3439) in paragraph at lines 480--481
  []
 
 (main_sn.bbl
-Underfull \hbox (badness 3579) in paragraph at lines 14--17
-[]\OT1/cmr/m/n/10 Tan ZH, Sarkar AK, Dehak N (2020)
+Underfull \hbox (badness 4595) in paragraph at lines 11--16
+[]\OT1/cmr/m/n/10 Budzianowski P, Wen TH, Tseng BH,
  []
 
 
-Underfull \hbox (badness 5217) in paragraph at lines 20--23
-[]\OT1/cmr/m/n/10 Prabhavalkar R, Hori T, Sainath TN,
+Underfull \hbox (badness 5970) in paragraph at lines 11--16
+\OT1/cmr/m/n/10 domain Wizard-of-Oz dataset for task-
  []
 
 
-Underfull \hbox (badness 2165) in paragraph at lines 20--23
-\OT1/cmr/m/n/10 et al (2024) End-to-end speech recog-ni-
+Underfull \hbox (badness 1675) in paragraph at lines 19--22
+[]\OT1/cmr/m/n/10 Du Z, Chen Q, Zhang S, et al (2024)
  []
 
 
-Underfull \hbox (badness 1478) in paragraph at lines 20--23
-\OT1/cmr/m/n/10 Audio, Speech, and Lan-guage Pro-cess-ing
+Underfull \hbox (badness 3690) in paragraph at lines 19--22
+\OT1/cmr/m/n/10 CosyVoice: a scal-able mul-ti-lin-gual zero-
  []
 
 
-Underfull \hbox (badness 1708) in paragraph at lines 31--34
+Underfull \hbox (badness 2512) in paragraph at lines 19--22
+\OT1/cmr/m/n/10 shot text-to-speech syn-the-sizer based on
+ []
+
+
+Underfull \hbox (badness 7273) in paragraph at lines 19--22
+\OT1/cmr/m/n/10 arXiv:240705407 [][]$https : / / doi . org / 10 . 48550 /
+ []
+
+
+Underfull \hbox (badness 1708) in paragraph at lines 24--27
 []\OT1/cmr/m/n/10 Li J (2022) Recent advances in end-to-
  []
 
 
-Underfull \hbox (badness 1107) in paragraph at lines 31--34
+Underfull \hbox (badness 1107) in paragraph at lines 24--27
 \OT1/cmr/m/n/10 cess-ing 11(1). [][]$https : / / doi . org / 10 . 1561 / 116 .
  []
 
 
-Underfull \hbox (badness 1418) in paragraph at lines 37--40
+Underfull \hbox (badness 1077) in paragraph at lines 30--33
+[]\OT1/cmr/m/n/10 Mohamed A, Lee Hy, Borgholt L, et al
+ []
+
+
+Underfull \hbox (badness 3872) in paragraph at lines 30--33
+\OT1/cmr/m/n/10 Top-ics in Sig-nal Pro-cess-ing 16(6):1179--
+ []
+
+
+Underfull \hbox (badness 5741) in paragraph at lines 30--33
+\OT1/cmr/m/n/10 1210. [][]$https : / / doi . org / 10 . 1109 / JSTSP . 2022 .
+ []
+
+
+Underfull \hbox (badness 5217) in paragraph at lines 45--48
+[]\OT1/cmr/m/n/10 Prabhavalkar R, Hori T, Sainath TN,
+ []
+
+
+Underfull \hbox (badness 2165) in paragraph at lines 45--48
+\OT1/cmr/m/n/10 et al (2024) End-to-end speech recog-ni-
+ []
+
+
+Underfull \hbox (badness 1478) in paragraph at lines 45--48
+\OT1/cmr/m/n/10 Audio, Speech, and Lan-guage Pro-cess-ing
+ []
+
+
+Underfull \hbox (badness 1418) in paragraph at lines 51--54
 \OT1/cmr/m/n/10 Robust speech recog-ni-tion via large-scale
  []
 
@@ -1520,58 +1555,53 @@ Underfull \hbox (badness 10000) has occurred while \output is active
  []
 
 [17]
-Underfull \hbox (badness 1077) in paragraph at lines 65--68
-[]\OT1/cmr/m/n/10 Mohamed A, Lee Hy, Borgholt L, et al
- []
-
-
-Underfull \hbox (badness 3872) in paragraph at lines 65--68
-\OT1/cmr/m/n/10 Top-ics in Sig-nal Pro-cess-ing 16(6):1179--
- []
-
-
-Underfull \hbox (badness 5741) in paragraph at lines 65--68
-\OT1/cmr/m/n/10 1210. [][]$https : / / doi . org / 10 . 1109 / JSTSP . 2022 .
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 70--72
+Underfull \hbox (badness 10000) in paragraph at lines 60--62
 \OT1/cmr/m/n/10 enterprise-grade voice activ-ity detec-tor.
  []
 
 
-Underfull \hbox (badness 4595) in paragraph at lines 75--80
-[]\OT1/cmr/m/n/10 Budzianowski P, Wen TH, Tseng BH,
+Underfull \hbox (badness 1014) in paragraph at lines 64--67
+[]\OT1/cmr/m/n/10 Skantze G (2021) Turn-taking in con-ver-
  []
 
 
-Underfull \hbox (badness 5970) in paragraph at lines 75--80
-\OT1/cmr/m/n/10 domain Wizard-of-Oz dataset for task-
+Underfull \hbox (badness 2334) in paragraph at lines 70--73
+[]\OT1/cmr/m/n/10 Stivers T, Enfield NJ, Brown P, et al
  []
 
 
-Underfull \hbox (badness 1102) in paragraph at lines 82--85
-\OT1/cmr/m/n/10 WOZ: a large-scale Chi-nese cross-domain
+Underfull \hbox (badness 3138) in paragraph at lines 70--73
+\OT1/cmr/m/n/10 (2009) Uni-ver-sals and cul-tural vari-a-tion
  []
 
 
-Underfull \hbox (badness 1675) in paragraph at lines 94--97
-[]\OT1/cmr/m/n/10 Du Z, Chen Q, Zhang S, et al (2024)
+Underfull \hbox (badness 2980) in paragraph at lines 70--73
+\OT1/cmr/m/n/10 in turn-taking in con-ver-sa-tion. Pro-ceed-
  []
 
 
-Underfull \hbox (badness 3690) in paragraph at lines 94--97
-\OT1/cmr/m/n/10 CosyVoice: a scal-able mul-ti-lin-gual zero-
+Underfull \hbox (badness 4108) in paragraph at lines 70--73
+\OT1/cmr/m/n/10 ings of the National Academy of Sci-
  []
 
 
-Underfull \hbox (badness 2512) in paragraph at lines 94--97
-\OT1/cmr/m/n/10 shot text-to-speech syn-the-sizer based on
+Underfull \hbox (badness 3579) in paragraph at lines 81--84
+[]\OT1/cmr/m/n/10 Tan ZH, Sarkar AK, Dehak N (2020)
  []
 
 
-Underfull \hbox (badness 7273) in paragraph at lines 94--97
-\OT1/cmr/m/n/10 arXiv:240705407 [][]$https : / / doi . org / 10 . 48550 /
+Underfull \hbox (badness 1783) in paragraph at lines 96--98
+[]\OT1/cmr/m/n/10 Yang A, Yang B, Hui B, et al (2024)
+ []
+
+
+Underfull \hbox (badness 4913) in paragraph at lines 96--98
+\OT1/cmr/m/n/10 Qwen2 tech-ni-cal report. arXiv preprint
+ []
+
+
+Underfull \hbox (badness 7273) in paragraph at lines 96--98
+\OT1/cmr/m/n/10 arXiv:240710671 [][]$https : / / doi . org / 10 . 48550 /
  []
 
 
@@ -1580,43 +1610,8 @@ Underfull \hbox (badness 1584) in paragraph at lines 104--107
  []
 
 
-Underfull \hbox (badness 1783) in paragraph at lines 109--111
-[]\OT1/cmr/m/n/10 Yang A, Yang B, Hui B, et al (2024)
- []
-
-
-Underfull \hbox (badness 4913) in paragraph at lines 109--111
-\OT1/cmr/m/n/10 Qwen2 tech-ni-cal report. arXiv preprint
- []
-
-
-Underfull \hbox (badness 7273) in paragraph at lines 109--111
-\OT1/cmr/m/n/10 arXiv:240710671 [][]$https : / / doi . org / 10 . 48550 /
- []
-
-
-Underfull \hbox (badness 2334) in paragraph at lines 114--117
-[]\OT1/cmr/m/n/10 Stivers T, Enfield NJ, Brown P, et al
- []
-
-
-Underfull \hbox (badness 3138) in paragraph at lines 114--117
-\OT1/cmr/m/n/10 (2009) Uni-ver-sals and cul-tural vari-a-tion
- []
-
-
-Underfull \hbox (badness 2980) in paragraph at lines 114--117
-\OT1/cmr/m/n/10 in turn-taking in con-ver-sa-tion. Pro-ceed-
- []
-
-
-Underfull \hbox (badness 4108) in paragraph at lines 114--117
-\OT1/cmr/m/n/10 ings of the National Academy of Sci-
- []
-
-
-Underfull \hbox (badness 1014) in paragraph at lines 119--122
-[]\OT1/cmr/m/n/10 Skantze G (2021) Turn-taking in con-ver-
+Underfull \hbox (badness 1102) in paragraph at lines 114--117
+\OT1/cmr/m/n/10 WOZ: a large-scale Chi-nese cross-domain
  []
 
 )
@@ -1647,7 +1642,7 @@ Here is how much of TeX's memory you used:
  43235 multiletter control sequences out of 15000+600000
  653976 words of font info for 141 fonts, out of 8000000 for 9000
  1151 hyphenation exceptions out of 8191
- 90i,14n,93p,1945b,607s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 90i,14n,93p,1945b,605s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\hua\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi602\tcrm10
 00.pk><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/c
 m/cmbx10.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/ams
@@ -1670,9 +1665,9 @@ c/amsfonts/cm/cmsy7.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1
 /public/amsfonts/cm/cmti10.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/font
 s/type1/public/amsfonts/cm/cmti7.pfb><C:/Users/hua/AppData/Local/Programs/MiKTe
 X/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on main_sn.pdf (18 pages, 1800426 bytes).
+Output written on main_sn.pdf (18 pages, 1788050 bytes).
 PDF statistics:
- 1095 PDF objects out of 1200 (max. 8388607)
+ 1091 PDF objects out of 1200 (max. 8388607)
  113 named destinations out of 1000 (max. 500000)
  423 words of extra memory for PDF output out of 10000 (max. 10000000)
 

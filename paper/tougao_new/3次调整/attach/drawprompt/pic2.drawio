@@ -1,6 +1,6 @@
 <mxfile host="Electron">
   <diagram name="Fig2-KVCache-Mechanism" id="fig2-kvcache">
-    <mxGraphModel dx="1030" dy="626" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="600" math="0" shadow="0">
+    <mxGraphModel dx="1414" dy="841" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="600" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -59,16 +59,16 @@
           <mxGeometry height="16" width="190" x="560" y="152" as="geometry" />
         </mxCell>
         <mxCell id="yAxisL" parent="1" style="text;html=1;align=center;fontSize=11;fontColor=#888888;horizontal=0;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Query step ↓ (generated tokens)&lt;/font&gt;" vertex="1">
-          <mxGeometry height="140" width="22" x="100" y="180" as="geometry" />
+          <mxGeometry height="140" width="22" x="100" y="175" as="geometry" />
         </mxCell>
         <mxCell id="xAxisL" parent="1" style="text;html=1;align=center;fontSize=11;fontColor=#888888;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Key/Value step → (context history)&lt;/font&gt;" vertex="1">
-          <mxGeometry height="14" width="190" x="138" y="327" as="geometry" />
+          <mxGeometry height="14" width="190" x="138" y="323" as="geometry" />
         </mxCell>
         <mxCell id="yAxisR" parent="1" style="text;html=1;align=center;fontSize=11;fontColor=#888888;horizontal=0;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Query step ↓ (generated tokens)&lt;/font&gt;" vertex="1">
-          <mxGeometry height="140" width="22" x="550" y="180" as="geometry" />
+          <mxGeometry height="140" width="22" x="550" y="174" as="geometry" />
         </mxCell>
         <mxCell id="xAxisR" parent="1" style="text;html=1;align=center;fontSize=11;fontColor=#888888;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Key/Value step → (context history)&lt;/font&gt;" vertex="1">
-          <mxGeometry height="14" width="190" x="588" y="325" as="geometry" />
+          <mxGeometry height="14" width="190" x="588" y="321" as="geometry" />
         </mxCell>
         <mxCell id="mboxL" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#cccccc;dashed=1;" value="" vertex="1">
           <mxGeometry height="150" width="150" x="130" y="175" as="geometry" />
@@ -179,16 +179,16 @@
           <mxGeometry height="16" width="110" x="762" y="223" as="geometry" />
         </mxCell>
         <mxCell id="annL" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fbe5e3;strokeColor=#b85450;fontSize=11;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;All cells recomputed every step:&lt;br&gt;self-attention over all N tokens&lt;/font&gt;" vertex="1">
-          <mxGeometry height="34" width="370" x="40" y="348" as="geometry" />
+          <mxGeometry height="40" width="370" x="40" y="348" as="geometry" />
         </mxCell>
         <mxCell id="annR" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f3e6;strokeColor=#82b366;fontSize=11;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;Only the new row (qₜ) is computed;&lt;br&gt;previous K,V are reused from the cache&lt;/font&gt;" vertex="1">
-          <mxGeometry height="34" width="370" x="490" y="348" as="geometry" />
+          <mxGeometry height="41" width="370" x="490" y="348" as="geometry" />
         </mxCell>
         <mxCell id="boL" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=14;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;Per-step cost ≈ O(N²)&lt;/font&gt;" vertex="1">
-          <mxGeometry height="34" width="230" x="110" y="390" as="geometry" />
+          <mxGeometry height="34" width="230" x="110" y="400" as="geometry" />
         </mxCell>
         <mxCell id="boR" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=14;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;Per-step cost ≈ O(N)&lt;/font&gt;" vertex="1">
-          <mxGeometry height="34" width="230" x="560" y="390" as="geometry" />
+          <mxGeometry height="34" width="230" x="560" y="400" as="geometry" />
         </mxCell>
         <mxCell id="botL" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fbe5e3;strokeColor=#b85450;fontSize=11;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;No reuse: K,V for x₁…xₜ are&lt;br&gt;recomputed at every step&lt;/font&gt;" vertex="1">
           <mxGeometry height="64" width="310" x="70" y="448" as="geometry" />
@@ -199,9 +199,11 @@
         <mxCell id="computeBox" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;Compute Qₜ,Kₜ,Vₜ&lt;br&gt;(new token only)&lt;/font&gt;" vertex="1">
           <mxGeometry height="64" width="158" x="710" y="448" as="geometry" />
         </mxCell>
-        <mxCell id="appendEdge" edge="1" parent="1" source="computeBox" style="endArrow=classic;html=1;rounded=0;strokeColor=#82b366;fontSize=11;fontColor=#5a7d4f;" target="cacheBox" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;append Kₜ,Vₜ&lt;/font&gt;">
+        <mxCell id="appendEdge" edge="1" parent="1" style="endArrow=classic;html=1;rounded=0;strokeColor=#82b366;fontSize=11;fontColor=#5a7d4f;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 14px;&quot;&gt;append Kₜ,Vₜ&lt;/font&gt;">
           <mxGeometry relative="1" x="-0.4667" y="29" as="geometry">
             <mxPoint as="offset" />
+            <mxPoint x="710" y="483" as="sourcePoint" />
+            <mxPoint x="680" y="483" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="bottomNote" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 16px;&quot;&gt;KV Cache reuses cached Key/Value states to cut the per-step decoding cost from O(N²) to O(N); it does not remove the O(M²) cost of the initial prompt prefill.&lt;/font&gt;" vertex="1">

@@ -1725,9 +1725,8 @@ FUNCTION {presort}
   'sort.key$ :=
 }
 
-% Modified for UAIS submission: SORT disabled so references appear in order of first citation.
 ITERATE {presort}
-% SORT
+SORT
 STRINGS { last.label next.extra }
 INTEGERS { last.extra.num number.label }
 FUNCTION {initialize.extra.label.stuff}
@@ -1779,9 +1778,8 @@ FUNCTION {bib.sort.order}
   #1 entry.max$ substring$
   'sort.key$ :=
 }
-% Modified for UAIS submission: final SORT disabled (citation order).
 ITERATE {bib.sort.order}
-% SORT
+SORT
 FUNCTION {begin.bib}
 { preamble$ empty$
     'skip$

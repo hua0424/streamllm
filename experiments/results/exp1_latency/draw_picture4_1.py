@@ -73,7 +73,16 @@ def plot_ttft(summary_path: Path, output_path: Path) -> None:
 
     sns.set_theme(style="whitegrid")
     matplotlib.rcParams["svg.fonttype"] = "path"
-    fig, ax = plt.subplots(figsize=(8.5, 5.2))
+    # 期刊(UAIS)要求: 图内文字最终印刷尺寸 8-12pt。本图按单栏宽约 84mm(3.3in) 排版,
+    # 画布 6in 宽 -> 缩放约 0.55, 源字号 15-17pt -> 印刷后约 8-9.5pt。
+    matplotlib.rcParams.update({
+        "font.size": 15,
+        "axes.labelsize": 17,
+        "xtick.labelsize": 15,
+        "ytick.labelsize": 15,
+        "legend.fontsize": 14,
+    })
+    fig, ax = plt.subplots(figsize=(6.0, 3.8))
 
     # sample scatter (faded to show distribution)
     ax.scatter(
@@ -107,16 +116,27 @@ def plot_ttft(summary_path: Path, output_path: Path) -> None:
         color="#ff7f0e",
         linewidth=2.0,
         linestyle="--",
-        label="System A linear fit (theoretical growth)",
+        label="System A linear fit",
     )
 
     ax.set_xlabel("Audio Duration (s)")
     ax.set_ylabel("Latency (ms)")
-    ax.set_title("TTFT vs Audio Duration (Experiment 1)")
-    ax.legend()
+    # 固定刻度密度(横轴每20s, 纵轴每2000ms), 避免画布缩小后刻度过疏
+    ax.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(20))
+    ax.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(2000))
+    # 期刊要求图内不放标题(标题写在正文 caption 中), 故不调用 set_title
+    # 图例移到绘图区上方(两列), 避免遮挡数据曲线
+    ax.legend(
+        loc="lower center",
+        bbox_to_anchor=(0.5, 1.01),
+        ncol=2,
+        frameon=False,
+        columnspacing=1.4,
+        handletextpad=0.5,
+    )
     fig.tight_layout()
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output_path, format="svg", dpi=300)
+    fig.savefig(output_path, format="svg", dpi=300, bbox_inches="tight")
     plt.close(fig)
     print(f"Figure saved to: {output_path}")
 
