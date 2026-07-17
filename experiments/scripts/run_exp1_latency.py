@@ -42,7 +42,7 @@ FIXTURE = [
     {"id": "fx4", "segments": ["How do I get to the airport", " from downtown by subway?"]},
     {"id": "fx5", "segments": ["I need a hotel", " for two nights", " near the city center."]},
 ]
-SYNTH_RTF = 0.3   # 非流式合成耗时 = 音频时长 × RTF（占位；实验机实测 CosyVoice2 替换）
+SYNTH_RTF = 0.513   # 实验机实测（CosyVoice2-0.5B @3090，benchmark_cosyvoice 2026-07-17）
 
 
 # 与 B-ours（orchestrator 默认）完全一致的 system prompt —— 两系统生成内容才可比（review BUG2-①）

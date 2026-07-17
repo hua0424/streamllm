@@ -38,15 +38,17 @@ class AudioChunk:
 @dataclass
 class TimingProfile:
     """
-    TTS 时序画像。占位初值取自 CosyVoice2 公开指标（英文），**上实验机后用真实 benchmark 替换**。
-    - samples_per_char：每个非空白字符对应的音频采样数（决定片段时长；~16 chars/s @16k ≈ 1000）
-    - first_chunk_latency_ms：首块合成延迟（mouth-to-ear 用；CosyVoice2 A100 chunk M=5 ~45ms）
-    - chunk_samples：单个流式音频块大小（决定 chunk 粒度；~0.5s）
+    TTS 时序画像。默认值 = **实验机实测**（CosyVoice2-0.5B @ RTX 3090，benchmark_cosyvoice，
+    2026-07-17，experiments/results/cosyvoice_profile.json）：
+    - samples_per_char=3175 @24kHz（≈7.5 非空白字符/秒的自然语速）
+    - first_chunk_latency_ms=2433.6（3090 无 TRT 的真实首块延迟；官方 45ms 为 A100+TRT+fp16，
+      论文报告实测值并引官方数字作对照）
+    - synth_rtf 见 run_exp1_latency.SYNTH_RTF=0.513
     """
-    samples_per_char: int = 1000
-    first_chunk_latency_ms: float = 45.0
-    chunk_samples: int = 8000
-    sample_rate: int = DEFAULT_SAMPLE_RATE
+    samples_per_char: int = 3175
+    first_chunk_latency_ms: float = 2433.6
+    chunk_samples: int = 12000          # ~0.5s @24k
+    sample_rate: int = 24000
 
     def n_samples_for_text(self, text: str) -> int:
         nws = sum(1 for c in text if not c.isspace())
