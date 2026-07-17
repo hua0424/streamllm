@@ -101,13 +101,24 @@ HF_TOKEN= uv run python -m experiments.scripts.run_exp_a2_history \
 
 ## 四、实验机准备步骤（脚本已全部备好并本机验证，2026-07-02——**照单执行即可**）
 
-1. **派生 MultiWOZ 数据**（脚本已验证，兼容 2.0/2.1 与 2.2 格式，切分严格无损）：
+1. **下载 + 派生 MultiWOZ 数据**（下载与派生均已在 2026-07-17 用真实 MultiWOZ 2.1 全量验证：
+   10,438 条对话 → 100 turns + 100 segments）：
    ```bash
+   # 下载（官方 GitHub，zip 仅 20MB，解压出 358MB data.json）
+   mkdir -p experiments/datasets/raw_data/MultiWOZ
+   cd experiments/datasets/raw_data/MultiWOZ
+   wget https://github.com/budzianowski/multiwoz/raw/master/data/MultiWOZ_2.1.zip
+   unzip -oq MultiWOZ_2.1.zip -x "__MACOSX/*"     # → MultiWOZ_2.1/data.json
+   cd -    # 回项目根目录
+
+   # 派生两种实验输入
    uv run python -m experiments.scripts.prepare_multiwoz_data \
-       --input experiments/datasets/raw_data/MultiWOZ/data.json \
+       --input experiments/datasets/raw_data/MultiWOZ/MultiWOZ_2.1/data.json \
        --out-turns experiments/datasets/processed/p2_turns.json \
        --out-segments experiments/datasets/processed/p2_segments.json --max-dialogues 100
    ```
+   GitHub 不通时：在可访问的机器下载 zip 后 scp 到同一路径。
+   （HF hub 上的 MultiWOZ 多为 parquet/转换格式，与本脚本的原始 JSON 解析不匹配，勿绕 HF。）
 2. **TEN 7B 接入 + 阈值重标**（标定脚本已验证，替身 AUC 0.84）：.env 设 `P2_TRIGGER_MODEL_NAME=TEN-framework/TEN_Turn_Detection` 后：
    ```bash
    HF_TOKEN= uv run python -m experiments.scripts.calibrate_trigger --config ten
