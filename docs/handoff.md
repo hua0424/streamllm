@@ -131,9 +131,22 @@ HF_TOKEN= uv run python -m experiments.scripts.run_exp_a2_history \
    # 产出 suggested_thresholds → 传给 run_exp2_tradeoff 的 --thresholds
    # 脚本自带 AUC>=0.65 可分性体检，过不了会拒绝放行 E2
    ```
-3. **real CosyVoice2**（⚠️ 唯一未真机验证的部分——适配器与 benchmark 已写好、编译通过）：
-   按官方 requirements 在**独立环境**装（pin torch 2.3.1+cu121，勿污染主 uv 环境）；
-   适配器 `src/tts/cosyvoice_tts.py`（StreamingTTS 接口，守卫式导入）；然后：
+3. **real CosyVoice2**（适配器 `src/tts/cosyvoice_tts.py`，StreamingTTS 接口，守卫式导入）。
+   **实验机实测安装法（2026-07-17，官方 requirements 直装有三个雷）**：
+   ```bash
+   cd /dataA && git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git cosyvoice
+   cd cosyvoice && uv venv --python 3.10 .venv
+   grep -ivE "^tensorrt" requirements.txt > /tmp/req_notrt.txt   # 雷1: tensorrt 构建内下载易卡死，且本项目用不到 TRT 加速
+   uv pip install "setuptools<80" wheel "numpy==1.26.4" cython    # 雷2: setuptools>=80 移除 pkg_resources（whisper sdist 构建需要）
+                                                                  # 雷3: 部分 sdist 构建期需 numpy/cython 预先在 venv
+   uv pip install -r /tmp/req_notrt.txt python-dotenv \
+       --index-strategy unsafe-best-match --no-build-isolation
+   # 模型走 ModelScope（快）：
+   uv run --project /dataA/streamllm modelscope download --model iic/CosyVoice2-0.5B \
+       --local_dir /dataA/cosyvoice/pretrained_models/CosyVoice2-0.5B
+   # 参考音频用仓库自带 asset/zero_shot_prompt.wav
+   ```
+   然后：
    ```bash
    uv run python -m experiments.scripts.benchmark_cosyvoice --ref-audio ref.wav
    # 产出 cosyvoice_profile.json → 三个实测值回填 TimingProfile 与 SYNTH_RTF，重跑 E1/E2/E3
