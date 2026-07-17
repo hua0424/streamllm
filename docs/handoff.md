@@ -114,6 +114,7 @@ HF_TOKEN= uv run python -m src.dialogue.run_speculative_test
 ## 六、坑与提醒
 
 - **HF_TOKEN 必须为空/有效**：历史 token 已失效会让公开模型也 401（跑命令前缀 `HF_TOKEN=` 最稳）
+- **镜像下载（实验机常见）**：`.env` 设 `HF_ENDPOINT="https://hf-mirror.com"` 即可（2026-07-17 修复后 `src/config.py` 会把它同步进 huggingface_hub——此前因 import 顺序问题 .env 的该项从未生效、始终连 huggingface.co，网络不通时报误导性的 "not a valid model identifier / pass a token"，实为连不上）。若报此错先查 endpoint 是否生效：`uv run python -c "import transformers; from src import config; import huggingface_hub.constants as c; print(c.ENDPOINT)"`
 - 模型加载 offline-first：首跑联网下载后即可离线
 - `.env` 已 gitignore、每机自维护；勿提交真实 token
 - A1 若趋势 WARN：GPU 有其它负载，空载重跑（数据已落盘，不会丢）

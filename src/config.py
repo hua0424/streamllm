@@ -53,6 +53,26 @@ HF_ENDPOINT = os.getenv("HF_ENDPOINT")
 HF_TOKEN = os.getenv("HF_TOKEN")
 HF_HOME = os.getenv("HF_HOME")  # 模型缓存路径
 
+# ------------------------------------------------------------------------------
+# 让 .env 里的 HF_ENDPOINT 真正生效（镜像站支持，实验机常用 https://hf-mirror.com）。
+# 根因：huggingface_hub 在 **import 时** 读进程环境变量 HF_ENDPOINT 并固化进
+# constants.ENDPOINT / 下载 URL 模板；而多数入口的 import 顺序是先 transformers
+# （连带 huggingface_hub）后 src.config —— load_dotenv() 执行时已经晚了，
+# .env 的配置从未生效、始终连 huggingface.co。此处在 config 导入时（早于任何
+# from_pretrained 调用）同步环境变量并回补库内常量。
+# ------------------------------------------------------------------------------
+if HF_ENDPOINT:
+    _ep = HF_ENDPOINT.rstrip("/")          # 去尾斜杠，防 URL 模板出现双斜杠
+    os.environ["HF_ENDPOINT"] = _ep
+    try:
+        import huggingface_hub.constants as _hf_constants
+        if _hf_constants.ENDPOINT != _ep:
+            _hf_constants.ENDPOINT = _ep
+            _hf_constants.HUGGINGFACE_CO_URL_TEMPLATE = (
+                _ep + "/{repo_id}/resolve/{revision}/{filename}")
+    except Exception:
+        pass    # 未安装 huggingface_hub（如纯逻辑脚本）时静默跳过
+
 # ==============================================================================
 # 音频配置
 # ==============================================================================
