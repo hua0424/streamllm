@@ -15,6 +15,7 @@ logits softmax** 作为连续置信度——
 prefill 延迟阴影里，D-003）；本模块只管单次评估，调度在编排层。
 """
 
+import os
 from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -62,7 +63,8 @@ QWEN05B_DEV_CONFIG = TriggerConfig(
 
 # 实验机正式（D-003/D-011）：TEN Turn Detection 7B（同一代码路径，换 config 即可）
 TEN_CONFIG = TriggerConfig(
-    model_name="TEN-framework/TEN_Turn_Detection",
+    # 可用 P2_TEN_MODEL_PATH 指向本地目录（如 ModelScope 下载的），缺省走 HF id
+    model_name=os.getenv("P2_TEN_MODEL_PATH", "TEN-framework/TEN_Turn_Detection"),
     system_prompt=None,                 # TEN 用自身 chat template，无需额外 system
     user_template="{text}",
     positive_words=["finished", " finished"],
