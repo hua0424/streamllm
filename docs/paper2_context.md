@@ -468,6 +468,8 @@ for sentence_chunk in generate_sentences(
 
 | 2026-07-17 | **§四 实验准备全部完成，正式实验批启动** | CosyVoice2 真机验证 ✓（实测 profile：3175 samples/char@24k、首块 2434ms@3090、RTF 0.513，已回填）；四模型就位（7B/TEN/Qwen3-0.6B/Mistral 裁判）；run_all.sh 顺序跑 A1→E3→E2→E1→A2；**A1@7B 首批数据：crop 恒 ~0.3ms，re-prefill 1k→235ms/2k→459ms（8.6x→15.3x）** |
 
+| 2026-07-17 | **E3 正式数值（7B+真实 MultiWOZ，n=412×2）** | 未听引用率 loose：**B-ours 0.0%（构造性）vs B-gen 51.0%**；strict：**51.0% vs 73.3%**（严格 GT 下仍 22pp 优势，同时量化片段粒度误差）；平均未听 token 0 vs 10.7。A1@7B 完成（crop ~0.3ms 恒定）；E2 进行中 |
+
 **全部 6 个实验（E1/E2/E3/A1/A2/A3）的 harness 已在验证机 0.5B 跑通并自检 PASS**（A3 与 E2 共享数据）。完整状态表 + 实验机待办清单见 `paper2/experiment_design.md` §9'。
 **实验机总清单**：① 真实 MultiWOZ 派生数据 ② 主 LLM 7B ③ TEN 7B 软触发（阈值重标）④ real CosyVoice2（TimingProfile/SYNTH_RTF 实测替换 + mouth-to-ear 实测）⑤ LLM-judge（E3 交叉验证 + A2 连贯性评分）⑥ 可选：真实音频→流式 ASR 链路接入。
 
