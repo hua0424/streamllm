@@ -1,0 +1,58 @@
+{
+  "profile": {
+    "sample_rate": 24000,
+    "samples_per_char": 3175,
+    "first_chunk_latency_ms": 2433.6,
+    "synth_rtf": 0.513
+  },
+  "rows": [
+    {
+      "text": "The Great Wall of China is one of the most famous landmarks in the world.",
+      "nws_chars": 59,
+      "audio_s": 6.92,
+      "samples_per_char": 2814.9,
+      "first_chunk_ms": 2449.6,
+      "rtf": 0.493
+    },
+    {
+      "text": "I need a hotel in the north of town with free wifi.",
+      "nws_chars": 40,
+      "audio_s": 10.4,
+      "samples_per_char": 6240.0,
+      "first_chunk_ms": 2419.7,
+      "rtf": 0.495
+    },
+    {
+      "text": "There are five trains arriving before noon on Sunday.",
+      "nws_chars": 45,
+      "audio_s": 6.88,
+      "samples_per_char": 3669.3,
+      "first_chunk_ms": 2447.6,
+      "rtf": 0.515
+    },
+    {
+      "text": "The restaurant serves Italian food and is located near the city centre.",
+      "nws_chars": 60,
+      "audio_s": 5.04,
+      "samples_per_char": 2016.0,
+      "first_chunk_ms": 2292.7,
+      "rtf": 0.547
+    },
+    {
+      "text": "Sure, I have booked two tickets for you, and the reference number is ABC123.",
+      "nws_chars": 63,
+      "audio_s": 9.28,
+      "samples_per_char": 3535.2,
+      "first_chunk_ms": 2518.7,
+      "rtf": 0.525
+    },
+    {
+      "text": "It was built over many centuries to protect the northern borders.",
+      "nws_chars": 55,
+      "audio_s": 4.52,
+      "samples_per_char": 1972.4,
+      "first_chunk_ms": 2306.1,
+      "rtf": 0.511
+    }
+  ]
+}

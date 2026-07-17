@@ -1,53 +1,73 @@
 {
   "config": {
-    "model": "Qwen/Qwen2.5-0.5B-Instruct",
+    "model": "Qwen/Qwen2-7B-Instruct",
     "lengths": [
       256,
       512,
       1024,
-      2048
+      2048,
+      4096,
+      8192
     ],
     "crop_tokens": 32,
     "repeats": 5,
-    "out": "/workspace/project/streamllm/experiments/results/exp_a1_kvreuse.json",
+    "out": "/dataA/streamllm/experiments/results/exp_a1_kvreuse.json",
     "log_level": "INFO"
   },
   "results": [
     {
       "ctx_len": 275,
       "keep_len": 243,
-      "crop_only_ms": 0.141,
-      "role_rebuild_ms": 12.59,
-      "crop_role_ms": 12.73,
-      "reprefill_ms": 9.74,
-      "speedup": 0.8
+      "crop_only_ms": 0.308,
+      "role_rebuild_ms": 24.87,
+      "crop_role_ms": 25.17,
+      "reprefill_ms": 71.65,
+      "speedup": 2.8
     },
     {
       "ctx_len": 527,
       "keep_len": 495,
-      "crop_only_ms": 0.131,
-      "role_rebuild_ms": 12.81,
-      "crop_role_ms": 12.94,
-      "reprefill_ms": 11.43,
-      "speedup": 0.9
+      "crop_only_ms": 0.321,
+      "role_rebuild_ms": 26.37,
+      "crop_role_ms": 26.69,
+      "reprefill_ms": 130.09,
+      "speedup": 4.9
     },
     {
       "ctx_len": 1031,
       "keep_len": 999,
-      "crop_only_ms": 0.13,
-      "role_rebuild_ms": 11.97,
-      "crop_role_ms": 12.1,
-      "reprefill_ms": 19.27,
-      "speedup": 1.6
+      "crop_only_ms": 0.308,
+      "role_rebuild_ms": 26.89,
+      "crop_role_ms": 27.2,
+      "reprefill_ms": 234.84,
+      "speedup": 8.6
     },
     {
       "ctx_len": 2060,
       "keep_len": 2028,
-      "crop_only_ms": 0.189,
-      "role_rebuild_ms": 12.51,
-      "crop_role_ms": 12.7,
-      "reprefill_ms": 34.98,
-      "speedup": 2.8
+      "crop_only_ms": 0.322,
+      "role_rebuild_ms": 29.59,
+      "crop_role_ms": 29.91,
+      "reprefill_ms": 458.5,
+      "speedup": 15.3
+    },
+    {
+      "ctx_len": 4097,
+      "keep_len": 4065,
+      "crop_only_ms": 0.32,
+      "role_rebuild_ms": 35.04,
+      "crop_role_ms": 35.36,
+      "reprefill_ms": 890.5,
+      "speedup": 25.2
+    },
+    {
+      "ctx_len": 8192,
+      "keep_len": 8160,
+      "crop_only_ms": 0.339,
+      "role_rebuild_ms": 46.54,
+      "crop_role_ms": 46.88,
+      "reprefill_ms": 1863.42,
+      "speedup": 39.7
     }
   ]
 }

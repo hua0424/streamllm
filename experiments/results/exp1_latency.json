@@ -1,88 +1,1513 @@
 {
   "summary": {
-    "n": 5,
-    "a_ttft_ms": 44.5,
-    "b_ttft_eff_ms": 0.0,
-    "a_mouth_to_ear_ms_modeled": 2670.4,
-    "b_mouth_to_ear_ms_modeled": 106.3,
-    "ttft_improvement": 1.0,
-    "spec_threshold": 0.05,
-    "synth_rtf_placeholder": 0.3
+    "n": 100,
+    "a_ttft_ms": 27.4,
+    "b_ttft_eff_ms": 0.6,
+    "a_mouth_to_ear_ms_modeled": 9080.2,
+    "b_mouth_to_ear_ms_modeled": 2481.8,
+    "ttft_improvement": 0.979,
+    "spec_threshold": 0.3906,
+    "synth_rtf_placeholder": 0.513
   },
   "records": [
     {
-      "id": "fx1",
+      "id": "PMUL4877.json#u4",
       "system_a": {
-        "ttft_ms": 100.7,
-        "gen_total_ms": 965.5,
-        "mouth_to_ear_ms": 2840.5,
+        "ttft_ms": 26.8,
+        "gen_total_ms": 709.1,
+        "mouth_to_ear_ms": 8785.1,
         "n_tokens": 32
       },
       "system_b": {
-        "ttft_ms": 0.0,
-        "mouth_to_ear_ms": 220.3,
-        "spec_survived": true,
-        "spec_wasted": 16
-      }
-    },
-    {
-      "id": "fx2",
-      "system_a": {
-        "ttft_ms": 65.7,
-        "gen_total_ms": 662.9,
-        "mouth_to_ear_ms": 2856.7,
-        "n_tokens": 32
-      },
-      "system_b": {
-        "ttft_ms": 0.0,
-        "mouth_to_ear_ms": 175.2,
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
         "spec_survived": true,
         "spec_wasted": 0
       }
     },
     {
-      "id": "fx3",
+      "id": "SSNG0202.json#u1",
       "system_a": {
-        "ttft_ms": 31.9,
-        "gen_total_ms": 351.5,
-        "mouth_to_ear_ms": 2657.7,
+        "ttft_ms": 26.5,
+        "gen_total_ms": 712.0,
+        "mouth_to_ear_ms": 11163.3,
         "n_tokens": 32
       },
       "system_b": {
-        "ttft_ms": 0.0,
-        "mouth_to_ear_ms": 45.4,
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "PMUL3024.json#u1",
+      "system_a": {
+        "ttft_ms": 27.1,
+        "gen_total_ms": 710.3,
+        "mouth_to_ear_ms": 8379.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.9,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL1995.json#u0",
+      "system_a": {
+        "ttft_ms": 27.1,
+        "gen_total_ms": 714.0,
+        "mouth_to_ear_ms": 7704.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2524.2,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "PMUL4937.json#u0",
+      "system_a": {
+        "ttft_ms": 27.6,
+        "gen_total_ms": 713.2,
+        "mouth_to_ear_ms": 8314.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2769.9,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "SNG0516.json#u1",
+      "system_a": {
+        "ttft_ms": 27.0,
+        "gen_total_ms": 714.5,
+        "mouth_to_ear_ms": 10419.3,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2545.3,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL4864.json#u1",
+      "system_a": {
+        "ttft_ms": 26.9,
+        "gen_total_ms": 714.1,
+        "mouth_to_ear_ms": 9604.5,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
         "spec_survived": true,
         "spec_wasted": 16
       }
     },
     {
-      "id": "fx4",
+      "id": "MUL0460.json#u1",
       "system_a": {
-        "ttft_ms": 10.7,
-        "gen_total_ms": 370.2,
-        "mouth_to_ear_ms": 2526.5,
+        "ttft_ms": 27.3,
+        "gen_total_ms": 713.1,
+        "mouth_to_ear_ms": 8246.2,
         "n_tokens": 32
       },
       "system_b": {
-        "ttft_ms": 0.0,
-        "mouth_to_ear_ms": 45.2,
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2456.3,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "SNG0666.json#u4",
+      "system_a": {
+        "ttft_ms": 26.9,
+        "gen_total_ms": 537.0,
+        "mouth_to_ear_ms": 5287.6,
+        "n_tokens": 24
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 12
+      }
+    },
+    {
+      "id": "MUL0241.json#u1",
+      "system_a": {
+        "ttft_ms": 27.1,
+        "gen_total_ms": 715.1,
+        "mouth_to_ear_ms": 9334.1,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL1715.json#u2",
+      "system_a": {
+        "ttft_ms": 27.0,
+        "gen_total_ms": 714.2,
+        "mouth_to_ear_ms": 9943.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "SNG01598.json#u0",
+      "system_a": {
+        "ttft_ms": 27.4,
+        "gen_total_ms": 715.4,
+        "mouth_to_ear_ms": 6687.6,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2523.1,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "SNG0752.json#u1",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 716.2,
+        "mouth_to_ear_ms": 9470.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL0331.json#u1",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 716.7,
+        "mouth_to_ear_ms": 6621.0,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.5,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL3590.json#u2",
+      "system_a": {
+        "ttft_ms": 26.7,
+        "gen_total_ms": 716.0,
+        "mouth_to_ear_ms": 9199.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2746.6,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL1277.json#u0",
+      "system_a": {
+        "ttft_ms": 27.6,
+        "gen_total_ms": 716.4,
+        "mouth_to_ear_ms": 9946.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2590.6,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL3714.json#u5",
+      "system_a": {
+        "ttft_ms": 27.3,
+        "gen_total_ms": 715.9,
+        "mouth_to_ear_ms": 8045.4,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "MUL1188.json#u0",
+      "system_a": {
+        "ttft_ms": 27.2,
+        "gen_total_ms": 718.4,
+        "mouth_to_ear_ms": 9744.5,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "SNG1397.json#u0",
+      "system_a": {
+        "ttft_ms": 26.9,
+        "gen_total_ms": 715.9,
+        "mouth_to_ear_ms": 7909.6,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2523.1,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL1476.json#u0",
+      "system_a": {
+        "ttft_ms": 27.4,
+        "gen_total_ms": 716.3,
+        "mouth_to_ear_ms": 10421.1,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2792.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL1457.json#u2",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 717.0,
+        "mouth_to_ear_ms": 9946.8,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL3916.json#u0",
+      "system_a": {
+        "ttft_ms": 27.0,
+        "gen_total_ms": 717.0,
+        "mouth_to_ear_ms": 8928.7,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.5,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "SNG0926.json#u1",
+      "system_a": {
+        "ttft_ms": 27.7,
+        "gen_total_ms": 718.7,
+        "mouth_to_ear_ms": 8523.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
         "spec_survived": true,
         "spec_wasted": 16
       }
     },
     {
-      "id": "fx5",
+      "id": "SSNG0009.json#u0",
       "system_a": {
-        "ttft_ms": 13.4,
-        "gen_total_ms": 558.1,
-        "mouth_to_ear_ms": 2470.6,
+        "ttft_ms": 31.2,
+        "gen_total_ms": 723.5,
+        "mouth_to_ear_ms": 9138.8,
         "n_tokens": 32
       },
       "system_b": {
-        "ttft_ms": 0.0,
-        "mouth_to_ear_ms": 45.3,
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL2256.json#u3",
+      "system_a": {
+        "ttft_ms": 27.0,
+        "gen_total_ms": 718.8,
+        "mouth_to_ear_ms": 8319.7,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.0,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "SNG0395.json#u4",
+      "system_a": {
+        "ttft_ms": 27.1,
+        "gen_total_ms": 580.9,
+        "mouth_to_ear_ms": 6349.5,
+        "n_tokens": 26
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL2185.json#u5",
+      "system_a": {
+        "ttft_ms": 27.1,
+        "gen_total_ms": 717.6,
+        "mouth_to_ear_ms": 8725.8,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL1643.json#u0",
+      "system_a": {
+        "ttft_ms": 27.7,
+        "gen_total_ms": 719.4,
+        "mouth_to_ear_ms": 10084.8,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.1,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL2139.json#u3",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 717.7,
+        "mouth_to_ear_ms": 8590.1,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "SNG1099.json#u2",
+      "system_a": {
+        "ttft_ms": 27.1,
+        "gen_total_ms": 718.3,
+        "mouth_to_ear_ms": 10015.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL1746.json#u1",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 718.9,
+        "mouth_to_ear_ms": 10423.6,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2590.8,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL0339.json#u2",
+      "system_a": {
+        "ttft_ms": 27.4,
+        "gen_total_ms": 718.2,
+        "mouth_to_ear_ms": 7097.5,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL1039.json#u1",
+      "system_a": {
+        "ttft_ms": 27.1,
+        "gen_total_ms": 717.7,
+        "mouth_to_ear_ms": 10626.1,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.9,
         "spec_survived": true,
         "spec_wasted": 16
+      }
+    },
+    {
+      "id": "PMUL3159.json#u0",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 716.4,
+        "mouth_to_ear_ms": 8928.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2501.2,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL0060.json#u0",
+      "system_a": {
+        "ttft_ms": 27.2,
+        "gen_total_ms": 718.8,
+        "mouth_to_ear_ms": 10762.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.2,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "SNG02106.json#u2",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 716.4,
+        "mouth_to_ear_ms": 8317.4,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2569.8,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "PMUL2239.json#u0",
+      "system_a": {
+        "ttft_ms": 27.8,
+        "gen_total_ms": 716.8,
+        "mouth_to_ear_ms": 9335.7,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2502.3,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "MUL2468.json#u1",
+      "system_a": {
+        "ttft_ms": 27.1,
+        "gen_total_ms": 651.0,
+        "mouth_to_ear_ms": 9202.1,
+        "n_tokens": 29
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.7,
+        "spec_survived": true,
+        "spec_wasted": 12
+      }
+    },
+    {
+      "id": "MUL2502.json#u0",
+      "system_a": {
+        "ttft_ms": 27.6,
+        "gen_total_ms": 717.9,
+        "mouth_to_ear_ms": 9472.6,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.5,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "SNG01554.json#u0",
+      "system_a": {
+        "ttft_ms": 27.3,
+        "gen_total_ms": 718.8,
+        "mouth_to_ear_ms": 10016.4,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2502.8,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL3292.json#u0",
+      "system_a": {
+        "ttft_ms": 27.0,
+        "gen_total_ms": 718.6,
+        "mouth_to_ear_ms": 9473.3,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2480.3,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "PMUL0341.json#u1",
+      "system_a": {
+        "ttft_ms": 27.3,
+        "gen_total_ms": 716.8,
+        "mouth_to_ear_ms": 8589.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "SSNG0368.json#u0",
+      "system_a": {
+        "ttft_ms": 27.6,
+        "gen_total_ms": 719.5,
+        "mouth_to_ear_ms": 9609.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.9,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "PMUL1994.json#u3",
+      "system_a": {
+        "ttft_ms": 28.0,
+        "gen_total_ms": 717.7,
+        "mouth_to_ear_ms": 9879.5,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.5,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL2885.json#u2",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 720.8,
+        "mouth_to_ear_ms": 9068.3,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 27
+      }
+    },
+    {
+      "id": "PMUL3783.json#u0",
+      "system_a": {
+        "ttft_ms": 27.8,
+        "gen_total_ms": 718.1,
+        "mouth_to_ear_ms": 11033.7,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2570.1,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL0524.json#u0",
+      "system_a": {
+        "ttft_ms": 27.8,
+        "gen_total_ms": 721.8,
+        "mouth_to_ear_ms": 8797.8,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2592.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "WOZ20452.json#u3",
+      "system_a": {
+        "ttft_ms": 27.2,
+        "gen_total_ms": 718.1,
+        "mouth_to_ear_ms": 9744.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "MUL0209.json#u1",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 718.9,
+        "mouth_to_ear_ms": 10220.1,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "SNG0187.json#u0",
+      "system_a": {
+        "ttft_ms": 27.4,
+        "gen_total_ms": 720.2,
+        "mouth_to_ear_ms": 8931.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.0,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL0323.json#u2",
+      "system_a": {
+        "ttft_ms": 27.4,
+        "gen_total_ms": 719.3,
+        "mouth_to_ear_ms": 11102.8,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "SNG1124.json#u3",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 716.6,
+        "mouth_to_ear_ms": 10625.0,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.5,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "PMUL4793.json#u1",
+      "system_a": {
+        "ttft_ms": 27.4,
+        "gen_total_ms": 717.1,
+        "mouth_to_ear_ms": 6892.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2793.9,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "SNG01319.json#u0",
+      "system_a": {
+        "ttft_ms": 26.9,
+        "gen_total_ms": 717.8,
+        "mouth_to_ear_ms": 8522.4,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.9,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL0282.json#u2",
+      "system_a": {
+        "ttft_ms": 27.3,
+        "gen_total_ms": 718.7,
+        "mouth_to_ear_ms": 8794.7,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL2325.json#u0",
+      "system_a": {
+        "ttft_ms": 27.1,
+        "gen_total_ms": 718.0,
+        "mouth_to_ear_ms": 8794.0,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2457.4,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "MUL2311.json#u0",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 716.9,
+        "mouth_to_ear_ms": 10421.6,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2547.9,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "MUL0148.json#u1",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 716.6,
+        "mouth_to_ear_ms": 9403.4,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL0549.json#u2",
+      "system_a": {
+        "ttft_ms": 27.6,
+        "gen_total_ms": 720.8,
+        "mouth_to_ear_ms": 7846.7,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2524.5,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "MUL0730.json#u0",
+      "system_a": {
+        "ttft_ms": 27.3,
+        "gen_total_ms": 717.6,
+        "mouth_to_ear_ms": 9268.7,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2456.5,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "MUL0885.json#u3",
+      "system_a": {
+        "ttft_ms": 27.4,
+        "gen_total_ms": 717.5,
+        "mouth_to_ear_ms": 9268.6,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2614.6,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "PMUL3323.json#u2",
+      "system_a": {
+        "ttft_ms": 27.8,
+        "gen_total_ms": 719.0,
+        "mouth_to_ear_ms": 7505.6,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.0,
+        "spec_survived": true,
+        "spec_wasted": 32
+      }
+    },
+    {
+      "id": "MUL1009.json#u1",
+      "system_a": {
+        "ttft_ms": 27.4,
+        "gen_total_ms": 717.8,
+        "mouth_to_ear_ms": 9201.0,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2525.1,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "PMUL4525.json#u2",
+      "system_a": {
+        "ttft_ms": 27.4,
+        "gen_total_ms": 717.2,
+        "mouth_to_ear_ms": 10014.8,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.9,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "SNG1313.json#u0",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 724.9,
+        "mouth_to_ear_ms": 9818.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.9,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL4161.json#u0",
+      "system_a": {
+        "ttft_ms": 30.4,
+        "gen_total_ms": 721.6,
+        "mouth_to_ear_ms": 9679.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2750.0,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "SNG01535.json#u1",
+      "system_a": {
+        "ttft_ms": 27.8,
+        "gen_total_ms": 723.0,
+        "mouth_to_ear_ms": 8731.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL0550.json#u1",
+      "system_a": {
+        "ttft_ms": 27.2,
+        "gen_total_ms": 718.8,
+        "mouth_to_ear_ms": 7437.5,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL0888.json#u3",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 720.0,
+        "mouth_to_ear_ms": 6963.6,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2524.7,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "MUL0322.json#u1",
+      "system_a": {
+        "ttft_ms": 27.6,
+        "gen_total_ms": 719.0,
+        "mouth_to_ear_ms": 9880.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2794.9,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "MUL1569.json#u0",
+      "system_a": {
+        "ttft_ms": 27.4,
+        "gen_total_ms": 719.2,
+        "mouth_to_ear_ms": 8795.3,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2525.1,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL1275.json#u0",
+      "system_a": {
+        "ttft_ms": 27.2,
+        "gen_total_ms": 718.4,
+        "mouth_to_ear_ms": 10558.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "WOZ20440.json#u0",
+      "system_a": {
+        "ttft_ms": 27.6,
+        "gen_total_ms": 719.9,
+        "mouth_to_ear_ms": 9746.0,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.0,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL1615.json#u1",
+      "system_a": {
+        "ttft_ms": 27.3,
+        "gen_total_ms": 720.2,
+        "mouth_to_ear_ms": 9950.0,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.0,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "SNG01454.json#u3",
+      "system_a": {
+        "ttft_ms": 27.3,
+        "gen_total_ms": 717.2,
+        "mouth_to_ear_ms": 10286.3,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.1,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "PMUL3554.json#u1",
+      "system_a": {
+        "ttft_ms": 27.2,
+        "gen_total_ms": 729.1,
+        "mouth_to_ear_ms": 10230.3,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL2224.json#u2",
+      "system_a": {
+        "ttft_ms": 26.9,
+        "gen_total_ms": 738.0,
+        "mouth_to_ear_ms": 9356.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.9,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "SNG0671.json#u2",
+      "system_a": {
+        "ttft_ms": 27.4,
+        "gen_total_ms": 720.6,
+        "mouth_to_ear_ms": 9814.6,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.2,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "PMUL4601.json#u3",
+      "system_a": {
+        "ttft_ms": 27.2,
+        "gen_total_ms": 719.2,
+        "mouth_to_ear_ms": 10288.3,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL0717.json#u0",
+      "system_a": {
+        "ttft_ms": 27.6,
+        "gen_total_ms": 721.0,
+        "mouth_to_ear_ms": 9068.5,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.0,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL2302.json#u0",
+      "system_a": {
+        "ttft_ms": 27.0,
+        "gen_total_ms": 720.6,
+        "mouth_to_ear_ms": 8932.4,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2479.9,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "PMUL0126.json#u4",
+      "system_a": {
+        "ttft_ms": 27.8,
+        "gen_total_ms": 720.2,
+        "mouth_to_ear_ms": 8796.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "SNG0300.json#u1",
+      "system_a": {
+        "ttft_ms": 27.2,
+        "gen_total_ms": 720.7,
+        "mouth_to_ear_ms": 8593.1,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "PMUL1512.json#u0",
+      "system_a": {
+        "ttft_ms": 27.7,
+        "gen_total_ms": 719.2,
+        "mouth_to_ear_ms": 8388.0,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL2639.json#u4",
+      "system_a": {
+        "ttft_ms": 27.1,
+        "gen_total_ms": 719.7,
+        "mouth_to_ear_ms": 10085.1,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "PMUL0052.json#u0",
+      "system_a": {
+        "ttft_ms": 27.8,
+        "gen_total_ms": 718.5,
+        "mouth_to_ear_ms": 9676.8,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2456.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL0361.json#u0",
+      "system_a": {
+        "ttft_ms": 27.5,
+        "gen_total_ms": 723.2,
+        "mouth_to_ear_ms": 9070.7,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "SNG0502.json#u2",
+      "system_a": {
+        "ttft_ms": 27.7,
+        "gen_total_ms": 721.3,
+        "mouth_to_ear_ms": 6829.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2569.6,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "MUL1212.json#u1",
+      "system_a": {
+        "ttft_ms": 27.6,
+        "gen_total_ms": 719.0,
+        "mouth_to_ear_ms": 9337.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL4858.json#u2",
+      "system_a": {
+        "ttft_ms": 27.3,
+        "gen_total_ms": 719.5,
+        "mouth_to_ear_ms": 9745.7,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.7,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL1701.json#u2",
+      "system_a": {
+        "ttft_ms": 27.3,
+        "gen_total_ms": 719.6,
+        "mouth_to_ear_ms": 8184.8,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2435.0,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "SNG01520.json#u1",
+      "system_a": {
+        "ttft_ms": 27.4,
+        "gen_total_ms": 718.1,
+        "mouth_to_ear_ms": 8590.5,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.0,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "SNG0717.json#u2",
+      "system_a": {
+        "ttft_ms": 27.1,
+        "gen_total_ms": 717.9,
+        "mouth_to_ear_ms": 10490.5,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "PMUL4504.json#u6",
+      "system_a": {
+        "ttft_ms": 27.2,
+        "gen_total_ms": 717.7,
+        "mouth_to_ear_ms": 8997.3,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2434.0,
+        "spec_survived": true,
+        "spec_wasted": 10
+      }
+    },
+    {
+      "id": "MUL0879.json#u1",
+      "system_a": {
+        "ttft_ms": 27.2,
+        "gen_total_ms": 720.0,
+        "mouth_to_ear_ms": 11510.7,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
+        "spec_survived": true,
+        "spec_wasted": 32
+      }
+    },
+    {
+      "id": "PMUL4308.json#u0",
+      "system_a": {
+        "ttft_ms": 27.3,
+        "gen_total_ms": 717.5,
+        "mouth_to_ear_ms": 8454.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 48.2,
+        "mouth_to_ear_ms": 2705.4,
+        "spec_survived": false,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "PMUL0775.json#u2",
+      "system_a": {
+        "ttft_ms": 27.6,
+        "gen_total_ms": 722.0,
+        "mouth_to_ear_ms": 8865.9,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2591.5,
+        "spec_survived": true,
+        "spec_wasted": 0
+      }
+    },
+    {
+      "id": "MUL1844.json#u1",
+      "system_a": {
+        "ttft_ms": 26.9,
+        "gen_total_ms": 296.4,
+        "mouth_to_ear_ms": 2536.0,
+        "n_tokens": 13
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.9,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "PMUL0895.json#u1",
+      "system_a": {
+        "ttft_ms": 27.0,
+        "gen_total_ms": 719.2,
+        "mouth_to_ear_ms": 9813.2,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.9,
+        "spec_survived": true,
+        "spec_wasted": 16
+      }
+    },
+    {
+      "id": "MUL1503.json#u3",
+      "system_a": {
+        "ttft_ms": 27.6,
+        "gen_total_ms": 718.9,
+        "mouth_to_ear_ms": 9473.5,
+        "n_tokens": 32
+      },
+      "system_b": {
+        "ttft_ms": 0.1,
+        "mouth_to_ear_ms": 2433.8,
+        "spec_survived": true,
+        "spec_wasted": 10
       }
     }
   ]
