@@ -464,6 +464,8 @@ for sentence_chunk in generate_sentences(
 
 | 2026-07-02 | 实验前代码审查 + 修复（D-012） | 两轴审查（Standards/Spec）发现 3 BUG 全修：**E3 指标框架修正**（playback 0%=构造性保证 + 新增 strict 严格 GT 列量化片段粒度误差）、E1 公平性（同 system prompt + m2e 含首片段时间）、chunker 越界钳制。§6 埋点补齐（8 时间戳/ttft_text/KV复用率/映射落盘/boundary 对照）。配置集中化（P2_* config + --model，实验机换 7B 零改码）。A1 计时改 median 抗噪。全部回归 PASS |
 
+| 2026-07-17 | 实验机（3090×2）准备就绪推进 | 环境验证 PASS；修复 HF_ENDPOINT 从未生效 bug（import 顺序）+ .env 尾随空格；MultiWOZ 2.1 派生 100+100 条；模型下载选路实测（ModelScope ~20MB/s 最快）；**TEN 7B 标定 AUC=1.00**（完美可分），建议阈值 0.0052~0.9688+1.1；CosyVoice env/模型/裁判 Mistral 后台就绪中 |
+
 **全部 6 个实验（E1/E2/E3/A1/A2/A3）的 harness 已在验证机 0.5B 跑通并自检 PASS**（A3 与 E2 共享数据）。完整状态表 + 实验机待办清单见 `paper2/experiment_design.md` §9'。
 **实验机总清单**：① 真实 MultiWOZ 派生数据 ② 主 LLM 7B ③ TEN 7B 软触发（阈值重标）④ real CosyVoice2（TimingProfile/SYNTH_RTF 实测替换 + mouth-to-ear 实测）⑤ LLM-judge（E3 交叉验证 + A2 连贯性评分）⑥ 可选：真实音频→流式 ASR 链路接入。
 
