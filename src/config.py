@@ -62,7 +62,7 @@ HF_HOME = os.getenv("HF_HOME")  # 模型缓存路径
 # from_pretrained 调用）同步环境变量并回补库内常量。
 # ------------------------------------------------------------------------------
 if HF_ENDPOINT:
-    _ep = HF_ENDPOINT.rstrip("/")          # 去尾斜杠，防 URL 模板出现双斜杠
+    _ep = HF_ENDPOINT.strip().rstrip("/")  # 去空白+尾斜杠（.env 手滑的尾随空格会毁 URL）
     os.environ["HF_ENDPOINT"] = _ep
     try:
         import huggingface_hub.constants as _hf_constants
