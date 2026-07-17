@@ -75,18 +75,25 @@ class Judge:
         inputs = self.tok(prompt, return_tensors="pt", truncation=True, max_length=2048).to(self.device)
         return self.model(**inputs).logits[0, -1, :], inputs
 
-    def yes_no(self, system: str, user: str) -> bool:
-        logits, _ = self._logits(system, user)
-        pos = torch.logsumexp(logits[self._yes], dim=0)
-        neg = torch.logsumexp(logits[self._no], dim=0)
-        return bool(pos > neg)
-
     @torch.no_grad()
+    def _generate(self, system: str, user: str, max_new_tokens: int = 6) -> str:
+        prompt = self.tok.apply_chat_template(
+            [{"role": "system", "content": system}, {"role": "user", "content": user}],
+            tokenize=False, add_generation_prompt=True)
+        inputs = self.tok(prompt, return_tensors="pt", truncation=True, max_length=2048).to(self.device)
+        out = self.model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False,
+                                  pad_token_id=self.tok.eos_token_id)
+        return self.tok.decode(out[0][inputs.input_ids.shape[1]:], skip_special_tokens=True)
+
+    def yes_no(self, system: str, user: str) -> bool:
+        # 生成短文本再解析——比"首 token logits"对非 Qwen 模板（如 Mistral 起手词习惯）鲁棒
+        # （首 token 方案曾致 Mistral 恒答 NO：judge 率 1-2%/κ≈0.05，2026-07-17 实验机实测）
+        head = self._generate(system, user, 6).strip().upper()
+        return head.startswith("YES") or head.split()[:1] == ["YES."]
+
     def rate_1_5(self, system: str, user: str):
-        logits, _ = self._logits(system, user)
-        digit_ids = [self.tok.encode(str(d), add_special_tokens=False)[0] for d in range(1, 6)]
-        probs = torch.softmax(logits[digit_ids], dim=0)
-        return int(torch.argmax(probs).item()) + 1
+        m = re.search(r"[1-5]", self._generate(system, user, 4))
+        return int(m.group()) if m else 3   # 解析失败取中值
 
 
 def cohen_kappa(a, b):
