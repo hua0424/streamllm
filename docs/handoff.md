@@ -44,6 +44,36 @@ HF_TOKEN= uv run python -m src.dialogue.run_speculative_test
 
 ## 二、六个实验：命令、产出、预期结果
 
+### ⓪ 执行总顺序与占位参数对应（先看这个）
+
+**顺序：§一环境 → §四.1/§四.2（产出下面的待定参数）→ 本节实验 → §四.3/§四.4。** 占位符全部来自 §四 的产物：
+
+| 占位参数 | 来源（§四 步骤） | 实际值 |
+|---|---|---|
+| E3/A2 的 `--dialogues <MultiWOZ派生.json>` | §四.1 `--out-turns` | `experiments/datasets/processed/p2_turns.json` |
+| E2/E1 的 `--dialogues <segments格式.json>` | §四.1 `--out-segments` | `experiments/datasets/processed/p2_segments.json` |
+| E2 的 `--thresholds` | §四.2 标定输出 `suggested_thresholds` | 照抄输出的数列（空格分隔） |
+| E1 的 `--spec-threshold` | 同上 | 取建议数列的拐点附近一档（中间偏低） |
+| E2/E1 的软触发 | 加 **`--trigger-config ten`**（缺省 dev 是替身！） | — |
+| §四.3 CosyVoice profile | 只影响 E1 实测 m2e 与建模常数 | 可后置；出正式 E1 前完成回填 |
+| §四.4 LLM-judge | E3/A2 **跑完后**的后处理 | `--results` 指向对应结果 JSON |
+
+**实验机填好参数后的完整命令序列**（§四.1/.2 之后直接照抄）：
+```bash
+HF_TOKEN= uv run python -m experiments.scripts.run_exp_a1_kvreuse --lengths 256 512 1024 2048 4096 8192
+HF_TOKEN= uv run python -m experiments.scripts.run_exp3_consistency \
+    --dialogues experiments/datasets/processed/p2_turns.json
+HF_TOKEN= uv run python -m experiments.scripts.run_exp2_tradeoff \
+    --dialogues experiments/datasets/processed/p2_segments.json \
+    --trigger-config ten --thresholds <§四.2 输出的数列>
+HF_TOKEN= uv run python -m experiments.scripts.run_exp1_latency \
+    --dialogues experiments/datasets/processed/p2_segments.json \
+    --trigger-config ten --spec-threshold <拐点档>
+HF_TOKEN= uv run python -m experiments.scripts.run_exp_a2_history \
+    --dialogues experiments/datasets/processed/p2_turns.json
+# E3/A2 完成后 → §四.4 judge；CosyVoice 就绪后 → §四.3 回填 profile、重跑 E1（实测 m2e）
+```
+
 全部从**项目根目录**跑；结果 JSON 入 `experiments/results/`；E2/E3 支持断点续传（中断重跑同命令即续）。每个脚本都有 `--model`（默认取 P2_LLM_MODEL_NAME）。
 
 | # | 命令 | 产出 | 预期结果形状（0.5B fixture 参考 → 7B 应更显著） |

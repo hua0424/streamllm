@@ -26,7 +26,7 @@ import time
 from pathlib import Path
 
 from src.dialogue.orchestrator import DialogueOrchestrator
-from src.dialogue.trigger import LLMSoftTrigger
+from src.dialogue.trigger import LLMSoftTrigger, QWEN05B_DEV_CONFIG, TEN_CONFIG
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.tts.streaming_tts import MockStreamingTTS, TimingProfile
 from src.utils.logging_utils import get_logger, set_global_log_level
@@ -74,7 +74,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dialogues", type=str, default=None)
     ap.add_argument("--model", type=str, default=P2_LLM_MODEL_NAME, help="主 LLM（实验机传 7B）")
-    ap.add_argument("--spec-threshold", type=float, default=0.05, help="B-ours 软触发阈值（E2 拐点附近）")
+    ap.add_argument("--trigger-config", choices=["dev", "ten"], default="dev",
+                    help="软触发：dev=替身（验证机）；ten=TEN 7B（实验机）")
+    ap.add_argument("--spec-threshold", type=float, default=0.05,
+                    help="B-ours 软触发阈值（取 E2/标定的拐点附近；换 trigger 后须换标定值）")
     ap.add_argument("--max-tokens", type=int, default=32)
     ap.add_argument("--out", type=str, default=str(Path(RESULTS_DIR) / "exp1_latency.json"))
     ap.add_argument("--log-level", type=str, default="INFO")
@@ -92,7 +95,7 @@ def main():
         dialogues = FIXTURE
 
     llm = StreamLLMInference(model_name=args.model, eval_mode=False)
-    trigger = LLMSoftTrigger()
+    trigger = LLMSoftTrigger(TEN_CONFIG if args.trigger_config == "ten" else QWEN05B_DEV_CONFIG)
     profile = TimingProfile()
 
     # warmup（两条路径各跑一次不记录）

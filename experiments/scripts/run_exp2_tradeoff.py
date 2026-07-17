@@ -21,7 +21,7 @@ import json
 from pathlib import Path
 
 from src.dialogue.orchestrator import DialogueOrchestrator
-from src.dialogue.trigger import LLMSoftTrigger
+from src.dialogue.trigger import LLMSoftTrigger, QWEN05B_DEV_CONFIG, TEN_CONFIG
 from src.llm.stream_llm_inference import StreamLLMInference
 from src.tts.streaming_tts import MockStreamingTTS, TimingProfile
 from src.utils.logging_utils import get_logger, set_global_log_level
@@ -54,9 +54,10 @@ def load_dialogues(path):
 
 
 def run(dialogues, thresholds, out_path: Path, max_spec: int, spec_chunk: int,
-        model_name: str = P2_LLM_MODEL_NAME):
+        model_name: str = P2_LLM_MODEL_NAME, trigger_config: str = "dev"):
     llm = StreamLLMInference(model_name=model_name, eval_mode=False)
-    trigger = LLMSoftTrigger()   # 开发替身；实验机换 TEN_CONFIG
+    # dev=替身 prompted Qwen（验证机）；ten=TEN 7B（实验机，含其专用类别词模板）
+    trigger = LLMSoftTrigger(TEN_CONFIG if trigger_config == "ten" else QWEN05B_DEV_CONFIG)
 
     records = []
     done = set()
@@ -119,6 +120,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dialogues", type=str, default=None)
     ap.add_argument("--model", type=str, default=P2_LLM_MODEL_NAME, help="主 LLM（实验机传 7B）")
+    ap.add_argument("--trigger-config", choices=["dev", "ten"], default="dev",
+                    help="软触发：dev=替身（验证机）；ten=TEN 7B（实验机，须先 calibrate 重标阈值）")
     ap.add_argument("--thresholds", type=float, nargs="+", default=DEFAULT_THRESHOLDS)
     ap.add_argument("--max-spec", type=int, default=32)
     ap.add_argument("--spec-chunk", type=int, default=12)
@@ -132,7 +135,7 @@ def main():
     logger.info("=" * 72)
     dialogues = load_dialogues(args.dialogues)
     curve = run(dialogues, args.thresholds, Path(args.out), args.max_spec, args.spec_chunk,
-                model_name=args.model)
+                model_name=args.model, trigger_config=args.trigger_config)
 
     # harness 自检：曲线两端方向正确（最激进浪费 >= 最保守浪费；最保守 TTFT >= 最激进 TTFT）
     if len(curve) >= 2:

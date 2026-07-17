@@ -3,7 +3,7 @@
     {
       "threshold": 0.05,
       "spec_waste_rate": 0.2381,
-      "ttft_eff_ms": 0.5,
+      "ttft_eff_ms": 1.5,
       "survived_rate": 1.0,
       "avg_ready_tokens": 12.0,
       "n": 6
@@ -11,7 +11,7 @@
     {
       "threshold": 1.1,
       "spec_waste_rate": 0.0,
-      "ttft_eff_ms": 29.4,
+      "ttft_eff_ms": 50.8,
       "survived_rate": 0.0,
       "avg_ready_tokens": 0.0,
       "n": 6
@@ -27,7 +27,7 @@
       "n_invalidated": 1,
       "survived": true,
       "ready": 12,
-      "ttft_eff_ms": 2.8,
+      "ttft_eff_ms": 8.8,
       "confs": [
         0.0674,
         0.0952
@@ -57,7 +57,7 @@
       "n_invalidated": 1,
       "survived": true,
       "ready": 12,
-      "ttft_eff_ms": 0.1,
+      "ttft_eff_ms": 0.0,
       "confs": [
         0.0674,
         0.1069
@@ -72,7 +72,7 @@
       "n_invalidated": 1,
       "survived": true,
       "ready": 12,
-      "ttft_eff_ms": 0.1,
+      "ttft_eff_ms": 0.0,
       "confs": [
         0.0674,
         0.0757
@@ -118,7 +118,7 @@
       "n_invalidated": 0,
       "survived": false,
       "ready": 0,
-      "ttft_eff_ms": 21.0,
+      "ttft_eff_ms": 35.0,
       "confs": [
         0.0674,
         0.0952
@@ -133,7 +133,7 @@
       "n_invalidated": 0,
       "survived": false,
       "ready": 0,
-      "ttft_eff_ms": 22.5,
+      "ttft_eff_ms": 36.2,
       "confs": [
         0.0332,
         0.0757
@@ -148,7 +148,7 @@
       "n_invalidated": 0,
       "survived": false,
       "ready": 0,
-      "ttft_eff_ms": 19.9,
+      "ttft_eff_ms": 150.7,
       "confs": [
         0.0674,
         0.1069
@@ -163,7 +163,7 @@
       "n_invalidated": 0,
       "survived": false,
       "ready": 0,
-      "ttft_eff_ms": 20.5,
+      "ttft_eff_ms": 27.4,
       "confs": [
         0.0674,
         0.0757
@@ -178,7 +178,7 @@
       "n_invalidated": 0,
       "survived": false,
       "ready": 0,
-      "ttft_eff_ms": 22.0,
+      "ttft_eff_ms": 23.5,
       "confs": [
         0.0952,
         0.0601
@@ -193,7 +193,7 @@
       "n_invalidated": 0,
       "survived": false,
       "ready": 0,
-      "ttft_eff_ms": 70.4,
+      "ttft_eff_ms": 31.9,
       "confs": [
         0.0374,
         0.0601,
