@@ -119,8 +119,14 @@ HF_TOKEN= uv run python -m experiments.scripts.run_exp_a2_history \
    ```
    GitHub 不通时：在可访问的机器下载 zip 后 scp 到同一路径。
    （HF hub 上的 MultiWOZ 多为 parquet/转换格式，与本脚本的原始 JSON 解析不匹配，勿绕 HF。）
-2. **TEN 7B 接入 + 阈值重标**（标定脚本已验证，替身 AUC 0.84）：.env 设 `P2_TRIGGER_MODEL_NAME=TEN-framework/TEN_Turn_Detection` 后：
+2. **预下载模型 + TEN 阈值重标**：
    ```bash
+   # ① 预下载（断点续传+自动重试；15GB 级大模型在不稳网络下必用——
+   #    直接跑 calibrate 遇 ChunkedEncodingError/IncompleteRead 就是断流，重跑即续传）
+   nohup env HF_TOKEN= uv run python -m experiments.scripts.predownload_models \
+       --models mistralai/Mistral-7B-Instruct-v0.3 > /tmp/predl.log 2>&1 &
+   tail -f /tmp/predl.log        # 三件套(7B/TEN 7B/Qwen3-0.6B)+裁判，共 ~45GB，耐心
+   # ② 下载完成后标定（TEN_CONFIG 自带模板，无需改 .env 的 P2_TRIGGER_MODEL_NAME）
    HF_TOKEN= uv run python -m experiments.scripts.calibrate_trigger --config ten
    # 产出 suggested_thresholds → 传给 run_exp2_tradeoff 的 --thresholds
    # 脚本自带 AUC>=0.65 可分性体检，过不了会拒绝放行 E2
@@ -140,6 +146,7 @@ HF_TOKEN= uv run python -m experiments.scripts.run_exp_a2_history \
    HF_TOKEN= uv run python -m experiments.scripts.run_llm_judge a2 \
        --results experiments/results/exp_a2_history.json --judge-model <同上>
    # 产出 *_judged.json（judge率 + Cohen κ / judge_coherence）；另抽 ~50 条人工验证裁判可靠性（P3）
+   # 裁判建议 mistralai/Mistral-7B-Instruct-v0.3（已核实非 gated；非 Qwen 家族、fp16~14.5GB 单卡可跑）
    ```
 
 ---
