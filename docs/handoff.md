@@ -162,6 +162,7 @@ HF_TOKEN= uv run python -m experiments.scripts.run_exp_a2_history \
 ## 六、坑与提醒
 
 - **HF_TOKEN 必须为空/有效**：历史 token 已失效会让公开模型也 401（跑命令前缀 `HF_TOKEN=` 最稳）
+- **大模型下载选路（2026-07-17 实验机实测）**：局域网 HF 缓存代理（192.168.50.202:18090）对**热缓存 ~10MB/s、冷数据回源仅 ~1.4MB/s**（且曾有 ~1GB 截断缓存导致断流）；hf-mirror 直连 ~0.3MB/s；**ModelScope 多分片并行 ~20MB/s 最快**。冷门大模型（TEN/Mistral 等）走 ModelScope：`uv pip install modelscope && uv run modelscope download --model <id> --local_dir /dataA/models/<name>`，然后 .env 用本地路径（`P2_TEN_MODEL_PATH` / `P2_REWRITER_MODEL_NAME` / judge 的 `--judge-model` 均接受本地目录）。ModelScope id：TEN-framework/TEN_Turn_Detection、Qwen/Qwen3-0.6B、LLM-Research/Mistral-7B-Instruct-v0.3（均已核实存在）
 - **镜像下载（实验机常见）**：`.env` 设 `HF_ENDPOINT="https://hf-mirror.com"` 即可（2026-07-17 修复后 `src/config.py` 会把它同步进 huggingface_hub——此前因 import 顺序问题 .env 的该项从未生效、始终连 huggingface.co，网络不通时报误导性的 "not a valid model identifier / pass a token"，实为连不上）。若报此错先查 endpoint 是否生效：`uv run python -c "import transformers; from src import config; import huggingface_hub.constants as c; print(c.ENDPOINT)"`
 - 模型加载 offline-first：首跑联网下载后即可离线
 - `.env` 已 gitignore、每机自维护；勿提交真实 token
