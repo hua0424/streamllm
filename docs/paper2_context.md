@@ -470,6 +470,8 @@ for sentence_chunk in generate_sentences(
 
 | 2026-07-17 | **E3 正式数值（7B+真实 MultiWOZ，n=412×2）** | 未听引用率 loose：**B-ours 0.0%（构造性）vs B-gen 51.0%**；strict：**51.0% vs 73.3%**（严格 GT 下仍 22pp 优势，同时量化片段粒度误差）；平均未听 token 0 vs 10.7。A1@7B 完成（crop ~0.3ms 恒定）；E2 进行中 |
 
+| 2026-07-17 | **全部正式实验数据完成（7B+MultiWOZ+TEN）** | A1: crop 恒 0.3ms/re-prefill 至 8k→1863ms（39.7x）；E1: TTFT 27.4→0.6ms（97.9%），建模 m2e 9080→2482ms；**E2 九点曲线**（29.2%/0.5ms→拐点 0.85-0.97→0%/48.5ms）；E3: loose 0%/51%，strict 51%/73.3%，judge 交叉 0%/2.7%（规则=上界/judge=下界，κ≈0.05 系 MultiWOZ 领域词过触发，**方法学发现**）；A2: judge 连贯性 naive 3.76/rewrite 3.62/mark 3.29，重写 P90 937ms 可隐藏。人工校验样本表 37 条已生成（e3_human_validation_sample.md，待人工填写仲裁）。实验机余一未推提交（E2 加密），凭据需人工 |
+
 **全部 6 个实验（E1/E2/E3/A1/A2/A3）的 harness 已在验证机 0.5B 跑通并自检 PASS**（A3 与 E2 共享数据）。完整状态表 + 实验机待办清单见 `paper2/experiment_design.md` §9'。
 **实验机总清单**：① 真实 MultiWOZ 派生数据 ② 主 LLM 7B ③ TEN 7B 软触发（阈值重标）④ real CosyVoice2（TimingProfile/SYNTH_RTF 实测替换 + mouth-to-ear 实测）⑤ LLM-judge（E3 交叉验证 + A2 连贯性评分）⑥ 可选：真实音频→流式 ASR 链路接入。
 
