@@ -1,0 +1,26 @@
+{
+  "all": {
+    "n": 37,
+    "human_Y": 3,
+    "agree_rule": 0.216,
+    "kappa_rule": -0.031,
+    "agree_judge": 0.73,
+    "kappa_judge": 0.28
+  },
+  "loose": {
+    "n": 13,
+    "human_Y": 3,
+    "agree_rule": 0.308,
+    "kappa_rule": -0.073,
+    "agree_judge": 0.846,
+    "kappa_judge": 0.649
+  },
+  "strict": {
+    "n": 24,
+    "human_Y": 0,
+    "agree_rule": 0.167,
+    "kappa_rule": 0.0,
+    "agree_judge": 0.667,
+    "kappa_judge": -0.0
+  }
+}
