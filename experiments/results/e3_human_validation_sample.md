@@ -5,7 +5,7 @@
 > 共 37 条（seed=42），分层覆盖各判定组合。
 
 ---
-### #1  [MUL1277.json f=boundary generation 列=strict]  规则=Y / judge=Y / 人判=____
+### #1  [MUL1277.json f=boundary generation 列=strict]  规则=Y / judge=Y / 人判=N
 **UNHEARD（用户没听到的内容）**：**Location**: Specify the exact city or region you are interested in.
 **下一轮回复**：In that case, you might want to consider a few key factors when choosing a hotel in the southern region of your country:
 
@@ -15,7 +15,7 @@
 **规则命中词**：location, region
 
 ---
-### #2  [MUL1715.json f=0.25 generation 列=strict]  规则=Y / judge=N / 人判=____
+### #2  [MUL1715.json f=0.25 generation 列=strict]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：depending on your location,  but here are some general ideas:
 
 1. **Movies**: Visit a local cinema or movie theater. Many cities have multiple options, including independent
@@ -25,7 +25,7 @@
 **规则命中词**：1, depending, movies
 
 ---
-### #3  [SNG0137.json f=0.25 generation 列=loose]  规则=Y / judge=Y / 人判=____
+### #3  [SNG0137.json f=0.25 generation 列=loose]  规则=Y / judge=Y / 人判=N
 **UNHEARD（用户没听到的内容）**：you can use a map service like Google Maps. Here’s how you can do it:
 
 1. **Open Google Maps**: Start by opening the Google Maps
@@ -35,7 +35,7 @@
 **规则命中词**：1, google, maps, open, opening, start
 
 ---
-### #4  [PMUL2639.json f=0.25 generation 列=strict]  规则=Y / judge=N / 人判=____
+### #4  [PMUL2639.json f=0.25 generation 列=strict]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：attraction,  you might consider visiting a public or private water park, a resort pool, or an Olympic-sized swimming facility. Here are a few options:
 
 1
@@ -47,7 +47,7 @@
 **规则命中词**：1, attraction, consider, might, swimming
 
 ---
-### #5  [PMUL4858.json f=0.25 generation 列=strict]  规则=Y / judge=N / 人判=____
+### #5  [PMUL4858.json f=0.25 generation 列=strict]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：of Cambridgeshire,  England, known for its world-renowned university, the University of Cambridge. Here are some key points about Cambridge:
 
 1.
@@ -55,7 +55,7 @@
 **规则命中词**：cambridge
 
 ---
-### #6  [SNG0926.json f=0.75 playback 列=strict]  规则=Y / judge=N / 人判=____
+### #6  [SNG0926.json f=0.75 playback 列=strict]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：steps and considerations to help you find the right guest
 **下一轮回复**：To find a 4-star guesthouse in the eastern region without the requirement for free parking, you can follow these steps:
 
@@ -65,7 +65,7 @@
 **规则命中词**：steps
 
 ---
-### #7  [SNG01598.json f=0.25 playback 列=strict]  规则=Y / judge=N / 人判=____
+### #7  [SNG01598.json f=0.25 playback 列=strict]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：go to Milton Country Park,
 **下一轮回复**：If you're leaving from Milton Country Park, you'll want to ensure that you arrange your taxi pickup in advance to avoid any delays. Here’s how you can proceed:
 
@@ -75,7 +75,7 @@
 **规则命中词**：country, milton, park
 
 ---
-### #8  [PMUL0331.json f=0.5 generation 列=loose]  规则=Y / judge=N / 人判=____
+### #8  [PMUL0331.json f=0.5 generation 列=loose]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：For example, if you're looking in the northern United States, you
 **下一轮回复**：Great! With a party of 2 adults and 3 children aged 4, 5, and 6, you'll want to look for a hotel that can accommodate a family suite or a / If you're planning to arrive on a Saturday and stay for 5 days, your check-in date would be Saturday, and your check-out date would be Thursday of the following week. 
 
@@ -83,7 +83,7 @@ To find
 **规则命中词**：you're
 
 ---
-### #9  [SNG02106.json f=boundary generation 列=strict]  规则=Y / judge=Y / 人判=____
+### #9  [SNG02106.json f=boundary generation 列=strict]  规则=Y / judge=Y / 人判=N
 **UNHEARD（用户没听到的内容）**：Here are a few options that are known for their high-end dining experiences:
 **下一轮回复**：If you're looking for high-end Italian dining in the southern part of town, here are a few options you might consider:
 
@@ -93,7 +93,7 @@ To find
 **规则命中词**：dining, high-end, options
 
 ---
-### #10  [PMUL1994.json f=0.5 generation 列=loose]  规则=N / judge=N / 人判=____
+### #10  [PMUL1994.json f=0.5 generation 列=loose]  规则=N / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：Here’s a general
 **下一轮回复**：To find a train from Cambridge to your destination on Tuesday by 13:00, you can follow these steps:
 
@@ -103,7 +103,7 @@ To find
 **规则命中词**：（无）
 
 ---
-### #11  [PMUL1995.json f=0.25 generation 列=loose]  规则=Y / judge=N / 人判=____
+### #11  [PMUL1995.json f=0.25 generation 列=loose]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：Here are some steps you can follow:
 
 1. **Determine Your Budget**: Decide how much you are
@@ -117,7 +117,7 @@ To find
 **规则命中词**：1, follow, steps
 
 ---
-### #12  [MUL0060.json f=0.5 generation 列=loose]  规则=Y / judge=N / 人判=____
+### #12  [MUL0060.json f=0.5 generation 列=loose]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：The menu often features dishes
 **下一轮回复**：J Restaurant in Cambridge specializes in contemporary American cuisine with an emphasis on fresh, seasonal, and locally sourced ingredients. Their menu typically includes a variety of dishes that showcase modern culinary techniques and flavors.
 
@@ -125,13 +125,13 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：dishes, often
 
 ---
-### #13  [PMUL1615.json f=0.5 generation 列=strict]  规则=Y / judge=N / 人判=____
+### #13  [PMUL1615.json f=0.5 generation 列=strict]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：and availability, you might want to use online travel booking platforms such as Booking.com, Expedia,
 **下一轮回复**：Sure, I can help you with that. To book a hotel for 5 people for 2 nights starting on Tuesday, you'll need to provide me with the destination you're planning to visit. / To assist you with booking a train to Bishops Stortford arriving around 21:30, I'll need to know the departure location. Could you please provide me with the starting point
 **规则命中词**：booking
 
 ---
-### #14  [WOZ20124.json f=0.75 playback 列=strict]  规则=Y / judge=N / 人判=____
+### #14  [WOZ20124.json f=0.75 playback 列=strict]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：nearby city, as Scottish dishes are typically found in
 **下一轮回复**：For Vietnamese cuisine, you can search for "Vietnamese restaurants" in your local area. Many cities have a variety of Vietnamese restaurants that offer a range of dishes from pho (noodle soup) / Certainly! To provide you with the address of a Vietnamese restaurant, I would need to know your specific location. However, I can suggest how you can find one:
 
@@ -139,7 +139,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：dishes
 
 ---
-### #15  [PMUL1643.json f=boundary generation 列=loose]  规则=Y / judge=N / 人判=____
+### #15  [PMUL1643.json f=boundary generation 列=loose]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：Here's a general guide on how to proceed:
 
 1. **
@@ -147,7 +147,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：guide
 
 ---
-### #16  [SSNG0368.json f=0.25 playback 列=strict]  规则=N / judge=N / 人判=____
+### #16  [SSNG0368.json f=0.25 playback 列=strict]  规则=N / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：stay without internet connection in your town,
 **下一轮回复**：To find a 4-star hotel that includes free parking, you can follow these steps:
 
@@ -157,7 +157,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：（无）
 
 ---
-### #17  [PMUL4601.json f=0.75 generation 列=loose]  规则=N / judge=Y / 人判=____
+### #17  [PMUL4601.json f=0.75 generation 列=loose]  规则=N / judge=Y / 人判=Y
 **UNHEARD（用户没听到的内容）**：Here are a few suggestions:
 **下一轮回复**：If you're looking for an inexpensive area in Cambridge with free parking, you might consider staying in the following neighborhoods:
 
@@ -165,13 +165,13 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：（无）
 
 ---
-### #18  [PMUL3714.json f=0.75 generation 列=strict]  规则=N / judge=N / 人判=____
+### #18  [PMUL3714.json f=0.75 generation 列=strict]  规则=N / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：around the world have a variety of museums, each
 **下一轮回复**：It seems there might be a bit of confusion in your question as you initially asked about a museum to visit but then mentioned an area of town. If you're looking for a specific location, could you / Certainly! To provide you with the address and phone number of a museum, I would need to know the specific city or region you are planning to visit. Could you please tell me which city you are
 **规则命中词**：（无）
 
 ---
-### #19  [MUL1569.json f=0.5 generation 列=loose]  规则=N / judge=N / 人判=____
+### #19  [MUL1569.json f=0.5 generation 列=loose]  规则=N / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：**
 **下一轮回复**：To find the best train options for your departure on Tuesday after 10:30 from London Kings Cross to Cambridge, you can follow these steps:
 
@@ -181,7 +181,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：（无）
 
 ---
-### #20  [PMUL1643.json f=0.25 generation 列=strict]  规则=Y / judge=N / 人判=____
+### #20  [PMUL1643.json f=0.25 generation 列=strict]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：Street to Cambridge on a Sunday,  you'll want to check the train schedules for that day. Here's a general guide on how to proceed:
 
 1. **
@@ -189,7 +189,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：cambridge, guide, street, train, you'll
 
 ---
-### #21  [fx_palace f=0.25 generation 列=loose]  规则=Y / judge=Y / 人判=____
+### #21  [fx_palace f=0.25 generation 列=loose]  规则=Y / judge=Y / 人判=Y
 **UNHEARD（用户没听到的内容）**：Here are some facts about the Summer Palace:
 
 1. It was built between 16
@@ -197,7 +197,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：1, built, palace, summer
 
 ---
-### #22  [PMUL1746.json f=0.75 generation 列=loose]  规则=Y / judge=Y / 人判=____
+### #22  [PMUL1746.json f=0.75 generation 列=loose]  规则=Y / judge=Y / 人判=Y
 **UNHEARD（用户没听到的内容）**：Here are some details you might consider:
 **下一轮回复**：Based on your preferences for staying in the north and your requirement for Wi-Fi and at least four-star reviews, here are a few options you might consider:
 
@@ -206,7 +206,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：consider, might
 
 ---
-### #23  [MUL2185.json f=0.75 generation 列=strict]  规则=Y / judge=N / 人判=____
+### #23  [MUL2185.json f=0.75 generation 列=strict]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：general suggestions:
 
 1.  **Budget Hotels**: Many budget
@@ -214,7 +214,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：many
 
 ---
-### #24  [SNG0395.json f=0.5 playback 列=strict]  规则=Y / judge=Y / 人判=____
+### #24  [SNG0395.json f=0.5 playback 列=strict]  规则=Y / judge=Y / 人判=N
 **UNHEARD（用户没听到的内容）**：Trainline, National Rail Enquiries, or the official website of the train operator you prefer.
 **下一轮回复**：To find train options for Thursday, you should specify your destination and departure times to get the most accurate results. Here’s how you can proceed:
 
@@ -224,7 +224,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：national, rail, train, trainline, website
 
 ---
-### #25  [MUL1569.json f=boundary generation 列=strict]  规则=N / judge=N / 人判=____
+### #25  [MUL1569.json f=boundary generation 列=strict]  规则=N / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：**
 **下一轮回复**：To find the best train options for your trip from London Kings Cross to Cambridge on Tuesday after 10:30, you can follow these steps:
 
@@ -234,13 +234,13 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：（无）
 
 ---
-### #26  [fx_palace f=0.25 playback 列=strict]  规则=Y / judge=Y / 人判=____
+### #26  [fx_palace f=0.25 playback 列=strict]  规则=Y / judge=Y / 人判=N
 **UNHEARD（用户没听到的内容）**：located in Beijing,
 **下一轮回复**：The Summer Palace is a magnificent palace complex located in Beijing, China. It was built in the 17th century and is one of the most famous examples of Chinese imperial architecture. The palace complex / The Summer Palace is a historic palace complex located in Beijing, China. It was built in the 17th century and is one of the most famous examples of Chinese imperial architecture. The palace complex
 **规则命中词**：beijing, located
 
 ---
-### #27  [SNG0137.json f=0.75 playback 列=strict]  规则=Y / judge=Y / 人判=____
+### #27  [SNG0137.json f=0.75 playback 列=strict]  规则=Y / judge=Y / 人判=N
 **UNHEARD（用户没听到的内容）**：Google Maps**: Start by opening the Google Maps
 **下一轮回复**：You're welcome! To find the nearest police station along with its address, you can follow these steps:
 
@@ -248,25 +248,25 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：google, maps, opening, start
 
 ---
-### #28  [MUL0717.json f=0.75 playback 列=strict]  规则=Y / judge=N / 人判=____
+### #28  [MUL0717.json f=0.75 playback 列=strict]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：This hotel is located in the city center, but it
 **下一轮回复**：The Gonville Hotel, while offering comfortable and convenient accommodations, might not be considered budget-friendly due to its 4-star rating and central location. It's priced according to its quality and location, which / I'm sorry for any confusion, but as an AI, I don't have the capability to make real-time bookings or provide reference numbers. I can guide you on how to book the Gonville Hotel
 **规则命中词**：hotel
 
 ---
-### #29  [PMUL3783.json f=0.25 generation 列=loose]  规则=Y / judge=N / 人判=____
+### #29  [PMUL3783.json f=0.25 generation 列=loose]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：especially when considering cost and environmental impact. The Cambridge area in the UK is well-connected by rail, offering convenient access to major
 **下一轮回复**：Certainly! To help you plan your journey from Broxbourne to the Cambridge area, I'll need to know your specific destination within Cambridge. However, I can provide a general guide on how to / To arrive in Cambridge by 19:30 on a Sunday, you'll want to ensure you catch a train that departs Broxbourne with enough time to reach your destination by the
 **规则命中词**：cambridge
 
 ---
-### #30  [SNG0137.json f=0.25 playback 列=strict]  规则=Y / judge=Y / 人判=____
+### #30  [SNG0137.json f=0.25 playback 列=strict]  规则=Y / judge=Y / 人判=N
 **UNHEARD（用户没听到的内容）**：would typically need your current location or a specific address.
 **下一轮回复**：To provide you with the nearest police station, I would need your current location or the specific address you are at. Since I'm an online text-based assistant, I can't access your physical location. / You're welcome! If you have any other questions in the future, don't hesitate to ask. Have a great day!
 **规则命中词**：address, current, location, specific, would
 
 ---
-### #31  [PMUL1746.json f=0.25 generation 列=loose]  规则=Y / judge=Y / 人判=____
+### #31  [PMUL1746.json f=0.25 generation 列=loose]  规则=Y / judge=Y / 人判=N
 **UNHEARD（用户没听到的内容）**：To give you the best possible recommendations, I'll need a bit more information. Here are some details you might consider:
 **下一轮回复**：Based on your preferences for staying in the north and seeking accommodations with Wi-Fi and at least four-star reviews, here are a few options you might consider:
 
@@ -275,7 +275,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：consider, might
 
 ---
-### #32  [MUL1476.json f=0.25 generation 列=strict]  规则=Y / judge=Y / 人判=____
+### #32  [MUL1476.json f=0.25 generation 列=strict]  规则=Y / judge=Y / 人判=N
 **UNHEARD（用户没听到的内容）**：arrives by 17:30, you should check the train schedules provided by your local railway operator.  Websites like National Rail Enquiries in the UK
 **下一轮回复**：To find the best travel options departing from Stansted Airport on Saturday, you can follow these steps:
 
@@ -283,7 +283,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：17, 30, arrives, check, national, operator, rail, should, train
 
 ---
-### #33  [PMUL1512.json f=0.25 playback 列=strict]  规则=N / judge=N / 人判=____
+### #33  [PMUL1512.json f=0.25 playback 列=strict]  规则=N / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：suit your preferences:
 **下一轮回复**：For a 3-star hotel that offers free parking, you might consider the following options:
 
@@ -291,7 +291,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：（无）
 
 ---
-### #34  [SNG0395.json f=0.75 generation 列=strict]  规则=Y / judge=Y / 人判=____
+### #34  [SNG0395.json f=0.75 generation 列=strict]  规则=Y / judge=Y / 人判=N
 **UNHEARD（用户没听到的内容）**：Rail Enquiries in the UK.  Here are the general steps
 **下一轮回复**：If you're planning to travel on Thursday, you'll want to specify your journey details including your departure point (King's Lynn), destination, and date (Thursday). Here’s how you can find your / To find a train departing after 10:00 from King's Lynn, you can follow these steps:
 
@@ -299,7 +299,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：enquiries, rail, steps
 
 ---
-### #35  [MUL0209.json f=0.5 playback 列=strict]  规则=Y / judge=N / 人判=____
+### #35  [MUL0209.json f=0.5 playback 列=strict]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：**Use Online Search Engines**: Start by using search engines like Google.
 **下一轮回复**：Certainly! To provide you with the information you're asking for, I would need the name of the restaurant you're interested in. Since I don't have that information, I can't give you the / To book a train ticket, you can use various online platforms or visit the official website of the train operator you prefer. Here’s a general guide on how to book a train ticket:
 
@@ -307,7 +307,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：online, use
 
 ---
-### #36  [SNG01999.json f=0.75 generation 列=loose]  规则=Y / judge=N / 人判=____
+### #36  [SNG01999.json f=0.75 generation 列=loose]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：Type "nearest police
 **下一轮回复**：To find the address and postcode of the nearest police station, you can follow these steps:
 
@@ -315,7 +315,7 @@ As for / Finches Bed and Breakfast is a charming accommodation option, offering 
 **规则命中词**：nearest, police, type
 
 ---
-### #37  [PMUL0241.json f=0.5 playback 列=strict]  规则=Y / judge=N / 人判=____
+### #37  [PMUL0241.json f=0.5 playback 列=strict]  规则=Y / judge=N / 人判=N
 **UNHEARD（用户没听到的内容）**：popular options that serve traditional Belgian cuisine.
 **下一轮回复**：Certainly! Here are a few European cuisine restaurants in the center that you might enjoy:
 
