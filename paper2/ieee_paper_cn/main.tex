@@ -1,5 +1,6 @@
 % 中文审稿版：与 ../ieee_paper/main.tex 逐段一一对应（章节/图/表/公式编号完全一致）。
-% 审稿改动请标注对应英文稿位置，便于同步翻译。
+% 图/表（含图题表题）与英文稿共用同一份英文素材（graphicspath 指向 ../ieee_paper/figs/），
+% 审稿只需看中文正文；改动请标注对应英文稿位置，便于同步翻译。
 % 编译：xelatex main && bibtex main && xelatex main && xelatex main
 \documentclass[conference]{IEEEtran}
 \IEEEoverridecommandlockouts
@@ -14,7 +15,7 @@
 \setCJKmainfont{SimSun}
 \setCJKsansfont{SimHei}
 \xeCJKsetup{CJKmath=true}
-\graphicspath{{figs/}}
+\graphicspath{{../ieee_paper/figs/}}
 
 \begin{document}
 
@@ -77,8 +78,8 @@ p(t) \le s(t) \le g(t) \quad \forall t. \label{eq:invariant}
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.92\textwidth]{fig3_1.pdf}
-\caption{三进度指针与听到边界。打断时播放指针 $p$ 落于片段 $f_3$ 内；听到边界 $H(p)=\mathrm{te}(f_3)$ 按片段粒度向上取整，$\varepsilon(p)$ 为有界的量化误差。$p$ 与 $g$ 之间为未听内容；将其保留在历史中（B-gen）构成引用风险。}
+\includegraphics[width=0.92\textwidth]{fig3_1_en.pdf}
+\caption{Three progress pointers and the heard boundary. At barge-in the playback pointer $p$ falls inside segment $f_3$; the heard boundary $H(p)=\mathrm{te}(f_3)$ rounds up at segment granularity, and $\varepsilon(p)$ is the bounded quantization error. Content between $p$ and $g$ is unheard; keeping it in history (B-gen) creates reference risk.}
 \label{fig:pointers}
 \end{figure*}
 
@@ -104,8 +105,8 @@ H(p)=\mathrm{te}(f_k), \label{eq:boundary}
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.9\textwidth]{fig4_1.pdf}
-\caption{系统架构。上：输入流水线与软触发驱动的推测生成（第~\ref{sec:spec} 节）。中：输出流水线与四向映射时间轴。下：打断链路——反查 $\Phi(p)\!\rightarrow\!H(p)$、KV 截断＋角色重建（第~\ref{sec:kv} 节）、历史策略（第~\ref{sec:hist} 节）。}
+\includegraphics[width=0.9\textwidth]{fig4_1_en.pdf}
+\caption{System architecture. Top: input pipeline and soft-trigger-driven speculative generation (Sec.~\ref{sec:spec}). Middle: output pipeline and the four-way mapping timeline. Bottom: barge-in chain---lookup $\Phi(p)\!\rightarrow\!H(p)$, KV truncation + role rebuild (Sec.~\ref{sec:kv}), history policies (Sec.~\ref{sec:hist}).}
 \label{fig:arch}
 \end{figure*}
 
@@ -132,25 +133,25 @@ H(p)=\mathrm{te}(f_k), \label{eq:boundary}
 两把尺子在真实数据上分歧很大（Cohen's $\kappa\approx0.05$）：MultiWOZ 领域词（hotel、book、train）使规则检测器过触发。因此本文将规则口径读作上界、裁判读作下界，并以 37 条人工标注仲裁：人—裁判一致性中等偏强（$84.6\%$，$\kappa=0.649$），人—规则一致性不优于随机（$\kappa=-0.073$），支持以裁判为主口径。尤其重要的是，strict 口径 24 条样本人工判定 0/24 构成真实特定引用，为片段级截断粒度提供了实证辩护。
 
 \begin{table}[t]
-\caption{未听内容引用率（E3，每条件 $n{=}412$）}
+\caption{Unheard-content reference rate (E3, $n{=}412$ per condition)}
 \label{tab:consistency}
 \centering
 \begin{tabular}{llccc}
 \toprule
-口径 & 检测器 & B-ours & B-gen & $p$ \\
+Criterion & Detector & B-ours & B-gen & $p$ \\
 \midrule
-loose & 规则 & \textbf{0.0\%}（构造性） & 51.0\% & $1.8{\times}10^{-79}$ \\
-strict & 规则 & 51.0\% & 73.3\% & $5.0{\times}10^{-11}$ \\
-loose & 裁判 & \textbf{0.0\%} & 2.7\% & $9.1{\times}10^{-4}$ \\
-strict & 裁判 & 2.4\% & 2.9\% & 0.83（不显著） \\
+loose & rule & \textbf{0.0\%} (by constr.) & 51.0\% & $1.8{\times}10^{-79}$ \\
+strict & rule & 51.0\% & 73.3\% & $5.0{\times}10^{-11}$ \\
+loose & judge & \textbf{0.0\%} & 2.7\% & $9.1{\times}10^{-4}$ \\
+strict & judge & 2.4\% & 2.9\% & 0.83 (n.s.) \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{fig6_1.pdf}
-\caption{分注入位置的未听内容引用率。B-gen 随打断位置后移单调下降；B-ours 两口径均为零——机制的构造性保证，而非统计结果。}
+\includegraphics[width=\linewidth]{fig6_1_en.pdf}
+\caption{Unheard-content reference rate by injection position. B-gen decreases monotonically with later interruption; B-ours is zero under both criteria---a constructive guarantee of the mechanism, not a statistical finding.}
 \label{fig:positions}
 \end{figure}
 
@@ -159,8 +160,8 @@ strict & 裁判 & 2.4\% & 2.9\% & 0.83（不显著） \\
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{fig6_2.pdf}
-\caption{推测浪费率与 $\mathrm{TTFT}_{\mathrm{eff}}$：连续可调的前沿；空心方块为"永不推测"保守极限。}
+\includegraphics[width=\linewidth]{fig6_2_en.pdf}
+\caption{Speculation waste rate vs.\ $\mathrm{TTFT}_{\mathrm{eff}}$: a continuously tunable frontier; the open square is the never-speculate conservative limit.}
 \label{fig:frontier}
 \end{figure}
 
@@ -172,8 +173,8 @@ strict & 裁判 & 2.4\% & 2.9\% & 0.83（不显著） \\
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{fig6_4.pdf}
-\caption{打断响应路径与重新预填充随上下文长度的延迟（双对数）。反查＋截断亚毫秒且与长度无关；重新预填充近线性增长（8k 处 39.7$\times$）。}
+\includegraphics[width=\linewidth]{fig6_4_en.pdf}
+\caption{Barge-in response paths vs.\ re-prefill across context lengths (log--log). Lookup+crop is sub-ms and length-independent; re-prefill grows nearly linearly (39.7$\times$ at 8k).}
 \label{fig:kvreuse}
 \end{figure}
 
