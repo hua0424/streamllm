@@ -1,0 +1,102 @@
+<mxGraphModel adaptiveColors="auto">
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    <mxCell id="hl" value="片段记录（追加式主轴）" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="280" y="18" width="640" height="26" as="geometry"/>
+    </mxCell>
+    <mxCell id="r0" value="片段 / 状态" style="text;html=1;align=right;verticalAlign=middle;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="90" y="50" width="180" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="r1" value="token 区间&#10;[ts, te)" style="text;html=1;align=right;verticalAlign=middle;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="90" y="100" width="180" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="r2" value="音频块列表" style="text;html=1;align=right;verticalAlign=middle;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="90" y="150" width="180" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="r3" value="采样区间&#10;[ss, se)" style="text;html=1;align=right;verticalAlign=middle;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="90" y="200" width="180" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="h1" value="f₁　已播完" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5F0E6;strokeColor=#009E73;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="280" y="50" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="h2" value="f₂　播放中" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="440" y="50" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="h3" value="f₃　已入队" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E8F4FB;strokeColor=#56B4E9;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="600" y="50" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="h4" value="f₄　推测" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDEBD0;strokeColor=#E69F00;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="760" y="50" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="t1" value="[0, 12)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="280" y="100" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="t2" value="[12, 25)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="440" y="100" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="t3" value="[25, 41)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="600" y="100" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="t4" value="[41, 58)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="760" y="100" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="c1" value="c₁ c₂" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="280" y="150" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="c2" value="c₃ c₄ c₅" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="440" y="150" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="c3" value="c₆ c₇" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="600" y="150" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="c4" value="（尚未合成）" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;dashed=1;fontSize=12;fontColor=#999999;" vertex="1" parent="1">
+      <mxGeometry x="760" y="150" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="p1" value="[0, 48k)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="280" y="200" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="p2" value="[48k, 110k)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="440" y="200" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="p3" value="[110k, 152k)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;fontSize=12;" vertex="1" parent="1">
+      <mxGeometry x="600" y="200" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="p4" value="—" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;dashed=1;fontSize=12;fontColor=#999999;" vertex="1" parent="1">
+      <mxGeometry x="760" y="200" width="160" height="40" as="geometry"/>
+    </mxCell>
+    <mxCell id="w1" value="生成线程写入" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#0072B2;" vertex="1" parent="1">
+      <mxGeometry x="930" y="105" width="110" height="30" as="geometry"/>
+    </mxCell>
+    <mxCell id="w2" value="TTS 线程写入" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#0072B2;" vertex="1" parent="1">
+      <mxGeometry x="930" y="175" width="110" height="30" as="geometry"/>
+    </mxCell>
+    <mxCell id="w3" value="播放线程原子更新" style="text;html=1;align=left;verticalAlign=middle;fontSize=11;fontColor=#009E73;" vertex="1" parent="1">
+      <mxGeometry x="930" y="255" width="120" height="30" as="geometry"/>
+    </mxCell>
+    <mxCell id="cursor" value="播放游标 p = 121k（落于 f₂ 采样区间内）" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#009E73;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="440" y="255" width="300" height="28" as="geometry"/>
+    </mxCell>
+    <mxCell id="parrow" style="endArrow=classic;strokeColor=#009E73;strokeWidth=2;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="520" y="258" as="sourcePoint"/>
+        <mxPoint x="520" y="242" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="phi1" value="① 按采样区间定位 f₂" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#D55E00;strokeWidth=2;dashed=1;fontSize=12;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="560" y="270" as="sourcePoint"/>
+        <mxPoint x="560" y="222" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="phi2" value="②" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#D55E00;strokeWidth=2;dashed=1;fontSize=13;fontStyle=1;fontColor=#D55E00;" edge="1" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <mxPoint x="560" y="198" as="sourcePoint"/>
+        <mxPoint x="560" y="122" as="targetPoint"/>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="phinote" value="反查 Φ（定义 3.4）：① 按采样区间定位片段 f₂ → ② 取 te(f₂)=25 即得 H(p)。纯索引操作、与上下文长度无关（6.5 节实测亚毫秒）。&#10;片段数为轮级小量：全表单锁 ＋ 播放游标无锁即满足关键路径要求。" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#555555;" vertex="1" parent="1">
+      <mxGeometry x="90" y="300" width="720" height="44" as="geometry"/>
+    </mxCell>
+  </root>
+</mxGraphModel>

@@ -1,0 +1,47 @@
+<mxGraphModel adaptiveColors="auto">
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    <mxCell id="start" value="" style="ellipse;fillColor=#333333;strokeColor=none;" vertex="1" parent="1">
+      <mxGeometry x="30" y="178" width="16" height="16" as="geometry"/>
+    </mxCell>
+    <mxCell id="s1" value="监听 / 增量 prefill&#10;（user 角色保持打开）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;strokeWidth=2;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="90" y="150" width="200" height="70" as="geometry"/>
+    </mxCell>
+    <mxCell id="s2" value="推测生成中&#10;（已注入 assistant 标记，&#10;预生成 ≤ B token 并缓存）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDEBD0;strokeColor=#E69F00;strokeWidth=2;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="470" y="50" width="230" height="80" as="geometry"/>
+    </mxCell>
+    <mxCell id="s3" value="提交：缓存 token 立即输出&#10;TTFT_eff ≈ 0，继续生成余量" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5F0E6;strokeColor=#009E73;strokeWidth=2;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="470" y="290" width="230" height="65" as="geometry"/>
+    </mxCell>
+    <mxCell id="s4" value="现场触发生成&#10;（支付全额 TTFT）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#666666;strokeWidth=2;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="110" y="290" width="160" height="65" as="geometry"/>
+    </mxCell>
+    <mxCell id="e0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;" edge="1" parent="1" source="start" target="s1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="e1" value="cᵢ ≥ θ：记录推测起点 b := |𝒦|，&#10;注入 assistant 标记" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#E69F00;fontSize=12;exitX=0.75;exitY=0;entryX=0;entryY=0.5;" edge="1" parent="1" source="s1" target="s2">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="240" y="90"/>
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e2" value="新片段 uᵢ 到达 → 作废：&#10;KV 截断回 b（合法截断 4.2.2），&#10;推测产出计入浪费率 ρ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#D55E00;fontSize=12;exitX=0;exitY=0.85;entryX=1;entryY=0.5;" edge="1" parent="1" source="s2" target="s1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="380" y="185"/>
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e3" value="用户真实说完&#10;（推测存活）" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#009E73;fontSize=12;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s2" target="s3">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="e4" value="用户说完且无活跃推测" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#666666;fontSize=12;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s1" target="s4">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="note" value="存活的推测 = 最后一个片段触发、其后再无语音的那次；其计算被端点静默窗掩盖。&#10;作废是「播放期打断」的退化情形（p = 0，回滚到 H = 0）。" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#555555;" vertex="1" parent="1">
+      <mxGeometry x="90" y="390" width="620" height="44" as="geometry"/>
+    </mxCell>
+  </root>
+</mxGraphModel>
