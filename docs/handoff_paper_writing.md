@@ -20,7 +20,8 @@
 | 摘要 + 参考文献合并 | ✅ 完成（`paper2/abstract.md`、`paper2/references.md`；4 条 † arXiv 编号已复核无误） |
 | 方法示意图 5 张 | ✅ 完成（2026-07-21）：图 3-1 三指针、图 4-1 架构（替换 ASCII）、图 4-2 状态机、图 4-3 时间轴、图 4-4 KV 截断。drawio 源在 `paper2/figures/src/*.drawio`，导出 SVG+PNG 在 `paper2/figures/`。重导命令：`& "D:\Program Files\draw.io\draw.io.exe" -x -f svg -e -b 10 -o <out.svg> <src.drawio>`（⚠️ XML 属性值内不能有裸双引号，否则 drawio 静默挂死；改完先 `[xml](Get-Content -Raw ...)` 验证） |
 | 全文合并草稿 | ✅ `paper2/thesis_draft.md`（自动拼接：摘要+ch1..8+文献；改章节后重跑拼接命令，勿直接编辑） |
-| 剩余 | 按学校模板转 DOCX/LaTeX（`/ars-format-convert`）+ 送审前 `/ars-reviewer` 模拟评审 |
+| IEEE 会议投稿稿 | ✅ 完成（2026-07-21）：`paper2/ieee_paper/`（main.tex IEEEtran conference + references.bib + main.pdf 6页）；英文图 `fig6_x_en`（`plot_figures.py --en`）+ `fig3_1_en/fig4_1_en`（drawio）；自检清单 `SUBMISSION_CHECKLIST.md`。**待人工**：填真实作者块/通讯作者、自费查重、IEEE PDF eXpress 验证 |
+| 剩余 | 学位论文按学校模板转 DOCX（要求待提供）+ 送审前 `/ars-reviewer` 模拟评审 |
 
 **注意**：ch2 与 ch1/7/8 由一个会话写，ch3~ch6 由并行会话写——**符号与表号需统稿时对齐**（详见 §四）。
 
