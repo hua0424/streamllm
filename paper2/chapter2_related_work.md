@@ -1,7 +1,7 @@
 # 第二章 相关工作
 
 > 初稿（2026-05-21）。写作策略遵循 `docs/decisions.md` D-006：先诚实陈述商用系统已实现的 prior art，再指出学术界与开源级联实现的空白，最后以差异对比表明确本文定位。**本章不主张"对话历史=用户实际听到内容"这一原则为本文首创。**
-> 引用编号为本章局部临时编号，统稿时并入全文参考文献；带 † 的 arXiv 预印本编号需在投稿/送审前复核（见 `docs/research_novelty_check.md` §七）。
+> 引用编号与全文统一文献表（`paper2/references.md`）一致；带 † 的 arXiv 预印本编号需在投稿/送审前复核（见 `docs/research_novelty_check.md` §七）。
 
 ---
 
@@ -56,17 +56,4 @@ KV 缓存通过缓存历史 token 的键值状态、避免自回归生成中的�
 
 ---
 
-## 参考文献（本章局部，统稿时并入全文）
-
-> † 标记的 arXiv 预印本编号为核查期（2026 年中）检索所得，正式送审前需复核编号与发表状态。
-
-[1] OpenAI. Realtime API — Conversations. https://developers.openai.com/api/docs/guides/realtime-conversations
-[2] Microsoft Azure. Voice Live auto-truncation. https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-voice-live-auto-truncation
-[3] LiveKit. Agents — Events & interruption handling. https://docs.livekit.io/agents/build/events/ ; https://github.com/livekit/agents/issues/5038
-[4]† LTS-VoiceAgent: A Listen-Think-Speak Framework for Efficient Streaming Voice Interaction. arXiv:2601.19952
-[5]† RelayS2S: Dual-Path Speculative Generation for Real-Time Dialogue. arXiv:2603.23346
-[6] Défossez et al. Moshi: a speech-text foundation model for real-time dialogue. arXiv:2410.00037
-[7] FireRedChat: streaming personalized VAD for barge-in. arXiv:2509.06502
-[8] HuggingFace. Transformers — KV cache strategies (DynamicCache). https://huggingface.co/docs/transformers/en/kv_cache
-[9]† IntentKV: intent-aware KV pruning for LLM agents. arXiv:2606.09916
-[10]† Speculative Interaction Agents. arXiv:2605.13360
+*（本章引用编号 [1]–[10] 已并入全文统一文献表 `paper2/references.md`，编号不变。）*
