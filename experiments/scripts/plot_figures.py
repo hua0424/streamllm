@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 RESULTS = ROOT / "experiments" / "results"
 FIGDIR = ROOT / "paper2" / "figures"
 
-# ---- 全局风格：学位论文黑白友好 ----
+# ---- 全局风格：Okabe-Ito 彩色（色盲友好），线型/marker 保持灰度打印可区分 ----
 _CJK_CANDIDATES = ["SimHei", "Microsoft YaHei", "Noto Sans CJK SC"]
 _available = {f.name for f in font_manager.fontManager.ttflist}
 _cjk = [f for f in _CJK_CANDIDATES if f in _available]
@@ -48,10 +48,14 @@ plt.rcParams.update(
     }
 )
 
-# 黑白友好灰阶（配合 hatch / 线型 / marker 区分，不依赖颜色）
+# Okabe-Ito 色盲友好配色（学术出版惯用）；线型/marker 仍保持可区分，灰度打印不失义
+C_BLUE = "#0072B2"
+C_ORANGE = "#E69F00"
+C_GREEN = "#009E73"
+C_VERMI = "#D55E00"
+C_SKY = "#56B4E9"
 G_DARK = "#333333"
 G_MID = "#888888"
-G_LIGHT = "#cccccc"
 
 
 def _load(name):
@@ -61,10 +65,11 @@ def _load(name):
 
 def _save(fig, stem):
     FIGDIR.mkdir(parents=True, exist_ok=True)
-    for ext, kw in (("pdf", {}), ("png", {"dpi": 200})):
+    # svg 为期刊投稿主格式（矢量）；pdf 备学位论文排版；png 便于 markdown 预览
+    for ext, kw in (("svg", {}), ("pdf", {}), ("png", {"dpi": 200})):
         fig.savefig(FIGDIR / f"{stem}.{ext}", bbox_inches="tight", **kw)
     plt.close(fig)
-    print(f"[saved] {FIGDIR / stem}.pdf/.png")
+    print(f"[saved] {FIGDIR / stem}.svg/.pdf/.png")
 
 
 # ---------------------------------------------------------------- 图 6-1
@@ -99,15 +104,15 @@ def fig6_1():
     fig, ax = plt.subplots(figsize=(6.4, 3.6))
     b1 = ax.bar(
         [i - w for i in x], gen_rule, w,
-        color=G_LIGHT, edgecolor="black", hatch="//", label="B-gen（规则口径）",
+        color=C_SKY, edgecolor="black", lw=0.6, label="B-gen（规则口径）",
     )
     b2 = ax.bar(
         x, gen_judge, w,
-        color=G_MID, edgecolor="black", label="B-gen（裁判口径）",
+        color=C_ORANGE, edgecolor="black", lw=0.6, label="B-gen（裁判口径）",
     )
     b3 = ax.bar(
         [i + w for i in x], ours_rule, w,
-        color="white", edgecolor="black", hatch="xx", label="B-ours（两口径）",
+        color=C_GREEN, edgecolor="black", lw=0.6, label="B-ours（两口径）",
     )
     for bars in (b1, b2):
         for r in bars:
@@ -142,7 +147,7 @@ def fig6_2():
     fig, ax = plt.subplots(figsize=(6.6, 4.2))
     # 拐点区 θ∈[0.85, 0.97]：以对应浪费率区间做浅灰底
     knee = [w for w, t in zip(waste, thr) if 0.85 <= t <= 0.97]
-    ax.axvspan(min(knee), max(knee), color="0.92", zorder=0)
+    ax.axvspan(min(knee), max(knee), color=C_SKY, alpha=0.15, zorder=0)
     ax.annotate(
         "拐点区\nθ∈[0.85, 0.97]",
         ((min(knee) + max(knee)) / 2, max(ttft) * 0.82),
@@ -154,15 +159,15 @@ def fig6_2():
     ax.plot(
         [waste[i] for i in real] + [waste[i] for i in sent],
         [ttft[i] for i in real] + [ttft[i] for i in sent],
-        "-", color="black", lw=1.6, zorder=2,
+        "-", color=C_BLUE, lw=1.8, zorder=2,
     )
     ax.plot(
         [waste[i] for i in real], [ttft[i] for i in real],
-        "o", color="black", ms=6, zorder=3, label="推测工作点",
+        "o", color=C_BLUE, ms=6.5, zorder=3, label="推测工作点",
     )
     ax.plot(
         [waste[i] for i in sent], [ttft[i] for i in sent],
-        "s", mfc="white", mec="black", ms=8, mew=1.5, zorder=3,
+        "s", mfc="white", mec=C_VERMI, ms=8, mew=1.8, zorder=3,
         label="永不推测（保守极限）",
     )
     # 每点标注：低浪费区点密集，密集三点用引线甩到右侧空白区
@@ -218,7 +223,7 @@ def fig6_3():
     # 上：TTFT（实测）
     ax1.barh(
         ylabels[::-1], [b_ttft, a_ttft],
-        color=[G_MID, G_LIGHT], edgecolor="black", height=0.55,
+        color=[C_BLUE, C_ORANGE], edgecolor="black", lw=0.6, height=0.55,
     )
     for y, v in zip(ylabels[::-1], [b_ttft, a_ttft]):
         ax1.annotate(
@@ -230,15 +235,15 @@ def fig6_3():
 
     # 下：mouth-to-ear（建模值），B-ours 拆出 TTS 首块延迟
     ax2.barh(
-        "System A", a_m2e, color=G_LIGHT, edgecolor="black", height=0.55,
+        "System A", a_m2e, color=C_ORANGE, edgecolor="black", lw=0.6, height=0.55,
     )
     ax2.barh(
-        "B-ours", tts_first, color="white", edgecolor="black", hatch="//",
+        "B-ours", tts_first, color=C_SKY, edgecolor="black", lw=0.6,
         height=0.55, label="其中：TTS 首块合成延迟",
     )
     ax2.barh(
-        "B-ours", b_m2e - tts_first, left=tts_first, color=G_MID,
-        edgecolor="black", height=0.55,
+        "B-ours", b_m2e - tts_first, left=tts_first, color=C_BLUE,
+        edgecolor="black", lw=0.6, height=0.55,
     )
     ax2.annotate(
         f"{a_m2e:.0f} ms", (a_m2e, "System A"),
@@ -268,15 +273,15 @@ def fig6_4():
 
     fig, ax = plt.subplots(figsize=(6.4, 4.2))
     ax.plot(
-        ctx, reprefill, "o-", color="black", lw=1.6, ms=6,
+        ctx, reprefill, "o-", color=C_VERMI, lw=1.8, ms=6,
         label="重新 prefill（放弃 KV 复用）",
     )
     ax.plot(
-        ctx, rebuild, "s--", color=G_MID, lw=1.4, ms=6, mfc="white",
+        ctx, rebuild, "s--", color=C_ORANGE, lw=1.5, ms=6, mfc="white",
         label="角色重建（非关键路径，可延迟执行）",
     )
     ax.plot(
-        ctx, crop, "^-", color="black", lw=2.2, ms=7, mfc="white",
+        ctx, crop, "^-", color=C_BLUE, lw=2.2, ms=7, mfc="white",
         label="反查 + 截断（关键路径）",
     )
     for x, y, sp in zip(ctx, reprefill, speedup):
@@ -291,6 +296,7 @@ def fig6_4():
     )
     ax.set_xscale("log")
     ax.set_yscale("log")
+    ax.set_ylim(top=max(reprefill) * 2.5)
     ax.set_xticks(ctx)
     ax.set_xticklabels([str(c) for c in ctx])
     ax.set_xlabel("上下文长度（token）")
