@@ -1,0 +1,47 @@
+<mxGraphModel adaptiveColors="auto">
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    <mxCell id="start" value="" style="ellipse;fillColor=#333333;strokeColor=none;" vertex="1" parent="1">
+      <mxGeometry x="30" y="178" width="16" height="16" as="geometry"/>
+    </mxCell>
+    <mxCell id="s1" value="listening / incremental prefill&#10;(user role kept open)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;strokeWidth=2;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="90" y="150" width="200" height="70" as="geometry"/>
+    </mxCell>
+    <mxCell id="s2" value="speculating&#10;(assistant marker injected,&#10;pre-generate ≤ B tokens, cached)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDEBD0;strokeColor=#E69F00;strokeWidth=2;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="470" y="50" width="230" height="80" as="geometry"/>
+    </mxCell>
+    <mxCell id="s3" value="commit: cached tokens emitted at once&#10;TTFT_eff ≈ 0, continue generating" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5F0E6;strokeColor=#009E73;strokeWidth=2;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="470" y="290" width="230" height="65" as="geometry"/>
+    </mxCell>
+    <mxCell id="s4" value="on-the-spot generation&#10;(pay full TTFT)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#666666;strokeWidth=2;fontSize=13;" vertex="1" parent="1">
+      <mxGeometry x="110" y="290" width="160" height="65" as="geometry"/>
+    </mxCell>
+    <mxCell id="e0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;" edge="1" parent="1" source="start" target="s1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="e1" value="cᵢ ≥ θ: record start b := |𝒦|,&#10;inject assistant marker" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#E69F00;fontSize=12;exitX=0.75;exitY=0;entryX=0;entryY=0.5;" edge="1" parent="1" source="s1" target="s2">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="240" y="90"/>
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e2" value="new segment uᵢ arrives → invalidate:&#10;crop KV back to b (legal truncation),&#10;output counted into waste rate ρ" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#D55E00;fontSize=12;exitX=0;exitY=0.85;entryX=1;entryY=0.5;" edge="1" parent="1" source="s2" target="s1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="380" y="185"/>
+        </Array>
+      </mxGeometry>
+    </mxCell>
+    <mxCell id="e3" value="user truly finished&#10;(speculation survives)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#009E73;fontSize=12;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s2" target="s3">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="e4" value="user finished, no active speculation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#666666;fontSize=12;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s1" target="s4">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="note" value="The surviving speculation is the one triggered by the last segment with no speech after it; its computation is hidden by the endpoint silence window.&#10;Invalidation is the degenerate case of playback-time barge-in (p = 0, roll back to H = 0)." style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#555555;" vertex="1" parent="1">
+      <mxGeometry x="90" y="390" width="640" height="44" as="geometry"/>
+    </mxCell>
+  </root>
+</mxGraphModel>

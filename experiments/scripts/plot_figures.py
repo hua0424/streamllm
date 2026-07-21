@@ -68,7 +68,7 @@ _EN = {
     "f2_xlabel": "Speculation waste rate ρ (%)",
     "f2_ylabel": "TTFT$_{eff}$ (ms)",
     "f3_x1": "TTFT (ms, measured)",
-    "f3_x2": "mouth-to-ear (ms, modeled: first-segment ready + TTS first chunk, RTX 3090 profile)",
+    "f3_x2": "mouth-to-ear (ms, modeled)",
     "f3_leg_tts": "TTS first-chunk synthesis latency",
     "f3_note": "(TTS first chunk {tts:.0f} ms)",
     "f4_leg_pre": "re-prefill (no KV reuse)",
