@@ -7,8 +7,8 @@ This file provides guidance to agents (Claude Code, ZCode, etc.) when working wi
 硕士论文项目，研究级联式语音对话系统（ASR → LLM → TTS）的**低延迟优化**。代码是论文的实验载体，不是产品——评判标准是延迟指标（尤其 TTFT）与实验可复现性，而非工程完备性。
 
 **两期工作**：
-- **一期（已完成，`main` 分支）**：流式 ASR + LLM KV cache 增量预填充，打破"TTFT 随语音长度线性增长"。这是当前 `src/` 的全部内容。
-- **二期（进行中，`bargeincache` 分支）**：播放感知的 KV 缓存管理 + barge-in（打断）。核心原则「对话历史 = 用户实际听到的内容」。**二期尚无代码**，处于设计阶段。开始二期任务前必读 `docs/paper2_context.md`（主交接文档）、`docs/decisions.md`（决策日志 D-001~）、`docs/handoff.md`（当前断点与下一步）。
+- **一期（已完成，`main` 分支）**：流式 ASR + LLM KV cache 增量预填充，打破"TTFT 随语音长度线性增长"。一期代码集中在 `src/asr/`、`src/llm/`、`src/run_test_simple.py`（四线程流水线）。
+- **二期（代码与实验已完成，`paper2` 分支）**：播放感知的 KV 缓存管理 + barge-in（打断）。核心原则「对话历史 = 用户实际听到的内容」。二期新增编排层 `src/dialogue/`（orchestrator / trigger / timeline / unheard_detector / rewriter）、流式 TTS `src/tts/`、播放器 `src/player/`。五个主实验 + 两个消融（`experiments/scripts/run_exp{1_latency,2_tradeoff,3_consistency,_a1_kvreuse,_a2_history}.py`）数据已跑出，结果入 `experiments/results/`，论文稿在 `paper2/`（含 IEEE 投稿版）。开始二期任务前必读 `docs/paper2_context.md`（主交接文档）、`docs/decisions.md`（决策日志 D-001~）、`docs/handoff.md`（当前断点与下一步）。
 
 ## 环境与命令
 
@@ -21,11 +21,21 @@ uv run python -m src.asr.run_stream_asr_test    # ASR 模块 smoke test
 uv run python -m src.llm.run_llm_test           # LLM 模块 smoke test
 ```
 
-**三个论文实验**（项目根目录运行，均支持增量保存/断点续传，结果入 `experiments/results/`）：
+**二期论文实验**（`paper2` 分支，项目根目录运行，结果入 `experiments/results/`；本机 0.5B 出概念曲线/验证 harness，实验机 7B 出正式数值）：
 ```bash
-uv run python -m experiments.scripts.run_exp_latency    # 实验一：TTFT vs 语音长度
-uv run python -m experiments.scripts.run_exp_ablation   # 实验二：流式ASR / KV预填充 各自贡献消融
-uv run python -m experiments.scripts.run_exp_quality    # 实验三：流式 vs 非流式 ASR 的 WER/CER
+uv run python -m experiments.scripts.run_exp1_latency     # E1：端到端延迟对比（A 非流式基线 vs B-ours）
+uv run python -m experiments.scripts.run_exp2_tradeoff    # E2：推测浪费率 vs TTFT_eff 前沿曲线（论文核心图）
+uv run python -m experiments.scripts.run_exp3_consistency # E3：播放感知截断的多轮一致性（playback vs generation 历史）
+uv run python -m experiments.scripts.run_exp_a1_kvreuse   # A1：打断后 KV 复用(crop) vs 重新 prefill 延迟微基准
+uv run python -m experiments.scripts.run_exp_a2_history   # A2：被打断轮历史处理策略（朴素截断/标记法/重写法）
+uv run python -m experiments.scripts.run_llm_judge        # LLM-as-judge 交叉验证（E3/A2 连贯性与引用评分）
+```
+
+**一期实验脚本**（`main` 分支遗留，`paper2` 分支仍可跑，对应一期论文）：
+```bash
+uv run python -m experiments.scripts.run_exp_latency   # 实验一：TTFT vs 语音长度
+uv run python -m experiments.scripts.run_exp_ablation  # 实验二：流式ASR / KV预填充 各自贡献消融
+uv run python -m experiments.scripts.run_exp_quality   # 实验三：流式 vs 非流式 ASR 的 WER/CER
 ```
 
 **运行陷阱**：
@@ -62,9 +72,18 @@ _audio_generation_worker → audio_chunk_queue
 - **`generate()`** 是手写 token-by-token 循环（非 `model.generate()`），yield 每个 token，打断只需消费侧停止迭代。
 - `past_key_values` 被当作**不透明对象**传递，从不调 cache 方法。
 
-**给二期的两个已知关键点**（细节见 `docs/paper2_context.md` Q1-Q5）：
-1. `generate()` 内部更新的 KV **没有写回 caller 的 KVCache** —— 一期不累积 assistant 端 KV，也不支持多轮。二期需新建"边生成边累积、可被 crop 的 assistant-side KVCache"。
-2. 二期 KV 截断走 `DynamicCache.crop()`；crop 后必须**同步截短 `pre_attention_mask`** 并用新 past_length 重算 position_ids，否则位置编码错乱。
+**二期在 `StreamLLMInference` 上新增的 assistant-side KV 机制**（`run_kvcrop_test.py` 用 S1-S4 四步验证）：
+1. `generate_accumulating()`：在 `generate()` 基础上边生成边把 KV 累积回 caller 的 KVCache（补上了一期缺失的 assistant 端 KV 累积 + 多轮支持）。每次生成后 `seq/mask/DynamicCache` 三者长度保持一致。
+2. `crop_to_token(target_len)`：打断后用 `DynamicCache.crop()` 截断 KV；crop 后必须**同步截短 `pre_attention_mask` 和 `assistant_token_ids`**，并用新 past_length 重算 position_ids，否则位置编码错乱。
+3. `reopen_user_role()` / `prefill_user_text()` / `open_assistant_role()`：crop 后重建 role 边界，支持续轮。
+4. 整段推测作废 = crop 回 `assistant_start`（0 个 assistant token）。
+
+**二期编排层 `src/dialogue/`**（barge-in 主战场，跨文件才能看清）：
+- `DialogueOrchestrator`（`orchestrator.py`）：二期中枢。两个入口——`user_turn()`（一次性全文，非流式基线 A）、`speculative_turn()`（增量 ASR 段 + 软触发推测-作废，系统 B-ours）。内部 `_start_speculation()` / `_invalidate_speculation()` 管推测生命周期，`_finish_assistant()`（complexity 13，系统最复杂方法）串起"生成消费→断句→TTS→timeline→打断→crop→reopen→metrics"。
+- `PlaybackTimeline`（`timeline.py`）：播放感知截断的反查核心。`add_fragment()`/`attach_chunk()` 写入侧把 token 轴与音频采样轴映射到同一 `FragmentRecord`；`barge_in(playback_samples)` 反查"用户实际听到位置"→ `BargeInResult(crop_token_end, partial, ...)`，按 D-008 选 A 语义落实片段 status（命中片段=PLAYED，其后=DISCARDED，命中且未播完=partial）。
+- `LLMSoftTrigger`（`trigger.py`）：软触发。用因果 LM 首 token 的正类（"已完成"词）概率 / (正类+负类) 作为 turn 完成度置信度，置信度超阈值即启动推测。
+- `HistoryRewriter`（`rewriter.py`）：A2 消融的"重写法"——把被打断的半句 assistant 文本改写为自然收尾（不新增信息），架构上并行可隐藏，记录 `rewrite_ms` 验证可隐藏性。
+- `unheard_detector.py`：检测历史中"未听内容"被引用（E3 的 measurement）。
 
 ## 约定
 
