@@ -217,6 +217,8 @@
 - **推测阈值**（激进）：超过即触发主 LLM decode 进入"推测生成"
 - **提交阈值**（保守）：超过才允许 TTS 开始播放给用户
 
+> **实现注记（2026-07-29）**：提交阈值在本工作的确定性模拟 harness 中**未启用**——`orchestrator.py:speculative_turn` 仅用单一推测阈值（`spec_threshold`）启动推测，推测的提交（采用）由 ASR 段流终止的真值端点触发（P1 确定性模拟），无需第二阈值门控播放。此为 harness 简化，论文稿（abstract/C1/总结）已据此对齐为"推测阈值"表述；提交阈值作为真实部署的门控设计保留于此。
+
 调整两阈值得到"推测浪费率 vs TTFT"trade-off 曲线（论文核心图之一，paper2_context.md §五）。
 
 **背景**：候选过 Smart-Turn v2（音频侧，~20ms）、TEN（文本侧，50-100ms）、Phoenix-VAD（权重发布不确定）、Qwen prompted（最灵活但慢）。

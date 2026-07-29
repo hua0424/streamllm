@@ -222,6 +222,8 @@ for sentence_chunk in generate_sentences(
 - **推测阈值**（激进）：超过即触发主 LLM decode 进入推测生成（可被作废）
 - **提交阈值**（保守）：超过才允许 TTS 开始播放给用户
 
+> **实现注记（2026-07-29）**：提交阈值在本工作的确定性模拟 harness 中**未启用**——`orchestrator.py:speculative_turn` 仅用单一推测阈值（`spec_threshold`）启动推测，推测的提交（采用）由 ASR 段流终止的真值端点触发（P1 确定性模拟），无需第二阈值门控播放。此为 harness 简化，论文稿（abstract/C1/总结）已据此对齐为"推测阈值"表述；提交阈值作为真实部署的门控设计保留于此。
+
 调整两阈值得到 **"推测浪费率 vs TTFT" trade-off 曲线**（§五"核心 trade-off 曲线"指的就是这条）。
 
 文本侧软触发的推理时间与一期已有的 KV prefill 阶段**并行运行**，挂在 prefill 的延迟阴影里，**实际零额外端到端耗时** —— 这是选 TEN（文本侧）而不是 Smart-Turn（音频侧 20ms）的关键架构依据。
