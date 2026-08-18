@@ -2,8 +2,8 @@
 
 > **读者**：在 GPU 实验机上执行本任务的人员或 agent。
 > **目标**：完成 CISR 审稿意见所需的全部 GPU 侧补充实验，按规定格式产出结果并回传。
-> **配套文档**：`experiments/CISR_REVISION_PLAN.md`（总方案）、`experiments/EXPERIMENT_DESIGN.md`（原实验设计）。
-> **机器情况**：全新安装的 Ubuntu 22.04，2×RTX 3090，**盘内无任何历史数据**——按 §1.0 从零初始化环境，原始实验数据由需求方从本机打包传来（§2）。
+> **配套文档**：`experiments/GPU_HOST_SETUP.md`（**全新主机分步安装手册**，从裸机装到能跑，先于本文执行）、`experiments/CISR_REVISION_PLAN.md`（总方案）、`experiments/EXPERIMENT_DESIGN.md`（原实验设计）。
+> **机器情况**：全新安装的 Ubuntu 22.04，2×RTX 3090，**盘内无任何历史数据**——先按 `GPU_HOST_SETUP.md` 完成安装自检（A–G），再回本文 §1.2 核验；原始合成数据由需求方从本机打包传来（§2）。
 > **前置共识**：所有实验必须复用论文原配置（见 §1.3 配置锁定表），任何参数变更都必须先与需求方确认。
 
 ---
@@ -29,11 +29,13 @@
 
 ### 1.0 全新 Ubuntu 22.04 环境初始化（最先做）
 
+> 以下为概要。**逐条带检查点的分步操作见 `GPU_HOST_SETUP.md`（安装手册）**，建议照手册执行；本文保留速查版。
+
 本机为刚重装的全新系统，按以下顺序从零初始化：
 
 ```bash
 # 1) 系统包
-sudo apt update && sudo apt install -y git curl ffmpeg libsndfile1 build-essential
+sudo apt update && sudo apt install -y git curl ffmpeg libsndfile1 build-essential tmux
 
 # 2) NVIDIA 驱动（torch cu121 轮子要求驱动 ≥ 530.30；CUDA 运行库由 pip 的
 #    nvidia-* 包自带，无需另装 CUDA Toolkit）
@@ -49,16 +51,20 @@ source $HOME/.local/bin/env         # 或按安装输出的提示操作
 git clone https://github.com/hua0424/streamllm.git
 cd streamllm
 
-# 5) 安装依赖（uv 自动创建 .venv，安装 torch cu121 等，下载约 8 GB）
+# 5) 安装依赖（uv 按 .python-version=3.10.18 自动建 .venv，安装 torch cu121 等，下载约 8 GB）
 uv sync
 
-# 6) .env 核对（.env 被 git 跟踪，clone 后已存在）
-#    确认：ASR_MODEL_NAME=turbo、LLM_MODEL_NAME=Qwen/Qwen2-7B-Instruct
-#    HF_HOME 指向存在的目录；网络受限时设 HF_ENDPOINT=https://hf-mirror.com
+# 6) .env 本机适配（.env 被 git 跟踪，clone 后已存在，但有两处旧机遗留必须本机改、不提交）：
+#    a. HF_HOME="/mhh/model/hfhome" 是旧主机路径 → 改为大盘上真实存在的目录（如 /data/hfhome）
+#    b. HF_TOKEN 已失效（whoami 401）→ 置空 HF_TOKEN=""（模型均公开，空 token 可下）
+#    详见安装手册 Step D；网络受限时设 HF_ENDPOINT=https://hf-mirror.com
 
-# 7) 模型预下载（共约 17 GB；也可留待首次运行自动下载，但预先拉取便于及早发现网络问题）
-uv run python -c "import whisper; whisper.load_model('turbo')"                          # ~1.6 GB
-uv run python -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen2-7B-Instruct')"  # ~15 GB
+# 7) 模型预下载（共约 18 GB；命令前缀 HF_TOKEN= 临时压掉失效 token）
+HF_TOKEN= uv run python -c "import whisper; whisper.load_model('turbo')"                       # ~1.6 GB
+HF_TOKEN= uv run python -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen2-7B-Instruct')"  # ~15 GB
+HF_TOKEN= uv run python -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen2.5-0.5B-Instruct')"  # 冒烟小模型 ~1 GB
+# Silero VAD 预缓存（torch.hub 首次下载有交互信任提示，非交互 shell 会 EOF，必须 echo y 预缓存）
+echo y | uv run python -c "from src.asr.streamaudio_segmenter import StreamAudioSegmenter; StreamAudioSegmenter()"
 
 # 8) 【仅 E6 需要，可延后】Docker + CosyVoice TTS 服务
 #    部署方式见 experiments/datasets/tools/doc/TTS_USAGE.md；
@@ -110,8 +116,9 @@ EOF
 ### 1.2 环境核验
 
 - [ ] `nvidia-smi` 确认双 RTX 3090 可用（§1.0 第 2 步已装驱动）。
-- [ ] `.env` 中 `ASR_MODEL_NAME=turbo`、`LLM_MODEL_NAME=Qwen/Qwen2-7B-Instruct`。
-- [ ] 模型预下载已完成（§1.0 第 7 步）；用一个 5 秒音频试跑一次确认可加载。
+- [ ] `.env` 本机适配已完成（§1.0 第 6 步）：`ASR_MODEL_NAME=turbo`、`LLM_MODEL_NAME=Qwen/Qwen2-7B-Instruct`、HF_HOME 为新机真实路径、HF_TOKEN 置空。
+- [ ] 模型预下载已完成（§1.0 第 7 步，含 silero VAD 预缓存）。
+- [ ] 安装手册 `GPU_HOST_SETUP.md` Step G 自检全部通过：回归套件 `10/10`、R2 构建冒烟 `16/16`、tiny 小模型 1 样本试跑无 error、turbo+Qwen2-7B 正式配置 1 样本试跑无 error（`--suffix-segments 0`）。
 - [ ] CosyVoice TTS 服务探活（仅 E6 前必须完成）：先读 `experiments/datasets/tools/doc/TTS_USAGE.md`，按其说明检查 `http://host.docker.internal:20401` 可达；不可达则记录现象并通知需求方，不自行换 TTS。
 - [ ] 版本存档（回信要用）：
 
@@ -136,6 +143,10 @@ nvidia-smi >> experiments/results/revision/env_versions.txt
 | max_tokens | 50（仅 E4 用 128） | |
 | warmup | 3 轮真实音频 | 每次脚本启动自动执行，不要跳过 |
 
+⚠️ **设备参数陷阱**：脚本 `--asr-device/--llm-device` 默认 `auto` 会解析为裸 `cuda`，两个模型全部落在
+cuda:0——**不报错但与锁定配置不符**（原实验 config 块为 `asr_device: cuda:0 / llm_device: cuda:1`）。
+因此本文所有正式命令均已显式写 `--asr-device cuda:0 --llm-device cuda:1`；§5.2 的 config 块验收也以此核对。
+
 ---
 
 ## 二、等待本机传入的外部产物
@@ -144,13 +155,13 @@ nvidia-smi >> experiments/results/revision/env_versions.txt
 
 | 文件 | 用途 | 获取方式 | 阻塞的任务 |
 |---|---|---|---|
-| **原始合成数据集包**（约 3.4 GB，`processed/` 整目录） | 全部合成集实验 | 文件传输（scp/rsync/网盘/U盘），解压为仓库下 `experiments/datasets/processed/`，验收见 §1.1 | E1、E3、E4、E5 |
+| **原始合成数据集包**（约 3.4 GB，`processed/` 整目录） | 全部合成集实验 | 文件传输（scp/rsync/网盘/U盘），解压为仓库下 `experiments/datasets/processed/`，验收见 §1.1（打包/传输步骤见 `GPU_HOST_SETUP.md` Step F） | E1、E3、E4、E5 |
 | DEV-1~5 全部源码 | E1–E6 运行 | `git pull origin main`（本机推送后通知你） | E1、E3、E4、E5、E6 |
-| `repeat_subset_ids.json` | 固定 50 样本清单（Very Long 组） | 文件传输，放 `experiments/results/revision/r1_stats/` | E1、E4、E5 |
-| `exp2_ablation_sample_list.json` | 消融干净成对子集 498 条（排除规则见文件内 metadata；Table IV 按此口径重算） | 文件传输，放 `experiments/results/revision/r3_baseline_la/` | E3 |
+| ~~repeat_subset_ids.json~~ | ~~固定 50 样本清单~~ | ✅ **已随 git 提交**（`results/revision/r1_stats/`，clone/pull 即有，无需传输） | E1、E4、E5 |
+| ~~exp2_ablation_sample_list.json~~ | ~~消融干净成对子集 498 条~~ | ✅ **已随 git 提交**（`results/revision/r3_baseline_la/`，clone/pull 即有，无需传输） | E3 |
 | ~~真实语音数据包~~（**改为主机自建，不再传输**） | 原始语料（LibriSpeech/AISHELL-1/MUSAN，openslr 直下）+ 构建/QA/增强脚本（`experiments/scripts/{build_real_speech_set,build_augmented_variants,qa_real_speech,test_r2_build_smoke}.py`，随 git push 提供） | 脚本 `git pull`；语料主机自行下载并按 **§4-E2-0** 构建（约 26 GB 下载 + 1–2 h CPU + 一次 turbo QA），免 ~GB 级成品包传输 | E2 |
 
-**立即可做（不依赖任何本机输入）**：§1.0 环境初始化（系统包、驱动、uv、clone、uv sync、模型预下载）与 CosyVoice 服务部署。原始数据包、清单文件、DEV 代码到位后按上表逐项解锁。
+**立即可做（不依赖任何本机输入）**：`GPU_HOST_SETUP.md` 全部安装步骤（A–G）与 CosyVoice 服务部署；两份样本清单已随 git 到位，**唯一等待传输的只有原始合成数据包**，到达并通过 §1.1 验收后按上表逐项解锁。
 
 数据包验收（合成数据包）：每个数据集目录应有“等数量”的 JSON 与 WAV。真实语音数据集**不再走文件传输**，其构建与验收由 §4-E2-0 的 `qa_real_speech.py`（静态校验 + turbo 转写 sanity）代替人工抽检。
 
@@ -281,7 +292,7 @@ class LocalAgreementStreamer:
 for r in 1 2 3; do
   uv run python -m experiments.scripts.run_exp_latency \
     --dataset all --sample-list $REV/r1_stats/repeat_subset_ids.json \
-    --suffix-segments 0 \
+    --asr-device cuda:0 --llm-device cuda:1 --suffix-segments 0 \
     --output-dir $REV/r1_stats/repeat_r$r --no-resume
 done
 ```
@@ -340,15 +351,18 @@ E2-0 验收线（不过则停止并报告，勿跑 E2）：
 ```bash
 # E2a 干净集（150 条 × 2 模式）
 uv run python -m experiments.scripts.run_exp_latency \
-  --dataset librispeech --suffix-segments 0 --output-dir $REV/r2_real_speech/librispeech_clean
+  --dataset librispeech --asr-device cuda:0 --llm-device cuda:1 \
+  --suffix-segments 0 --output-dir $REV/r2_real_speech/librispeech_clean
 uv run python -m experiments.scripts.run_exp_latency \
-  --dataset aishell1 --suffix-segments 0 --output-dir $REV/r2_real_speech/aishell1_clean
+  --dataset aishell1 --asr-device cuda:0 --llm-device cuda:1 \
+  --suffix-segments 0 --output-dir $REV/r2_real_speech/aishell1_clean
 
 # E2b 增强集（每个变体目录各跑一次；babble 两目录为可选）
 for v in librispeech_snr20 librispeech_snr15 librispeech_snr10 librispeech_speed09 librispeech_speed11 \
          aishell1_snr20 aishell1_snr15 aishell1_snr10 aishell1_speed09 aishell1_speed11; do
   uv run python -m experiments.scripts.run_exp_latency \
-    --dataset $v --suffix-segments 0 --output-dir $REV/r2_real_speech/$v
+    --dataset $v --asr-device cuda:0 --llm-device cuda:1 \
+    --suffix-segments 0 --output-dir $REV/r2_real_speech/$v
 done
 ```
 
@@ -361,6 +375,7 @@ done
 ```bash
 uv run python -m experiments.scripts.run_exp_baseline_la \
   --dataset all --sample-list $REV/r3_baseline_la/exp2_ablation_sample_list.json \
+  --asr-device cuda:0 --llm-device cuda:1 \
   --output-dir $REV/r3_baseline_la
 ```
 
@@ -371,7 +386,7 @@ uv run python -m experiments.scripts.run_exp_baseline_la \
 ```bash
 uv run python -m experiments.scripts.run_exp_latency \
   --dataset all --sample-list $REV/r1_stats/repeat_subset_ids.json \
-  --suffix-segments 0 --max-tokens 128 \
+  --asr-device cuda:0 --llm-device cuda:1 --suffix-segments 0 --max-tokens 128 \
   --save-full-response --save-fragments \
   --output-dir $REV/r4_commit --no-resume
 ```
@@ -384,7 +399,7 @@ uv run python -m experiments.scripts.run_exp_latency \
 ```bash
 uv run python -m experiments.scripts.run_exp_latency \
   --dataset all --sample-list $REV/r1_stats/repeat_subset_ids.json \
-  --suffix-segments 0 --append-silence-ms 2000 \
+  --asr-device cuda:0 --llm-device cuda:1 --suffix-segments 0 --append-silence-ms 2000 \
   --output-dir $REV/r6_ttfa/endpoint --no-resume
 ```
 
@@ -404,7 +419,7 @@ uv run python -m experiments.scripts.measure_tts_first_chunk \
 
 | 任务 | 时间（约） | 依赖 |
 |---|---|---|
-| §1.0 环境初始化 | 0.5–1 天（主要是驱动与约 25 GB 下载） | 无 |
+| 安装手册 `GPU_HOST_SETUP.md` A–G | 0.5–1 天（驱动 + 约 26 GB 下载：依赖 8 GB + 模型 18 GB） | 无 |
 | 原始数据包传输 + §1.1 核验 | 0.5 天（视传输渠道） | 无 |
 | E1 | 3.5–4 GPU 小时 | 数据包 + repeat 清单 + DEV-1 |
 | E2-0 数据集构建（CPU 为主） | 语料下载约 26 GB + 1–2 h CPU + QA 约 0.5 h GPU | openslr 可达 + 脚本已 push |
@@ -437,7 +452,7 @@ uv run python -m experiments.scripts.measure_tts_first_chunk \
 | 真实语音 sanity（E2-0 构建时前置完成） | `qa_real_speech --transcribe` 退出码 0：干净集 librispeech WER / aishell1 CER ≤10%（E2a 运行时不再重复验收，按通用项检查） |
 | E3 | LA 模式有稳定文本提交，无队列死锁（日志无长时间空转） |
 | E5 端点结果 | (a) `audio_end_time − speech_end_time` ≈ 追加静音时长(2s)；(b) endpoint 统计的有效样本不含 `asr_no_speech`；(c) 逐样本 `final_speech_segment_commit_time ≤ final_is_final_segment_enqueue_time`（可离线核验）；(d) error 数与异常样本登记进 `REVISION_CHANGELOG.md` |
-| config 块 | 与 §1.3 锁定表一致（重点：suffix_segments=0、max_tokens、模型名） |
+| config 块 | 与 §1.3 锁定表一致（重点：suffix_segments=0、max_tokens、模型名、**asr_device=cuda:0 与 llm_device=cuda:1**） |
 
 **任何一项不通过：停止后续运行，保留现场（日志+已产出文件），通知需求方。不要自行调参重试。**
 
