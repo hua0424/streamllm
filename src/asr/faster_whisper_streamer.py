@@ -98,6 +98,8 @@ class ASRAudioSegment:
     text: str | None = None  # 转录文本
     is_final: bool = False  # 是否为流式最后音频段
     is_start: bool = False  # 是否为流式第一个音频段
+    committed: bool = False  # 该段文本是否已提交给下游（提交后不再重发）
+    committed_text: str | None = None  # 提交时的文本快照，用于观测重识别漂移
 
 class TimingEventType(Enum):
     """
@@ -245,6 +247,14 @@ class StreamingASRProcessor:
         
         # 用于记录详细延迟的变量
         self.timing_events: Dict[TimingEventType, float] = {}
+
+        # 提交观测（DEV-2）：仅观测不改变行为。
+        # commit_log: 每次向下游提交文本时追加 {"t", "text", "segment_ids"}
+        # correction_events: 已提交段在后续轮次重识别中文本发生变化时追加
+        #   {"segment_id", "old", "new", "t"}（下游不会收到变化后的文本，仅用于测量漂移）
+        self.commit_log: List[Dict] = []
+        self.correction_events: List[Dict] = []
+        self.current_sample_id: str = ""
         
         # 性能优化：预分配音频缓冲区
         self._audio_buffer = np.array([], dtype=np.float32)
@@ -363,6 +373,12 @@ class StreamingASRProcessor:
     def reset_timings(self) -> None:
         """重置时间事件记录"""
         self.timing_events.clear()
+
+    def reset_commit_tracking(self, sample_id: str = "") -> None:
+        """每个样本测试前调用：清空提交观测记录并设置样本 ID"""
+        self.current_sample_id = sample_id
+        self.commit_log.clear()
+        self.correction_events.clear()
     
     def transcribe_complete_audio(self, audio_path: str, audio_data: Optional[np.ndarray] = None, sample_rate: Optional[int] = None) -> Dict:
         """
@@ -541,6 +557,19 @@ class StreamingASRProcessor:
                 segment.text = self._extract_segment_text(current_recognition, i, segment, segment_start_offset)
                 segment_start_offset += segment.duration
 
+                # DEV-2 观测：已提交段在本轮重识别中文本是否漂移（下游不会收到新文本）
+                if segment.committed:
+                    new_text = segment.text or ''
+                    old_text = segment.committed_text or ''
+                    if new_text != old_text:
+                        self.correction_events.append({
+                            "segment_id": segment.id,
+                            "old": old_text,
+                            "new": new_text,
+                            "t": time.time(),
+                        })
+                        logger.debug(f"已提交段 {segment.id} 重识别漂移: '{old_text}' -> '{new_text}'")
+
                 if not segment.text:
                     logger.debug(f"段 {i} ({segment.id}) 没有提取到文本")
 
@@ -636,10 +665,22 @@ class StreamingASRProcessor:
         """
         if not output_indices:
             return ""
-            
+
         # 输出队列中选定的段，确保所有元素都是字符串（将 None 转为空串）
         output_text = ''.join([cache.segment_queue[i].text or '' for i in output_indices])
-        
+
+        # DEV-2 观测：标记提交（append-only 不变式的测量挂钩）
+        for i in output_indices:
+            seg = cache.segment_queue[i]
+            seg.committed = True
+            seg.committed_text = seg.text or ''
+        if output_text:
+            self.commit_log.append({
+                "t": time.time(),
+                "text": output_text,
+                "segment_ids": [cache.segment_queue[i].id for i in output_indices],
+            })
+
         # 记录详细信息
         if output_text:
             first_seg = cache.segment_queue[output_indices[0]]

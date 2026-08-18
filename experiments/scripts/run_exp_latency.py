@@ -93,10 +93,14 @@ class ExperimentResult:
     audio_load_time: float = 0.0  # 非流式：音频加载时间
     last_text_time: float = 0.0
     first_token_time: float = 0.0
-    
+    speech_end_time: float = 0.0  # 流式：最后一块真实（非拼接静音）音频块推送完的时刻
+    final_segment_commit_time: float = 0.0  # 流式：最后一个含语音段被分段器提交的时刻
+
     # 额外信息
     transcribed_text: str = ""
     response_preview: str = ""
+    full_response: str = ""  # --save-full-response 时保存完整生成文本
+    committed_fragments: List[str] = field(default_factory=list)  # --save-fragments 时保存提交片段
     error: str = ""
 
 
@@ -189,16 +193,19 @@ def load_samples(
     Args:
         json_dir: JSON 文件目录
         audio_dir: 音频文件目录
-        dataset_filter: 数据集过滤 (crosswoz/multiwoz/None=全部)
+        dataset_filter: 数据集过滤（目录名，如 crosswoz/librispeech_snr15；None=扫描 json_dir 全部子目录）
         max_samples: 最大样本数
-    
+
     Returns:
         样本信息列表
     """
     samples = []
-    
+
     # 遍历数据集目录
-    datasets = ["crosswoz", "multiwoz"] if dataset_filter is None else [dataset_filter]
+    if dataset_filter is None:
+        datasets = sorted(d.name for d in json_dir.iterdir() if d.is_dir()) if json_dir.exists() else []
+    else:
+        datasets = [dataset_filter]
     
     for dataset in datasets:
         dataset_json_dir = json_dir / dataset
@@ -234,11 +241,11 @@ def load_samples(
                     logger.warning(f"无效的音频时长，跳过: {audio_path}")
                     continue
                 
-                # 创建样本信息
+                # 创建样本信息（dialog_id/turn_index 对真实语音集可选）
                 sample = SampleInfo(
                     sample_id=data['sample_id'],
-                    dialog_id=data['dialog_id'],
-                    turn_index=data['turn_index'],
+                    dialog_id=data.get('dialog_id', ''),
+                    turn_index=data.get('turn_index', 0),
                     text=data['text'],
                     text_length=data.get('text_length', len(data['text'])),
                     audio_file=audio_filename,
@@ -478,18 +485,58 @@ class LatencyExperiment:
             import librosa
             audio_data = librosa.resample(audio_data, orig_sr=sample_rate, target_sr=16000)
             sample_rate = 16000
+
+        # --append-silence-ms：尾部拼接静音，用于端点等待测量（E5）
+        # 拼接后 speech_end_time（真实音频结束）与 audio_end_time（含静音结束）分离
+        if getattr(self.args, 'append_silence_ms', 0) > 0:
+            silence_samples = int(sample_rate * self.args.append_silence_ms / 1000)
+            audio_data = np.concatenate([audio_data, np.zeros(silence_samples, dtype=np.float32)])
         
         # ===== 流式测试 =====
         # 重置状态
         self.models.reset_state()
+        # DEV-2：每样本清空提交观测记录
+        if self.models.asr_processor is not None:
+            self.models.asr_processor.reset_commit_tracking(sample.sample_id)
         streaming_result = self._run_streaming_test(sample, audio_data, sample_rate)
-        
+        self._write_commit_log(sample.sample_id)
+
         # ===== 非流式测试 =====
         # 重置状态（确保公平）
         self.models.reset_state()
         non_streaming_result = self._run_non_streaming_test(sample, audio_data, sample_rate)
-        
+
         return streaming_result, non_streaming_result
+
+    def _write_commit_log(self, sample_id: str):
+        """把本样本的提交/漂移观测追加写入 <output_dir>/commit_log.jsonl（仅 --save-fragments 时）"""
+        if not getattr(self.args, 'save_fragments', False):
+            return
+        output_dir = getattr(self, 'output_dir', None)
+        if output_dir is None or self.models.asr_processor is None:
+            return
+        processor = self.models.asr_processor
+        output_dir.mkdir(parents=True, exist_ok=True)
+        log_path = output_dir / "commit_log.jsonl"
+        with open(log_path, 'a', encoding='utf-8') as f:
+            for round_idx, entry in enumerate(processor.commit_log):
+                f.write(json.dumps({
+                    "sample_id": sample_id,
+                    "type": "commit",
+                    "round": round_idx,
+                    "text": entry["text"],
+                    "segment_ids": entry["segment_ids"],
+                    "t": entry["t"],
+                }, ensure_ascii=False) + "\n")
+            for event in processor.correction_events:
+                f.write(json.dumps({
+                    "sample_id": sample_id,
+                    "type": "correction",
+                    "segment_id": event["segment_id"],
+                    "old": event["old"],
+                    "new": event["new"],
+                    "t": event["t"],
+                }, ensure_ascii=False) + "\n")
     
     def _run_streaming_test(
         self, 
@@ -523,42 +570,55 @@ class LatencyExperiment:
             
             chunk_duration_ms = self.args.chunk_duration
             chunk_size = int(sample_rate * chunk_duration_ms / 1000)
-            
+
+            # 真实音频长度（不含 --append-silence-ms 拼接的静音）
+            append_samples = int(sample_rate * getattr(self.args, 'append_silence_ms', 0) / 1000)
+            real_audio_len = len(audio_data) - append_samples
+
             # 队列和事件（每次测试新建）
             audio_chunk_queue = queue.Queue()
             audio_segment_queue = queue.Queue()
             text_queue = queue.Queue()
-            
+
             audio_gen_done = threading.Event()
             segmentation_done = threading.Event()
             asr_done = threading.Event()
-            
+
             # 时间记录
             timings = {
                 "start_time": 0.0,
                 "audio_end_time": 0.0,
                 "last_text_time": 0.0,
-                "first_token_time": 0.0
+                "first_token_time": 0.0,
+                "speech_end_time": 0.0,
+                "final_segment_commit_time": 0.0,
             }
-            
+
             full_response = []
             transcribed_text = []
-            
+            committed_fragments = []
+
             # 音频生成线程
             def audio_gen_worker():
+                # 最后一个含真实音频的块索引（该块可能只含部分真实音频）
+                last_real_chunk = (real_audio_len - 1) // chunk_size
                 for i in range(0, len(audio_data), chunk_size):
                     chunk = audio_data[i:i+chunk_size]
                     chunk_id = i // chunk_size
                     audio_chunk_queue.put((chunk_id, chunk))
                     time.sleep(chunk_duration_ms / 1000)  # 模拟实时
-                
+                    if chunk_id == last_real_chunk:
+                        # 最后一块真实音频已按实时节奏推送完毕
+                        timings["speech_end_time"] = time.time()
+
                 timings["audio_end_time"] = time.time()
                 audio_gen_done.set()
-            
+
             # 分段线程
             def segmentation_worker():
                 state = segmenter.create_state()
-                
+                last_speech_commit = 0.0  # 最近一次含语音段提交时刻（VAD 闭段）
+
                 while True:
                     try:
                         chunk_id, chunk = audio_chunk_queue.get(timeout=0.1)
@@ -566,22 +626,29 @@ class LatencyExperiment:
                         if audio_gen_done.is_set():
                             break
                         continue
-                    
+
                     stream_segment, state = segmenter.process_audio(chunk, state)
-                    
+
                     if stream_segment:
                         segment_id = f"seg_{stream_segment.segment_id:03d}"
                         is_start = (stream_segment.segment_id == 1)
                         asr_segment = convert_audio_segment(stream_segment, segment_id, is_start, False)
                         audio_segment_queue.put(asr_segment)
-                
+                        # VAD 闭段必然含语音（以语音时间戳结尾），更新最近语音段提交时刻
+                        last_speech_commit = time.time()
+
                 # Flush
                 remaining_segment, state = segmenter.flush(state)
                 if remaining_segment and len(remaining_segment.audio) > 0:
                     segment_id = f"seg_{remaining_segment.segment_id:03d}"
                     asr_segment = convert_audio_segment(remaining_segment, segment_id, False, True)
                     audio_segment_queue.put(asr_segment)
-                
+                    flush_commit = time.time()
+                    # flush 残余若仍含语音（无尾部静音时），最终语音段即此段
+                    if remaining_segment.is_speaking or last_speech_commit == 0.0:
+                        last_speech_commit = flush_commit
+
+                timings["final_segment_commit_time"] = last_speech_commit
                 segmentation_done.set()
             
             # ASR 线程
@@ -623,10 +690,11 @@ class LatencyExperiment:
                         
                         # 使用共享的 ASR 处理器
                         asr_cache, output_text, is_final = self.models.asr_processor.transcribe_audio_segment(asr_cache)
-                        
+
                         if output_text:
                             timings["last_text_time"] = time.time()
                             transcribed_text.append(output_text)
+                            committed_fragments.append(output_text)
                             text_queue.put((output_text, False))
                     
                     text_queue.put(("", True))
@@ -688,13 +756,19 @@ class LatencyExperiment:
             result.audio_end_time = timings["audio_end_time"]
             result.last_text_time = timings["last_text_time"]
             result.first_token_time = timings["first_token_time"]
-            
+            result.speech_end_time = timings["speech_end_time"]
+            result.final_segment_commit_time = timings["final_segment_commit_time"]
+
             result.ttft = (timings["first_token_time"] - timings["audio_end_time"]) * 1000
             result.asr_time = (timings["last_text_time"] - timings["audio_end_time"]) * 1000
             result.llm_prefill_time = (timings["first_token_time"] - timings["last_text_time"]) * 1000
-            
+
             result.transcribed_text = " ".join(transcribed_text)
             result.response_preview = "".join(full_response)[:100]
+            if getattr(self.args, 'save_full_response', False):
+                result.full_response = "".join(full_response)
+            if getattr(self.args, 'save_fragments', False):
+                result.committed_fragments = committed_fragments
             
         except Exception as e:
             result.error = str(e)
@@ -760,8 +834,10 @@ class LatencyExperiment:
             result.ttft = (first_token_time - audio_load_time) * 1000
             result.asr_time = (last_text_time - audio_load_time) * 1000
             result.llm_prefill_time = (first_token_time - last_text_time) * 1000
-            
+
             result.response_preview = "".join(full_response)[:100]
+            if getattr(self.args, 'save_full_response', False):
+                result.full_response = "".join(full_response)
             
         except Exception as e:
             result.error = str(e)
@@ -790,6 +866,8 @@ class LatencyExperiment:
         Returns:
             所有实验结果
         """
+        self.output_dir = output_dir  # commit_log.jsonl 写入位置
+
         # 加载检查点
         existing_results, completed_ids = load_checkpoint(output_dir)
         self.results = existing_results
@@ -1010,6 +1088,9 @@ def save_results(
             "prefix_segments": args.prefix_segments,
             "suffix_segments": args.suffix_segments,
             "recognition_threshold": args.recognition_threshold,
+            "dataset": args.dataset,
+            "sample_list": args.sample_list,
+            "append_silence_ms": args.append_silence_ms,
             "timestamp": timestamp
         },
         "results": [asdict(r) for r in results],
@@ -1110,13 +1191,21 @@ def main():
     )
     
     # 数据参数
-    parser.add_argument('--data-dir', type=str, 
+    parser.add_argument('--data-dir', type=str,
                         default='experiments/datasets/processed',
                         help='处理后的数据目录')
-    parser.add_argument('--dataset', type=str, choices=['crosswoz', 'multiwoz', 'all'],
-                        default='all', help='数据集选择')
+    parser.add_argument('--dataset', type=str, default='all',
+                        help="数据集选择：processed/json/ 下的子目录名（如 crosswoz/multiwoz/librispeech/aishell1 及增强变体），'all' = 扫描全部子目录")
     parser.add_argument('--max-samples', type=int, default=None,
                         help='最大样本数（用于测试）')
+    parser.add_argument('--sample-list', type=str, default=None,
+                        help='样本清单 JSON：sample_id 数组，或含 "sample_ids" 字段的对象；加载后按清单过滤')
+    parser.add_argument('--append-silence-ms', type=int, default=0,
+                        help='音频尾部拼接静音时长（ms），用于端点等待测量；默认 0=不拼接')
+    parser.add_argument('--save-full-response', action='store_true',
+                        help='在结果 JSON 中保存完整 LLM 回复（full_response 字段）')
+    parser.add_argument('--save-fragments', action='store_true',
+                        help='保存流式提交片段（committed_fragments 字段）并写 commit_log.jsonl')
     
     # 设备参数
     parser.add_argument('--asr-device', type=str, default='auto',
@@ -1126,7 +1215,8 @@ def main():
     
     # 模型参数
     parser.add_argument('--asr-model-size', type=str, default=ASR_MODEL_NAME,
-                        choices=['tiny', 'base', 'small', 'medium', 'large'],
+                        choices=['tiny', 'base', 'small', 'medium', 'large',
+                                 'large-v1', 'large-v2', 'large-v3', 'large-v3-turbo', 'turbo'],
                         help='ASR 模型大小')
     parser.add_argument('--llm-model-name', type=str, default=LLM_MODEL_NAME,
                         help='LLM 模型名称')
@@ -1189,6 +1279,9 @@ def main():
     logger.info(f"ASR recognition_threshold: {args.recognition_threshold}s")
     logger.info(f"批次大小（检查点间隔）: {args.batch_size}")
     logger.info(f"断点续传: {'禁用' if args.no_resume else '启用'}")
+    logger.info(f"样本清单: {args.sample_list or '未指定'}")
+    logger.info(f"尾部拼接静音: {args.append_silence_ms} ms")
+    logger.info(f"save_full_response: {args.save_full_response}, save_fragments: {args.save_fragments}")
     logger.info("=" * 60)
     
     # 路径设置
@@ -1207,7 +1300,20 @@ def main():
     # 加载样本
     dataset_filter = None if args.dataset == 'all' else args.dataset
     samples = load_samples(json_dir, audio_dir, dataset_filter, args.max_samples)
-    
+
+    # --sample-list 过滤（支持数组或 {"sample_ids": [...]} 两种格式）
+    if args.sample_list:
+        with open(args.sample_list, 'r', encoding='utf-8') as f:
+            list_data = json.load(f)
+        allow_ids = set(list_data["sample_ids"] if isinstance(list_data, dict) else list_data)
+        before = len(samples)
+        samples = [s for s in samples if s.sample_id in allow_ids]
+        found_ids = {s.sample_id for s in samples}
+        missing = allow_ids - found_ids
+        logger.info(f"样本清单过滤: {before} -> {len(samples)}（清单 {len(allow_ids)} 条）")
+        if missing:
+            logger.warning(f"清单中 {len(missing)} 条未在数据集中找到: {sorted(missing)[:5]}...")
+
     if not samples:
         logger.error("没有找到有效样本，请先运行数据处理管线")
         sys.exit(1)
@@ -1241,6 +1347,11 @@ def main():
         "prefix_segments": args.prefix_segments,
         "suffix_segments": args.suffix_segments,
         "recognition_threshold": args.recognition_threshold,
+        "dataset": args.dataset,
+        "sample_list": args.sample_list,
+        "append_silence_ms": args.append_silence_ms,
+        "save_full_response": args.save_full_response,
+        "save_fragments": args.save_fragments,
     }
     
     # 运行实验（支持断点续传）

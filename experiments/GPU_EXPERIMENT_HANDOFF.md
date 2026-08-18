@@ -179,7 +179,11 @@ nvidia-smi >> experiments/results/revision/env_versions.txt
 
 `ExperimentResult` 新字段默认值均为空，保证旧 checkpoint 可加载。
 
-**冒烟测试**：`--dataset crosswoz --max-samples 2 --append-silence-ms 2000 --save-full-response --save-fragments`，确认结果 JSON 含新字段且数值合理（endpoint_wait 应在 0.3–1.5 s 量级）。
+**冒烟测试**：`--dataset crosswoz --max-samples 2 --append-silence-ms 2000 --save-full-response --save-fragments`，确认结果 JSON 含新字段且数值合理（endpoint_wait 约 0.2–1.5 s 量级，取决于 TTS 尾部静音；本机 tiny 模型冒烟实测 0.18 s）。注意 `endpoint_wait = final_segment_commit_time − speech_end_time` 中的 commit 指 **VAD 关闭最后一个含语音段**的时刻（非 flush 静音残余段），实现已按此口径。
+
+**新鲜环境注意**（本机冒烟已踩过，GPU 机若换机/清缓存会遇到）：
+1. silero-vad 经 `torch.hub.load` 首次下载会交互询问信任仓库，非交互 shell 下直接 EOF 报错；预缓存：`echo y | uv run python -c "from src.asr.streamaudio_segmenter import StreamAudioSegmenter; StreamAudioSegmenter()"`。
+2. `.env` 中的 HF_TOKEN 已失效（whoami 验证 401）。已缓存模型不受影响；如需新下载模型，临时置空：`HF_TOKEN= uv run ...`。
 
 ### DEV-2：`src/asr/faster_whisper_streamer.py` 提交分歧插桩
 
