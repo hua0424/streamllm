@@ -15,17 +15,21 @@
    b. 保留样本的逐样本数值与原 gains CSV（2 位小数）一致；
    c. 由 clean 文件计算的分组均值与 recompute_stats.py 的 Table IV 口径一致。
 
-用法：uv run python -m experiments.scripts.make_exp2_clean_source
+用法：uv run python -m experiments.scripts.make_exp2_clean_source [--results-json ...] ...
+所有路径参数均有默认值指向当前 exp2 归档；实际输入输出写入 clean 文件旁的
+exp2_gains_clean.meta.json（R2-P1-1）。
 """
+import argparse
 import csv
 import json
+from datetime import datetime
 from pathlib import Path
 
-EXP2_JSON = Path("experiments/results/exp2_ablation/exp2_results_20251214_002214.json")
-ORIG_GAINS = Path("experiments/results/exp2_ablation/exp2_gains_20251214_002214.csv")
-SAMPLE_LIST = Path("experiments/results/revision/r3_baseline_la/exp2_ablation_sample_list.json")
-OUT_CLEAN = Path("experiments/results/exp2_ablation/exp2_gains_clean.csv")
-OUT_EXCL = Path("experiments/results/exp2_ablation/exp2_gains_exclusions.csv")
+DEFAULT_EXP2_JSON = "experiments/results/exp2_ablation/exp2_results_20251214_002214.json"
+DEFAULT_ORIG_GAINS = "experiments/results/exp2_ablation/exp2_gains_20251214_002214.csv"
+DEFAULT_SAMPLE_LIST = "experiments/results/revision/r3_baseline_la/exp2_ablation_sample_list.json"
+DEFAULT_OUT_CLEAN = "experiments/results/exp2_ablation/exp2_gains_clean.csv"
+DEFAULT_OUT_EXCL = "experiments/results/exp2_ablation/exp2_gains_exclusions.csv"
 
 MODES = ["baseline", "streaming_asr_only", "full_streaming"]
 # 模式 -> 原 gains CSV 列名前缀
@@ -33,7 +37,22 @@ MODE_COL = {"baseline": "baseline", "streaming_asr_only": "streaming_asr",
             "full_streaming": "full_streaming"}
 
 
-def main():
+def parse_args():
+    parser = argparse.ArgumentParser(description="生成 exp2 干净数据来源文件（排除异常落盘）")
+    parser.add_argument('--results-json', type=Path, default=Path(DEFAULT_EXP2_JSON),
+                        help='exp2 结果 JSON（唯一真实来源）')
+    parser.add_argument('--gains-csv', type=Path, default=Path(DEFAULT_ORIG_GAINS),
+                        help='原逐样本 gains CSV（用于重合验证）')
+    parser.add_argument('--sample-list', type=Path, default=Path(DEFAULT_SAMPLE_LIST),
+                        help='干净成对子集清单 JSON（排除规则的登记处）')
+    parser.add_argument('--output-clean', type=Path, default=Path(DEFAULT_OUT_CLEAN))
+    parser.add_argument('--output-exclusions', type=Path, default=Path(DEFAULT_OUT_EXCL))
+    return parser.parse_args()
+
+
+def main(args):
+    EXP2_JSON, ORIG_GAINS, SAMPLE_LIST = args.results_json, args.gains_csv, args.sample_list
+    OUT_CLEAN, OUT_EXCL = args.output_clean, args.output_exclusions
     results = json.load(open(EXP2_JSON, encoding="utf-8"))["results"]
     keep = set(json.load(open(SAMPLE_LIST, encoding="utf-8"))["sample_ids"])
 
@@ -152,8 +171,23 @@ def main():
               f"asr_gain={means['baseline'] - means['streaming_asr']:.2f} "
               f"kv_gain={means['streaming_asr'] - means['full_streaming']:.2f}")
 
-    print(f"\n输出:\n  {OUT_CLEAN}\n  {OUT_EXCL}")
+    # sidecar metadata：登记实际输入输出与规模（R2-P1-1）
+    meta = {
+        "generated_at": datetime.now().isoformat(),
+        "inputs": {"results_json": str(EXP2_JSON), "orig_gains_csv": str(ORIG_GAINS),
+                   "sample_list": str(SAMPLE_LIST)},
+        "outputs": {"clean": str(OUT_CLEAN), "exclusions": str(OUT_EXCL)},
+        "counts": {"total": len(by_sample), "kept": len(clean_rows), "excluded": len(excl_rows)},
+        "group_counts": {},
+    }
+    for row in clean_rows:
+        g = row["duration_group"]
+        meta["group_counts"][g] = meta["group_counts"].get(g, 0) + 1
+    OUT_CLEAN.with_suffix(".meta.json").write_text(
+        json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    print(f"\n输出:\n  {OUT_CLEAN}\n  {OUT_EXCL}\n  {OUT_CLEAN.with_suffix('.meta.json')}")
 
 
 if __name__ == "__main__":
-    main()
+    main(parse_args())

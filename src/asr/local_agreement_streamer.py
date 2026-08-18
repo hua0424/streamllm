@@ -106,7 +106,10 @@ class LocalAgreementStreamer:
         cur_words = self._decode_buffer()
         self.new_audio = 0.0
         if not cur_words:
-            self.prev_words = []
+            # 空识别（如纯静音段）：保留上一轮假设与 n_committed（append-only 状态不可回退）。
+            # 若清空 prev_words，stale 的 n_committed 会让 flush 的 prev[n_committed:] 截空，
+            # 造成后续恢复文本静默丢失（R2-P0-1）。等待下一轮重新识别即可自然恢复。
+            logger.debug("LA 本轮识别为空，保留上一轮假设")
             return []
 
         # 最长公共前缀（按词文本；prev 仅取文本，时间戳不参与比较）

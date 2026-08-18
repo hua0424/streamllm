@@ -650,8 +650,10 @@ class LatencyExperiment:
                     audio_segment_queue.put(asr_segment)
                     flush_commit = time.time()
                     timings["final_is_final_segment_enqueue_time"] = flush_commit
-                    # flush 残余若仍含语音（无尾部静音时），最终语音段即此段
-                    if remaining_segment.is_speaking or last_speech_commit == 0.0:
+                    # 仅当 flush 段确实含语音时才作为"最终语音段"（R2-P0-2）：
+                    # 全静音/低于 VAD 最小语音长度的样本没有语音段，
+                    # final_speech_segment_commit_time 保持 0.0 并在结果层标记 asr_no_speech
+                    if remaining_segment.is_speaking:
                         last_speech_commit = flush_commit
 
                 timings["final_speech_segment_commit_time"] = last_speech_commit
@@ -771,6 +773,10 @@ class LatencyExperiment:
             result.llm_prefill_time = (timings["first_token_time"] - timings["last_text_time"]) * 1000
 
             result.transcribed_text = " ".join(transcribed_text)
+            # R2-P0-2：全程无任何含语音段（全静音/低于 VAD 最小语音长度）→ 标记并排除统计，
+            # 防止伪造 endpoint wait；final_speech_segment_commit_time 保持 0.0
+            if not result.error and timings["final_speech_segment_commit_time"] == 0.0:
+                result.error = "asr_no_speech"
             result.response_preview = "".join(full_response)[:100]
             if getattr(self.args, 'save_full_response', False):
                 result.full_response = "".join(full_response)

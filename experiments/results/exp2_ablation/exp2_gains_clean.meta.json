@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-08-18T18:24:23.505956",
+  "inputs": {
+    "results_json": "experiments\\results\\exp2_ablation\\exp2_results_20251214_002214.json",
+    "orig_gains_csv": "experiments\\results\\exp2_ablation\\exp2_gains_20251214_002214.csv",
+    "sample_list": "experiments\\results\\revision\\r3_baseline_la\\exp2_ablation_sample_list.json"
+  },
+  "outputs": {
+    "clean": "experiments\\results\\exp2_ablation\\exp2_gains_clean.csv",
+    "exclusions": "experiments\\results\\exp2_ablation\\exp2_gains_exclusions.csv"
+  },
+  "counts": {
+    "total": 505,
+    "kept": 498,
+    "excluded": 7
+  },
+  "group_counts": {
+    "long": 108,
+    "very_long": 150,
+    "extra_long": 240
+  }
+}
