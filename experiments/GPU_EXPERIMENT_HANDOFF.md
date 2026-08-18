@@ -144,12 +144,13 @@ nvidia-smi >> experiments/results/revision/env_versions.txt
 
 | 文件 | 用途 | 获取方式 | 阻塞的任务 |
 |---|---|---|---|
+| **原始合成数据集包**（约 3.4 GB，`processed/` 整目录） | 全部合成集实验 | 文件传输（scp/rsync/网盘/U盘），解压为仓库下 `experiments/datasets/processed/`，验收见 §1.1 | E1、E3、E4、E5 |
 | DEV-1~5 全部源码 | E1–E6 运行 | `git pull origin main`（本机推送后通知你） | E1、E3、E4、E5、E6 |
 | `repeat_subset_ids.json` | 固定 50 样本清单（Very Long 组） | 文件传输，放 `experiments/results/revision/r1_stats/` | E1、E4、E5 |
 | `exp2_ablation_sample_list.json` | 消融干净成对子集 498 条（排除规则见文件内 metadata；Table IV 按此口径重算） | 文件传输，放 `experiments/results/revision/r3_baseline_la/` | E3 |
 | 真实语音数据包 | `processed/json|audio/{librispeech,aishell1}` 及增强变体目录 | 文件传输，解压到 `experiments/datasets/processed/` 对应子目录 | E2 |
 
-**立即可做（不依赖任何本机输入）**：§1.0 git 同步、§1.1 数据核验、§1.2 环境核验与版本存档、CosyVoice 探活。完成这些后处于待命状态，按上表逐项解锁。
+**立即可做（不依赖任何本机输入）**：§1.0 环境初始化（系统包、驱动、uv、clone、uv sync、模型预下载）与 CosyVoice 服务部署。原始数据包、清单文件、DEV 代码到位后按上表逐项解锁。
 
 数据包验收：每个数据集目录应有"等数量"的 JSON 与 WAV；期望规模：librispeech 75 条、aishell1 75 条（Long 30 / Very Long 30 / Extra Long 15），增强变体每个目录 30–60 条不等（以交接说明为准）。随机抽 3 条试听或查看波形确认非静音。
 
@@ -349,16 +350,18 @@ uv run python -m experiments.scripts.measure_tts_first_chunk \
 
 ### 时间估算汇总
 
-| 任务 | GPU 小时（约） | 依赖 |
+| 任务 | 时间（约） | 依赖 |
 |---|---|---|
-| E1 | 3.5–4 | repeat 清单 |
-| E2a | 3 | 真实数据包 |
-| E2b | 6–9（可砍至 3–4） | 真实数据包 |
-| E3 | 2.5 | DEV-3/4 + 消融清单 |
-| E4 | 4–5 | DEV-1/2 |
-| E5 | 1 | DEV-1 |
-| E6 | 0.5（非 GPU） | E4 + TTS 服务 |
-| **合计** | **约 21–28（GPU）** | |
+| §1.0 环境初始化 | 0.5–1 天（主要是驱动与约 25 GB 下载） | 无 |
+| 原始数据包传输 + §1.1 核验 | 0.5 天（视传输渠道） | 无 |
+| E1 | 3.5–4 GPU 小时 | 数据包 + repeat 清单 + DEV-1 |
+| E2a | 3 GPU 小时 | 真实数据包 |
+| E2b | 6–9 GPU 小时（可砍至 3–4） | 真实数据包 |
+| E3 | 2.5 GPU 小时 | DEV-3/4 + 消融清单 + 数据包 |
+| E4 | 4–5 GPU 小时 | DEV-1/2 + 数据包 |
+| E5 | 1 GPU 小时 | DEV-1 + 数据包 |
+| E6 | 0.5 小时（非 GPU） | E4 + TTS 服务 |
+| **合计** | **初始化约 1–1.5 天 + GPU 运行约 21–28 小时** | |
 
 ---
 
