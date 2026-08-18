@@ -185,6 +185,7 @@ nvidia-smi >> experiments/results/revision/env_versions.txt
 **新鲜环境注意**（本机冒烟已踩过，GPU 机若换机/清缓存会遇到）：
 1. silero-vad 经 `torch.hub.load` 首次下载会交互询问信任仓库，非交互 shell 下直接 EOF 报错；预缓存：`echo y | uv run python -c "from src.asr.streamaudio_segmenter import StreamAudioSegmenter; StreamAudioSegmenter()"`。
 2. `.env` 中的 HF_TOKEN 已失效（whoami 验证 401）。已缓存模型不受影响；如需新下载模型，临时置空：`HF_TOKEN= uv run ...`。
+3. 回归套件 `experiments/scripts/test_revision_regressions.py`（正式实验前建议先跑一遍，预期 10/10）同样依赖 Silero VAD：首次运行需 GitHub 可达或已有 torch hub 缓存（与上一条同一缓存）。
 
 ### DEV-2：`src/asr/faster_whisper_streamer.py` 提交分歧插桩
 
@@ -388,6 +389,7 @@ uv run python -m experiments.scripts.measure_tts_first_chunk \
 | 合成集 sanity（E1/E4/E5 的 System A） | Extra Long 组 mean TTFT ≈ 6–8 s；System B 各 Long+ 组 mean ≈ 0.9–1.3 s（与论文 Table III 同量级） |
 | 真实语音 sanity（E2a 的 System A） | librispeech clean 转写文本与参考文本目测一致（WER 由本机离线计算；若转写明显错乱/为空占比 >10%，停止并报告） |
 | E3 | LA 模式有稳定文本提交，无队列死锁（日志无长时间空转） |
+| E5 端点结果 | (a) `audio_end_time − speech_end_time` ≈ 追加静音时长(2s)；(b) endpoint 统计的有效样本不含 `asr_no_speech`；(c) 逐样本 `final_speech_segment_commit_time ≤ final_is_final_segment_enqueue_time`（可离线核验）；(d) error 数与异常样本登记进 `REVISION_CHANGELOG.md` |
 | config 块 | 与 §1.3 锁定表一致（重点：suffix_segments=0、max_tokens、模型名） |
 
 **任何一项不通过：停止后续运行，保留现场（日志+已产出文件），通知需求方。不要自行调参重试。**
