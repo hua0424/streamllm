@@ -3,7 +3,8 @@
 > **读者**：在 GPU 实验机上执行本任务的人员或 agent。
 > **目标**：完成 CISR 审稿意见所需的全部 GPU 侧补充实验，按规定格式产出结果并回传。
 > **配套文档**：`experiments/CISR_REVISION_PLAN.md`（总方案）、`experiments/EXPERIMENT_DESIGN.md`（原实验设计）。
-> **前置共识**：原始 1,132 条合成实验数据已确认保存在本机 `experiments/datasets/processed/`。所有实验必须复用论文原配置（见 §1.3 配置锁定表），任何参数变更都必须先与需求方确认。
+> **机器情况**：全新安装的 Ubuntu 22.04，2×RTX 3090，**盘内无任何历史数据**——按 §1.0 从零初始化环境，原始实验数据由需求方从本机打包传来（§2）。
+> **前置共识**：所有实验必须复用论文原配置（见 §1.3 配置锁定表），任何参数变更都必须先与需求方确认。
 
 ---
 
@@ -26,38 +27,54 @@
 
 ## 一、Day-0 核验清单（运行任何实验前逐项完成）
 
-### 1.0 git 同步（最先做，且有一个关键警告）
+### 1.0 全新 Ubuntu 22.04 环境初始化（最先做）
 
-⚠️ **不要全新 clone 仓库覆盖现有目录。** `experiments/datasets/processed` 与 `experiments/datasets/raw_data` 已被 .gitignore 排除，**原始 1,132 条实验数据不在 git 里**，只存在于本机当前的仓库工作目录中。全新 clone 得到的将是一个没有数据的空壳。正确做法是在**现有仓库目录**内更新：
+本机为刚重装的全新系统，按以下顺序从零初始化：
 
 ```bash
-# 0) 备份本机 .env（.env 是被 git 跟踪的，pull 可能覆盖本机的路径/设备配置）
-cp .env .env.gpu.bak
+# 1) 系统包
+sudo apt update && sudo apt install -y git curl ffmpeg libsndfile1 build-essential
 
-# 1) 查看本地改动：原始实验跑过的机器上可能有未提交的脚本修改
-git status
-#    若有未提交改动：先提交到本地分支保存（如 git checkout -b gpu-local && git add -A && git commit -m "GPU机本地改动存档"），
-#    不要直接 checkout 覆盖；若有冲突，停止并联系需求方，不要 --force
+# 2) NVIDIA 驱动（torch cu121 轮子要求驱动 ≥ 530.30；CUDA 运行库由 pip 的
+#    nvidia-* 包自带，无需另装 CUDA Toolkit）
+sudo ubuntu-drivers install        # 或 sudo apt install -y nvidia-driver-550
+sudo reboot
+nvidia-smi                          # 应看到 2×RTX 3090
 
-# 2) 更新到 main 最新（修订方案、handoff、以及本机陆续推送的实验代码都在 main 上）
-git checkout main
-git pull origin main
+# 3) uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.local/bin/env         # 或按安装输出的提示操作
 
-# 3) 恢复 .env
-cp .env.gpu.bak .env
+# 4) 克隆仓库（默认分支 main；本机无旧数据，全新 clone 即正确做法）
+git clone https://github.com/hua0424/streamllm.git
+cd streamllm
 
-# 4) 确认本文档与方案就位
-ls experiments/CISR_REVISION_PLAN.md experiments/GPU_EXPERIMENT_HANDOFF.md
+# 5) 安装依赖（uv 自动创建 .venv，安装 torch cu121 等，下载约 8 GB）
+uv sync
+
+# 6) .env 核对（.env 被 git 跟踪，clone 后已存在）
+#    确认：ASR_MODEL_NAME=turbo、LLM_MODEL_NAME=Qwen/Qwen2-7B-Instruct
+#    HF_HOME 指向存在的目录；网络受限时设 HF_ENDPOINT=https://hf-mirror.com
+
+# 7) 模型预下载（共约 17 GB；也可留待首次运行自动下载，但预先拉取便于及早发现网络问题）
+uv run python -c "import whisper; whisper.load_model('turbo')"                          # ~1.6 GB
+uv run python -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen2-7B-Instruct')"  # ~15 GB
+
+# 8) 【仅 E6 需要，可延后】Docker + CosyVoice TTS 服务
+#    部署方式见 experiments/datasets/tools/doc/TTS_USAGE.md；
+#    服务地址应与 tts.py 默认一致（host.docker.internal:20401）。
+#    若原镜像/部署方式无法恢复：记录现象并回告需求方，不要自行更换 TTS。
 ```
 
-说明：默认分支是 **`main`**（不是 master）。远程为 `https://github.com/hua0424/streamllm.git`。如果出于某种原因确实需要全新 clone（`git clone https://github.com/hua0424/streamllm.git`），克隆后必须把旧目录中的 `experiments/datasets/processed/`、`experiments/datasets/raw_data/`（如有）完整拷贝进来，并重新执行 §1.1 核验。
+说明：**本任务全程不需要在 GPU 机上 commit/push**——代码由需求方在本机开发并推送到 main，你侧只 `git pull`；实验结果按 §5.4 打包经文件渠道回传。
 
-**本任务全程不需要在 GPU 机上 commit/push**——代码由需求方在本机开发并推送到 main，你侧只 pull；实验结果按 §5.4 打包经文件渠道回传。
+### 1.1 数据完整性核验（数据包到达后执行）
 
-### 1.1 数据完整性核验
+原始 1,132 条合成实验数据**不在 git 中**（`experiments/datasets/processed` 被 .gitignore 排除），由需求方从本机打包传来（约 3.4 GB，`processed/` 整目录，含 multiwoz 630 + crosswoz 503 的 JSON 与 WAV；crosswoz 比论文计数多 1 条为运行时失败样本，属正常）。解压放置到仓库的 `experiments/datasets/processed/`，然后：
 
 ```bash
-# 期望：multiwoz 630 个 JSON + 630 个 WAV；crosswoz 502 个 JSON + 502 个 WAV
+# 期望：multiwoz 630 个 JSON + 630 个 WAV；crosswoz 503 个 JSON + 503 个 WAV
+# （crosswoz 比论文计数 502 多 1 条：该样本原实验运行时失败，不参与任何清单，属正常）
 ls experiments/datasets/processed/json/multiwoz | wc -l
 ls experiments/datasets/processed/audio/multiwoz | wc -l
 ls experiments/datasets/processed/json/crosswoz | wc -l
@@ -92,10 +109,10 @@ EOF
 
 ### 1.2 环境核验
 
-- [ ] `nvidia-smi` 确认双 RTX 3090 可用。
+- [ ] `nvidia-smi` 确认双 RTX 3090 可用（§1.0 第 2 步已装驱动）。
 - [ ] `.env` 中 `ASR_MODEL_NAME=turbo`、`LLM_MODEL_NAME=Qwen/Qwen2-7B-Instruct`。
-- [ ] 模型缓存就绪：openai-whisper turbo（`~/.cache/whisper/`）与 Qwen2-7B-Instruct（`HF_HOME` 指向的缓存）——此前实验已使用，应已存在；用一个 5 秒音频试跑一次确认可离线加载。
-- [ ] CosyVoice TTS 服务探活：先读 `experiments/datasets/tools/doc/TTS_USAGE.md`，按其说明检查 `http://host.docker.internal:20401` 可达（E6 依赖此服务；不可达则记录现象并通知需求方，不自行换 TTS）。
+- [ ] 模型预下载已完成（§1.0 第 7 步）；用一个 5 秒音频试跑一次确认可加载。
+- [ ] CosyVoice TTS 服务探活（仅 E6 前必须完成）：先读 `experiments/datasets/tools/doc/TTS_USAGE.md`，按其说明检查 `http://host.docker.internal:20401` 可达；不可达则记录现象并通知需求方，不自行换 TTS。
 - [ ] 版本存档（回信要用）：
 
 ```bash
@@ -129,7 +146,7 @@ nvidia-smi >> experiments/results/revision/env_versions.txt
 |---|---|---|---|
 | DEV-1~5 全部源码 | E1–E6 运行 | `git pull origin main`（本机推送后通知你） | E1、E3、E4、E5、E6 |
 | `repeat_subset_ids.json` | 固定 50 样本清单（Very Long 组） | 文件传输，放 `experiments/results/revision/r1_stats/` | E1、E4、E5 |
-| `exp2_ablation_sample_list.json` | 与论文 Table IV 一致的消融样本清单 | 文件传输，放 `experiments/results/revision/r3_baseline_la/` | E3 |
+| `exp2_ablation_sample_list.json` | 消融干净成对子集 498 条（排除规则见文件内 metadata；Table IV 按此口径重算） | 文件传输，放 `experiments/results/revision/r3_baseline_la/` | E3 |
 | 真实语音数据包 | `processed/json|audio/{librispeech,aishell1}` 及增强变体目录 | 文件传输，解压到 `experiments/datasets/processed/` 对应子目录 | E2 |
 
 **立即可做（不依赖任何本机输入）**：§1.0 git 同步、§1.1 数据核验、§1.2 环境核验与版本存档、CosyVoice 探活。完成这些后处于待命状态，按上表逐项解锁。

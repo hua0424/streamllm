@@ -48,7 +48,7 @@
 | R1.2 重复测量（50 样本 × 3 轮） | **GPU 机** | 样本清单 `repeat_subset_ids.json` 由本机生成（从 exp1 结果 JSON 提取）后传入 |
 | R2 真实语音：下载/构建/增强/QA | **本机** | 纯 CPU；QA 中的 System A WER sanity 可用本机 3060 跑 Whisper-Turbo（QA 用途，非论文数字）；产物打包传入 GPU 机 |
 | R2 真实语音：实验运行 | **GPU 机** | handoff §4-E2 |
-| R3 LA 基线：样本清单（从 exp2 结果 JSON 提取并固定） | **本机** | 注意 exp2 结果含 505 个唯一样本（long 110 / very_long 151 / extra_long 244），多于论文 Table IV 的每组 50 条；清单需与论文分析所用子集一致，由本机分析后提供 |
+| R3 LA 基线：样本清单（从 exp2 结果 JSON 提取并固定） | **本机** | ✅ 已生成（`make_sample_lists.py`）：干净成对子集 498 条（long 108 / very_long 150 / extra_long 240），排除规则显式化（运行错误 3 条 + 流式 TTFT>10s 挂起 4 条）；旧手工修复 `static-repair.csv` 不可复现已弃用，Table IV 数字按本清单重算更新 |
 | R3 LA 基线：运行 | **GPU 机** | handoff §4-E3（代码由本机经 git 交付） |
 | R4 插桩复跑 + 分词接缝离线分析 | **GPU 机 + 本机** | 插桩复跑在 GPU 机（含 Qwen2-7B，本机显存不够）；接缝分析脚本在本机对回传日志运行 |
 | R5 复跑取完整回复 | **GPU 机** | 与 R4 合并为同一次运行 |
@@ -200,7 +200,7 @@ LibriSpeech 为 16 kHz FLAC；AISHELL-1 为 16 kHz WAV；MUSAN 采样率不一�
 
 ### 4.2 运行
 
-- 数据：**与 exp2 消融完全相同的样本列表**。注意 exp2 结果 JSON 实际含 505 个唯一样本（long 110 / very_long 151 / extra_long 244），多于论文 Table IV 的每组 50 条——样本清单由本机从 `exp2_results_20251214_002214.json` 提取并与论文分析子集对齐后，以 `exp2_ablation_sample_list.json` 形式传入 GPU 机；GPU 机不自行选定样本。
+- 数据：**与 exp2 消融完全相同的样本列表**，即 `exp2_ablation_sample_list.json`（已生成，498 条干净成对子集；排除规则：任一模式运行错误 3 条 + 任一流式模式 TTFT>10s 判定挂起 4 条）。该清单同时是 Table IV 重算口径——旧论文数字来自不可复现的手工修复（`static-repair.csv`），修改稿 Table IV 按本清单重算后更新（均值变化很小，结论不变）；论文中"50 utterances per group"的表述同步改为实际样本量。GPU 机不自行选定样本。
 - 每样本跑 1 次 `la_streaming` 模式；System A/B 的对应数字直接取自已有 exp2 结果，不重跑。
 - 检查点/断点续传机制照搬现有脚本。
 
