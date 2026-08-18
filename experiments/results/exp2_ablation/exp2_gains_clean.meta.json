@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-18T18:24:23.505956",
+  "generated_at": "2026-08-18T18:48:33.346262",
   "inputs": {
     "results_json": "experiments\\results\\exp2_ablation\\exp2_results_20251214_002214.json",
     "orig_gains_csv": "experiments\\results\\exp2_ablation\\exp2_gains_20251214_002214.csv",
@@ -12,7 +12,10 @@
   "counts": {
     "total": 505,
     "kept": 498,
-    "excluded": 7
+    "excluded": 7,
+    "sample_list": 498,
+    "expected_clean": 498,
+    "expected_exclusion": 7
   },
   "group_counts": {
     "long": 108,

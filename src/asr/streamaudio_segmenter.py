@@ -34,8 +34,9 @@ class AudioSegment:
     segment_detected: bool  # 是否检测到音频段
     abs_start_time: float  # 绝对开始时间
     abs_end_time: float  # 绝对结束时间
-    segment_duration_s: float  # 段持续时间（秒）
+    segment_duration_s: float  # 段持续时间
     buffer_cleared: bool = False  # 缓冲区是否被清理
+    contains_speech: bool = False  # 段内是否含语音（VAD 闭段恒 True；flush 段按残余实际判定）
     
     def is_empty(self) -> bool:
         """检查音频段是否为空"""
@@ -237,8 +238,14 @@ class StreamAudioSegmenter:
                     
                     break
 
-            # 更新语音状态
-            state.is_speaking = True
+            # 更新语音状态。
+            # 注意（R3-P0-1）：闭段已消费 segment_end 之前的音频，is_speaking 必须按
+            # "残余缓冲是否仍含语音"重算，不能无条件置 True——否则闭段发生在最后一次
+            # process_audio 调用时，纯静音的 flush 残余会带上残留的 True。
+            if segment_detected:
+                state.is_speaking = any(ts['end'] > segment_end for ts in speech_timestamps)
+            else:
+                state.is_speaking = True
             state.silence_counter = 0
         else:
             # 没有语音活动
@@ -260,9 +267,10 @@ class StreamAudioSegmenter:
                 abs_start_time=abs_start_time,
                 abs_end_time=abs_end_time,
                 segment_duration_s=segment_duration_s,
-                buffer_cleared=buffer_cleared
+                buffer_cleared=buffer_cleared,
+                contains_speech=True  # VAD 闭段以语音时间戳结尾，构造上必含语音
             )
-            
+
             # 记录结束时间并返回
             self.timing_events[TimingEventType.END_FUNCTION] = time.perf_counter()
             return audio_segment, state
@@ -288,7 +296,8 @@ class StreamAudioSegmenter:
             remaining = state.accumulated_audio.copy()
             remaining_duration = len(remaining) / self.sampling_rate
             
-            # 创建AudioSegment对象
+            # 创建AudioSegment对象（R3-P0-1：contains_speech 按残余实际判定，
+            # 修复后 state.is_speaking 准确反映残余是否含语音）
             audio_segment = AudioSegment(
                 audio=remaining,
                 segment_id=state.get_next_segment_id(),
@@ -299,7 +308,8 @@ class StreamAudioSegmenter:
                 abs_start_time=state.current_speech_start,
                 abs_end_time=state.current_speech_start + remaining_duration,
                 segment_duration_s=remaining_duration,
-                buffer_cleared=False
+                buffer_cleared=False,
+                contains_speech=state.is_speaking
             )
             
             # 重置状态并返回

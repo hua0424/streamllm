@@ -47,6 +47,10 @@ def parse_args():
                         help='干净成对子集清单 JSON（排除规则的登记处）')
     parser.add_argument('--output-clean', type=Path, default=Path(DEFAULT_OUT_CLEAN))
     parser.add_argument('--output-exclusions', type=Path, default=Path(DEFAULT_OUT_EXCL))
+    parser.add_argument('--expected-clean-count', type=int, default=None,
+                        help='可选审计校验：期望的保留样本数（默认不校验固定数量）')
+    parser.add_argument('--expected-exclusion-count', type=int, default=None,
+                        help='可选审计校验：期望的排除样本数（默认不校验固定数量）')
     return parser.parse_args()
 
 
@@ -109,7 +113,16 @@ def main(args):
                     trigger = "; ".join(f"{m}={v:.1f}ms" for m, v in hang)
             excl_rows.append(dict(base, exclusion_reason="|".join(reasons), trigger_value=trigger))
 
-    assert len(clean_rows) == 498 and len(excl_rows) == 7, (len(clean_rows), len(excl_rows))
+    # 动态完整性校验（R3-P1-1）：clean + excl 必须恰好覆盖结果中的全部样本，
+    # 且 clean 恰好等于"清单 ∩ 结果"的样本集合；固定数量仅在校验参数给出时检查
+    assert len(clean_rows) + len(excl_rows) == len(by_sample), \
+        (len(clean_rows), len(excl_rows), len(by_sample))
+    assert len(clean_rows) == len(keep & set(by_sample)), \
+        (len(clean_rows), len(keep & set(by_sample)))
+    if args.expected_clean_count is not None:
+        assert len(clean_rows) == args.expected_clean_count, len(clean_rows)
+    if args.expected_exclusion_count is not None:
+        assert len(excl_rows) == args.expected_exclusion_count, len(excl_rows)
 
     # 写 clean 文件（列名与原 gains CSV 完全一致）
     header = ["sample_id", "dataset", "language", "dialog_id", "turn_index", "text_length",
@@ -160,9 +173,9 @@ def main(args):
     assert not mismatch, mismatch[:5]
     print(f"[verify-b] {len(clean_rows)} 条保留样本的三模式数值与原 gains CSV 完全一致（2dp）✓")
 
-    # ===== 验证 c：分组均值与 Table IV 新口径一致 =====
+    # ===== 验证 c：分组均值与 Table IV 新口径一致（按数据中实际出现的组遍历） =====
     print("[verify-c] 由 clean 文件计算的分组均值（ms）：")
-    for g in ["long", "very_long", "extra_long"]:
+    for g in sorted({r["duration_group"] for r in clean_rows}):
         rows = [r for r in clean_rows if r["duration_group"] == g]
         n = len(rows)
         means = {MODE_COL[m]: sum(r[MODE_COL[m] + "_ttft_ms"] for r in rows) / n for m in MODES}
@@ -171,13 +184,16 @@ def main(args):
               f"asr_gain={means['baseline'] - means['streaming_asr']:.2f} "
               f"kv_gain={means['streaming_asr'] - means['full_streaming']:.2f}")
 
-    # sidecar metadata：登记实际输入输出与规模（R2-P1-1）
+    # sidecar metadata：登记实际输入输出与规模（R2-P1-1 / R3-P1-1）
     meta = {
         "generated_at": datetime.now().isoformat(),
         "inputs": {"results_json": str(EXP2_JSON), "orig_gains_csv": str(ORIG_GAINS),
                    "sample_list": str(SAMPLE_LIST)},
         "outputs": {"clean": str(OUT_CLEAN), "exclusions": str(OUT_EXCL)},
-        "counts": {"total": len(by_sample), "kept": len(clean_rows), "excluded": len(excl_rows)},
+        "counts": {"total": len(by_sample), "kept": len(clean_rows), "excluded": len(excl_rows),
+                   "sample_list": len(keep),
+                   "expected_clean": args.expected_clean_count,
+                   "expected_exclusion": args.expected_exclusion_count},
         "group_counts": {},
     }
     for row in clean_rows:

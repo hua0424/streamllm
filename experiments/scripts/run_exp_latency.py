@@ -650,10 +650,9 @@ class LatencyExperiment:
                     audio_segment_queue.put(asr_segment)
                     flush_commit = time.time()
                     timings["final_is_final_segment_enqueue_time"] = flush_commit
-                    # 仅当 flush 段确实含语音时才作为"最终语音段"（R2-P0-2）：
-                    # 全静音/低于 VAD 最小语音长度的样本没有语音段，
-                    # final_speech_segment_commit_time 保持 0.0 并在结果层标记 asr_no_speech
-                    if remaining_segment.is_speaking:
+                    # 仅当 flush 段确实含语音时才作为"最终语音段"（R3-P0-1：
+                    # 判 contains_speech 显式字段，不依赖 is_speaking 的 VAD 瞬时语义）
+                    if remaining_segment.contains_speech:
                         last_speech_commit = flush_commit
 
                 timings["final_speech_segment_commit_time"] = last_speech_commit
