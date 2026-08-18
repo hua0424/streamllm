@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.11)  5 AUG 2026 10:10
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.7.11)  5 AUG 2026 11:55
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -115,7 +115,9 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/it' in size <24> not available
 \IEEEPARstartletwidth=\dimen171
 \c@IEEEbiography=\count289
 \@IEEEtranrubishbin=\box54
-) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/cite\cite.sty
+)
+** ATTENTION: Overriding command lockouts (line 5).
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/cite\cite.sty
 LaTeX Info: Redefining \cite on input line 302.
 LaTeX Info: Redefining \nocite on input line 332.
 Package: cite 2015/02/27  v 5.5
@@ -317,20 +319,20 @@ File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 ) (main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
 
 -- Lines per column: 56 (exact).
 
@@ -357,167 +359,35 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-LaTeX Font Info:    Calculating math sizes for size <11> on input line 34.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 34.
+LaTeX Font Info:    Calculating math sizes for size <11> on input line 35.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 35.
 
  (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 34.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 35.
 
 
 (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-[1{C:/Users/hua/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/hua/
-AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc}
+! I can't write on file `main.pdf'.
+(Press Enter to retry, or Control-C to exit; default file extension is `.pdf')
+Please type another file name for output
+! Emergency stop.
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.59 
+     
+*** (job aborted, file error in nonstop mode)
 
-
-]
-<Fig1.pdf, id=12, 817.55438pt x 420.06938pt>
-File: Fig1.pdf Graphic file (type pdf)
-<use Fig1.pdf>
-Package pdftex.def Info: Fig1.pdf  used on input line 81.
-(pdftex.def)             Requested size: 516.0pt x 265.13866pt.
- [2] [3 <./Fig1.pdf>]
-<Fig2.pdf, id=134, 656.4525pt x 419.31656pt>
-File: Fig2.pdf Graphic file (type pdf)
-<use Fig2.pdf>
-Package pdftex.def Info: Fig2.pdf  used on input line 149.
-(pdftex.def)             Requested size: 438.60315pt x 280.16644pt.
- [4]
-LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 1
-78.
- (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1pcr.fd
-File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
-)
-Underfull \hbox (badness 1383) in paragraph at lines 184--185
-\OT1/ptm/m/n/10 chronously; they com-mu-ni-cate asyn-chronously through a
- []
-
-<Fig3.pdf, id=141, 932.73468pt x 410.2828pt>
-File: Fig3.pdf Graphic file (type pdf)
-<use Fig3.pdf>
-Package pdftex.def Info: Fig3.pdf  used on input line 188.
-(pdftex.def)             Requested size: 516.0pt x 226.98344pt.
-[5 <./Fig2.pdf>]
-<Fig4.pdf, id=312, 526.21594pt x 183.68625pt>
-File: Fig4.pdf Graphic file (type pdf)
-<use Fig4.pdf>
-Package pdftex.def Info: Fig4.pdf  used on input line 209.
-(pdftex.def)             Requested size: 252.0pt x 87.96658pt.
-
-Underfull \vbox (badness 2035) has occurred while \output is active []
-
- [6 <./Fig3.pdf> <./Fig4.pdf
-
-pdfTeX warning: pdflatex.exe (file ./Fig4.pdf): PDF inclusion: multiple pdfs wi
-th page group included in a single page
->]
-Underfull \hbox (badness 10000) in paragraph at lines 241--242
-[]\OT1/ptm/m/n/10 current KV cache $\OML/cmm/m/it/10 C[] \OT1/cmr/m/n/10 =
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 241--242
-\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 P[]; [][]; L[]\OT1/cmr/m/n/10 )$\OT1/ptm/m/n/
-10 ; new text frag-ment $\OML/cmm/m/it/10 T[]$\OT1/ptm/m/n/10 ;
- []
-
-<Fig5.pdf, id=491, 375.65344pt x 212.29312pt>
-File: Fig5.pdf Graphic file (type pdf)
-<use Fig5.pdf>
-Package pdftex.def Info: Fig5.pdf  used on input line 271.
-(pdftex.def)             Requested size: 252.0pt x 142.41705pt.
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [7 <./Fig5.pdf>]
-Underfull \vbox (badness 3668) has occurred while \output is active []
-
-
-Underfull \hbox (badness 4726) in paragraph at lines 308--309
- \OT1/ptm/m/it/10 2) Cu-mu-la-tive Di-a-logue Gen-er-a-tion: [][] \OT1/ptm/m/n/
-10 Mul-ti-WOZ and
- []
-
-[8]
-<Fig6.pdf, id=541, 428.59402pt x 255.67848pt>
-File: Fig6.pdf Graphic file (type pdf)
-<use Fig6.pdf>
-Package pdftex.def Info: Fig6.pdf  used on input line 360.
-(pdftex.def)             Requested size: 252.0pt x 150.334pt.
- [9] [10 <./Fig6.pdf>]
-Underfull \hbox (badness 3291) in paragraph at lines 444--445
-[]\OT1/ptm/m/n/10 Table V[] com-pares ac-cu-racy and tail la-tency across
- []
-
-
-Underfull \hbox (badness 1810) in paragraph at lines 444--445
-\OT1/ptm/m/n/10 ity most vis-i-bly: Cross-WOZ WER/CER drop from the
- []
-
-
-Underfull \hbox (badness 2600) in paragraph at lines 444--445
-\OT1/ptm/m/n/10 cessed frag-ments raise the post-endpoint tail time, in-
- []
-
-[11] [12] (main.bbl
-Underfull \hbox (badness 1642) in paragraph at lines 29--32
-\OT1/ptm/m/n/8 segment-based ro-bust voice ac-tiv-ity de-tec-tion method,'' \OT
-1/ptm/m/it/8 Com-puter
- []
-
-)
-
-** Conference Paper **
-Before submitting the final camera ready copy, remember to:
-
- 1. Manually equalize the lengths of two columns on the last page
- of your paper;
-
- 2. Ensure that any PostScript and/or PDF output post-processing
- uses only Type 1 fonts and that every step in the generation
- process uses the appropriate paper size.
-
-[13] (main.aux)
- ***********
-LaTeX2e <2025-11-01>
-L3 programming layer <2025-12-24>
- ***********
- ) 
+ 
 Here is how much of TeX's memory you used:
- 5041 strings out of 467871
- 79848 string characters out of 5419344
- 507581 words of memory out of 5000000
- 33843 multiletter control sequences out of 15000+600000
- 677790 words of font info for 149 fonts, out of 8000000 for 9000
+ 4843 strings out of 467871
+ 76552 string characters out of 5419344
+ 497067 words of memory out of 5000000
+ 33687 multiletter control sequences out of 15000+600000
+ 655390 words of font info for 105 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 57i,14n,65p,1942b,348s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cm
-bx10.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfont
-s/cm/cmex10.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/
-amsfonts/cm/cmmi10.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/
-public/amsfonts/cm/cmmi7.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/
-type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/
-fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/hua/AppData/Local/Programs/M
-iKTeX/fonts/type1/public/amsfonts/cm/cmr5.pfb><C:/Users/hua/AppData/Local/Progr
-ams/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/hua/AppData/Local/
-Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/hua/AppData/L
-ocal/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/hua/Ap
-pData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Users/
-hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy8.pfb><C:/
-Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmti10.p
-fb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/c
-mti7.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/uc
-rr8a.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb
-8a.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmbi8
-a.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.
-pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.p
-fb>
-Output written on main.pdf (13 pages, 1691327 bytes).
-PDF statistics:
- 705 PDF objects out of 1000 (max. 8388607)
- 0 named destinations out of 1000 (max. 500000)
- 31 words of extra memory for PDF output out of 10000 (max. 10000000)
-
+ 57i,11n,65p,1290b,348s stack positions out of 10000i,1000n,20000p,200000b,200000s
+!  ==> Fatal error occurred, no output PDF file produced!
