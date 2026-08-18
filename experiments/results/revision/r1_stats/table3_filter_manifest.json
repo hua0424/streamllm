@@ -1,0 +1,39 @@
+{
+  "source": "experiments\\results\\exp1_latency\\exp1_results_20251210_024430.json",
+  "rule": "成对排除：任一所选模式 runtime_error 或缺 ttft / 流式模式 TTFT>10000ms 判定挂起",
+  "note": "为保证模式间成对比较，重算时排除对应模式不完整的样本，因此 baseline 的样本数和均值可能较旧表轻微变化",
+  "groups": {
+    "short": {
+      "original_n": 35,
+      "excluded_n": 0,
+      "final_n": 35
+    },
+    "medium": {
+      "original_n": 89,
+      "excluded_n": 0,
+      "final_n": 89
+    },
+    "long": {
+      "original_n": 121,
+      "excluded_n": 0,
+      "final_n": 121
+    },
+    "very_long": {
+      "original_n": 208,
+      "excluded_n": 0,
+      "final_n": 208
+    },
+    "extra_long": {
+      "original_n": 680,
+      "excluded_n": 1,
+      "final_n": 679
+    }
+  },
+  "excluded_samples": [
+    {
+      "sample_id": "crosswoz_7310_turn10",
+      "group": "extra_long",
+      "reason": "runtime_error(streaming: Remote end closed connection without response)"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+sample_id,dataset,language,duration_group,audio_duration_s,exclusion_reason,trigger_value
+crosswoz_10040_turn6,crosswoz,zh,extra_long,77.94,hang_outlier_ttft>10000ms,full_streaming=168089.1ms
+crosswoz_10382_turn3,crosswoz,zh,long,26.17,runtime_error,full_streaming: HTTP Error 504: Gateway Time-out
+crosswoz_11361_turn6,crosswoz,zh,extra_long,76.88,hang_outlier_ttft>10000ms,full_streaming=61268.1ms
+crosswoz_2228_turn6,crosswoz,zh,extra_long,77.82,hang_outlier_ttft>10000ms,full_streaming=65901.2ms
+crosswoz_9080_turn5,crosswoz,zh,extra_long,76.96,hang_outlier_ttft>10000ms,streaming_asr_only=11098.0ms
+crosswoz_9365_turn3,crosswoz,zh,long,25.87,runtime_error,streaming_asr_only: HTTP Error 504: Gateway Time-out
+multiwoz_MUL2016_turn3,multiwoz,en,very_long,31.00,runtime_error,streaming_asr_only: HTTP Error 504: Gateway Time-out

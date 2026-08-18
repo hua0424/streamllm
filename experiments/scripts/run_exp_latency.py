@@ -94,13 +94,17 @@ class ExperimentResult:
     last_text_time: float = 0.0
     first_token_time: float = 0.0
     speech_end_time: float = 0.0  # 流式：最后一块真实（非拼接静音）音频块推送完的时刻
-    final_segment_commit_time: float = 0.0  # 流式：最后一个含语音段被分段器提交的时刻
+    final_speech_segment_commit_time: float = 0.0  # 流式：最后一个含语音段（VAD 闭段或含语音的 flush 段）入队时刻
+    final_is_final_segment_enqueue_time: float = 0.0  # 流式：flush 产生的 is_final=True 段入队时刻
 
     # 额外信息
     transcribed_text: str = ""
     response_preview: str = ""
     full_response: str = ""  # --save-full-response 时保存完整生成文本
     committed_fragments: List[str] = field(default_factory=list)  # --save-fragments 时保存提交片段
+    wer: float = 0.0  # 质量指标（LA/真实语音等需要 WER/CER 的实验使用）
+    cer: float = 0.0
+    divergence_count: int = 0  # LA 基线：假设在已提交位置前分歧的事件数（P1-3）
     error: str = ""
 
 
@@ -591,7 +595,8 @@ class LatencyExperiment:
                 "last_text_time": 0.0,
                 "first_token_time": 0.0,
                 "speech_end_time": 0.0,
-                "final_segment_commit_time": 0.0,
+                "final_speech_segment_commit_time": 0.0,
+                "final_is_final_segment_enqueue_time": 0.0,
             }
 
             full_response = []
@@ -644,11 +649,12 @@ class LatencyExperiment:
                     asr_segment = convert_audio_segment(remaining_segment, segment_id, False, True)
                     audio_segment_queue.put(asr_segment)
                     flush_commit = time.time()
+                    timings["final_is_final_segment_enqueue_time"] = flush_commit
                     # flush 残余若仍含语音（无尾部静音时），最终语音段即此段
                     if remaining_segment.is_speaking or last_speech_commit == 0.0:
                         last_speech_commit = flush_commit
 
-                timings["final_segment_commit_time"] = last_speech_commit
+                timings["final_speech_segment_commit_time"] = last_speech_commit
                 segmentation_done.set()
             
             # ASR 线程
@@ -757,7 +763,8 @@ class LatencyExperiment:
             result.last_text_time = timings["last_text_time"]
             result.first_token_time = timings["first_token_time"]
             result.speech_end_time = timings["speech_end_time"]
-            result.final_segment_commit_time = timings["final_segment_commit_time"]
+            result.final_speech_segment_commit_time = timings["final_speech_segment_commit_time"]
+            result.final_is_final_segment_enqueue_time = timings["final_is_final_segment_enqueue_time"]
 
             result.ttft = (timings["first_token_time"] - timings["audio_end_time"]) * 1000
             result.asr_time = (timings["last_text_time"] - timings["audio_end_time"]) * 1000

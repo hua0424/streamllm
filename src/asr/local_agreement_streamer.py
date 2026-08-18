@@ -73,6 +73,8 @@ class LocalAgreementStreamer:
         self.n_committed: int = 0         # 已提交词数（在当前假设序列中的位置）
         self.new_audio: float = 0.0
         self.last_committed_end: float = 0.0  # 最后提交词的 end（buffer 相对轴）
+        # P1-3 观测：新假设在已提交位置之前发生分歧的事件序列
+        self.divergence_events: List[Dict] = []
         logger.info(f"LocalAgreementStreamer 初始化完成: model={model_size}, device={self._device}, "
                     f"trigger={decode_trigger_s}s, trailing_margin={trailing_margin_s}s")
 
@@ -83,6 +85,7 @@ class LocalAgreementStreamer:
         self.n_committed = 0
         self.new_audio = 0.0
         self.last_committed_end = 0.0
+        self.divergence_events = []
 
     def feed_segment(self, segment: ASRAudioSegment) -> List[str]:
         """
@@ -113,6 +116,20 @@ class LocalAgreementStreamer:
                 agreed.append(cw)
             else:
                 break
+
+        # P1-3 观测：公共前缀短于已提交位置 = 新假设改动了已提交内容。
+        # 已提交文本不可撤销（append-only），不回退 n_committed；
+        # 后续轮次公共前缀可自然重新延伸，不会永久卡死；flush 仍提交剩余。
+        if len(agreed) < self.n_committed:
+            event = {
+                "t": time.time(),
+                "n_committed": self.n_committed,
+                "agreed_len": len(agreed),
+                "committed_head": [w["text"] for w in self.prev_words[:self.n_committed]][-3:],
+                "hypothesis_head": [w["text"] for w in cur_words][:5],
+            }
+            self.divergence_events.append(event)
+            logger.warning(f"LA 假设在已提交位置前分歧: agreed={len(agreed)} < committed={self.n_committed}")
 
         # 提交 agreed 中未提交且越过尾随保护线的词
         buffer_duration = len(self.buffer) / self.sample_rate

@@ -64,24 +64,51 @@ def write_csv(path, header, rows):
 
 
 def paired_filter(results, modes):
-    """按样本成对排除：任一所选模式 error/缺 ttft/流式挂起 → 排除该样本全部模式。"""
-    bad = set()
+    """按样本成对排除：任一所选模式 error/缺 ttft/流式挂起 → 排除该样本全部模式。
+
+    返回 (保留结果, 排除清单[{sample_id, group, reason}])。"""
+    bad = {}
     for r in results:
         if r["mode"] not in modes:
             continue
+        sid = r["sample_id"]
         if r.get("error") or not r.get("ttft"):
-            bad.add(r["sample_id"])
+            bad[sid] = {"sample_id": sid, "group": r["duration_group"],
+                        "reason": f"runtime_error({r['mode']}: {str(r.get('error'))[:50]})"}
         elif r["mode"] != "baseline" and r["mode"] != "non-streaming" \
                 and r["ttft"] > HANG_THRESHOLD_MS:
-            bad.add(r["sample_id"])
-    return [r for r in results if r["mode"] in modes and r["sample_id"] not in bad], bad
+            bad[sid] = {"sample_id": sid, "group": r["duration_group"],
+                        "reason": f"hang_outlier({r['mode']} ttft={r['ttft']:.0f}ms)"}
+    kept = [r for r in results if r["mode"] in modes and r["sample_id"] not in bad]
+    return kept, bad
 
 
 def table3():
     print("[Table III] exp1 latency percentiles")
     data = json.load(open(EXP1, encoding="utf-8"))
-    results, bad = paired_filter(data["results"], ["streaming", "non-streaming"])
-    print(f"  paired-excluded samples: {sorted(bad) if bad else 'none'}")
+    all_results = data["results"]
+    results, bad = paired_filter(all_results, ["streaming", "non-streaming"])
+
+    # P1-2：过滤清单落盘（原始 n / 排除 n / 最终 n / 排除原因）
+    manifest = {
+        "source": str(EXP1),
+        "rule": "成对排除：任一所选模式 runtime_error 或缺 ttft / 流式模式 TTFT>10000ms 判定挂起",
+        "note": "为保证模式间成对比较，重算时排除对应模式不完整的样本，"
+                "因此 baseline 的样本数和均值可能较旧表轻微变化",
+        "groups": {},
+        "excluded_samples": sorted(bad.values(), key=lambda x: x["sample_id"]),
+    }
+    for g in GROUP_ORDER:
+        orig_ids = {r["sample_id"] for r in all_results
+                    if r["duration_group"] == g and r["mode"] in ("streaming", "non-streaming")}
+        excl_ids = {sid for sid, v in bad.items() if v["group"] == g}
+        if orig_ids:
+            manifest["groups"][g] = {"original_n": len(orig_ids),
+                                     "excluded_n": len(excl_ids),
+                                     "final_n": len(orig_ids) - len(excl_ids)}
+    (OUT_DIR / "table3_filter_manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"  paired-excluded: {sorted(bad) if bad else 'none'} -> table3_filter_manifest.json")
     header = ["group", "mode", "n", "mean_ms", "std_ms", "p50_ms", "p90_ms",
               "p95_ms", "p99_ms", "min_ms", "max_ms"]
     rows, sysb = [], {}
@@ -124,6 +151,38 @@ def table4():
     data = json.load(open(EXP2, encoding="utf-8"))
     keep = set(json.load(open(EXP2_LIST, encoding="utf-8"))["sample_ids"])
     results = [r for r in data["results"] if r["sample_id"] in keep]
+
+    # P1-1：三模式配对完整性强制校验（任一不满足直接报错退出）
+    MODES3 = ["baseline", "streaming_asr_only", "full_streaming"]
+    index = {}
+    for r in results:
+        index.setdefault(r["sample_id"], []).append(r)
+    violations = []
+    for sid in sorted(index):
+        rows = index[sid]
+        mode_rows = {}
+        for r in rows:
+            mode_rows.setdefault(r["mode"], []).append(r)
+        missing = [m for m in MODES3 if m not in mode_rows]
+        dup = [m for m in MODES3 if len(mode_rows.get(m, [])) != 1]
+        errs = [m for m in MODES3 if mode_rows.get(m, [{}])[0].get("error")]
+        durs = {mode_rows[m][0]["audio_duration"] for m in MODES3 if mode_rows.get(m)}
+        if missing or dup or errs or len(durs) > 1:
+            violations.append({
+                "sample_id": sid,
+                "missing_modes": missing,
+                "dup_or_absent": dup,
+                "error_modes": errs,
+                "duration_mismatch": sorted(durs) if len(durs) > 1 else None,
+            })
+    if violations:
+        print(f"  [FATAL] Table IV 配对完整性校验失败，{len(violations)} 个样本：")
+        for v in violations[:20]:
+            print(f"    {v}")
+        raise SystemExit(1)
+    n_list = len(index)
+    assert n_list == len(keep), f"清单样本数 {len(keep)} 与结果匹配数 {n_list} 不一致"
+    print(f"  paired integrity OK: {n_list} 样本 × 3 模式，无缺漏/重复/错误/时长不一致")
     header = ["group", "mode", "n", "mean_ms", "std_ms", "p50_ms", "p90_ms",
               "p95_ms", "p99_ms", "min_ms", "max_ms"]
     rows, means = [], {}

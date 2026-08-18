@@ -170,16 +170,17 @@ nvidia-smi >> experiments/results/revision/env_versions.txt
 2. **数据集扩展**：`load_samples()` 中硬编码的 `["crosswoz", "multiwoz"]` 扩展为同时支持 `"librispeech"`、`"aishell1"` 及增强变体目录名；`--dataset` 的 choices 相应扩充（`all` = 扫描 `processed/json/` 下全部子目录）。
 3. **`--append-silence-ms N`**（默认 0）：音频加载后在尾部拼接 N ms 零值静音。新增两个计时点：
    - `speech_end_time`：最后一块**真实（非静音）**音频块推送完毕的时刻；
-   - `final_segment_commit_time`：分段器把 `is_final=True` 的段放入 `audio_segment_queue` 的时刻。
-   两者存入结果（字段名同上）。原 `audio_end_time` 语义不变（= 含静音的全音频推送完）。
-   **离线分析将用以下定义**：`endpoint_wait = final_segment_commit_time − speech_end_time`；`post_endpoint_ttft = first_token_time − final_segment_commit_time`；`total = first_token_time − speech_end_time`。
+   - `final_speech_segment_commit_time`：最后一个**含语音**段（VAD 闭段；无尾静音时为含语音的 flush 段）放入 `audio_segment_queue` 的时刻；
+   - `final_is_final_segment_enqueue_time`：flush 产生的 `is_final=True` 段放入队列的时刻（审计用）。
+   三者存入结果（字段名同上）。原 `audio_end_time` 语义不变（= 含静音的全音频推送完）。
+   **离线分析将用以下定义**：`endpoint_detection_wait = final_speech_segment_commit_time − speech_end_time`（论文端点等待口径）；`final_enqueue_wait = final_is_final_segment_enqueue_time − speech_end_time`；`post_endpoint_ttft = first_token_time − final_speech_segment_commit_time`；`total = first_token_time − speech_end_time`。
 4. **`--save-full-response`**：`ExperimentResult` 增加 `full_response: str` 字段，保存完整生成文本（不受 100 字符截断），原 `response_preview` 保留。
 5. **`--save-fragments`**：`ExperimentResult` 增加 `committed_fragments: List[str]`，按提交顺序记录流式模式下每一个文本片段（在 `text_queue.put((output_text, False))` 处同步收集）。
 6. 顺手修复：`--asr-model-size` 的 choices 加入 `"turbo"`。
 
 `ExperimentResult` 新字段默认值均为空，保证旧 checkpoint 可加载。
 
-**冒烟测试**：`--dataset crosswoz --max-samples 2 --append-silence-ms 2000 --save-full-response --save-fragments`，确认结果 JSON 含新字段且数值合理（endpoint_wait 约 0.2–1.5 s 量级，取决于 TTS 尾部静音；本机 tiny 模型冒烟实测 0.18 s）。注意 `endpoint_wait = final_segment_commit_time − speech_end_time` 中的 commit 指 **VAD 关闭最后一个含语音段**的时刻（非 flush 静音残余段），实现已按此口径。
+**冒烟测试**：`--dataset crosswoz --max-samples 2 --append-silence-ms 2000 --save-full-response --save-fragments`，确认结果 JSON 含新字段且数值合理（endpoint_detection_wait 约 0.2–1.5 s 量级，取决于 TTS 尾部静音；本机 tiny 模型冒烟实测 0.18 s）。两个时间点都须非零，`audio_end_time − speech_end_time ≈ 2 s`。
 
 **新鲜环境注意**（本机冒烟已踩过，GPU 机若换机/清缓存会遇到）：
 1. silero-vad 经 `torch.hub.load` 首次下载会交互询问信任仓库，非交互 shell 下直接 EOF 报错；预缓存：`echo y | uv run python -c "from src.asr.streamaudio_segmenter import StreamAudioSegmenter; StreamAudioSegmenter()"`。
@@ -340,7 +341,7 @@ uv run python -m experiments.scripts.run_exp_latency \
   --output-dir $REV/r6_ttfa/endpoint --no-resume
 ```
 
-产出：含 `speech_end_time`、`final_segment_commit_time` 的结果 JSON。
+产出：含 `speech_end_time`、`final_speech_segment_commit_time`、`final_is_final_segment_enqueue_time` 的结果 JSON。
 
 ### E6 TTS 首包测量（R6.2，意见2）｜约 0.5 小时（CPU/网络，可穿插）
 
@@ -374,7 +375,7 @@ uv run python -m experiments.scripts.measure_tts_first_chunk \
 ### 5.1 结果格式
 
 - 沿用现有脚本的三件套：`exp*_results_<timestamp>.json`（含 config 块 + 逐样本结果）、`exp*_summary_*.csv`、`exp*_statistics_*.csv`，输出目录一律在 `experiments/results/revision/` 下。
-- 新增字段（E4/E5）：`full_response`、`committed_fragments`、`speech_end_time`、`final_segment_commit_time`。
+- 新增字段（E4/E5）：`full_response`、`committed_fragments`、`speech_end_time`、`final_speech_segment_commit_time`、`final_is_final_segment_enqueue_time`。
 - E4 额外产物：`commit_log.jsonl`（格式见 DEV-2）。
 - E6 产物：CSV（格式见 DEV-5）。
 - 每次运行后在该目录写一行 `RUNINFO.md`：完整命令行、起止时间、样本数、error 数。

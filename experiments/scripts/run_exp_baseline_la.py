@@ -48,6 +48,8 @@ from experiments.scripts.run_exp_latency import (
     load_checkpoint,
     save_checkpoint,
 )
+# 复用 run_exp_quality 的文本归一化与 WER/CER 计算（与实验三完全同口径）
+from experiments.scripts.run_exp_quality import wer as compute_wer, cer as compute_cer, zh_to_word_seq
 
 logger = get_logger(__name__)
 
@@ -151,7 +153,9 @@ class LAExperiment:
                         timings["last_text_time"] = time.time()
                         committed_fragments.append(frag)
                         text_queue.put((frag, False))
-                # 流结束：提交全部剩余假设并通知 LLM 收尾
+                # 流结束：提交全部剩余假设并通知 LLM 收尾。
+                # 注：tail 为空时发送 ("", True) 是安全的——cache_prompt 在 is_end=True 时
+                # 会追加 generation_prompt，不会触发 _add_stream_prompt 的空文本异常。
                 tail = self.la_streamer.flush()
                 if tail:
                     timings["last_text_time"] = time.time()
@@ -196,6 +200,20 @@ class LAExperiment:
             result.asr_time = (timings["last_text_time"] - timings["audio_end_time"]) * 1000
             result.llm_prefill_time = (timings["first_token_time"] - timings["last_text_time"]) * 1000
             result.transcribed_text = " ".join(committed_fragments)
+            result.divergence_count = len(self.la_streamer.divergence_events)
+
+            # P0-1/P0-3：质量指标与空转写标记（与实验三同一归一化口径）
+            if not result.transcribed_text.strip():
+                result.error = "asr_no_text"
+            else:
+                ref_text = sample.text
+                if sample.language.lower().startswith("zh"):
+                    result.wer = compute_wer(zh_to_word_seq(ref_text),
+                                             zh_to_word_seq(result.transcribed_text))
+                else:
+                    result.wer = compute_wer(ref_text, result.transcribed_text)
+                result.cer = compute_cer(ref_text, result.transcribed_text)
+
             result.response_preview = "".join(full_response)[:100]
             if getattr(self.args, 'save_full_response', False):
                 result.full_response = "".join(full_response)
@@ -241,27 +259,34 @@ class LAExperiment:
 
 
 def save_la_results(results: List[ExperimentResult], output_dir: Path, args) -> Tuple[Path, Path, Path]:
-    """保存 la_results/la_summary/la_statistics 三件套"""
+    """保存 la_results/la_summary/la_statistics 三件套（含 WER/CER，P0-1）"""
     output_dir.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    # 分组统计（单模式）
-    groups: Dict[str, List[float]] = {}
-    durations: Dict[str, List[float]] = {}
-    for r in results:
-        if r.error:
-            continue
-        groups.setdefault(r.duration_group, []).append(r.ttft)
-        durations.setdefault(r.duration_group, []).append(r.audio_duration)
+    ok = [r for r in results if not r.error]
 
-    stats_rows = []
-    for g in sorted(groups):
-        v = np.array(groups[g])
-        stats_rows.append({
-            "group": g, "sample_count": len(v), "avg_duration": float(np.mean(durations[g])),
+    def agg(rows):
+        v = np.array([r.ttft for r in rows])
+        w = np.array([r.wer for r in rows])
+        c = np.array([r.cer for r in rows])
+        return {
+            "sample_count": len(rows),
+            "avg_duration": float(np.mean([r.audio_duration for r in rows])),
             "ttft_mean": float(np.mean(v)), "ttft_std": float(np.std(v)),
             "ttft_min": float(np.min(v)), "ttft_max": float(np.max(v)),
-        })
+            "wer_mean": float(np.mean(w)), "cer_mean": float(np.mean(c)),
+        }
+
+    # 分组统计（时长组）+ 语言统计 + 总体
+    stats_rows = []
+    for g in sorted({r.duration_group for r in ok}):
+        rows = [r for r in ok if r.duration_group == g]
+        stats_rows.append({"scope": f"group:{g}", **agg(rows)})
+    for lang in sorted({r.sample_id.split('_')[0] for r in ok}):
+        rows = [r for r in ok if r.sample_id.startswith(lang)]
+        stats_rows.append({"scope": f"dataset:{lang}", **agg(rows)})
+    if ok:
+        stats_rows.append({"scope": "overall", **agg(ok)})
 
     results_file = output_dir / f"la_results_{timestamp}.json"
     with open(results_file, 'w', encoding='utf-8') as f:
@@ -291,20 +316,24 @@ def save_la_results(results: List[ExperimentResult], output_dir: Path, args) -> 
     with open(csv_file, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(["sample_id", "audio_duration", "duration_group", "mode",
-                         "ttft_ms", "asr_time_ms", "llm_prefill_time_ms", "error"])
+                         "ttft_ms", "asr_time_ms", "llm_prefill_time_ms", "wer", "cer",
+                         "divergence_count", "error"])
         for r in results:
             writer.writerow([r.sample_id, f"{r.audio_duration:.2f}", r.duration_group, r.mode,
-                             f"{r.ttft:.2f}", f"{r.asr_time:.2f}", f"{r.llm_prefill_time:.2f}", r.error])
+                             f"{r.ttft:.2f}", f"{r.asr_time:.2f}", f"{r.llm_prefill_time:.2f}",
+                             f"{r.wer:.4f}", f"{r.cer:.4f}", r.divergence_count, r.error])
 
     stats_file = output_dir / f"la_statistics_{timestamp}.csv"
     with open(stats_file, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
-        writer.writerow(["group", "sample_count", "avg_duration_s",
-                         "ttft_mean_ms", "ttft_std_ms", "ttft_min_ms", "ttft_max_ms"])
+        writer.writerow(["scope", "sample_count", "avg_duration_s",
+                         "ttft_mean_ms", "ttft_std_ms", "ttft_min_ms", "ttft_max_ms",
+                         "wer_mean", "cer_mean"])
         for s in stats_rows:
-            writer.writerow([s["group"], s["sample_count"], f"{s['avg_duration']:.2f}",
+            writer.writerow([s["scope"], s["sample_count"], f"{s['avg_duration']:.2f}",
                              f"{s['ttft_mean']:.2f}", f"{s['ttft_std']:.2f}",
-                             f"{s['ttft_min']:.2f}", f"{s['ttft_max']:.2f}"])
+                             f"{s['ttft_min']:.2f}", f"{s['ttft_max']:.2f}",
+                             f"{s['wer_mean']:.4f}", f"{s['cer_mean']:.4f}"])
 
     return results_file, csv_file, stats_file
 

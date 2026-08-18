@@ -253,3 +253,62 @@ uv run python -m experiments.datasets.tools.run_pipeline \
 - [ ] 在 GPU 环境下运行完整实验
 - [ ] 收集实验数据
 - [ ] 使用 Python (Matplotlib/Seaborn) 绘制论文所需的图表
+
+---
+
+## 六、 CISR 审稿修订实验（2026-08 新增）
+
+本章登记审稿意见驱动的补充实验。执行细则以 `experiments/CISR_REVISION_PLAN.md`（总方案）与
+`experiments/GPU_EXPERIMENT_HANDOFF.md`（GPU 机任务书）为准；本节保证方法学定义的唯一权威来源。
+
+### 6.1 R1：统计稳健性（意见3）
+
+- **分位数重算**：`experiments/scripts/recompute_stats.py` 离线重算 exp1/2/3 的
+  mean±std/P50/P90/P95/P99/min/max（numpy 线性插值）。过滤规则显式化：成对排除运行错误样本、
+  流式模式 TTFT>10000ms 判定平台挂起；Table III 的排除明细写 `r1_stats/table3_filter_manifest.json`，
+  Table IV 重算前强制三模式配对完整性校验（缺模式/重复/错误/时长不一致即报错退出）。
+- **重复测量**：Very Long 组固定 50 样本（`r1_stats/repeat_subset_ids.json`，seed=42）连跑 3 轮，
+  逐样本计算 TTFT 变异系数 CV。
+- **Table V 历史口径**：论文 Table V 的 "ASR time" 列为 summary CSV 中 streaming 与 non-streaming
+  合并（300 行）的 `asr_time_ms` 均值（1327.48/1224.96/1086.16，与归档精确一致）；重算 CSV 中
+  以 `pooled` 行复核该口径，另提供 streaming-only 明细。
+
+### 6.2 R2：真实语音验证（意见1）
+
+- 数据源：LibriSpeech test-clean/test-other（CC BY 4.0）与 AISHELL-1（Apache 2.0），
+  按原实验相同的拼接策略构造 Long/Very Long/Extra Long 样本（各集 75 条：30/30/15）。
+- 增强变体：MUSAN 噪声按 SNR 20/15/10 dB 混合，变速 0.9×/1.1×。
+- 运行：`run_exp_latency.py --dataset librispeech|aishell1|<变体>`（数据集目录扫描已通用化），
+  配置与合成集锁定值一致（prefix=1, suffix=0, threshold=2.0s）。
+
+### 6.3 R3：LocalAgreement-2 基线（意见4）
+
+- 策略出处 ufal/whisper_streaming，同引擎自实现（`src/asr/local_agreement_streamer.py`）：
+  模型加载/转录参数/分段器与 System A/B 完全一致，唯一变量是 ASR 上下文与提交策略。
+  提交规则：相邻两轮假设的最长公共前缀中，`word.end ≤ 当前音频时长 − trailing_margin(=0)` 的词。
+- 运行：`experiments/scripts/run_exp_baseline_la.py`，样本为 exp2 干净成对子集 498 条
+  （`r3_baseline_la/exp2_ablation_sample_list.json`；逐样本数据源 `exp2_ablation/exp2_gains_clean.csv`，
+  排除明细 `exp2_gains_exclusions.csv`）。
+- 交付：TTFT 与 WER/CER（复用 run_exp_quality 归一化逻辑；空转写标记 `asr_no_text`）；
+  LA 假设在已提交位置前分歧的事件数（`divergence_count`）一并记录。
+
+### 6.4 R4/R5：append-only 观测与语义一致性（意见5）
+
+- append-only 不变式：已提交段文本快照 `committed_text`，后续轮次重识别漂移记入
+  `correction_events`；每次提交写 `commit_log.jsonl`（type=commit/correction）。
+- 分词接缝分析：离线对比增量拼接分词与一次性分词的 token 序列一致性。
+- 语义一致性：bge-m3 嵌入相似度 + LLM-as-judge（本机离线）。
+
+### 6.5 R6：TTFA 端到端预算（意见2）
+
+- 时间定义（E5，`--append-silence-ms 2000`）：
+  - `speech_end_time`：最后一块真实（非拼接静音）音频块按实时节奏推送完的时刻；
+  - `final_speech_segment_commit_time`：最后一个含语音段（VAD 闭段；无尾静音时为含语音的 flush 段）
+    进入 `audio_segment_queue` 的时刻。**论文端点等待采用**：
+    `endpoint_detection_wait = final_speech_segment_commit_time − speech_end_time`；
+  - `final_is_final_segment_enqueue_time`：flush 产生的 `is_final=True` 段入队时刻（审计用，
+    `final_enqueue_wait = final_is_final_segment_enqueue_time − speech_end_time`）。
+- TTS 首包（E6）：`measure_tts_first_chunk.py` 测 TTFC 与 RTF；输入为 E4 的 `full_response`
+  （缺 `full_response` 默认报错，preview fallback 需显式开启并在 CSV 标记 `text_source=preview`）；
+  请求参数（spk_id/speed/PCM 解释）经 env/CLI 可配并写 RUNINFO。
+- TTFA 预算：`TTFA = endpoint_wait + TTFT + T_decode_to_first_sentence + T_TTS_first_chunk`（T_Net≈0 单机部署）。
