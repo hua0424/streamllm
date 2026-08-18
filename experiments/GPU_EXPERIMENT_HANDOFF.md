@@ -26,6 +26,34 @@
 
 ## 一、Day-0 核验清单（运行任何实验前逐项完成）
 
+### 1.0 git 同步（最先做，且有一个关键警告）
+
+⚠️ **不要全新 clone 仓库覆盖现有目录。** `experiments/datasets/processed` 与 `experiments/datasets/raw_data` 已被 .gitignore 排除，**原始 1,132 条实验数据不在 git 里**，只存在于本机当前的仓库工作目录中。全新 clone 得到的将是一个没有数据的空壳。正确做法是在**现有仓库目录**内更新：
+
+```bash
+# 0) 备份本机 .env（.env 是被 git 跟踪的，pull 可能覆盖本机的路径/设备配置）
+cp .env .env.gpu.bak
+
+# 1) 查看本地改动：原始实验跑过的机器上可能有未提交的脚本修改
+git status
+#    若有未提交改动：先提交到本地分支保存（如 git checkout -b gpu-local && git add -A && git commit -m "GPU机本地改动存档"），
+#    不要直接 checkout 覆盖；若有冲突，停止并联系需求方，不要 --force
+
+# 2) 更新到 main 最新（修订方案、handoff、以及本机陆续推送的实验代码都在 main 上）
+git checkout main
+git pull origin main
+
+# 3) 恢复 .env
+cp .env.gpu.bak .env
+
+# 4) 确认本文档与方案就位
+ls experiments/CISR_REVISION_PLAN.md experiments/GPU_EXPERIMENT_HANDOFF.md
+```
+
+说明：默认分支是 **`main`**（不是 master）。远程为 `https://github.com/hua0424/streamllm.git`。如果出于某种原因确实需要全新 clone（`git clone https://github.com/hua0424/streamllm.git`），克隆后必须把旧目录中的 `experiments/datasets/processed/`、`experiments/datasets/raw_data/`（如有）完整拷贝进来，并重新执行 §1.1 核验。
+
+**本任务全程不需要在 GPU 机上 commit/push**——代码由需求方在本机开发并推送到 main，你侧只 pull；实验结果按 §5.4 打包经文件渠道回传。
+
 ### 1.1 数据完整性核验
 
 ```bash
@@ -95,14 +123,16 @@ nvidia-smi >> experiments/results/revision/env_versions.txt
 
 ## 二、等待本机传入的外部产物
 
-以下文件由本机（需求方）生成并传入，**收到后再开始对应实验**；如约定时间未收到，先做不依赖它们的任务，不要自行生成替代品：
+代码类产物（DEV-1~5）**不经文件传输，全部由本机开发、冒烟后 push 到 `origin/main`，你 `git pull` 获取**（见 §1.0）。非代码产物如下，**收到后再开始对应实验**；如约定时间未收到，先做不依赖它们的任务，不要自行生成替代品：
 
-| 文件 | 用途 | 放置位置 | 阻塞的任务 |
+| 文件 | 用途 | 获取方式 | 阻塞的任务 |
 |---|---|---|---|
-| `repeat_subset_ids.json` | 固定 50 样本清单（Very Long 组） | `experiments/results/revision/r1_stats/` | E1、E4、E5 |
-| `exp2_ablation_sample_list.json` | 与论文 Table IV 一致的消融样本清单 | `experiments/results/revision/r3_baseline_la/` | E3 |
-| 真实语音数据包 | `processed/json|audio/{librispeech,aishell1}` 及增强变体目录 | 解压到 `experiments/datasets/processed/` 对应子目录 | E2 |
-| （可能）本机预先写好的分析/构建脚本 | 分析用 | 按交接说明放置 | — |
+| DEV-1~5 全部源码 | E1–E6 运行 | `git pull origin main`（本机推送后通知你） | E1、E3、E4、E5、E6 |
+| `repeat_subset_ids.json` | 固定 50 样本清单（Very Long 组） | 文件传输，放 `experiments/results/revision/r1_stats/` | E1、E4、E5 |
+| `exp2_ablation_sample_list.json` | 与论文 Table IV 一致的消融样本清单 | 文件传输，放 `experiments/results/revision/r3_baseline_la/` | E3 |
+| 真实语音数据包 | `processed/json|audio/{librispeech,aishell1}` 及增强变体目录 | 文件传输，解压到 `experiments/datasets/processed/` 对应子目录 | E2 |
+
+**立即可做（不依赖任何本机输入）**：§1.0 git 同步、§1.1 数据核验、§1.2 环境核验与版本存档、CosyVoice 探活。完成这些后处于待命状态，按上表逐项解锁。
 
 数据包验收：每个数据集目录应有"等数量"的 JSON 与 WAV；期望规模：librispeech 75 条、aishell1 75 条（Long 30 / Very Long 30 / Extra Long 15），增强变体每个目录 30–60 条不等（以交接说明为准）。随机抽 3 条试听或查看波形确认非静音。
 
@@ -110,8 +140,9 @@ nvidia-smi >> experiments/results/revision/env_versions.txt
 
 ## 三、程序开发任务（DEV-1 ~ DEV-5）
 
-> 若本机已传入对应实现文件，则跳过相应开发，但仍须完成各任务的**冒烟测试**与参数核对。
-> 所有新代码遵循现有脚本风格（4 空格缩进、`get_logger` 日志、断点续传机制照搬）。
+> **开发责任已转移到本机**：以下全部代码由需求方在本机编写、用小模型（whisper-tiny + Qwen2.5-0.5B）完成逻辑冒烟后 push 到 `origin/main`。你侧的任务是：`git pull` → 对照本节规格**核对实现要点**（特别是参数锁定与新增字段）→ 用各条的冒烟用例**复验**。发现缺漏或与规格不符时，停止并回告需求方，**不要自行修改实现逻辑**；只有在需求方明确授权后，才可按本节规格补齐并提交到本地分支存档。
+>
+> 本节规格同时作为验收标准，阅读时重点关注：新增参数/字段清单、插桩点、算法步骤、冒烟预期。
 
 ### DEV-1：`experiments/scripts/run_exp_latency.py` 扩展
 

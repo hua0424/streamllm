@@ -36,18 +36,23 @@
 
 自 2026-08-18 起，本方案按两台机器分工执行。**GPU 机的详细执行任务书见 `experiments/GPU_EXPERIMENT_HANDOFF.md`**（自包含，可直接交给 GPU 机执行）。
 
+**本机硬件说明**：本机为 Windows + RTX 3060 Laptop（6 GB 显存，CUDA 可用，`.venv` 已与 `uv.lock` 同步）。可用于：小模型冒烟测试（`.env` 默认 whisper-tiny + Qwen2.5-0.5B）、Whisper-Turbo 级别的 ASR 质量校验（fp16 约 2 GB，可装下）、bge-m3 嵌入评估。**不可用于**：Qwen2-7B 推理（fp16 约 15 GB 装不下）、任何要写进论文的延迟数字（延迟结论必须与论文声明的 2×RTX 3090 平台一致，本机跑出的 TTFT 一律作废，仅用于验证逻辑正确性）。
+
+**代码与数据流向**：代码经 git（GitHub `origin/main`）流转——本机开发并推送，GPU 机 `git pull` 获取；数据（`processed/`、`raw_data/` 已被 .gitignore 排除）走 git 之外的文件传输。GPU 机上的既有仓库目录含原始实验数据，**不得用全新 clone 覆盖**，详见 handoff §1.0。
+
 | 工作项 | 归属 | 说明 |
 |---|---|---|
-| R0 环境与数据核验、版本存档 | **GPU 机** | handoff §1（Day-0 清单） |
+| R0 环境与数据核验、版本存档 | **GPU 机** | handoff §1（Day-0 清单），可立即开始 |
+| DEV-1/2/3/4/5 程序开发 + 小模型冒烟 | **本机** | 用 .env 默认小模型在本机验证逻辑后推送到 main；GPU 机 pull 后按 handoff §3 复验 |
 | R1.1 离线重算分位数 | **本机** | 结果 JSON 已在本机，纯 CPU |
-| R1.2 重复测量（50 样本 × 3 轮） | **GPU 机** | 样本清单 `repeat_subset_ids.json` 由本机生成后传入 |
-| R2 真实语音：下载/构建/增强/QA | **本机** | 纯 CPU；产物打包传入 GPU 机 |
+| R1.2 重复测量（50 样本 × 3 轮） | **GPU 机** | 样本清单 `repeat_subset_ids.json` 由本机生成（从 exp1 结果 JSON 提取）后传入 |
+| R2 真实语音：下载/构建/增强/QA | **本机** | 纯 CPU；QA 中的 System A WER sanity 可用本机 3060 跑 Whisper-Turbo（QA 用途，非论文数字）；产物打包传入 GPU 机 |
 | R2 真实语音：实验运行 | **GPU 机** | handoff §4-E2 |
 | R3 LA 基线：样本清单（从 exp2 结果 JSON 提取并固定） | **本机** | 注意 exp2 结果含 505 个唯一样本（long 110 / very_long 151 / extra_long 244），多于论文 Table IV 的每组 50 条；清单需与论文分析所用子集一致，由本机分析后提供 |
-| R3 LA 基线：代码实现与运行 | **GPU 机** | handoff §3-DEV-3/4（本机如提前完成实现则直接传入代码） |
-| R4 插桩复跑 + 分词接缝离线分析 | **GPU 机 + 本机** | 插桩复跑在 GPU 机；接缝分析脚本在本机对回传日志运行 |
+| R3 LA 基线：运行 | **GPU 机** | handoff §4-E3（代码由本机经 git 交付） |
+| R4 插桩复跑 + 分词接缝离线分析 | **GPU 机 + 本机** | 插桩复跑在 GPU 机（含 Qwen2-7B，本机显存不够）；接缝分析脚本在本机对回传日志运行 |
 | R5 复跑取完整回复 | **GPU 机** | 与 R4 合并为同一次运行 |
-| R5 嵌入相似度 + LLM 裁判 | **本机** | bge-m3 可 CPU 运行；裁判走 API |
+| R5 嵌入相似度 + LLM 裁判 | **本机** | bge-m3 用本机 3060 加速；裁判走 API |
 | R6.1 端点等待测量 | **GPU 机** | handoff §4-E5 |
 | R6.2 TTS 首包测量 | **GPU 机** | 依赖该机可达的 CosyVoice 服务 |
 | R7 汇总、绘图、回信证据清单 | **本机** | 全部结果回传后进行 |
@@ -320,12 +325,16 @@ LibriSpeech 为 16 kHz FLAC；AISHELL-1 为 16 kHz WAV；MUSAN 采样率不一�
 
 ## 九、执行顺序与工期（双机并行）
 
-**本机轨道（CPU/网络，与 GPU 轨道并行）：**
+**本机轨道（CPU/网络 + 本机 3060 小模型冒烟，与 GPU 轨道并行）：**
 
 ```
 Day 1     R1.1 离线重算分位数（当天出第一批数字）＋ 生成 repeat_subset_ids.json、
-          exp2_ablation_sample_list.json 并传给 GPU 机
-Day 1–3   R2 数据下载（LibriSpeech/AISHELL-1/MUSAN）＋ 构建 ＋ QA ＋ 增强变体，打包传 GPU 机
+          exp2_ablation_sample_list.json，commit + push 供 GPU 机 pull
+Day 1–3   DEV-1/2/3/4/5 程序开发，用 .env 默认小模型（whisper-tiny + Qwen2.5-0.5B）
+          在本机冒烟通过后 commit + push（GPU 机随时 pull 即可开工 E1/E4/E5/E3）
+Day 1–3   （并行）R2 数据下载（LibriSpeech/AISHELL-1/MUSAN）＋ 构建 ＋ QA
+          （System A WER sanity 用本机 3060 跑 Whisper-Turbo）＋ 增强变体，
+          打包经 git 之外的渠道传 GPU 机
 Day 3–4   编写离线分析脚本（score_wer_offline / check_tokenizer_seams / 语义评估）
 Day 5+    GPU 机结果陆续回传后：R4 接缝分析、R5 嵌入+裁判评估、R6 预算汇总、R7 绘图与证据清单
 ```
@@ -333,9 +342,9 @@ Day 5+    GPU 机结果陆续回传后：R4 接缝分析、R5 嵌入+裁判评�
 **GPU 机轨道（按 `GPU_EXPERIMENT_HANDOFF.md` 执行）：**
 
 ```
-Day 0     handoff §1 核验清单（数据完整性、.env、版本存档、CosyVoice 探活）
-Day 0–1   §3 程序开发（DEV-1/2 插桩、DEV-3/4 LA 基线、DEV-5 TTS 计时）＋ 冒烟测试
-Day 1–2   E1 重复测量（50 样本 × 3 轮）
+Day 0     handoff §1.0 git 同步（备份 .env → pull origin main）＋ §1 核验清单
+          （数据完整性、版本存档、CosyVoice 探活）——无需等待本机，可立即开始
+Day 0–1   pull 到本机推送的 DEV 代码后按 §3 复验冒烟；E1 重复测量（等 repeat 清单）
 Day 2–4   E2 真实语音运行（等本机数据包到达后开始；干净集 → 增强集）
 Day 4–6   E3 LA 基线运行 → E4 R4+R5 合并复跑
 Day 6–7   E5 端点等待测量 ＋ E6 TTS 首包测量（CPU/网络，可与 GPU 运行穿插）
