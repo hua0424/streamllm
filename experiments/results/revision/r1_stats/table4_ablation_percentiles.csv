@@ -1,0 +1,16 @@
+group,mode,n,mean_ms,std_ms,p50_ms,p90_ms,p95_ms,p99_ms,min_ms,max_ms
+Long,baseline,108,1690.81,349.51,1657.74,2194.58,2323.60,2431.03,1024.53,2435.00
+Long,streaming_asr_only,108,1064.67,307.62,978.94,1529.86,1691.03,1873.56,611.47,1893.35
+Long,full_streaming,108,1087.69,312.46,985.89,1594.10,1748.08,1859.16,628.37,1939.60
+Long,asr_gain_ms (=baseline-asr_only),,626.13,,,,,,,
+Long,kv_gain_ms (=asr_only-full),,-23.01,,,,,,,
+Very Long,baseline,150,3307.96,872.57,3066.22,4552.25,4891.94,5468.95,1940.06,5872.72
+Very Long,streaming_asr_only,150,1155.09,365.67,1056.22,1676.50,1859.20,2259.80,656.89,2406.11
+Very Long,full_streaming,150,1152.36,363.23,1073.75,1646.74,1828.80,2228.55,659.59,2486.30
+Very Long,asr_gain_ms (=baseline-asr_only),,2152.87,,,,,,,
+Very Long,kv_gain_ms (=asr_only-full),,2.73,,,,,,,
+Extra Long,baseline,240,6515.67,1762.26,6650.96,8793.55,9208.54,9619.23,3534.64,9832.14
+Extra Long,streaming_asr_only,240,1228.82,411.10,1116.22,1780.62,1981.51,2858.89,655.43,3250.27
+Extra Long,full_streaming,240,1188.00,411.07,1076.18,1769.90,1946.51,2812.95,624.84,3228.51
+Extra Long,asr_gain_ms (=baseline-asr_only),,5286.86,,,,,,,
+Extra Long,kv_gain_ms (=asr_only-full),,40.82,,,,,,,

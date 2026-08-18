@@ -1,0 +1,9 @@
+System B (streaming) plateau stability, exp1
+claim: streaming TTFT tail stays bounded as duration grows; baseline tail grows ~linearly
+
+Long       n=121  mean= 1126.63  P95= 1883.55  P99= 1978.67  P99/mean=1.76  | baseline P99= 2474.07  streaming/baseline P99=0.80
+Very Long  n=208  mean= 1099.16  P95= 1768.83  P99= 2173.97  P99/mean=1.98  | baseline P99= 4826.85  streaming/baseline P99=0.45
+Extra Long n=679  mean= 1087.70  P95= 1717.10  P99= 2605.45  P99/mean=2.40  | baseline P99=12274.38  streaming/baseline P99=0.21
+
+streaming P99 growth Long->Extra Long: 1.32x (baseline: 4.96x)
+streaming Extra Long P99 abs: 2605.45 ms (baseline: 12274.38 ms)

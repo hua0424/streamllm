@@ -38,11 +38,13 @@
 
 **本机硬件说明**：本机为 Windows + RTX 3060 Laptop（6 GB 显存，CUDA 可用，`.venv` 已与 `uv.lock` 同步）。可用于：小模型冒烟测试（`.env` 默认 whisper-tiny + Qwen2.5-0.5B）、Whisper-Turbo 级别的 ASR 质量校验（fp16 约 2 GB，可装下）、bge-m3 嵌入评估。**不可用于**：Qwen2-7B 推理（fp16 约 15 GB 装不下）、任何要写进论文的延迟数字（延迟结论必须与论文声明的 2×RTX 3090 平台一致，本机跑出的 TTFT 一律作废，仅用于验证逻辑正确性）。
 
-**代码与数据流向**：代码经 git（GitHub `origin/main`）流转——本机开发并推送，GPU 机 `git pull` 获取；数据（`processed/`、`raw_data/` 已被 .gitignore 排除）走 git 之外的文件传输。GPU 机上的既有仓库目录含原始实验数据，**不得用全新 clone 覆盖**，详见 handoff §1.0。
+**GPU 机情况**：全新安装的 Ubuntu 22.04（系统重装，盘内无历史数据），硬件同为 2×RTX 3090。按 handoff §1.0 从零初始化环境（驱动/uv/clone/依赖/模型预下载），**全新 clone 即正确做法**（git 中不含数据，数据见下行）。
+
+**代码与数据流向**：代码经 git（GitHub `origin/main`）流转——本机开发并推送，GPU 机 `git pull` 获取；数据（`processed/`、`raw_data/` 已被 .gitignore 排除）走 git 之外的文件传输。**原始 1,132 条实验数据完整保存在本机**（已核验：multiwoz 630 + crosswoz 503，JSON 与 WAV 一一对应，3.4 GB），由本机打包传给 GPU 机。
 
 | 工作项 | 归属 | 说明 |
 |---|---|---|
-| R0 环境与数据核验、版本存档 | **GPU 机** | handoff §1（Day-0 清单），可立即开始 |
+| R0 环境初始化（全新 Ubuntu）+ 数据核验、版本存档 | **GPU 机 + 本机** | GPU 机按 handoff §1.0 从零初始化（可立即开始）；原始数据包由本机打包传出 |
 | DEV-1/2/3/4/5 程序开发 + 小模型冒烟 | **本机** | 用 .env 默认小模型在本机验证逻辑后推送到 main；GPU 机 pull 后按 handoff §3 复验 |
 | R1.1 离线重算分位数 | **本机** | 结果 JSON 已在本机，纯 CPU |
 | R1.2 重复测量（50 样本 × 3 轮） | **GPU 机** | 样本清单 `repeat_subset_ids.json` 由本机生成（从 exp1 结果 JSON 提取）后传入 |
@@ -61,11 +63,15 @@
 
 ## 一、R0：前置准备（0.5 天，一切实验的前提）
 
-### 1.1 恢复原始实验数据 ✅ 已解决
+### 1.1 原始实验数据 ✅ 在本机，完整
 
-**原始 1,132 条合成样本已确认找回（保存在 GPU 实验机）。** 完整性的最终核验（数量、时长抽验）已并入 GPU 机 handoff 文档的 Day-0 清单，在首次运行实验前执行。
+**原始 1,132 条合成样本完整保存在本机** `experiments/datasets/processed/`（2026-08-18 核验：multiwoz 630 JSON+630 WAV、crosswoz 503 JSON+503 WAV；crosswoz 比论文计数 502 多 1 条为原实验运行时失败样本，属正常，共 3.4 GB）。
 
-注：本机另存有 crosswoz 音频 399 个 WAV（无 JSON 元数据、无 multiwoz），为不完整副本，**不作为实验依据**；本机的离线分析工作不依赖原始音频，仅依赖已有结果 JSON（已核实字段齐全：exp1 2266 条逐样本结果、exp2 三模式结果、exp3 三配置结果均在 `experiments/results/` 下）。
+**注意：GPU 机系统已重装为全新 Ubuntu 22.04，盘内无历史数据。** 因此：
+
+- 原始数据包由本机打包（整个 `processed/` 目录）经文件渠道传给 GPU 机，GPU 机按 handoff §1.1 做完整性核验（数量 + 时长抽验）；
+- GPU 机环境按 handoff §1.0 从零初始化（驱动/uv/clone/uv sync/模型预下载/CosyVoice 重新部署）；
+- 本机离线分析工作不依赖原始音频，仅依赖已有结果 JSON（已核实字段齐全：exp1 2266 条逐样本结果、exp2 三模式结果、exp3 三配置结果均在 `experiments/results/` 下）。
 
 ### 1.2 环境核对（与论文 §V-A 声明一致）
 
@@ -102,9 +108,15 @@ experiments/
 
 ## 二、R1：统计显著性补强（意见3，1 天，绝大部分纯离线）
 
-### 2.1 离线重算分位数（无需 GPU）
+### 2.1 离线重算分位数（无需 GPU）✅ 已完成（2026-08-18）
 
-**新脚本** `experiments/scripts/recompute_stats.py`（纯 CPU，输入现有结果 JSON）：
+**脚本** `experiments/scripts/recompute_stats.py` 已实现并运行，产出见 `results/revision/r1_stats/`。关键发现：
+
+- **Table III 均值与论文完全一致**（streaming Long 1126.63 / Very Long 1099.16 / Extra Long 1087.70 ms），仅成对排除 1 条运行错误样本（crosswoz_7310_turn10）；baseline Extra Long 均值 6753.43→6745.57。
+- **Table V 的 "ASR time" 列（1327.48/1224.96/1086.16）无法从任何归档逐样本数据复现**（结果 JSON 的 streaming asr_time_ms 均值为 1123.07/932.96/668.61，非恒定偏移），疑似来自已被覆盖的旧运行。修改稿该列按重算值更新——三配置排序不变，"加 suffix 抬尾时延、去上下文省尾时延"的结论不变（suffix1−default=+190ms，default−pre0suf0=264ms）。
+- 平台稳定性表述改为可辩护口径：System B 流式 P99 有界（1979/2174/2605 ms），Long→Extra Long 仅增 1.32×（baseline 4.96×）；Extra Long 流式 P99 为 baseline 的 0.21 倍。不再使用"P99≤1.5×mean"判定（该口径不成立）。
+
+**原规格（已按上述实现）**：
 
 - 读取：
   - `experiments/results/exp1_latency/exp1_results_20251210_024430.json`
@@ -114,7 +126,7 @@ experiments/
 - 输出：
   - `results/revision/r1_stats/table3_latency_percentiles.csv`（对应论文 Table III 行布局）
   - `table4_ablation_percentiles.csv`、`table5_context_percentiles.csv`
-  - `plateau_stability.txt`：Long/Very Long/Extra Long 三组 System B 的 P95、P99 数值及"P99 是否 ≤ 1.5×mean"的判定结论。
+  - `plateau_stability.txt`：Long/Very Long/Extra Long 三组 System B 的 P95、P99，与 baseline P99 的倍数关系，及尾部有界性结论。
 
 **论文需要的数字**：三张表每格 mean±std 与 P95/P99；平台稳定性结论一句话（如"三组 P99 均低于 X ms"）。
 
@@ -339,26 +351,28 @@ Day 3–4   编写离线分析脚本（score_wer_offline / check_tokenizer_seams
 Day 5+    GPU 机结果陆续回传后：R4 接缝分析、R5 嵌入+裁判评估、R6 预算汇总、R7 绘图与证据清单
 ```
 
-**GPU 机轨道（按 `GPU_EXPERIMENT_HANDOFF.md` 执行）：**
+**GPU 机轨道（按 `GPU_EXPERIMENT_HANDOFF.md` 执行，全新 Ubuntu 22.04）：**
 
 ```
-Day 0     handoff §1.0 git 同步（备份 .env → pull origin main）＋ §1 核验清单
-          （数据完整性、版本存档、CosyVoice 探活）——无需等待本机，可立即开始
-Day 0–1   pull 到本机推送的 DEV 代码后按 §3 复验冒烟；E1 重复测量（等 repeat 清单）
-Day 2–4   E2 真实语音运行（等本机数据包到达后开始；干净集 → 增强集）
+Day 0–1   handoff §1.0 环境初始化（系统包/NVIDIA 驱动/uv/clone/uv sync/模型预下载，
+          约 25 GB 下载）＋ CosyVoice 服务部署——无需等待本机，可立即开始
+Day 1     原始数据包到达 → §1.1 数据核验 → 版本存档
+Day 1–2   pull 到本机推送的 DEV 代码后按 §3 复验冒烟；E1 重复测量（等 repeat 清单）
+Day 2–4   E2 真实语音运行（等本机真实语音数据包到达后开始；干净集 → 增强集）
 Day 4–6   E3 LA 基线运行 → E4 R4+R5 合并复跑
 Day 6–7   E5 端点等待测量 ＋ E6 TTS 首包测量（CPU/网络，可与 GPU 运行穿插）
 Day 7+    按 §5 清单回传全部结果
 ```
 
-GPU 纯运行时间估计约 21–25 小时（仿真为实时节奏，见 handoff §4 的时间估算表），两机并行下**总工期约 7–9 个工作日**。
+GPU 纯运行时间约 21–28 小时（仿真为实时节奏，见 handoff §4 时间估算表），另有环境初始化约 1–1.5 天；两机并行下**总工期约 8–10 个工作日**。
 
 ## 十、风险与回退
 
 | 风险 | 影响 | 回退方案 |
 |---|---|---|
-| ~~原始 1,132 条数据找不到~~ | ✅ 已解决（已找回，存于 GPU 机） | 仅剩 handoff §1 的完整性核验；若核验发现缺项，回本机检查 crosswoz 部分副本，或用原管线补齐缺失样本 |
-| CosyVoice TTS 服务不可用 | R6.2 无法测首包 | 改用自建 CosyVoice 或其他流式 TTS，论文中如实写明型号；预算表仍成立 |
+| 原始数据在传输中损坏/缺项 | GPU 机无法开工 | 本机保留完整副本可重传；GPU 机按 handoff §1.1 核验（数量 + 抽验）把关 |
+| GPU 机全新环境初始化踩坑（驱动版本、uv sync 大下载失败、模型下载受阻） | Day 0–1 延期 | handoff §1.0 已给出驱动版本要求与 hf-mirror 备选；逐项重试，网络问题换镜像 |
+| CosyVoice 服务在新机器上无法恢复部署 | R6.2 无法测首包 | 仅影响 E6：改用其他流式 TTS 并在论文中如实写明型号；预算表仍成立。若镜像仍在本地备份，优先恢复 |
 | Judge API（qwen-max/gpt-4o）无 key | R5 轨道 B 缺失 | 降级为双嵌入模型交叉验证（bge-m3 + 另一中英模型），回信说明 |
 | R4 插桩发现 correction event 显著非零 | "无回滚"叙事需软化 | 如实报告频率与编辑距离，改叙事为"极低频漂移且不影响下游（引 R5 证据）" |
 | LA 基线实现进度超期 | R3 延期 | 裁剪为只在 Long/Very Long 两组各 50 条上运行；Extra Long 可省 |
