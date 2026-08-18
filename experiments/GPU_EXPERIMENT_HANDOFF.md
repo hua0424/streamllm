@@ -148,11 +148,11 @@ nvidia-smi >> experiments/results/revision/env_versions.txt
 | DEV-1~5 全部源码 | E1–E6 运行 | `git pull origin main`（本机推送后通知你） | E1、E3、E4、E5、E6 |
 | `repeat_subset_ids.json` | 固定 50 样本清单（Very Long 组） | 文件传输，放 `experiments/results/revision/r1_stats/` | E1、E4、E5 |
 | `exp2_ablation_sample_list.json` | 消融干净成对子集 498 条（排除规则见文件内 metadata；Table IV 按此口径重算） | 文件传输，放 `experiments/results/revision/r3_baseline_la/` | E3 |
-| 真实语音数据包 | `processed/json|audio/{librispeech,aishell1}` 及增强变体目录 | 文件传输，解压到 `experiments/datasets/processed/` 对应子目录 | E2 |
+| ~~真实语音数据包~~（**改为主机自建，不再传输**） | 原始语料（LibriSpeech/AISHELL-1/MUSAN，openslr 直下）+ 构建/QA/增强脚本（`experiments/scripts/{build_real_speech_set,build_augmented_variants,qa_real_speech,test_r2_build_smoke}.py`，随 git push 提供） | 脚本 `git pull`；语料主机自行下载并按 **§4-E2-0** 构建（约 26 GB 下载 + 1–2 h CPU + 一次 turbo QA），免 ~GB 级成品包传输 | E2 |
 
 **立即可做（不依赖任何本机输入）**：§1.0 环境初始化（系统包、驱动、uv、clone、uv sync、模型预下载）与 CosyVoice 服务部署。原始数据包、清单文件、DEV 代码到位后按上表逐项解锁。
 
-数据包验收：每个数据集目录应有"等数量"的 JSON 与 WAV；期望规模：librispeech 75 条、aishell1 75 条（Long 30 / Very Long 30 / Extra Long 15），增强变体每个目录 30–60 条不等（以交接说明为准）。随机抽 3 条试听或查看波形确认非静音。
+数据包验收（合成数据包）：每个数据集目录应有“等数量”的 JSON 与 WAV。真实语音数据集**不再走文件传输**，其构建与验收由 §4-E2-0 的 `qa_real_speech.py`（静态校验 + turbo 转写 sanity）代替人工抽检。
 
 ---
 
@@ -167,7 +167,7 @@ nvidia-smi >> experiments/results/revision/env_versions.txt
 在原脚本基础上加 5 个能力（全部向后兼容，不传新参数时行为与原版完全一致）：
 
 1. **`--sample-list <path>`**：JSON 数组（sample_id 字符串列表）。在 `load_samples()` 返回后过滤：`samples = [s for s in samples if s.sample_id in allow]`。
-2. **数据集扩展**：`load_samples()` 中硬编码的 `["crosswoz", "multiwoz"]` 扩展为同时支持 `"librispeech"`、`"aishell1"` 及增强变体目录名；`--dataset` 的 choices 相应扩充（`all` = 扫描 `processed/json/` 下全部子目录）。
+2. **数据集扩展**：`load_samples()` 中硬编码的 `["crosswoz", "multiwoz"]` 扩展为同时支持 `"librispeech"`、`"aishell1"` 及增强变体目录名；`--dataset` 的 choices 相应扩充（`all` = 扫描 `processed/json/` 下全部子目录）。**（已实现并验证：`--dataset` 接受任意子目录名，`all` 自动扫描，冒烟覆盖）**
 3. **`--append-silence-ms N`**（默认 0）：音频加载后在尾部拼接 N ms 零值静音。新增两个计时点：
    - `speech_end_time`：最后一块**真实（非静音）**音频块推送完毕的时刻；
    - `final_speech_segment_commit_time`：最后一个**含语音**段（VAD 闭段；无尾静音时为含语音的 flush 段）放入 `audio_segment_queue` 的时刻；
@@ -186,6 +186,7 @@ nvidia-smi >> experiments/results/revision/env_versions.txt
 1. silero-vad 经 `torch.hub.load` 首次下载会交互询问信任仓库，非交互 shell 下直接 EOF 报错；预缓存：`echo y | uv run python -c "from src.asr.streamaudio_segmenter import StreamAudioSegmenter; StreamAudioSegmenter()"`。
 2. `.env` 中的 HF_TOKEN 已失效（whoami 验证 401）。已缓存模型不受影响；如需新下载模型，临时置空：`HF_TOKEN= uv run ...`。
 3. 回归套件 `experiments/scripts/test_revision_regressions.py`（正式实验前建议先跑一遍，预期 10/10）同样依赖 Silero VAD：首次运行需 GitHub 可达或已有 torch hub 缓存（与上一条同一缓存）。
+4. R2 构建冒烟 `experiments/scripts/test_r2_build_smoke.py`（E2-0 第 2 步，预期 16/16）只依赖 numpy/soundfile/librosa，无模型下载、无网络需求，可离线运行。
 
 ### DEV-2：`src/asr/faster_whisper_streamer.py` 提交分歧插桩
 
@@ -287,9 +288,54 @@ done
 
 产出：3 份结果 JSON/CSV（每份 50 样本 × 2 模式）。
 
-### E2 真实语音（R2，意见1）｜约 3 + 6–9 GPU 小时
+### E2 真实语音（R2，意见1）｜E2-0 构建约 1–2 h CPU + 约 3 + 6–9 GPU 小时
 
-前置：真实语音数据包已解压验收（§2）。
+前置：**真实语音数据集由你自行构建（不再等待成品包传输）**。构建/QA/增强脚本已随 git push 提供（本机已用伪造迷你语料冒烟 16/16 通过 + test-clean 真实小配额验证）。
+
+#### E2-0 数据集构建（CPU 任务，可与 E1 并行）
+
+```bash
+RAW=experiments/datasets/raw_data
+mkdir -p $RAW/librispeech $RAW/aishell1
+
+# 1) 下载原始语料（约 26 GB；LibriSpeech 共 0.7 GB 为必须，AISHELL-1 15 GB / MUSAN 11 GB 走 openslr 或镜像）
+wget -O $RAW/librispeech/test-clean.tar.gz https://www.openslr.org/resources/12/test-clean.tar.gz
+wget -O $RAW/librispeech/test-other.tar.gz  https://www.openslr.org/resources/12/test-other.tar.gz   # 备用素材，可后下
+wget -O $RAW/aishell1/data_aishell.tgz https://www.openslr.org/resources/33/data_aishell.tgz
+wget -O $RAW/musan.tar.gz https://www.openslr.org/resources/17/musan.tar.gz
+tar -xzf $RAW/musan.tar.gz -C $RAW   # MUSAN 需解压出 musan/noise 与 musan/speech
+# LibriSpeech / AISHELL 压缩包无需手动解压：构建脚本自动解外层；
+# AISHELL 内层 wav/S*.tar.gz 保持懒读不解压（省 ~15 GB 磁盘与双次解压时间）
+
+# 2) 构建链路冒烟（纯 CPU 秒级，伪造迷你语料，预期 16/16 通过；不依赖网络/模型）
+uv run python -m experiments.scripts.test_r2_build_smoke
+
+# 3) 正式构建（每集合 75 条：long 30 / very_long 30 / extra_long 15；seed=42，同输入确定性可重建）
+uv run python -m experiments.scripts.build_real_speech_set --source librispeech
+uv run python -m experiments.scripts.build_real_speech_set --source aishell1
+
+# 4) QA 验收（静态校验 + turbo 转写 sanity，约 0.5 h GPU）
+uv run python -m experiments.scripts.qa_real_speech \
+  --datasets librispeech,aishell1 --transcribe --asr-model-size turbo --device cuda:0
+
+# 5) 增强变体（每变体抽 30 条，优先 long+very_long；babble 为可选项）
+uv run python -m experiments.scripts.build_augmented_variants \
+  --dataset librispeech --variants snr20 snr15 snr10 speed09 speed11 babble
+uv run python -m experiments.scripts.build_augmented_variants \
+  --dataset aishell1 --variants snr20 snr15 snr10 speed09 speed11 babble
+# 变体静态 QA（以实际构建出的变体目录为准；跳过的变体不必列出）
+VARIANTS=$(ls experiments/datasets/processed/json | grep -E '^(librispeech|aishell1)_' | paste -sd,)
+uv run python -m experiments.scripts.qa_real_speech --datasets "$VARIANTS"
+```
+
+E2-0 验收线（不过则停止并报告，勿跑 E2）：
+- 两次 `qa_real_speech` 退出码均为 0；干净集配额 30/30/15，变体目录各 30 条；
+- 转写 sanity：librispeech WER 与 aishell1 CER 均 ≤ 10%（超线说明拼接/转写对齐有 bug）；
+- 产物 manifest：`$REV/r2_real_speech/{librispeech,aishell1}_build_manifest.json` 与 `*_augment_manifest.json`（逐样本来源 utterance、SNR 实测值、抽样清单），回传时一并打包。
+
+说明：E2a 的 System A 转写质量验收已在 E2-0 第 4 步前置完成，E2a 运行后只按 §5.2 通用项检查即可。
+
+#### E2a/E2b 运行
 
 ```bash
 # E2a 干净集（150 条 × 2 模式）
@@ -298,7 +344,7 @@ uv run python -m experiments.scripts.run_exp_latency \
 uv run python -m experiments.scripts.run_exp_latency \
   --dataset aishell1 --suffix-segments 0 --output-dir $REV/r2_real_speech/aishell1_clean
 
-# E2b 增强集（每个变体目录各跑一次；以数据包实际目录名为准，例如）
+# E2b 增强集（每个变体目录各跑一次；babble 两目录为可选）
 for v in librispeech_snr20 librispeech_snr15 librispeech_snr10 librispeech_speed09 librispeech_speed11 \
          aishell1_snr20 aishell1_snr15 aishell1_snr10 aishell1_speed09 aishell1_speed11; do
   uv run python -m experiments.scripts.run_exp_latency \
@@ -306,7 +352,7 @@ for v in librispeech_snr20 librispeech_snr15 librispeech_snr10 librispeech_speed
 done
 ```
 
-若 GPU 时间紧张：E2b 只保留 `*_snr15` 与 `*_speed09` 共 4 个变体，其余跳过并在 changelog 注明。
+若 GPU 时间紧张：E2b 只保留 `*_snr15` 与 `*_speed09` 共 4 个变体（babble 直接跳过），其余跳过并在 changelog 注明。
 
 ### E3 LocalAgreement 基线（R3，意见4）｜约 2.5 GPU 小时
 
@@ -361,8 +407,9 @@ uv run python -m experiments.scripts.measure_tts_first_chunk \
 | §1.0 环境初始化 | 0.5–1 天（主要是驱动与约 25 GB 下载） | 无 |
 | 原始数据包传输 + §1.1 核验 | 0.5 天（视传输渠道） | 无 |
 | E1 | 3.5–4 GPU 小时 | 数据包 + repeat 清单 + DEV-1 |
-| E2a | 3 GPU 小时 | 真实数据包 |
-| E2b | 6–9 GPU 小时（可砍至 3–4） | 真实数据包 |
+| E2-0 数据集构建（CPU 为主） | 语料下载约 26 GB + 1–2 h CPU + QA 约 0.5 h GPU | openslr 可达 + 脚本已 push |
+| E2a | 3 GPU 小时 | E2-0 产物 |
+| E2b | 6–9 GPU 小时（可砍至 3–4） | E2-0 产物 |
 | E3 | 2.5 GPU 小时 | DEV-3/4 + 消融清单 + 数据包 |
 | E4 | 4–5 GPU 小时 | DEV-1/2 + 数据包 |
 | E5 | 1 GPU 小时 | DEV-1 + 数据包 |
@@ -387,7 +434,7 @@ uv run python -m experiments.scripts.measure_tts_first_chunk \
 |---|---|
 | 失败样本占比 | < 2%，且 error 信息已记录 |
 | 合成集 sanity（E1/E4/E5 的 System A） | Extra Long 组 mean TTFT ≈ 6–8 s；System B 各 Long+ 组 mean ≈ 0.9–1.3 s（与论文 Table III 同量级） |
-| 真实语音 sanity（E2a 的 System A） | librispeech clean 转写文本与参考文本目测一致（WER 由本机离线计算；若转写明显错乱/为空占比 >10%，停止并报告） |
+| 真实语音 sanity（E2-0 构建时前置完成） | `qa_real_speech --transcribe` 退出码 0：干净集 librispeech WER / aishell1 CER ≤10%（E2a 运行时不再重复验收，按通用项检查） |
 | E3 | LA 模式有稳定文本提交，无队列死锁（日志无长时间空转） |
 | E5 端点结果 | (a) `audio_end_time − speech_end_time` ≈ 追加静音时长(2s)；(b) endpoint 统计的有效样本不含 `asr_no_speech`；(c) 逐样本 `final_speech_segment_commit_time ≤ final_is_final_segment_enqueue_time`（可离线核验）；(d) error 数与异常样本登记进 `REVISION_CHANGELOG.md` |
 | config 块 | 与 §1.3 锁定表一致（重点：suffix_segments=0、max_tokens、模型名） |

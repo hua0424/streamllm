@@ -277,7 +277,17 @@ uv run python -m experiments.datasets.tools.run_pipeline \
 
 - 数据源：LibriSpeech test-clean/test-other（CC BY 4.0）与 AISHELL-1（Apache 2.0），
   按原实验相同的拼接策略构造 Long/Very Long/Extra Long 样本（各集 75 条：30/30/15）。
-- 增强变体：MUSAN 噪声按 SNR 20/15/10 dB 混合，变速 0.9×/1.1×。
+- 构建脚本（2026-08-18 定稿，GPU 机执行，handoff §4-E2-0）：
+  `experiments/scripts/build_real_speech_set.py` —— 同章节（LibriSpeech）/同说话人
+  （AISHELL-1）顺序拼接，句间随机静音 U(0.2, 1.0)s，seed=42 全流程确定性可重建；
+  分组区间 long 15-30s / very_long 30-60s / extra_long 60-150s（与 DURATION_GROUPS 口径一致）；
+  AISHELL 转写去字间空格；逐条 QA（时长重读 ±50ms、文本非空、RMS 下限）+ 构建 manifest。
+- QA 脚本：`experiments/scripts/qa_real_speech.py` —— 静态校验 + Whisper 转写 sanity
+  （镜像 System A 解码参数 beam=5/temperature=0，复用 exp3 的 WER/CER 归一化），
+  干净集错误率 ≤10% 为验收线；冒烟 `test_r2_build_smoke.py`（伪造迷你语料 16/16）。
+- 增强变体：`experiments/scripts/build_augmented_variants.py` —— MUSAN noise 按 SNR 20/15/10 dB
+  混合（babble 为 speech 子集可选项）、变速 0.9×/1.1×（librosa time_stretch 保音高，
+  时长与分组同步重判）；每变体抽 30 条（优先 long+very_long），seed 确定性。
 - 运行：`run_exp_latency.py --dataset librispeech|aishell1|<变体>`（数据集目录扫描已通用化），
   配置与合成集锁定值一致（prefix=1, suffix=0, threshold=2.0s）。
 

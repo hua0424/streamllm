@@ -48,7 +48,8 @@
 | DEV-1/2/3/4/5 程序开发 + 小模型冒烟 | **本机** | 用 .env 默认小模型在本机验证逻辑后推送到 main；GPU 机 pull 后按 handoff §3 复验 |
 | R1.1 离线重算分位数 | **本机** | 结果 JSON 已在本机，纯 CPU |
 | R1.2 重复测量（50 样本 × 3 轮） | **GPU 机** | 样本清单 `repeat_subset_ids.json` 由本机生成（从 exp1 结果 JSON 提取）后传入 |
-| R2 真实语音：下载/构建/增强/QA | **本机** | 纯 CPU；QA 中的 System A WER sanity 可用本机 3060 跑 Whisper-Turbo（QA 用途，非论文数字）；产物打包传入 GPU 机 |
+| R2 真实语音：构建/增强/QA 脚本开发 + 冒烟 | **本机** | 脚本随 git push 给 GPU 机；本机用伪造迷你语料（16/16）+ test-clean 小配额真实验证，不下载 AISHELL/MUSAN 大文件 |
+| R2 真实语音：语料下载 + 正式构建/增强/QA | **GPU 机** | 主机直下 openslr 语料自行构建（handoff §4-E2-0），免去 ~GB 级成品包传输；QA 转写 sanity 用 turbo 在主机跑 |
 | R2 真实语音：实验运行 | **GPU 机** | handoff §4-E2 |
 | R3 LA 基线：样本清单（从 exp2 结果 JSON 提取并固定） | **本机** | ✅ 已生成（`make_sample_lists.py`）：干净成对子集 498 条（long 108 / very_long 150 / extra_long 240），排除规则显式化（运行错误 3 条 + 流式 TTFT>10s 挂起 4 条）；旧手工修复 `static-repair.csv` 不可复现已弃用，Table IV 数字按本清单重算更新 |
 | R3 LA 基线：运行 | **GPU 机** | handoff §4-E3（代码由本机经 git 交付） |
@@ -160,7 +161,7 @@ LibriSpeech 为 16 kHz FLAC；AISHELL-1 为 16 kHz WAV；MUSAN 采样率不一�
 
 ### 3.2 清洗与长语音构建
 
-**新脚本** `experiments/datasets/tools/build_real_speech_set.py`：
+**新脚本** `experiments/scripts/build_real_speech_set.py`（实现位置由 tools/ 调整为 scripts/，保持 `-m` 可运行与既有脚本一致）：
 
 1. **LibriSpeech**：按 `(speaker_id, chapter_id)` 分组，句按 utterance id 排序；同章节内顺序拼接，**句间插入随机静音间隔 U(0.2, 1.0) s**（制造停顿/端点变化，压力测试 VAD）；参考文本 = 对应 `.trans.txt` 行顺序拼接。
    - 过滤：丢弃无转写或音频损坏的句；丢弃拼接后仍不足 15 s 的章节。
@@ -176,7 +177,7 @@ LibriSpeech 为 16 kHz FLAC；AISHELL-1 为 16 kHz WAV；MUSAN 采样率不一�
 
 ### 3.3 增强变体（噪声 + 变速）
 
-**新脚本** `experiments/datasets/tools/build_augmented_variants.py`，对 3.2 的每条真实样本生成：
+**新脚本** `experiments/scripts/build_augmented_variants.py`，对 3.2 的每条真实样本生成：
 
 - **加噪**：MUSAN `noise/free-sound`（环境噪声）与 `speech/`（ babble）两类，按 RMS 归一叠加到 **SNR = 20 / 15 / 10 dB** 三档；噪声长度不足则随机裁剪循环。
 - **变速**：`librosa.effects.time_stretch`（或 torchaudio sox `tempo`），**0.9× 与 1.1×** 两档；变速后时长改变 → 更新 JSON 的 `audio_duration` 并重新判定分组。
@@ -188,7 +189,7 @@ LibriSpeech 为 16 kHz FLAC；AISHELL-1 为 16 kHz WAV；MUSAN 采样率不一�
 - **运行矩阵**（System A vs System B，沿用原 .env 配置、3 轮预热）：
   - 干净集：全部 150 条 × 2 模式（复用 `run_exp_latency.py`，TTFT + 逐样本转写落盘）；
   - 增强集：每语言每条件抽 30 条（Long+Very Long 为主）× 2 模式：3 SNR 档 + 2 变速档 + babble 一档，共约 6 条件 × 60 条。
-- **WER/CER 离线计算**（新小脚本 `experiments/scripts/score_wer_offline.py`）：读取运行结果 JSON 中两模式的 `transcribed_text`，与样本 JSON 的 `text` 比对，**复用 exp3 的 `normalize_text / wer / cer`**，按语言分别汇总（英文报 WER、中文报 CER，同时保留双指标与原文一致）。
+- **WER/CER 离线计算**（新小脚本 `experiments/scripts/score_wer_offline.py`）：读取运行结果 JSON 中两模式的 `transcribed_text`，与样本 JSON 的 `text` 比对，**复用 exp3 的 `normalize_text / wer / cer`**，按语言分别汇总（英文报 WER、中文报 CER，同时保留双指标与原文一致）。**英文须在归一化后补大小写折叠**（LibriSpeech 参考为全大写、Whisper 输出混合大小写；2026-08-18 本机 QA 实测未折叠会逐词失配，见 `results/revision/r2_real_speech/local_build_validation.runinfo.md`）；中文不受影响。
 
 ### 3.5 交付数据（论文新 Table VI + 正文段落）
 
@@ -344,9 +345,9 @@ Day 1     R1.1 离线重算分位数（当天出第一批数字）＋ 生成 rep
           exp2_ablation_sample_list.json，commit + push 供 GPU 机 pull
 Day 1–3   DEV-1/2/3/4/5 程序开发，用 .env 默认小模型（whisper-tiny + Qwen2.5-0.5B）
           在本机冒烟通过后 commit + push（GPU 机随时 pull 即可开工 E1/E4/E5/E3）
-Day 1–3   （并行）R2 数据下载（LibriSpeech/AISHELL-1/MUSAN）＋ 构建 ＋ QA
-          （System A WER sanity 用本机 3060 跑 Whisper-Turbo）＋ 增强变体，
-          打包经 git 之外的渠道传 GPU 机
+Day 1–3   （改道）R2 构建链路脚本开发 + 本机冒烟（伪造迷你语料 16/16 + test-clean
+          小配额真实构建），push 后 GPU 机按 handoff §4-E2-0 自行下载语料并正式
+          构建/QA/增强（免成品包传输）
 Day 3–4   编写离线分析脚本（score_wer_offline / check_tokenizer_seams / 语义评估）
 Day 5+    GPU 机结果陆续回传后：R4 接缝分析、R5 嵌入+裁判评估、R6 预算汇总、R7 绘图与证据清单
 ```
