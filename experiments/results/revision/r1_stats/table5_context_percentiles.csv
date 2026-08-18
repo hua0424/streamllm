@@ -1,4 +1,5 @@
 config,mode,metric,subset,n,mean,std,p50,p90,p95,p99,min,max
+prefix1_suffix1,pooled,asr_time_ms,all,300,1327.48,645.03,1148.08,2405.81,2716.80,3049.16,507.29,3216.25
 prefix1_suffix1,streaming,asr_time_ms,all,150,1123.07,382.10,1027.48,1609.08,1782.55,2433.04,601.26,2614.31
 prefix1_suffix1,streaming,wer,multiwoz,74,0.0895,0.0614,0.0842,0.1635,0.1960,0.2482,0.0000,0.3048
 prefix1_suffix1,streaming,cer,multiwoz,74,0.0196,0.0208,0.0105,0.0526,0.0611,0.0799,0.0000,0.0897
@@ -9,6 +10,7 @@ prefix1_suffix1,non-streaming,wer,multiwoz,74,0.0000,0.0000,0.0000,0.0000,0.0000
 prefix1_suffix1,non-streaming,cer,multiwoz,74,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000
 prefix1_suffix1,non-streaming,wer,crosswoz,76,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000
 prefix1_suffix1,non-streaming,cer,crosswoz,76,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000
+prefix1_suffix0_default,pooled,asr_time_ms,all,300,1224.96,655.85,949.99,2355.15,2726.57,3018.06,515.86,3161.86
 prefix1_suffix0_default,streaming,asr_time_ms,all,150,932.96,295.23,878.76,1309.57,1509.59,1898.51,538.18,2374.63
 prefix1_suffix0_default,streaming,wer,multiwoz,74,0.0813,0.0611,0.0752,0.1603,0.1882,0.2465,0.0000,0.3048
 prefix1_suffix0_default,streaming,cer,multiwoz,74,0.0221,0.0218,0.0135,0.0554,0.0603,0.0842,0.0000,0.0916
@@ -19,6 +21,7 @@ prefix1_suffix0_default,non-streaming,wer,multiwoz,74,0.0000,0.0000,0.0000,0.000
 prefix1_suffix0_default,non-streaming,cer,multiwoz,74,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000
 prefix1_suffix0_default,non-streaming,wer,crosswoz,76,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000
 prefix1_suffix0_default,non-streaming,cer,crosswoz,76,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000
+prefix0_suffix0,pooled,asr_time_ms,all,300,1086.16,690.43,781.95,2279.99,2641.87,2973.93,381.00,3167.41
 prefix0_suffix0,streaming,asr_time_ms,all,150,668.61,216.85,599.74,943.18,1072.72,1470.35,381.00,1839.90
 prefix0_suffix0,streaming,wer,multiwoz,74,0.0619,0.0678,0.0503,0.1514,0.1756,0.3086,0.0000,0.3238
 prefix0_suffix0,streaming,cer,multiwoz,74,0.0226,0.0265,0.0127,0.0560,0.0657,0.1072,0.0000,0.1325

@@ -153,6 +153,11 @@ def table5():
         p = next(d.glob("exp3_results_*.json"))
         data = json.load(open(p, encoding="utf-8"))
         res = [r for r in data["results"] if not r.get("error")]
+        #  pooled（两模式合并）均值：论文 Table V "ASR time" 列的原始口径，保留以便直接核对
+        v_all = [r["asr_time_ms"] for r in res]
+        s = pct_stats(v_all)
+        rows.append([cfg, "pooled", "asr_time_ms", "all", str(s["n"])] +
+                    [fmt(s[k]) for k in ["mean", "std", "p50", "p90", "p95", "p99", "min", "max"]])
         for mode in ["streaming", "non-streaming"]:
             sub = [r for r in res if r["mode"] == mode]
             v = [r["asr_time_ms"] for r in sub]

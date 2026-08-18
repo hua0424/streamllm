@@ -113,7 +113,7 @@ experiments/
 **脚本** `experiments/scripts/recompute_stats.py` 已实现并运行，产出见 `results/revision/r1_stats/`。关键发现：
 
 - **Table III 均值与论文完全一致**（streaming Long 1126.63 / Very Long 1099.16 / Extra Long 1087.70 ms），仅成对排除 1 条运行错误样本（crosswoz_7310_turn10）；baseline Extra Long 均值 6753.43→6745.57。
-- **Table V 的 "ASR time" 列（1327.48/1224.96/1086.16）无法从任何归档逐样本数据复现**（结果 JSON 的 streaming asr_time_ms 均值为 1123.07/932.96/668.61，非恒定偏移），疑似来自已被覆盖的旧运行。修改稿该列按重算值更新——三配置排序不变，"加 suffix 抬尾时延、去上下文省尾时延"的结论不变（suffix1−default=+190ms，default−pre0suf0=264ms）。
+- **Table V 的 "ASR time" 列口径已查明**（2026-08-18 二次核实，推翻此前"无法复现"的判断）：该列 = summary CSV 中 `asr_time_ms` 对**两种模式合并**（300 行）的均值，1327.48/1224.96/1086.16 与归档数据**精确一致**，论文 Table V 保持原值无需修改。注意该口径混合了流式尾时延（1123.07/932.96/668.61）与非流式全音频解码时间（≈1500ms），分模式明细与分位数已存入 `table5_context_percentiles.csv`（含 pooled 复核行）；修改稿如需更纯粹的"尾时延"叙述，可引用 streaming 单列（suffix1−default=+190ms，default−pre0suf0=264ms，方向与现文一致）。
 - 平台稳定性表述改为可辩护口径：System B 流式 P99 有界（1979/2174/2605 ms），Long→Extra Long 仅增 1.32×（baseline 4.96×）；Extra Long 流式 P99 为 baseline 的 0.21 倍。不再使用"P99≤1.5×mean"判定（该口径不成立）。
 
 **原规格（已按上述实现）**：
