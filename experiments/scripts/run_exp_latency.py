@@ -153,6 +153,33 @@ def get_duration_group(duration: float) -> str:
     return "extra_long"
 
 
+def classify_endpoint_times(speech_end_time: float,
+                            final_speech_segment_commit_time: float,
+                            final_is_final_segment_enqueue_time: float,
+                            existing_error: str = "") -> Tuple[str, Optional[float], Optional[float]]:
+    """
+    端点时间字段的合法性与 asr_no_speech 判定（纯函数，R4-P1-1：供回归测试直接验证）。
+
+    规则：
+    - final_speech_segment_commit_time == 0 且无既有错误 → asr_no_speech（全程无含语音段）
+    - final_speech > final_is_final → endpoint_timing_invalid（语音段不可能晚于 final 段入队）
+
+    Returns:
+        (error, endpoint_detection_wait, final_enqueue_wait)；wait 在时间不完整时为 None
+    """
+    error = existing_error
+    if not error and final_speech_segment_commit_time == 0.0:
+        error = "asr_no_speech"
+    if (final_speech_segment_commit_time and final_is_final_segment_enqueue_time
+            and final_speech_segment_commit_time > final_is_final_segment_enqueue_time):
+        error = error or "endpoint_timing_invalid"
+    detection_wait = (final_speech_segment_commit_time - speech_end_time
+                      if speech_end_time and final_speech_segment_commit_time else None)
+    enqueue_wait = (final_is_final_segment_enqueue_time - speech_end_time
+                    if speech_end_time and final_is_final_segment_enqueue_time else None)
+    return error, detection_wait, enqueue_wait
+
+
 # =============================================================================
 # 内存管理
 # =============================================================================
@@ -772,10 +799,13 @@ class LatencyExperiment:
             result.llm_prefill_time = (timings["first_token_time"] - timings["last_text_time"]) * 1000
 
             result.transcribed_text = " ".join(transcribed_text)
-            # R2-P0-2：全程无任何含语音段（全静音/低于 VAD 最小语音长度）→ 标记并排除统计，
-            # 防止伪造 endpoint wait；final_speech_segment_commit_time 保持 0.0
-            if not result.error and timings["final_speech_segment_commit_time"] == 0.0:
-                result.error = "asr_no_speech"
+            # R2-P0-2/R4-P1-1：端点时间字段合法性与 asr_no_speech 判定走纯函数（可回归测试）
+            result.error, _, _ = classify_endpoint_times(
+                timings["speech_end_time"],
+                timings["final_speech_segment_commit_time"],
+                timings["final_is_final_segment_enqueue_time"],
+                existing_error=result.error,
+            )
             result.response_preview = "".join(full_response)[:100]
             if getattr(self.args, 'save_full_response', False):
                 result.full_response = "".join(full_response)

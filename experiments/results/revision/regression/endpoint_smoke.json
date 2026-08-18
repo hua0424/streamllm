@@ -1,0 +1,24 @@
+{
+  "description": "R4-P1-2 最小可审计 artifact：tiny 模型 endpoint E2E 冒烟（一次性，非自动回归）",
+  "sample_id": "crosswoz_10040_turn1",
+  "config": {
+    "asr_model": "tiny",
+    "llm_model": "Qwen/Qwen2.5-0.5B-Instruct",
+    "chunk_duration_ms": 500,
+    "prefix_segments": 1,
+    "suffix_segments": 0,
+    "append_silence_ms": 2000,
+    "recognition_threshold": 2.0,
+    "timestamp": "20260818_190557"
+  },
+  "speech_end_time": 1787051143.2785594,
+  "final_speech_segment_commit_time": 1787051143.4933128,
+  "final_is_final_segment_enqueue_time": 1787051145.3618524,
+  "audio_end_time": 1787051145.3317604,
+  "endpoint_detection_wait_s": 0.215,
+  "final_enqueue_wait_s": 2.083,
+  "ttft_ms": 1297.35,
+  "error": "",
+  "transcribed_text_head": "你好,帮我找个免费的景点我希望评分是4.5分以上游玩的市场是一小时渐两小时我要和我学姐出去旅游",
+  "fragments": 1
+}

@@ -138,12 +138,14 @@ def test_endpoint_normal_speech_with_silence():
 
 
 def test_endpoint_flush_only_speech():
-    """场景 2（R3-P0-1）：语音未在中途闭合、由 flush 输出 → 不得误判 asr_no_speech。"""
-    audio = _speech_fixture()  # fixture 已验证：无中途闭段，语音全在 flush
+    """场景 2（R3-P0-1 / R4-P2-1）：语音未在中途闭合、由 flush 输出 → 不得误判 asr_no_speech。
+    fixture 选取时已验证量化 round-trip 后无中途闭段，此处显式断言 flush-only 性质。"""
+    audio = _speech_fixture()
     mids, rem = _run_pipeline(audio)
+    assert mids == [], f"fixture 不是 flush-only，检测到 {len(mids)} 个中途段"
     assert rem is not None and rem.contains_speech, \
         "flush-only 语音段必须 contains_speech=True（否则被误判 asr_no_speech）"
-    return "flush 段含语音被正确识别，不会误标 asr_no_speech"
+    return "无中途闭段 + flush 段含语音，不会误标 asr_no_speech"
 
 
 def test_endpoint_all_silence():
@@ -163,6 +165,117 @@ def test_endpoint_ultra_short():
     assert not any(m.contains_speech for m in mids)
     assert rem is None or not rem.contains_speech
     return "超短无效音频无语音段"
+
+
+# =============================================================================
+# B2. 生产端点字段（run_exp_latency 闭包 + 纯函数，R4-P1-1）
+# =============================================================================
+
+def test_classify_endpoint_times_pure():
+    """classify_endpoint_times 纯函数四用例（R4-P1-1 修改建议）。"""
+    from experiments.scripts.run_exp_latency import classify_endpoint_times as cet
+    # 1) 正常语音 + 尾静音：两 final 时间非零、无错误
+    err, dw, ew = cet(100.0, 100.5, 102.5)
+    assert err == "" and abs(dw - 0.5) < 1e-9 and abs(ew - 2.5) < 1e-9
+    # 2) flush-only 语音：语音提交与 final enqueue 均非零
+    err, dw, ew = cet(100.0, 102.5, 102.5)
+    assert err == "" and dw is not None and ew is not None
+    # 3) 全静音：语音提交时间为 0 → asr_no_speech；detection_wait 为 None
+    err, dw, ew = cet(100.0, 0.0, 102.5)
+    assert err == "asr_no_speech" and dw is None and abs(ew - 2.5) < 1e-9
+    # 4) 时间顺序非法：语音段晚于 final 段 → endpoint_timing_invalid
+    err, _, _ = cet(100.0, 105.0, 102.5)
+    assert err == "endpoint_timing_invalid"
+    return "四用例通过（正常/flush-only/全静音/顺序非法）"
+
+
+def _fake_models():
+    """fake ASR/LLM：满足 run_exp_latency 流式/非流式闭包的调用协议，无模型依赖。"""
+    from types import SimpleNamespace
+
+    class FakeASRProcessor:
+        timing_events = {}
+
+        def reset_commit_tracking(self, sample_id=""):
+            pass
+
+        def transcribe_audio_segment(self, cache):
+            cache.add_to_asr_segments()
+            if cache.segment_queue and cache.segment_queue[-1].is_final:
+                return cache, "文本身", True
+            return cache, "", False
+
+        def transcribe_complete_audio(self, **kw):
+            return {"text": "文本身"}
+
+    class FakeLLM:
+        def reset_timings(self):
+            pass
+
+        def cache_prompt(self, text, pre_cache=None, is_end=False):
+            return object()
+
+        def generate(self, pre_cache=None, max_new_tokens=50):
+            yield "好"
+
+        def once_add_and_generate(self, prompt, **kw):
+            yield "好"
+
+    return SimpleNamespace(asr_processor=FakeASRProcessor(), llm_inference=FakeLLM(),
+                           reset_state=lambda: None)
+
+
+def _run_production_sample(audio: np.ndarray, append_silence_ms: int = 0):
+    """走完整生产路径 run_single_sample（含 --append-silence-ms 拼接），fake 模型（R4-P1-1）。"""
+    from types import SimpleNamespace
+    import soundfile as sf
+    import tempfile
+    from experiments.scripts.run_exp_latency import LatencyExperiment, SampleInfo
+    args = SimpleNamespace(chunk_duration=500, max_tokens=5,
+                           append_silence_ms=append_silence_ms,
+                           save_full_response=False, save_fragments=False)
+    exp = LatencyExperiment(_fake_models(), args)
+    with tempfile.TemporaryDirectory() as td:
+        wav = Path(td) / "stub.wav"
+        sf.write(str(wav), audio, 16000, subtype="PCM_16")
+        sample = SampleInfo(sample_id="stub_sample", dialog_id="0", turn_index=1, text="参考文本",
+                            text_length=4, audio_file="stub.wav", audio_path=wav,
+                            audio_duration=len(audio) / 16000, language="zh", dataset="stub",
+                            duration_group="medium")
+        streaming, _ = exp.run_single_sample(sample)
+    return streaming
+
+
+def test_production_endpoint_bookkeeping():
+    """R4-P1-1 核心：完整生产路径（真实闭包 + 真实分段器 + 尾静音经 --append-silence-ms），
+    断言写入结果 JSON 的三个时间字段及其关系。"""
+    # 场景 1：正常语音 + 2s 尾静音（经生产 append 路径拼接）
+    r1 = _run_production_sample(_speech_fixture(), append_silence_ms=2000)
+    se, fs, fe = r1.speech_end_time, r1.final_speech_segment_commit_time, r1.final_is_final_segment_enqueue_time
+    assert se > 0 and fs > 0 and fe > 0, (se, fs, fe)
+    assert fs <= fe, "语音段提交不得晚于 final 段入队"
+    assert fs > se, "VAD 闭段不得早于真实语音结束"
+    assert r1.error == "", r1.error
+    wait = fs - se
+    assert 0 <= wait < 2.0, f"detection_wait={wait} 异常"
+    print(f"\n    [B6-1] speech_end={se:.3f} speech_commit={fs:.3f} final_enqueue={fe:.3f} "
+          f"detection_wait={wait:.3f}s enqueue_wait={fe-se:.3f}s")
+    # 场景 2：flush-only 语音（无尾静音）
+    r2 = _run_production_sample(_speech_fixture())
+    assert r2.final_speech_segment_commit_time > 0 and r2.final_is_final_segment_enqueue_time > 0
+    assert r2.error == "", r2.error
+    print(f"    [B6-2] speech_commit={r2.final_speech_segment_commit_time:.3f} "
+          f"final_enqueue={r2.final_is_final_segment_enqueue_time:.3f}")
+    # 场景 3：全静音 → asr_no_speech，final enqueue 仍记录
+    r3 = _run_production_sample(np.zeros(64000, dtype=np.float32))
+    assert r3.final_speech_segment_commit_time == 0.0
+    assert r3.final_is_final_segment_enqueue_time > 0
+    assert r3.error == "asr_no_speech", r3.error
+    print(f"    [B6-3] speech_commit=0 final_enqueue={r3.final_is_final_segment_enqueue_time:.3f} "
+          f"error={r3.error}")
+    return "生产路径三场景：字段非零/排序/非负等待/错误标记全部符合不变量"
+
+
 
 
 # =============================================================================
@@ -245,6 +358,8 @@ def main():
         ("B2 endpoint flush-only 语音", test_endpoint_flush_only_speech),
         ("B3 endpoint 全静音", test_endpoint_all_silence),
         ("B4 endpoint 超短无效", test_endpoint_ultra_short),
+        ("B5 endpoint 纯函数判定", test_classify_endpoint_times_pure),
+        ("B6 endpoint 生产闭包 bookkeeping", test_production_endpoint_bookkeeping),
         ("C1 clean source 动态计数", test_clean_source_dynamic_counts),
     ]
     failures = 0
