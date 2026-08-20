@@ -1,5 +1,11 @@
 # E3-LA 结果无效问题审查交接文档（DEV-3 下标错帧 bug）
 
+> **状态更新（2026-08-20）**：评审通过（`experiments/review/20260820-E3LA/`），修复已完成并提交
+> （commit `6d74c1c`）。修复过程中在本机真实回放另发现第二个机制——句末残片开头缓冲触发
+> Whisper turbo 幻听坍缩，已一并修复（句界裁剪 + 标点鲁棒一致比较）。回归 16/16；
+> 典型样本回放 WER 0.8796→0.0185（`replay_crosswoz_10296_turn2_fixed.json`）。
+> 详见 `../../REVISION_CHANGELOG.md` 2026-08-20 修复条目。以下为原始定位记录，保留备查。
+
 > **读者**：代码审查人员。
 > **目的**：请审查本文对 `src/asr/local_agreement_streamer.py`（DEV-3，LocalAgreement-2 实现）的 bug 定位与修复建议，
 > 确认后由开发方修复并授权重跑 E3-LA。

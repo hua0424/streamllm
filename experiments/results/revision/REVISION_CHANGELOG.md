@@ -84,6 +84,7 @@
 - 处置：结果 JSON 重命名为 `la_results_*.json.INVALID_dev3_frame_bug` 保留现场；按"发现缺漏停止上报，不自行修改实现"规则，已上报需求方待授权修复（建议：裁剪后重置 prev_words/n_committed 参考帧，提交条件改为时间下限 end > last_committed_end 叠加尾随保护）；修复后需重跑 E3-LA（约 6h）。
 - 注：E4/E5 走 System B 路径、与 LA 组件无关，经评估不受影响，继续按计划推进。
 
+
 ## 2026-08-20 E4 插桩+完整回复复跑完成（R4+R5，意见5）
 
 - 命令：`uv run python -m experiments.scripts.run_exp_latency --dataset all --sample-list $REV/r1_stats/repeat_subset_ids.json --asr-device cuda:0 --llm-device cuda:1 --suffix-segments 0 --max-tokens 128 --save-full-response --save-fragments --output-dir $REV/r4_commit --no-resume`
@@ -98,6 +99,18 @@
 - 关键数字：50 样本 × 2 模式，error 0；QA 四项全过：(a) audio_end−speech_end = 2.002s±0.001 ✓；(b) asr_no_speech 0 个 ✓；(c) final_speech ≤ final_is_final 无违例 ✓；(d) 无异常样本。端点指标（50/50 有效）：endpoint_detection_wait mean 53ms / median 109ms / p90 208ms；final_enqueue_wait mean 2053ms；post_endpoint_ttft mean 3012ms；total（speech_end→首 token）mean 3065ms
 - 异常与处理：无
 
+## 2026-08-20 DEV-3 修复完成（commit `6d74c1c`）：错帧 + 裁剪幻听双重修复，评审门槛中本机侧全部达成
+
+- 评审：`experiments/review/20260820-E3LA/review-20260820-E3LA.md` 判定 bug 定位成立（P0）、结果无效处置正确、修复方向原则上通过，要求补齐跨帧/无重复/边界/flush/空识别/生产路径回归与真实样本回放后方可重跑。
+- 修复内容（`src/asr/local_agreement_streamer.py` 重写状态机）：
+  1. **错帧（原 bug）**：提交状态改为绝对音频时间轴（`committed_words`/`committed_end_abs`/`buffer_start_abs`），提交判定用时间下界 `end > committed_end_abs + eps` 而非跨帧词数下标；`prev_words` 保留未提交尾部作下一轮比较基线（两轮确认不削弱）。
+  2. **裁剪幻听（修复过程中新发现，同一样本本机回放暴露）**：原"末词 end−0.1s"裁剪把缓冲切成以句末残片（'宿。'）开头，Whisper turbo 对此坍缩为训练集水印幻听（'请不吝点赞订阅转发打赏支持明镜与点点栏目'）且连续三轮文本稳定一致，绕过 LA-2 两轮确认。实测：句末残片开头→幻听；干净句首/句中词边界切开→正常。修复：裁剪与提交解耦，优先裁到最后一个句末已提交词的 end（无回退），无句界锚点且缓冲超 15s（ufal buffer_trimming_sec 对齐）才强制裁到已提交边界。
+  3. **标点抖动卡死（同场暴露）**：Whisper 对同一音频的标点附着/分词跨轮不稳（'宿。'↔'宿'+'，'），逐字 LCP 会永远停在原地。修复：一致比较只取实质词、按去首尾标点规范化文本比较；纯标点词透明（不作锚点，提交时随区间带出）。
+- 回归：`test_revision_regressions` **16/16**（A1-A3 按新语义重写 + 新增 D1 跨帧跳段 / D2 强制裁剪多周期无重复 / D3 边界 ±0.1s 不重复不跳过 / D4 flush 幂等 / D5 生产路径 run_single_sample 全链路无缺口且 LLM 收到文本==提交文本 / D6 标点抖动不卡死）。
+- 真实样本回放（turbo，本机）：`crosswoz_10296_turn2` 修复前 WER 0.8796、24 字符、中段丢失；修复后 **WER 0.0185 / CER 0.0727**、116 字符、5 次提交覆盖全文（证据 `r3_baseline_la/handoff/replay_crosswoz_10296_turn2_fixed.json`）。
+- 附带硬化：`run_exp_baseline_la` 清单缺失样本改为硬失败（评审要求"停止而不是静默缩减"）；`la_max_buffer_s` 入结果 config 块。
+- 待办（GPU 机侧）：E0 冒烟 `--max-samples 2` → 隔离旧 checkpoint/INVALID 现场 → 全量重跑 E3-LA（命令与 QA 清单见 GPU_EXPERIMENT_HANDOFF §E3"2026-08-20 重跑前置"）。
+
 ## 2026-08-20 E6 TTS 首包延迟测量完成（R6.2，意见2）
 
 - 命令：`uv run python -m experiments.scripts.measure_tts_first_chunk --from-e4 $REV/r4_commit --n-zh 25 --n-en 25 --url http://127.0.0.1:20401 --output $REV/r6_ttfa/tts_first_chunk.csv`
@@ -106,3 +119,4 @@
 - 异常与处理：首轮冷启动 TTFC 偏高（mean 14.84s），按需求方建议做 3 次预热后重测——**冷热两轮无显著差异（14.84s vs 12.92s，RTF 0.74 vs 0.71），排除预热因素，确认为稳态行为**。
 - 附加诊断（TTFC×文本长度，单次测量）：3 字符→1.37s / 17 字符→3.77s / 45 字符→7.64s / 200 字符→17.93s —— **TTFC 与文本长度近似线性**，该部署为句段级流式（句内不流式：短句首包≈全程合成完毕才到）。
 - 环境注记：TTS 前端文本处理 CPU 敏感，本机 KVM Xeon Gold 6133@2.5GHz 会放大 TTFC/RTF；按裁决 D 绑定平台披露。spk_id 晓伊→中文女 别名补丁仅影响音色，不影响延迟指标（见 TTS_SERVICE_HANDOFF §三）。
+
