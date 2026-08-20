@@ -1,0 +1,166 @@
+=== 静态校验: librispeech ===
+[quota] librispeech long: 30/30 ok
+[quota] librispeech very_long: 30/30 ok
+[quota] librispeech extra_long: 15/15 ok
+=== 静态校验: aishell1 ===
+[quota] aishell1 long: 30/30 ok
+[quota] aishell1 very_long: 30/30 ok
+[quota] aishell1 extra_long: 15/15 ok
+[report] experiments/results/revision/r2_real_speech/qa_static.csv
+[load] whisper turbo on cuda:0
+=== 转写 sanity: librispeech ===
+[transcribe] librispeech_1089-134686: WER=0.056
+[transcribe] librispeech_1089-134691: WER=0.000
+[transcribe] librispeech_1188-133604: WER=0.000
+[transcribe] librispeech_121-121726: WER=0.080
+[transcribe] librispeech_121-123852: WER=0.069
+[transcribe] librispeech_121-123859: WER=0.027
+[transcribe] librispeech_121-127105: WER=0.048
+[transcribe] librispeech_1221-135766: WER=0.047
+[transcribe] librispeech_1221-135767: WER=0.028
+[transcribe] librispeech_1284-1180: WER=0.020
+[transcribe] librispeech_1284-1181: WER=0.024
+[transcribe] librispeech_1284-134647: WER=0.021
+[transcribe] librispeech_1320-122612: WER=0.000
+[transcribe] librispeech_1320-122617: WER=0.017
+[transcribe] librispeech_1580-141083: WER=0.000
+[transcribe] librispeech_1580-141084: WER=0.023
+[transcribe] librispeech_1995-1826: WER=0.037
+[transcribe] librispeech_1995-1836: WER=0.049
+[transcribe] librispeech_1995-1837: WER=0.000
+[transcribe] librispeech_2094-142345: WER=0.041
+[transcribe] librispeech_2300-131720: WER=0.043
+[transcribe] librispeech_237-126133: WER=0.013
+[transcribe] librispeech_237-134493: WER=0.038
+[transcribe] librispeech_237-134500: WER=0.000
+[transcribe] librispeech_260-123286: WER=0.022
+[transcribe] librispeech_260-123288: WER=0.056
+[transcribe] librispeech_260-123440: WER=0.000
+[transcribe] librispeech_2830-3979: WER=0.000
+[transcribe] librispeech_2830-3980: WER=0.019
+[transcribe] librispeech_2961-960: WER=0.000
+[transcribe] librispeech_2961-961: WER=0.012
+[transcribe] librispeech_3570-5694: WER=0.021
+[transcribe] librispeech_3570-5695: WER=0.000
+[transcribe] librispeech_3570-5696: WER=0.027
+[transcribe] librispeech_3575-170457: WER=0.053
+[transcribe] librispeech_3729-6852: WER=0.023
+[transcribe] librispeech_4077-13751: WER=0.072
+[transcribe] librispeech_4077-13754: WER=0.000
+[transcribe] librispeech_4446-2271: WER=0.060
+[transcribe] librispeech_4446-2273: WER=0.000
+[transcribe] librispeech_4446-2275: WER=0.011
+[transcribe] librispeech_4507-16021: WER=0.042
+[transcribe] librispeech_4970-29093: WER=0.027
+[transcribe] librispeech_4970-29095: WER=0.000
+[transcribe] librispeech_4992-23283: WER=0.021
+[transcribe] librispeech_4992-41797: WER=0.147
+[transcribe] librispeech_4992-41806: WER=0.103
+[transcribe] librispeech_5105-28233: WER=0.011
+[transcribe] librispeech_5105-28240: WER=0.034
+[transcribe] librispeech_5105-28241: WER=0.027
+[transcribe] librispeech_5142-33396: WER=0.010
+[transcribe] librispeech_5142-36377: WER=0.018
+[transcribe] librispeech_5639-40744: WER=0.038
+[transcribe] librispeech_5683-32865: WER=0.048
+[transcribe] librispeech_5683-32866: WER=0.083
+[transcribe] librispeech_5683-32879: WER=0.011
+[transcribe] librispeech_61-70968: WER=0.000
+[transcribe] librispeech_61-70970: WER=0.052
+[transcribe] librispeech_672-122797: WER=0.048
+[transcribe] librispeech_6829-68769: WER=0.044
+[transcribe] librispeech_6829-68771: WER=0.057
+[transcribe] librispeech_6930-75918: WER=0.005
+[transcribe] librispeech_6930-76324: WER=0.032
+[transcribe] librispeech_6930-81414: WER=0.007
+[transcribe] librispeech_7021-79730: WER=0.049
+[transcribe] librispeech_7021-79740: WER=0.006
+[transcribe] librispeech_7021-85628: WER=0.026
+[transcribe] librispeech_7127-75946: WER=0.023
+[transcribe] librispeech_7127-75947: WER=0.017
+[transcribe] librispeech_7176-88083: WER=0.027
+[transcribe] librispeech_7176-92135: WER=0.033
+[transcribe] librispeech_7729-102255: WER=0.074
+[transcribe] librispeech_8224-274381: WER=0.008
+[transcribe] librispeech_8224-274384: WER=0.043
+[transcribe] librispeech_8230-279154: WER=0.007
+[summary] librispeech: mean WER = 0.0298 (75 条, max=0.1474)
+=== 转写 sanity: aishell1 ===
+[transcribe] aishell1_S0002_01: CER=0.057
+[transcribe] aishell1_S0003_01: CER=0.008
+[transcribe] aishell1_S0004_01: CER=0.000
+[transcribe] aishell1_S0005_01: CER=0.030
+[transcribe] aishell1_S0006_01: CER=0.333
+[transcribe] aishell1_S0007_01: CER=0.038
+[transcribe] aishell1_S0008_01: CER=0.052
+[transcribe] aishell1_S0009_01: CER=0.035
+[transcribe] aishell1_S0010_01: CER=0.000
+[transcribe] aishell1_S0011_01: CER=0.000
+[transcribe] aishell1_S0012_01: CER=0.053
+[transcribe] aishell1_S0013_01: CER=0.063
+[transcribe] aishell1_S0014_01: CER=0.067
+[transcribe] aishell1_S0015_01: CER=0.045
+[transcribe] aishell1_S0016_01: CER=0.012
+[transcribe] aishell1_S0017_01: CER=0.000
+[transcribe] aishell1_S0018_01: CER=0.037
+[transcribe] aishell1_S0019_01: CER=0.019
+[transcribe] aishell1_S0020_01: CER=0.105
+[transcribe] aishell1_S0021_01: CER=0.030
+[transcribe] aishell1_S0022_01: CER=0.092
+[transcribe] aishell1_S0023_01: CER=0.191
+[transcribe] aishell1_S0024_01: CER=0.017
+[transcribe] aishell1_S0025_01: CER=0.000
+[transcribe] aishell1_S0026_01: CER=0.171
+[transcribe] aishell1_S0027_01: CER=0.012
+[transcribe] aishell1_S0028_01: CER=0.012
+[transcribe] aishell1_S0029_01: CER=0.083
+[transcribe] aishell1_S0030_01: CER=0.050
+[transcribe] aishell1_S0031_01: CER=0.008
+[transcribe] aishell1_S0032_01: CER=0.028
+[transcribe] aishell1_S0033_01: CER=0.123
+[transcribe] aishell1_S0034_01: CER=0.137
+[transcribe] aishell1_S0035_01: CER=0.006
+[transcribe] aishell1_S0036_01: CER=0.051
+[transcribe] aishell1_S0037_01: CER=0.088
+[transcribe] aishell1_S0038_01: CER=0.131
+[transcribe] aishell1_S0039_01: CER=0.022
+[transcribe] aishell1_S0040_01: CER=0.023
+[transcribe] aishell1_S0041_01: CER=0.122
+[transcribe] aishell1_S0042_01: CER=0.126
+[transcribe] aishell1_S0043_01: CER=0.044
+[transcribe] aishell1_S0044_01: CER=0.027
+[transcribe] aishell1_S0045_01: CER=0.096
+[transcribe] aishell1_S0046_01: CER=0.110
+[transcribe] aishell1_S0047_01: CER=0.012
+[transcribe] aishell1_S0048_01: CER=0.166
+[transcribe] aishell1_S0049_01: CER=0.097
+[transcribe] aishell1_S0050_01: CER=0.164
+[transcribe] aishell1_S0051_01: CER=0.191
+[transcribe] aishell1_S0052_01: CER=0.036
+[transcribe] aishell1_S0053_01: CER=0.011
+[transcribe] aishell1_S0054_01: CER=0.000
+[transcribe] aishell1_S0055_01: CER=0.000
+[transcribe] aishell1_S0056_01: CER=0.095
+[transcribe] aishell1_S0057_01: CER=0.005
+[transcribe] aishell1_S0058_01: CER=0.057
+[transcribe] aishell1_S0059_01: CER=0.155
+[transcribe] aishell1_S0060_01: CER=0.153
+[transcribe] aishell1_S0061_01: CER=0.035
+[transcribe] aishell1_S0062_01: CER=0.097
+[transcribe] aishell1_S0063_01: CER=0.092
+[transcribe] aishell1_S0064_01: CER=0.113
+[transcribe] aishell1_S0065_01: CER=0.027
+[transcribe] aishell1_S0066_01: CER=0.036
+[transcribe] aishell1_S0067_01: CER=0.006
+[transcribe] aishell1_S0068_01: CER=0.036
+[transcribe] aishell1_S0069_01: CER=0.105
+[transcribe] aishell1_S0070_01: CER=0.139
+[transcribe] aishell1_S0071_01: CER=0.061
+[transcribe] aishell1_S0072_01: CER=0.032
+[transcribe] aishell1_S0073_01: CER=0.025
+[transcribe] aishell1_S0074_01: CER=0.249
+[transcribe] aishell1_S0075_01: CER=0.038
+[transcribe] aishell1_S0076_01: CER=0.054
+[summary] aishell1: mean CER = 0.0672 (75 条, max=0.3333)
+[report] experiments/results/revision/r2_real_speech/qa_transcribe.csv
+[qa] 全部通过

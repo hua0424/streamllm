@@ -1,0 +1,1304 @@
+{
+  "dataset": "librispeech",
+  "seed": 42,
+  "subset": 30,
+  "variants": {
+    "snr20": {
+      "output": "librispeech_snr20",
+      "n_samples": 30,
+      "records": [
+        {
+          "sample_id": "librispeech_1188-133604",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.554,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_121-123852",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.695,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_121-123859",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.39,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_1320-122617",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 22.111,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_1995-1826",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.031,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_1995-1836",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.626,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_2300-131720",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.555,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_237-126133",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 26.014,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_237-134493",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 23.677,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_237-134500",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.889,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_260-123286",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 21.25,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_260-123288",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.899,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_260-123440",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.033,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_2830-3980",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.693,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_2961-960",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 27.18,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_2961-961",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 35.391,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_3570-5696",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 36.363,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_3575-170457",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.848,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_3729-6852",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.813,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_4446-2273",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.102,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_5105-28240",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.642,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_5105-28241",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 39.528,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_5142-33396",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.925,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_5142-36377",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.308,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_5683-32866",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.306,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_5683-32879",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.605,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_61-70968",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.381,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_61-70970",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.68,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_672-122797",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.256,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "librispeech_6829-68769",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.085,
+          "achieved_snr_db": 20.0
+        }
+      ]
+    },
+    "snr15": {
+      "output": "librispeech_snr15",
+      "n_samples": 30,
+      "records": [
+        {
+          "sample_id": "librispeech_1089-134686",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 21.267,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1089-134691",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.899,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1188-133604",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.554,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1221-135766",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 29.419,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1221-135767",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 24.85,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1284-1181",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.619,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1284-134647",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.18,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1995-1826",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.031,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1995-1837",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.438,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_2094-142345",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 22.57,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_2300-131720",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.555,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_237-126133",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 26.014,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_260-123288",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.899,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_260-123440",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.033,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_2961-960",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 27.18,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_3570-5695",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.786,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_3570-5696",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 36.363,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_3575-170457",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.848,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_4446-2271",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.919,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_4446-2273",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.102,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_4970-29095",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.38,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_4992-23283",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 38.411,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_4992-41806",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 41.951,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_5105-28240",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.642,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_5142-36377",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.308,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_5639-40744",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 38.129,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_5683-32865",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.634,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_5683-32879",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.605,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_61-70968",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.381,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_61-70970",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.68,
+          "achieved_snr_db": 15.0
+        }
+      ]
+    },
+    "snr10": {
+      "output": "librispeech_snr10",
+      "n_samples": 30,
+      "records": [
+        {
+          "sample_id": "librispeech_1089-134686",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 21.267,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_1188-133604",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.554,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_121-121726",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.126,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_121-123852",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.695,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_1284-1180",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.413,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_1284-1181",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.619,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_1284-134647",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.18,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_1320-122612",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 23.604,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_1995-1826",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.031,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_1995-1836",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.626,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_1995-1837",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.438,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_237-126133",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 26.014,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_237-134500",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.889,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_260-123440",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.033,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_2961-960",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 27.18,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_2961-961",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 35.391,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_4077-13751",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 46.582,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_4077-13754",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.836,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_4446-2273",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.102,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_4446-2275",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.38,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_4507-16021",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.486,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_4992-23283",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 38.411,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_4992-41797",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.183,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_4992-41806",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 41.951,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_5105-28233",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.389,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_5639-40744",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 38.129,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_5683-32866",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.306,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_5683-32879",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.605,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_672-122797",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.256,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "librispeech_6829-68769",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.085,
+          "achieved_snr_db": 10.0
+        }
+      ]
+    },
+    "speed09": {
+      "output": "librispeech_speed09",
+      "n_samples": 30,
+      "records": [
+        {
+          "sample_id": "librispeech_1089-134686",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 23.629,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1221-135767",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 27.611,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1284-1181",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.354,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1284-134647",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 21.311,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1320-122612",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 26.227,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1320-122617",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 24.568,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1580-141084",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.823,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1995-1826",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 22.257,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1995-1836",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.363,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_2094-142345",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 25.078,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_237-126133",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 28.904,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_237-134493",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 26.307,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_237-134500",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.877,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_260-123440",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 22.259,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_2830-3980",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.77,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_2961-961",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 39.324,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_3570-5695",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 37.541,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_3570-5696",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 40.404,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4077-13751",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 51.758,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4446-2271",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.355,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4446-2273",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 35.669,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4446-2275",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.756,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4507-16021",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.985,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4970-29093",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 47.213,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4970-29095",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 38.2,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4992-41797",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 37.981,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_5683-32865",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 35.149,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_61-70970",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 36.311,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_672-122797",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 38.063,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_6829-68769",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.428,
+          "achieved_snr_db": null
+        }
+      ]
+    },
+    "speed11": {
+      "output": "librispeech_speed11",
+      "n_samples": 30,
+      "records": [
+        {
+          "sample_id": "librispeech_121-123859",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.809,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_121-127105",
+          "source_group": "long",
+          "new_group": "medium",
+          "duration_s": 14.376,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1284-1180",
+          "source_group": "long",
+          "new_group": "medium",
+          "duration_s": 14.92,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1284-134647",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.436,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1320-122617",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.101,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1580-141084",
+          "source_group": "long",
+          "new_group": "medium",
+          "duration_s": 13.764,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1995-1826",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.21,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1995-1836",
+          "source_group": "long",
+          "new_group": "medium",
+          "duration_s": 14.206,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_1995-1837",
+          "source_group": "long",
+          "new_group": "medium",
+          "duration_s": 14.943,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_2094-142345",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.518,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_2300-131720",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.686,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_237-134493",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 21.524,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_237-134500",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.263,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_2830-3979",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 21.112,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_2961-960",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 24.709,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_3570-5695",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.715,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_3729-6852",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.739,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4077-13754",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.76,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4446-2271",
+          "source_group": "very_long",
+          "new_group": "long",
+          "duration_s": 28.108,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4446-2275",
+          "source_group": "very_long",
+          "new_group": "long",
+          "duration_s": 27.618,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4970-29093",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 38.629,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4970-29095",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.255,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4992-23283",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.919,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_4992-41806",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 38.137,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_5105-28240",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.584,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_5142-33396",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.84,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_5639-40744",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.663,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_5683-32879",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.459,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_61-70970",
+          "source_group": "very_long",
+          "new_group": "long",
+          "duration_s": 29.709,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "librispeech_672-122797",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.142,
+          "achieved_snr_db": null
+        }
+      ]
+    },
+    "babble": {
+      "output": "librispeech_babble",
+      "n_samples": 30,
+      "records": [
+        {
+          "sample_id": "librispeech_1188-133604",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.554,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_121-123852",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.695,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1221-135767",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 24.85,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1284-1180",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.413,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1284-1181",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.619,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1284-134647",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.18,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1320-122617",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 22.111,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1580-141084",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.141,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1995-1826",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.031,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1995-1836",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.626,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_1995-1837",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.438,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_2300-131720",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.555,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_237-126133",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 26.014,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_260-123440",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.033,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_2830-3979",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 23.224,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_3570-5694",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 48.783,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_3570-5695",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.786,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_3570-5696",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 36.363,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_4077-13751",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 46.582,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_4970-29095",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.38,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_4992-23283",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 38.411,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_4992-41806",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 41.951,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_5105-28233",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.389,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_5105-28240",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.642,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_5142-33396",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.925,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_5639-40744",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 38.129,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_5683-32865",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.634,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_61-70968",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.381,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_672-122797",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.256,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "librispeech_6829-68769",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.085,
+          "achieved_snr_db": 15.0
+        }
+      ]
+    }
+  },
+  "cmd": "python -m experiments.scripts.build_augmented_variants --dataset librispeech --variants ['snr20', 'snr15', 'snr10', 'speed09', 'speed11', 'babble'] --subset 30 --babble_snr 15.0 --seed 42 --raw_root experiments/datasets/raw_data --json_dir experiments/datasets/processed/json --audio_dir experiments/datasets/processed/audio"
+}
