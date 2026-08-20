@@ -390,7 +390,7 @@ uv run python -m experiments.scripts.run_exp_baseline_la \
   --output-dir $REV/r3_baseline_la --no-resume
 ```
 
-6. 跑后 QA（评审要求，不得只看 WER）：498/498、error 0；config 块 `trailing_margin_s=0.0`/`la_max_buffer_s=15.0`/设备锁定核对；LA/System B 转写长度比回到 ≈1.0 量级；`divergence_count` 分组统计可解释；提交片段拼接无重复无跳段（抽查 `--save-fragments` 重跑若干样本或回放脚本复核）。
+6. 跑后 QA（评审要求，不得只看 WER）：498/498、error 0；config 块 `trailing_margin_s=0.0`/`la_max_buffer_s=15.0`/设备锁定核对；LA/System B 转写长度比回到 ≈1.0 量级；`divergence_count` 分组统计可解释；提交片段拼接无重复无跳段、flush 不重复尾部（抽查 `--save-fragments` 重跑若干样本或回放脚本复核）。**停止规则**：若全量结果再出现高 WER、长度比显著低于 1 或 divergence 异常爆炸，停止并保留现场上报，不得以"模型随机性"解释后继续入表（评审 R2 保留项 4）。
 
 ### E4 插桩 + 完整回复合并复跑（R4+R5，意见5）｜约 4–5 GPU 小时
 
