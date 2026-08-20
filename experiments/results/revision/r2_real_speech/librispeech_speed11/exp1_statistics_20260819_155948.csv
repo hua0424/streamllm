@@ -1,0 +1,4 @@
+group,sample_count,avg_duration_s,streaming_ttft_mean_ms,streaming_ttft_std_ms,non_streaming_ttft_mean_ms,non_streaming_ttft_std_ms,improvement_ms,improvement_ratio_%
+long,13,21.52,1668.60,415.50,1842.48,492.38,173.89,9.4
+medium,5,14.44,1493.55,160.05,1371.83,76.08,-121.72,-8.9
+very_long,12,32.82,1712.66,521.56,2886.74,408.58,1174.09,40.7

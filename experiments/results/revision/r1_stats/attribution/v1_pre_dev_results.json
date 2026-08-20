@@ -1,0 +1,102 @@
+{
+  "config": {
+    "asr_model": "turbo",
+    "llm_model": "Qwen/Qwen2-7B-Instruct",
+    "asr_device": "cuda:0",
+    "llm_device": "cuda:1",
+    "chunk_duration_ms": 500,
+    "max_tokens": 50,
+    "warmup_rounds": 3,
+    "prefix_segments": 1,
+    "suffix_segments": 0,
+    "recognition_threshold": 2.0,
+    "timestamp": "20260819_095340"
+  },
+  "results": [
+    {
+      "sample_id": "multiwoz_MUL0023_turn4",
+      "audio_duration": 43.921,
+      "duration_group": "very_long",
+      "mode": "streaming",
+      "ttft": 1263.9920711517334,
+      "asr_time": 1150.6836414337158,
+      "llm_prefill_time": 113.30842971801758,
+      "start_time": 1787104297.5109074,
+      "audio_end_time": 1787104341.5696523,
+      "audio_load_time": 0.0,
+      "last_text_time": 1787104342.720336,
+      "first_token_time": 1787104342.8336444,
+      "transcribed_text": "I do like to go to a restaurant that serves Chinese food for a moderate price.I have four results for moderately priced Chinese restaurants, would you prefer North of town or center all street north of town Goldenwook is located in the north that serves Chinese and is at a moderate price range. Does this work? Yes, can I book a table for 8 people at 12 o'clock on Saturday? Mombooking fails. How about 11 o'clock? Oh, can I get the reference number, please? Adam, I will schedule you for Saturday for 8 people at 12 o'clock. at Golden Walk, which is north, Mingyu also. I am looking for a place to stay.",
+      "response_preview": "是的，Goldenwook 在北区提供中等价位的中国菜，这应该符合您的需求。关于预订，我已为您安排了周六中午12点，可以容纳8人的桌子。预订时间为11点，如果您",
+      "error": ""
+    },
+    {
+      "sample_id": "multiwoz_MUL0023_turn4",
+      "audio_duration": 43.921,
+      "duration_group": "very_long",
+      "mode": "non-streaming",
+      "ttft": 3623.5973834991455,
+      "asr_time": 3553.788185119629,
+      "llm_prefill_time": 69.8091983795166,
+      "start_time": 1787104345.479035,
+      "audio_end_time": 0.0,
+      "audio_load_time": 1787104345.479036,
+      "last_text_time": 1787104349.0328243,
+      "first_token_time": 1787104349.1026335,
+      "transcribed_text": "I do like to go to a restaurant that serves Chinese food for a moderate price. I have 4 results for moderately priced Chinese restaurants, would you prefer north of town or center-alstry north of town? Goldenwook is located in the north that serves Chinese and is at a moderate price range, does this work? Guess can I book a table for 8 people at 12 o'clock on Saturday, mom booking fails, How about 11 o'clock Omer O, can I get the reference number please? Adam, I will schedule you for Saturday for 8 people at 12 o'clock at Golden Walk, which is north, Mingyu also. I am looking for a place to stay.",
+      "response_preview": "您提到的Goldenwook餐厅位于镇北，提供中等价位的中国菜，这应该符合您的需求。关于预订，我可以帮您安排周六中午12点的预订，但似乎预订失败了。那么，我建议",
+      "error": ""
+    },
+    {
+      "sample_id": "crosswoz_10040_turn4",
+      "audio_duration": 56.436,
+      "duration_group": "very_long",
+      "mode": "streaming",
+      "ttft": 1767.3139572143555,
+      "asr_time": 1661.4210605621338,
+      "llm_prefill_time": 105.89289665222168,
+      "start_time": 1787104352.794813,
+      "audio_end_time": 1787104409.3629901,
+      "audio_load_time": 0.0,
+      "last_text_time": 1787104411.0244112,
+      "first_token_time": 1787104411.130304,
+      "transcribed_text": "你好,帮我找个免费的景点,我希望评分是4.5分以上。 游玩的时候尝试一小时减两小时我要和我学姐出去旅游 建议你们去汉市桥湿地或沃龙公园 都是很好玩的景点汉石桥湿地的具体地址是在哪呢 我怎么觉得几年前我去过这个地方呢 地址是在北京市顺义区阳镇汉市桥村湿地公园西门200米路北宝香烧烤区没去过的 记错了它的附近有美味的餐馆吗我和学姐都是两个吃货的 有的是药油腐火锅洋镇店。 蔚蓝俱乐部西餐厅、齿木木山 新华联丽景温泉酒店中餐厅它这些餐馆中哪个的人均消费是50到100人并且评分是4.5分以上",
+      "response_preview": "你好！根据你的需求，我为你找到了一些信息。首先，汉石桥湿地是一个位于北京市顺义区阳镇汉市桥村的湿地公园，地址是北京市顺义区阳镇汉市桥村湿地公园西门",
+      "error": ""
+    },
+    {
+      "sample_id": "crosswoz_10040_turn4",
+      "audio_duration": 56.436,
+      "duration_group": "very_long",
+      "mode": "non-streaming",
+      "ttft": 5905.020713806152,
+      "asr_time": 5826.493978500366,
+      "llm_prefill_time": 78.52673530578613,
+      "start_time": 1787104413.1155758,
+      "audio_end_time": 0.0,
+      "audio_load_time": 1787104413.1155765,
+      "last_text_time": 1787104418.9420705,
+      "first_token_time": 1787104419.0205972,
+      "transcribed_text": "你好,帮我找个免费的景点,我希望评分是4.5分以上,游玩的时候尝试一小时减两小时,我要和我学姐出去旅游,建议你们去汉市桥湿地或沃龙公园,都是很好玩的景点。汉石桥市地的具体地址是在哪呢?我怎么觉得几年前我去过这个地方呢?地址是在北京市顺义区阳镇汉石桥村市地公园西门200米路北宝香烧烤区没去过的记错了它的附近有美味的餐馆吗?我和学姐都是两个吃货的有的呢是要油腐火锅阳镇点蔚蓝俱乐部西餐厅齿木木山新华联丽景温泉酒店中餐厅在这些餐馆中哪个的人均消费是50到100人并且评分是4.5分以上",
+      "response_preview": "你好！很高兴为你提供旅游建议。汉石桥湿地和沃龙公园都是北京周边不错的自然景点，适合休闲和放松。汉石桥湿地的具体地址位于北京市顺义区赵全营镇汉石桥村湿地公园西",
+      "error": ""
+    }
+  ],
+  "statistics": [
+    {
+      "group": "very_long",
+      "sample_count": 2,
+      "avg_duration": 50.1785,
+      "streaming_ttft_mean": 1515.6530141830444,
+      "streaming_ttft_std": 251.66094303131104,
+      "streaming_ttft_min": 1263.9920711517334,
+      "streaming_ttft_max": 1767.3139572143555,
+      "non_streaming_ttft_mean": 4764.309048652649,
+      "non_streaming_ttft_std": 1140.7116651535034,
+      "non_streaming_ttft_min": 3623.5973834991455,
+      "non_streaming_ttft_max": 5905.020713806152,
+      "improvement_mean": 3248.6560344696045,
+      "improvement_ratio": 68.18734891659321
+    }
+  ]
+}

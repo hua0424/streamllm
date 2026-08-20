@@ -1,0 +1,1010 @@
+{
+  "dataset": "librispeech",
+  "seed": 42,
+  "quota": {
+    "long": 30,
+    "very_long": 30,
+    "extra_long": 15
+  },
+  "produced": 75,
+  "group_counts": {
+    "long": 30,
+    "very_long": 30,
+    "extra_long": 15
+  },
+  "total_duration_min": 44.56,
+  "gap_policy": "U(0.2, 1.0) s between utterances",
+  "raw_root": "experiments/datasets/raw_data",
+  "samples": [
+    {
+      "sample_id": "librispeech_1089-134686",
+      "dialog_id": "1089-134686",
+      "duration_group": "long",
+      "audio_duration_s": 21.267,
+      "n_utterances": 3,
+      "source_utterances": [
+        "1089-134686-0000",
+        "1089-134686-0001",
+        "1089-134686-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1089-134691",
+      "dialog_id": "1089-134691",
+      "duration_group": "long",
+      "audio_duration_s": 19.899,
+      "n_utterances": 3,
+      "source_utterances": [
+        "1089-134691-0000",
+        "1089-134691-0001",
+        "1089-134691-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1188-133604",
+      "dialog_id": "1188-133604",
+      "duration_group": "long",
+      "audio_duration_s": 20.554,
+      "n_utterances": 2,
+      "source_utterances": [
+        "1188-133604-0000",
+        "1188-133604-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_121-121726",
+      "dialog_id": "121-121726",
+      "duration_group": "long",
+      "audio_duration_s": 15.126,
+      "n_utterances": 2,
+      "source_utterances": [
+        "121-121726-0000",
+        "121-121726-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_121-123852",
+      "dialog_id": "121-123852",
+      "duration_group": "long",
+      "audio_duration_s": 17.695,
+      "n_utterances": 1,
+      "source_utterances": [
+        "121-123852-0000"
+      ]
+    },
+    {
+      "sample_id": "librispeech_121-123859",
+      "dialog_id": "121-123859",
+      "duration_group": "long",
+      "audio_duration_s": 17.39,
+      "n_utterances": 1,
+      "source_utterances": [
+        "121-123859-0000"
+      ]
+    },
+    {
+      "sample_id": "librispeech_121-127105",
+      "dialog_id": "121-127105",
+      "duration_group": "long",
+      "audio_duration_s": 15.814,
+      "n_utterances": 2,
+      "source_utterances": [
+        "121-127105-0000",
+        "121-127105-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1221-135766",
+      "dialog_id": "1221-135766",
+      "duration_group": "long",
+      "audio_duration_s": 29.42,
+      "n_utterances": 2,
+      "source_utterances": [
+        "1221-135766-0000",
+        "1221-135766-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1221-135767",
+      "dialog_id": "1221-135767",
+      "duration_group": "long",
+      "audio_duration_s": 24.85,
+      "n_utterances": 1,
+      "source_utterances": [
+        "1221-135767-0000"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1284-1180",
+      "dialog_id": "1284-1180",
+      "duration_group": "long",
+      "audio_duration_s": 16.413,
+      "n_utterances": 2,
+      "source_utterances": [
+        "1284-1180-0000",
+        "1284-1180-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1284-1181",
+      "dialog_id": "1284-1181",
+      "duration_group": "long",
+      "audio_duration_s": 15.619,
+      "n_utterances": 2,
+      "source_utterances": [
+        "1284-1181-0000",
+        "1284-1181-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1284-134647",
+      "dialog_id": "1284-134647",
+      "duration_group": "long",
+      "audio_duration_s": 19.18,
+      "n_utterances": 2,
+      "source_utterances": [
+        "1284-134647-0000",
+        "1284-134647-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1320-122612",
+      "dialog_id": "1320-122612",
+      "duration_group": "long",
+      "audio_duration_s": 23.604,
+      "n_utterances": 2,
+      "source_utterances": [
+        "1320-122612-0000",
+        "1320-122612-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1320-122617",
+      "dialog_id": "1320-122617",
+      "duration_group": "long",
+      "audio_duration_s": 22.111,
+      "n_utterances": 2,
+      "source_utterances": [
+        "1320-122617-0000",
+        "1320-122617-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1580-141083",
+      "dialog_id": "1580-141083",
+      "duration_group": "long",
+      "audio_duration_s": 19.554,
+      "n_utterances": 2,
+      "source_utterances": [
+        "1580-141083-0000",
+        "1580-141083-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1580-141084",
+      "dialog_id": "1580-141084",
+      "duration_group": "long",
+      "audio_duration_s": 15.141,
+      "n_utterances": 3,
+      "source_utterances": [
+        "1580-141084-0000",
+        "1580-141084-0001",
+        "1580-141084-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1995-1826",
+      "dialog_id": "1995-1826",
+      "duration_group": "long",
+      "audio_duration_s": 20.031,
+      "n_utterances": 2,
+      "source_utterances": [
+        "1995-1826-0000",
+        "1995-1826-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1995-1836",
+      "dialog_id": "1995-1836",
+      "duration_group": "long",
+      "audio_duration_s": 15.626,
+      "n_utterances": 2,
+      "source_utterances": [
+        "1995-1836-0000",
+        "1995-1836-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_1995-1837",
+      "dialog_id": "1995-1837",
+      "duration_group": "long",
+      "audio_duration_s": 16.438,
+      "n_utterances": 3,
+      "source_utterances": [
+        "1995-1837-0000",
+        "1995-1837-0001",
+        "1995-1837-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_2094-142345",
+      "dialog_id": "2094-142345",
+      "duration_group": "long",
+      "audio_duration_s": 22.57,
+      "n_utterances": 1,
+      "source_utterances": [
+        "2094-142345-0000"
+      ]
+    },
+    {
+      "sample_id": "librispeech_2300-131720",
+      "dialog_id": "2300-131720",
+      "duration_group": "long",
+      "audio_duration_s": 20.555,
+      "n_utterances": 2,
+      "source_utterances": [
+        "2300-131720-0000",
+        "2300-131720-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_237-126133",
+      "dialog_id": "237-126133",
+      "duration_group": "long",
+      "audio_duration_s": 26.014,
+      "n_utterances": 2,
+      "source_utterances": [
+        "237-126133-0000",
+        "237-126133-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_237-134493",
+      "dialog_id": "237-134493",
+      "duration_group": "long",
+      "audio_duration_s": 23.677,
+      "n_utterances": 3,
+      "source_utterances": [
+        "237-134493-0000",
+        "237-134493-0001",
+        "237-134493-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_237-134500",
+      "dialog_id": "237-134500",
+      "duration_group": "long",
+      "audio_duration_s": 17.889,
+      "n_utterances": 4,
+      "source_utterances": [
+        "237-134500-0000",
+        "237-134500-0001",
+        "237-134500-0002",
+        "237-134500-0003"
+      ]
+    },
+    {
+      "sample_id": "librispeech_260-123286",
+      "dialog_id": "260-123286",
+      "duration_group": "long",
+      "audio_duration_s": 21.25,
+      "n_utterances": 3,
+      "source_utterances": [
+        "260-123286-0000",
+        "260-123286-0001",
+        "260-123286-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_260-123288",
+      "dialog_id": "260-123288",
+      "duration_group": "long",
+      "audio_duration_s": 16.899,
+      "n_utterances": 3,
+      "source_utterances": [
+        "260-123288-0000",
+        "260-123288-0001",
+        "260-123288-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_260-123440",
+      "dialog_id": "260-123440",
+      "duration_group": "long",
+      "audio_duration_s": 20.033,
+      "n_utterances": 3,
+      "source_utterances": [
+        "260-123440-0000",
+        "260-123440-0001",
+        "260-123440-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_2830-3979",
+      "dialog_id": "2830-3979",
+      "duration_group": "long",
+      "audio_duration_s": 23.224,
+      "n_utterances": 2,
+      "source_utterances": [
+        "2830-3979-0000",
+        "2830-3979-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_2830-3980",
+      "dialog_id": "2830-3980",
+      "duration_group": "long",
+      "audio_duration_s": 18.693,
+      "n_utterances": 5,
+      "source_utterances": [
+        "2830-3980-0000",
+        "2830-3980-0001",
+        "2830-3980-0002",
+        "2830-3980-0003",
+        "2830-3980-0004"
+      ]
+    },
+    {
+      "sample_id": "librispeech_2961-960",
+      "dialog_id": "2961-960",
+      "duration_group": "long",
+      "audio_duration_s": 27.18,
+      "n_utterances": 1,
+      "source_utterances": [
+        "2961-960-0000"
+      ]
+    },
+    {
+      "sample_id": "librispeech_2961-961",
+      "dialog_id": "2961-961",
+      "duration_group": "very_long",
+      "audio_duration_s": 35.391,
+      "n_utterances": 3,
+      "source_utterances": [
+        "2961-961-0000",
+        "2961-961-0001",
+        "2961-961-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_3570-5694",
+      "dialog_id": "3570-5694",
+      "duration_group": "very_long",
+      "audio_duration_s": 48.783,
+      "n_utterances": 4,
+      "source_utterances": [
+        "3570-5694-0000",
+        "3570-5694-0001",
+        "3570-5694-0002",
+        "3570-5694-0003"
+      ]
+    },
+    {
+      "sample_id": "librispeech_3570-5695",
+      "dialog_id": "3570-5695",
+      "duration_group": "very_long",
+      "audio_duration_s": 33.787,
+      "n_utterances": 4,
+      "source_utterances": [
+        "3570-5695-0000",
+        "3570-5695-0001",
+        "3570-5695-0002",
+        "3570-5695-0003"
+      ]
+    },
+    {
+      "sample_id": "librispeech_3570-5696",
+      "dialog_id": "3570-5696",
+      "duration_group": "very_long",
+      "audio_duration_s": 36.363,
+      "n_utterances": 3,
+      "source_utterances": [
+        "3570-5696-0000",
+        "3570-5696-0001",
+        "3570-5696-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_3575-170457",
+      "dialog_id": "3575-170457",
+      "duration_group": "very_long",
+      "audio_duration_s": 33.848,
+      "n_utterances": 6,
+      "source_utterances": [
+        "3575-170457-0000",
+        "3575-170457-0001",
+        "3575-170457-0002",
+        "3575-170457-0003",
+        "3575-170457-0004",
+        "3575-170457-0005"
+      ]
+    },
+    {
+      "sample_id": "librispeech_3729-6852",
+      "dialog_id": "3729-6852",
+      "duration_group": "very_long",
+      "audio_duration_s": 33.813,
+      "n_utterances": 3,
+      "source_utterances": [
+        "3729-6852-0000",
+        "3729-6852-0001",
+        "3729-6852-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_4077-13751",
+      "dialog_id": "4077-13751",
+      "duration_group": "very_long",
+      "audio_duration_s": 46.583,
+      "n_utterances": 4,
+      "source_utterances": [
+        "4077-13751-0000",
+        "4077-13751-0001",
+        "4077-13751-0002",
+        "4077-13751-0003"
+      ]
+    },
+    {
+      "sample_id": "librispeech_4077-13754",
+      "dialog_id": "4077-13754",
+      "duration_group": "very_long",
+      "audio_duration_s": 33.836,
+      "n_utterances": 4,
+      "source_utterances": [
+        "4077-13754-0000",
+        "4077-13754-0001",
+        "4077-13754-0002",
+        "4077-13754-0003"
+      ]
+    },
+    {
+      "sample_id": "librispeech_4446-2271",
+      "dialog_id": "4446-2271",
+      "duration_group": "very_long",
+      "audio_duration_s": 30.92,
+      "n_utterances": 5,
+      "source_utterances": [
+        "4446-2271-0000",
+        "4446-2271-0001",
+        "4446-2271-0002",
+        "4446-2271-0003",
+        "4446-2271-0004"
+      ]
+    },
+    {
+      "sample_id": "librispeech_4446-2273",
+      "dialog_id": "4446-2273",
+      "duration_group": "very_long",
+      "audio_duration_s": 32.102,
+      "n_utterances": 5,
+      "source_utterances": [
+        "4446-2273-0000",
+        "4446-2273-0001",
+        "4446-2273-0002",
+        "4446-2273-0003",
+        "4446-2273-0004"
+      ]
+    },
+    {
+      "sample_id": "librispeech_4446-2275",
+      "dialog_id": "4446-2275",
+      "duration_group": "very_long",
+      "audio_duration_s": 30.38,
+      "n_utterances": 6,
+      "source_utterances": [
+        "4446-2275-0000",
+        "4446-2275-0001",
+        "4446-2275-0002",
+        "4446-2275-0003",
+        "4446-2275-0004",
+        "4446-2275-0005"
+      ]
+    },
+    {
+      "sample_id": "librispeech_4507-16021",
+      "dialog_id": "4507-16021",
+      "duration_group": "very_long",
+      "audio_duration_s": 31.486,
+      "n_utterances": 6,
+      "source_utterances": [
+        "4507-16021-0000",
+        "4507-16021-0001",
+        "4507-16021-0002",
+        "4507-16021-0003",
+        "4507-16021-0004",
+        "4507-16021-0005"
+      ]
+    },
+    {
+      "sample_id": "librispeech_4970-29093",
+      "dialog_id": "4970-29093",
+      "duration_group": "very_long",
+      "audio_duration_s": 42.492,
+      "n_utterances": 4,
+      "source_utterances": [
+        "4970-29093-0000",
+        "4970-29093-0001",
+        "4970-29093-0002",
+        "4970-29093-0003"
+      ]
+    },
+    {
+      "sample_id": "librispeech_4970-29095",
+      "dialog_id": "4970-29095",
+      "duration_group": "very_long",
+      "audio_duration_s": 34.38,
+      "n_utterances": 4,
+      "source_utterances": [
+        "4970-29095-0000",
+        "4970-29095-0001",
+        "4970-29095-0002",
+        "4970-29095-0003"
+      ]
+    },
+    {
+      "sample_id": "librispeech_4992-23283",
+      "dialog_id": "4992-23283",
+      "duration_group": "very_long",
+      "audio_duration_s": 38.412,
+      "n_utterances": 6,
+      "source_utterances": [
+        "4992-23283-0000",
+        "4992-23283-0001",
+        "4992-23283-0002",
+        "4992-23283-0003",
+        "4992-23283-0004",
+        "4992-23283-0005"
+      ]
+    },
+    {
+      "sample_id": "librispeech_4992-41797",
+      "dialog_id": "4992-41797",
+      "duration_group": "very_long",
+      "audio_duration_s": 34.183,
+      "n_utterances": 2,
+      "source_utterances": [
+        "4992-41797-0000",
+        "4992-41797-0001"
+      ]
+    },
+    {
+      "sample_id": "librispeech_4992-41806",
+      "dialog_id": "4992-41806",
+      "duration_group": "very_long",
+      "audio_duration_s": 41.951,
+      "n_utterances": 3,
+      "source_utterances": [
+        "4992-41806-0000",
+        "4992-41806-0001",
+        "4992-41806-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_5105-28233",
+      "dialog_id": "5105-28233",
+      "duration_group": "very_long",
+      "audio_duration_s": 33.389,
+      "n_utterances": 4,
+      "source_utterances": [
+        "5105-28233-0000",
+        "5105-28233-0001",
+        "5105-28233-0002",
+        "5105-28233-0003"
+      ]
+    },
+    {
+      "sample_id": "librispeech_5105-28240",
+      "dialog_id": "5105-28240",
+      "duration_group": "very_long",
+      "audio_duration_s": 33.642,
+      "n_utterances": 4,
+      "source_utterances": [
+        "5105-28240-0000",
+        "5105-28240-0001",
+        "5105-28240-0002",
+        "5105-28240-0003"
+      ]
+    },
+    {
+      "sample_id": "librispeech_5105-28241",
+      "dialog_id": "5105-28241",
+      "duration_group": "very_long",
+      "audio_duration_s": 39.528,
+      "n_utterances": 3,
+      "source_utterances": [
+        "5105-28241-0000",
+        "5105-28241-0001",
+        "5105-28241-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_5142-33396",
+      "dialog_id": "5142-33396",
+      "duration_group": "very_long",
+      "audio_duration_s": 33.925,
+      "n_utterances": 8,
+      "source_utterances": [
+        "5142-33396-0000",
+        "5142-33396-0001",
+        "5142-33396-0002",
+        "5142-33396-0003",
+        "5142-33396-0004",
+        "5142-33396-0005",
+        "5142-33396-0006",
+        "5142-33396-0007"
+      ]
+    },
+    {
+      "sample_id": "librispeech_5142-36377",
+      "dialog_id": "5142-36377",
+      "duration_group": "very_long",
+      "audio_duration_s": 34.308,
+      "n_utterances": 6,
+      "source_utterances": [
+        "5142-36377-0000",
+        "5142-36377-0001",
+        "5142-36377-0002",
+        "5142-36377-0003",
+        "5142-36377-0004",
+        "5142-36377-0005"
+      ]
+    },
+    {
+      "sample_id": "librispeech_5639-40744",
+      "dialog_id": "5639-40744",
+      "duration_group": "very_long",
+      "audio_duration_s": 38.129,
+      "n_utterances": 3,
+      "source_utterances": [
+        "5639-40744-0000",
+        "5639-40744-0001",
+        "5639-40744-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_5683-32865",
+      "dialog_id": "5683-32865",
+      "duration_group": "very_long",
+      "audio_duration_s": 31.634,
+      "n_utterances": 6,
+      "source_utterances": [
+        "5683-32865-0000",
+        "5683-32865-0001",
+        "5683-32865-0002",
+        "5683-32865-0003",
+        "5683-32865-0004",
+        "5683-32865-0005"
+      ]
+    },
+    {
+      "sample_id": "librispeech_5683-32866",
+      "dialog_id": "5683-32866",
+      "duration_group": "very_long",
+      "audio_duration_s": 31.306,
+      "n_utterances": 6,
+      "source_utterances": [
+        "5683-32866-0000",
+        "5683-32866-0001",
+        "5683-32866-0002",
+        "5683-32866-0003",
+        "5683-32866-0004",
+        "5683-32866-0005"
+      ]
+    },
+    {
+      "sample_id": "librispeech_5683-32879",
+      "dialog_id": "5683-32879",
+      "duration_group": "very_long",
+      "audio_duration_s": 34.605,
+      "n_utterances": 4,
+      "source_utterances": [
+        "5683-32879-0000",
+        "5683-32879-0001",
+        "5683-32879-0002",
+        "5683-32879-0003"
+      ]
+    },
+    {
+      "sample_id": "librispeech_61-70968",
+      "dialog_id": "61-70968",
+      "duration_group": "very_long",
+      "audio_duration_s": 31.381,
+      "n_utterances": 7,
+      "source_utterances": [
+        "61-70968-0000",
+        "61-70968-0001",
+        "61-70968-0002",
+        "61-70968-0003",
+        "61-70968-0004",
+        "61-70968-0005",
+        "61-70968-0006"
+      ]
+    },
+    {
+      "sample_id": "librispeech_61-70970",
+      "dialog_id": "61-70970",
+      "duration_group": "very_long",
+      "audio_duration_s": 32.68,
+      "n_utterances": 5,
+      "source_utterances": [
+        "61-70970-0000",
+        "61-70970-0001",
+        "61-70970-0002",
+        "61-70970-0003",
+        "61-70970-0004"
+      ]
+    },
+    {
+      "sample_id": "librispeech_672-122797",
+      "dialog_id": "672-122797",
+      "duration_group": "very_long",
+      "audio_duration_s": 34.256,
+      "n_utterances": 3,
+      "source_utterances": [
+        "672-122797-0000",
+        "672-122797-0001",
+        "672-122797-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_6829-68769",
+      "dialog_id": "6829-68769",
+      "duration_group": "very_long",
+      "audio_duration_s": 30.085,
+      "n_utterances": 4,
+      "source_utterances": [
+        "6829-68769-0000",
+        "6829-68769-0001",
+        "6829-68769-0002",
+        "6829-68769-0003"
+      ]
+    },
+    {
+      "sample_id": "librispeech_6829-68771",
+      "dialog_id": "6829-68771",
+      "duration_group": "extra_long",
+      "audio_duration_s": 60.841,
+      "n_utterances": 7,
+      "source_utterances": [
+        "6829-68771-0000",
+        "6829-68771-0001",
+        "6829-68771-0002",
+        "6829-68771-0003",
+        "6829-68771-0004",
+        "6829-68771-0005",
+        "6829-68771-0006"
+      ]
+    },
+    {
+      "sample_id": "librispeech_6930-75918",
+      "dialog_id": "6930-75918",
+      "duration_group": "extra_long",
+      "audio_duration_s": 72.497,
+      "n_utterances": 6,
+      "source_utterances": [
+        "6930-75918-0000",
+        "6930-75918-0001",
+        "6930-75918-0002",
+        "6930-75918-0003",
+        "6930-75918-0004",
+        "6930-75918-0005"
+      ]
+    },
+    {
+      "sample_id": "librispeech_6930-76324",
+      "dialog_id": "6930-76324",
+      "duration_group": "extra_long",
+      "audio_duration_s": 65.346,
+      "n_utterances": 13,
+      "source_utterances": [
+        "6930-76324-0000",
+        "6930-76324-0001",
+        "6930-76324-0002",
+        "6930-76324-0003",
+        "6930-76324-0004",
+        "6930-76324-0005",
+        "6930-76324-0006",
+        "6930-76324-0007",
+        "6930-76324-0008",
+        "6930-76324-0009",
+        "6930-76324-0010",
+        "6930-76324-0011",
+        "6930-76324-0012"
+      ]
+    },
+    {
+      "sample_id": "librispeech_6930-81414",
+      "dialog_id": "6930-81414",
+      "duration_group": "extra_long",
+      "audio_duration_s": 63.603,
+      "n_utterances": 8,
+      "source_utterances": [
+        "6930-81414-0000",
+        "6930-81414-0001",
+        "6930-81414-0002",
+        "6930-81414-0003",
+        "6930-81414-0004",
+        "6930-81414-0005",
+        "6930-81414-0006",
+        "6930-81414-0007"
+      ]
+    },
+    {
+      "sample_id": "librispeech_7021-79730",
+      "dialog_id": "7021-79730",
+      "duration_group": "extra_long",
+      "audio_duration_s": 70.079,
+      "n_utterances": 5,
+      "source_utterances": [
+        "7021-79730-0000",
+        "7021-79730-0001",
+        "7021-79730-0002",
+        "7021-79730-0003",
+        "7021-79730-0004"
+      ]
+    },
+    {
+      "sample_id": "librispeech_7021-79740",
+      "dialog_id": "7021-79740",
+      "duration_group": "extra_long",
+      "audio_duration_s": 75.734,
+      "n_utterances": 9,
+      "source_utterances": [
+        "7021-79740-0000",
+        "7021-79740-0001",
+        "7021-79740-0002",
+        "7021-79740-0003",
+        "7021-79740-0004",
+        "7021-79740-0005",
+        "7021-79740-0006",
+        "7021-79740-0007",
+        "7021-79740-0008"
+      ]
+    },
+    {
+      "sample_id": "librispeech_7021-85628",
+      "dialog_id": "7021-85628",
+      "duration_group": "extra_long",
+      "audio_duration_s": 69.724,
+      "n_utterances": 8,
+      "source_utterances": [
+        "7021-85628-0000",
+        "7021-85628-0001",
+        "7021-85628-0002",
+        "7021-85628-0003",
+        "7021-85628-0004",
+        "7021-85628-0005",
+        "7021-85628-0006",
+        "7021-85628-0007"
+      ]
+    },
+    {
+      "sample_id": "librispeech_7127-75946",
+      "dialog_id": "7127-75946",
+      "duration_group": "extra_long",
+      "audio_duration_s": 62.982,
+      "n_utterances": 8,
+      "source_utterances": [
+        "7127-75946-0000",
+        "7127-75946-0001",
+        "7127-75946-0002",
+        "7127-75946-0003",
+        "7127-75946-0004",
+        "7127-75946-0005",
+        "7127-75946-0006",
+        "7127-75946-0007"
+      ]
+    },
+    {
+      "sample_id": "librispeech_7127-75947",
+      "dialog_id": "7127-75947",
+      "duration_group": "extra_long",
+      "audio_duration_s": 80.352,
+      "n_utterances": 10,
+      "source_utterances": [
+        "7127-75947-0000",
+        "7127-75947-0001",
+        "7127-75947-0002",
+        "7127-75947-0003",
+        "7127-75947-0004",
+        "7127-75947-0005",
+        "7127-75947-0006",
+        "7127-75947-0007",
+        "7127-75947-0008",
+        "7127-75947-0009"
+      ]
+    },
+    {
+      "sample_id": "librispeech_7176-88083",
+      "dialog_id": "7176-88083",
+      "duration_group": "extra_long",
+      "audio_duration_s": 72.252,
+      "n_utterances": 8,
+      "source_utterances": [
+        "7176-88083-0000",
+        "7176-88083-0001",
+        "7176-88083-0002",
+        "7176-88083-0003",
+        "7176-88083-0004",
+        "7176-88083-0005",
+        "7176-88083-0006",
+        "7176-88083-0007"
+      ]
+    },
+    {
+      "sample_id": "librispeech_7176-92135",
+      "dialog_id": "7176-92135",
+      "duration_group": "extra_long",
+      "audio_duration_s": 62.62,
+      "n_utterances": 10,
+      "source_utterances": [
+        "7176-92135-0000",
+        "7176-92135-0001",
+        "7176-92135-0002",
+        "7176-92135-0003",
+        "7176-92135-0004",
+        "7176-92135-0005",
+        "7176-92135-0006",
+        "7176-92135-0007",
+        "7176-92135-0008",
+        "7176-92135-0009"
+      ]
+    },
+    {
+      "sample_id": "librispeech_7729-102255",
+      "dialog_id": "7729-102255",
+      "duration_group": "extra_long",
+      "audio_duration_s": 62.844,
+      "n_utterances": 6,
+      "source_utterances": [
+        "7729-102255-0000",
+        "7729-102255-0001",
+        "7729-102255-0002",
+        "7729-102255-0003",
+        "7729-102255-0004",
+        "7729-102255-0005"
+      ]
+    },
+    {
+      "sample_id": "librispeech_8224-274381",
+      "dialog_id": "8224-274381",
+      "duration_group": "extra_long",
+      "audio_duration_s": 65.961,
+      "n_utterances": 3,
+      "source_utterances": [
+        "8224-274381-0000",
+        "8224-274381-0001",
+        "8224-274381-0002"
+      ]
+    },
+    {
+      "sample_id": "librispeech_8224-274384",
+      "dialog_id": "8224-274384",
+      "duration_group": "extra_long",
+      "audio_duration_s": 64.856,
+      "n_utterances": 5,
+      "source_utterances": [
+        "8224-274384-0000",
+        "8224-274384-0001",
+        "8224-274384-0002",
+        "8224-274384-0003",
+        "8224-274384-0004"
+      ]
+    },
+    {
+      "sample_id": "librispeech_8230-279154",
+      "dialog_id": "8230-279154",
+      "duration_group": "extra_long",
+      "audio_duration_s": 62.333,
+      "n_utterances": 5,
+      "source_utterances": [
+        "8230-279154-0000",
+        "8230-279154-0001",
+        "8230-279154-0002",
+        "8230-279154-0003",
+        "8230-279154-0004"
+      ]
+    }
+  ],
+  "cmd": "python -m experiments.scripts.build_real_speech_set --source librispeech --raw_root experiments/datasets/raw_data --json_dir experiments/datasets/processed/json --audio_dir experiments/datasets/processed/audio --quota long:30,very_long:30,extra_long:15 --seed 42 --librispeech_subsets test-clean --aishell_speakers None"
+}

@@ -1,0 +1,493 @@
+2026-08-19 09:53:47.237 - __main__ - INFO - ============================================================
+2026-08-19 09:53:47.238 - __main__ - INFO - 实验一：延迟与语音长度的关系验证
+2026-08-19 09:53:47.238 - __main__ - INFO - ============================================================
+2026-08-19 09:53:47.238 - __main__ - INFO - 数据目录: experiments/datasets/processed
+2026-08-19 09:53:47.238 - __main__ - INFO - 数据集: all
+2026-08-19 09:53:47.238 - __main__ - INFO - ASR 设备: cuda:0
+2026-08-19 09:53:47.238 - __main__ - INFO - LLM 设备: cuda:1
+2026-08-19 09:53:47.238 - __main__ - INFO - ASR 模型: turbo
+2026-08-19 09:53:47.238 - __main__ - INFO - LLM 模型: Qwen/Qwen2-7B-Instruct
+2026-08-19 09:53:47.238 - __main__ - INFO - 预热轮数: 3
+2026-08-19 09:53:47.238 - __main__ - INFO - ASR prefix_segments: 1
+2026-08-19 09:53:47.238 - __main__ - INFO - ASR suffix_segments: 0
+2026-08-19 09:53:47.238 - __main__ - INFO - ASR recognition_threshold: 2.0s
+2026-08-19 09:53:47.238 - __main__ - INFO - 批次大小（检查点间隔）: 100
+2026-08-19 09:53:47.238 - __main__ - INFO - 断点续传: 禁用
+2026-08-19 09:53:47.238 - __main__ - INFO - ============================================================
+2026-08-19 09:53:47.239 - __main__ - INFO - 加载了 2 个有效样本
+2026-08-19 09:53:47.239 - __main__ - INFO - 样本分组统计:
+2026-08-19 09:53:47.239 - __main__ - INFO -   very_long: 2 个样本
+2026-08-19 09:53:47.239 - __main__ - INFO - ============================================================
+2026-08-19 09:53:47.239 - __main__ - INFO - 初始化共享模型...
+2026-08-19 09:53:47.239 - __main__ - INFO - ============================================================
+2026-08-19 09:53:47.239 - __main__ - INFO - 加载 ASR 模型: turbo on cuda:0
+2026-08-19 09:53:47.239 - __main__ - INFO - ASR 参数: prefix_segments=1, suffix_segments=0, threshold=2.0
+2026-08-19 09:53:47.239 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: turbo on cuda:0
+2026-08-19 09:54:04.765 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2026-08-19 09:54:04.766 - __main__ - INFO - 加载 LLM 模型: Qwen/Qwen2-7B-Instruct on cuda:1
+2026-08-19 09:54:04.766 - src.llm.stream_llm_inference - INFO - Loading LLM model Qwen/Qwen2-7B-Instruct on cuda:1
+loading file vocab.json from cache at /dataA/hfhome/models--Qwen--Qwen2-7B-Instruct/snapshots/f2826a00ceef68f0f2b946d945ecc0477ce4450c/vocab.json
+loading file merges.txt from cache at /dataA/hfhome/models--Qwen--Qwen2-7B-Instruct/snapshots/f2826a00ceef68f0f2b946d945ecc0477ce4450c/merges.txt
+loading file tokenizer.json from cache at /dataA/hfhome/models--Qwen--Qwen2-7B-Instruct/snapshots/f2826a00ceef68f0f2b946d945ecc0477ce4450c/tokenizer.json
+loading file added_tokens.json from cache at None
+loading file special_tokens_map.json from cache at None
+loading file tokenizer_config.json from cache at /dataA/hfhome/models--Qwen--Qwen2-7B-Instruct/snapshots/f2826a00ceef68f0f2b946d945ecc0477ce4450c/tokenizer_config.json
+loading file chat_template.jinja from cache at None
+Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+loading configuration file config.json from cache at /dataA/hfhome/models--Qwen--Qwen2-7B-Instruct/snapshots/f2826a00ceef68f0f2b946d945ecc0477ce4450c/config.json
+Model config Qwen2Config {
+  "architectures": [
+    "Qwen2ForCausalLM"
+  ],
+  "attention_dropout": 0.0,
+  "bos_token_id": 151643,
+  "dtype": "bfloat16",
+  "eos_token_id": 151645,
+  "hidden_act": "silu",
+  "hidden_size": 3584,
+  "initializer_range": 0.02,
+  "intermediate_size": 18944,
+  "layer_types": [
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention",
+    "full_attention"
+  ],
+  "max_position_embeddings": 32768,
+  "max_window_layers": 28,
+  "model_type": "qwen2",
+  "num_attention_heads": 28,
+  "num_hidden_layers": 28,
+  "num_key_value_heads": 4,
+  "rms_norm_eps": 1e-06,
+  "rope_scaling": null,
+  "rope_theta": 1000000.0,
+  "sliding_window": null,
+  "tie_word_embeddings": false,
+  "transformers_version": "4.57.1",
+  "use_cache": true,
+  "use_sliding_window": false,
+  "vocab_size": 152064
+}
+
+I0819 09:54:11.254000 391440 torch/distributed/nn/jit/instantiator.py:22] Created a temporary directory at /tmp/tmpzsm91r8g
+I0819 09:54:11.255000 391440 torch/distributed/nn/jit/instantiator.py:73] Writing /tmp/tmpzsm91r8g/_remote_module_non_scriptable.py
+`torch_dtype` is deprecated! Use `dtype` instead!
+loading weights file model.safetensors from cache at /dataA/hfhome/models--Qwen--Qwen2-7B-Instruct/snapshots/f2826a00ceef68f0f2b946d945ecc0477ce4450c/model.safetensors.index.json
+Will use dtype=torch.bfloat16 as defined in model's config object
+Instantiating Qwen2ForCausalLM model under default dtype torch.bfloat16.
+Generate config GenerationConfig {
+  "bos_token_id": 151643,
+  "eos_token_id": 151645
+}
+
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:04<00:12,  4.05s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:05<00:05,  2.62s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:07<00:02,  2.22s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:08<00:00,  1.94s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:08<00:00,  2.23s/it]
+loading configuration file generation_config.json from cache at /dataA/hfhome/models--Qwen--Qwen2-7B-Instruct/snapshots/f2826a00ceef68f0f2b946d945ecc0477ce4450c/generation_config.json
+Generate config GenerationConfig {
+  "bos_token_id": 151643,
+  "do_sample": true,
+  "eos_token_id": [
+    151645,
+    151643
+  ],
+  "pad_token_id": 151643,
+  "repetition_penalty": 1.05,
+  "temperature": 0.7,
+  "top_k": 20,
+  "top_p": 0.8
+}
+
+Could not locate the custom_generate/generate.py inside Qwen/Qwen2-7B-Instruct.
+2026-08-19 09:54:23.275 - src.llm.stream_llm_inference - INFO - LLM模型加载完成。
+2026-08-19 09:54:23.309 - __main__ - INFO - 模型初始化完成
+2026-08-19 09:54:24.403 - __main__ - INFO - ============================================================
+2026-08-19 09:54:24.404 - __main__ - INFO - 模型预热中（3 轮）...
+2026-08-19 09:54:24.404 - __main__ - INFO - ============================================================
+2026-08-19 09:54:24.404 - __main__ - INFO -   预热轮次 1/3
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/dataA/streamllm/.venv/lib/python3.10/site-packages/whisper/timing.py:42: UserWarning: Failed to launch Triton kernels, likely due to missing CUDA toolkit; falling back to a slower median kernel implementation...
+  warnings.warn(
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/dataA/streamllm/.venv/lib/python3.10/site-packages/whisper/timing.py:146: UserWarning: Failed to launch Triton kernels, likely due to missing CUDA toolkit; falling back to a slower DTW implementation...
+  warnings.warn(
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/dataA/streamllm/.venv/lib/python3.10/site-packages/whisper/timing.py:42: UserWarning: Failed to launch Triton kernels, likely due to missing CUDA toolkit; falling back to a slower median kernel implementation...
+  warnings.warn(
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/dataA/streamllm/.venv/lib/python3.10/site-packages/whisper/timing.py:146: UserWarning: Failed to launch Triton kernels, likely due to missing CUDA toolkit; falling back to a slower DTW implementation...
+  warnings.warn(
+2026-08-19 09:54:30.166 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: 'I do like to go to a restaurant that serves Chinese food for a moderate price. I have 4 results for moderately priced Chinese restaurants, would you prefer north of town or center-alstry north of town? Goldenwook is located in the north that serves Chinese and is at a moderate price range, does this work? Guess can I book a table for 8 people at 12 o'clock on Saturday, mom booking fails, How about 11 o'clock Omer O, can I get the reference number please? Adam, I will schedule you for Saturday for 8 people at 12 o'clock at Golden Walk, which is north, Mingyu also. I am looking for a place to stay.', 耗时: 5.76s
+2026-08-19 09:54:31.537 - __main__ - INFO -   预热轮次 2/3
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:54:34.763 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: 'I do like to go to a restaurant that serves Chinese food for a moderate price. I have 4 results for moderately priced Chinese restaurants, would you prefer north of town or center-alstry north of town? Goldenwook is located in the north that serves Chinese and is at a moderate price range, does this work? Guess can I book a table for 8 people at 12 o'clock on Saturday, mom booking fails, How about 11 o'clock Omer O, can I get the reference number please? Adam, I will schedule you for Saturday for 8 people at 12 o'clock at Golden Walk, which is north, Mingyu also. I am looking for a place to stay.', 耗时: 3.23s
+2026-08-19 09:54:35.589 - __main__ - INFO -   预热轮次 3/3
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:54:38.909 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: 'I do like to go to a restaurant that serves Chinese food for a moderate price. I have 4 results for moderately priced Chinese restaurants, would you prefer north of town or center-alstry north of town? Goldenwook is located in the north that serves Chinese and is at a moderate price range, does this work? Guess can I book a table for 8 people at 12 o'clock on Saturday, mom booking fails, How about 11 o'clock Omer O, can I get the reference number please? Adam, I will schedule you for Saturday for 8 people at 12 o'clock at Golden Walk, which is north, Mingyu also. I am looking for a place to stay.', 耗时: 3.32s
+2026-08-19 09:54:39.707 - __main__ - INFO - ----------------------------------------
+2026-08-19 09:54:39.708 - __main__ - INFO - 预热统计:
+2026-08-19 09:54:39.708 - __main__ - INFO -   asr: 4102.90ms (±1174.08ms)
+2026-08-19 09:54:39.708 - __main__ - INFO -   llm_cache: 111.06ms (±78.12ms)
+2026-08-19 09:54:39.708 - __main__ - INFO -   llm_generate: 591.81ms (±112.47ms)
+2026-08-19 09:54:39.708 - __main__ - INFO - ============================================================
+2026-08-19 09:54:39.708 - __main__ - INFO - 模型预热完成！
+2026-08-19 09:54:39.709 - __main__ - INFO - ============================================================
+2026-08-19 09:54:39.709 - __main__ - INFO - 
+[1/2] 测试样本: multiwoz_MUL0023_turn4
+2026-08-19 09:54:39.709 - __main__ - INFO -   音频时长: 43.92s, 分组: very_long
+Using cache found in /root/.cache/torch/hub/snakers4_silero-vad_master
+2026-08-19 09:54:41.383 - src.asr.streamaudio_segmenter - INFO - StreamAudioSegmenter initialized with sampling_rate=16000, silence_threshold=0.5
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:54:58.316 - src.asr.faster_whisper_streamer - INFO - 09:54:58.316 ✓ 处理完成: 输出文本长度 206 字符，耗时 2.140s
+2026-08-19 09:54:58.317 - src.asr.faster_whisper_streamer - INFO - 09:54:58.317 性能指标 - 段数: 1, 音频时长: 14.20s
+2026-08-19 09:54:58.317 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 2.138s, 实时率: 0.15
+2026-08-19 09:54:58.317 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 2.140s
+2026-08-19 09:54:58.317 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.002s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:55:16.330 - src.asr.faster_whisper_streamer - INFO - 09:55:16.329 ✓ 处理完成: 输出文本长度 252 字符，耗时 1.973s
+2026-08-19 09:55:16.330 - src.asr.faster_whisper_streamer - INFO - 09:55:16.330 性能指标 - 段数: 1, 音频时长: 32.57s
+2026-08-19 09:55:16.330 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.972s, 实时率: 0.06
+2026-08-19 09:55:16.330 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.973s
+2026-08-19 09:55:16.330 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:55:20.931 - src.asr.faster_whisper_streamer - INFO - 09:55:20.931 ✓ 处理完成: 输出文本长度 66 字符，耗时 1.845s
+2026-08-19 09:55:20.931 - src.asr.faster_whisper_streamer - INFO - 09:55:20.931 性能指标 - 段数: 1, 音频时长: 37.40s
+2026-08-19 09:55:20.931 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.844s, 实时率: 0.05
+2026-08-19 09:55:20.931 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.845s
+2026-08-19 09:55:20.931 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:55:24.692 - src.asr.faster_whisper_streamer - INFO - 09:55:24.692 ✓ 处理完成: 输出文本长度 44 字符，耗时 1.103s
+2026-08-19 09:55:24.693 - src.asr.faster_whisper_streamer - INFO - 09:55:24.693 性能指标 - 段数: 1, 音频时长: 41.75s
+2026-08-19 09:55:24.693 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.103s, 实时率: 0.03
+2026-08-19 09:55:24.693 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.104s
+2026-08-19 09:55:24.693 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:55:26.551 - src.asr.faster_whisper_streamer - INFO - 09:55:26.551 ✓ 处理完成: 输出文本长度 33 字符，耗时 1.056s
+2026-08-19 09:55:26.551 - src.asr.faster_whisper_streamer - INFO - 09:55:26.551 性能指标 - 段数: 1, 音频时长: 43.92s
+2026-08-19 09:55:26.551 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.055s, 实时率: 0.02
+2026-08-19 09:55:26.551 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.056s
+2026-08-19 09:55:26.551 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:55:32.378 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: 'I do like to go to a restaurant that serves Chinese food for a moderate price. I have 4 results for moderately priced Chinese restaurants, would you prefer north of town or center-alstry north of town? Goldenwook is located in the north that serves Chinese and is at a moderate price range, does this work? Guess can I book a table for 8 people at 12 o'clock on Saturday, mom booking fails, How about 11 o'clock Omer O, can I get the reference number please? Adam, I will schedule you for Saturday for 8 people at 12 o'clock at Golden Walk, which is north, Mingyu also. I am looking for a place to stay.', 耗时: 3.54s
+2026-08-19 09:55:32.379 - src.llm.stream_llm_inference - INFO - prompt_text: <|im_start|>system
+You are a helpful assistant responding in Chinese.<|im_end|>
+<|im_start|>user
+I do like to go to a restaurant that serves Chinese food for a moderate price. I have 4 results for moderately priced Chinese restaurants, would you prefer north of town or center-alstry north of town? Goldenwook is located in the north that serves Chinese and is at a moderate price range, does this work? Guess can I book a table for 8 people at 12 o'clock on Saturday, mom booking fails, How about 11 o'clock Omer O, can I get the reference number please? Adam, I will schedule you for Saturday for 8 people at 12 o'clock at Golden Walk, which is north, Mingyu also. I am looking for a place to stay.<|im_end|>
+<|im_start|>assistant
+
+2026-08-19 09:55:34.182 - __main__ - INFO -   流式 TTFT: 1221.24 ms
+2026-08-19 09:55:34.182 - __main__ - INFO -   非流式 TTFT: 3613.45 ms
+2026-08-19 09:55:34.182 - __main__ - INFO -   优化: 2392.22 ms (66.2%)
+2026-08-19 09:55:34.182 - __main__ - INFO - 
+[3/2] 测试样本: crosswoz_10040_turn4
+2026-08-19 09:55:34.182 - __main__ - INFO -   音频时长: 56.44s, 分组: very_long
+Using cache found in /root/.cache/torch/hub/snakers4_silero-vad_master
+2026-08-19 09:55:35.624 - src.asr.streamaudio_segmenter - INFO - StreamAudioSegmenter initialized with sampling_rate=16000, silence_threshold=0.5
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:55:42.448 - src.asr.faster_whisper_streamer - INFO - 09:55:42.448 ✓ 处理完成: 输出文本长度 26 字符，耗时 1.206s
+2026-08-19 09:55:42.448 - src.asr.faster_whisper_streamer - INFO - 09:55:42.448 性能指标 - 段数: 1, 音频时长: 5.50s
+2026-08-19 09:55:42.448 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.205s, 实时率: 0.22
+2026-08-19 09:55:42.448 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.206s
+2026-08-19 09:55:42.449 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:55:48.023 - src.asr.faster_whisper_streamer - INFO - 09:55:48.023 ✓ 处理完成: 输出文本长度 24 字符，耗时 1.214s
+2026-08-19 09:55:48.023 - src.asr.faster_whisper_streamer - INFO - 09:55:48.023 性能指标 - 段数: 1, 音频时长: 10.87s
+2026-08-19 09:55:48.023 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.214s, 实时率: 0.11
+2026-08-19 09:55:48.023 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.215s
+2026-08-19 09:55:48.023 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:55:51.633 - src.asr.faster_whisper_streamer - INFO - 09:55:51.633 ✓ 处理完成: 输出文本长度 15 字符，耗时 1.354s
+2026-08-19 09:55:51.634 - src.asr.faster_whisper_streamer - INFO - 09:55:51.634 性能指标 - 段数: 1, 音频时长: 14.58s
+2026-08-19 09:55:51.634 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.354s, 实时率: 0.09
+2026-08-19 09:55:51.634 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.355s
+2026-08-19 09:55:51.634 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:55:56.655 - src.asr.faster_whisper_streamer - INFO - 09:55:56.655 ✓ 处理完成: 输出文本长度 22 字符，耗时 1.308s
+2026-08-19 09:55:56.655 - src.asr.faster_whisper_streamer - INFO - 09:55:56.655 性能指标 - 段数: 1, 音频时长: 19.45s
+2026-08-19 09:55:56.655 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.307s, 实时率: 0.07
+2026-08-19 09:55:56.655 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.308s
+2026-08-19 09:55:56.656 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:55:59.915 - src.asr.faster_whisper_streamer - INFO - 09:55:59.915 ✓ 处理完成: 输出文本长度 16 字符，耗时 1.154s
+2026-08-19 09:55:59.915 - src.asr.faster_whisper_streamer - INFO - 09:55:59.915 性能指标 - 段数: 1, 音频时长: 22.96s
+2026-08-19 09:55:59.915 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.154s, 实时率: 0.05
+2026-08-19 09:55:59.916 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.154s
+2026-08-19 09:55:59.916 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:56:10.004 - src.asr.faster_whisper_streamer - INFO - 09:56:10.004 ✓ 处理完成: 输出文本长度 37 字符，耗时 1.567s
+2026-08-19 09:56:10.005 - src.asr.faster_whisper_streamer - INFO - 09:56:10.005 性能指标 - 段数: 1, 音频时长: 32.66s
+2026-08-19 09:56:10.005 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.567s, 实时率: 0.05
+2026-08-19 09:56:10.005 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.568s
+2026-08-19 09:56:10.005 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:56:16.131 - src.asr.faster_whisper_streamer - INFO - 09:56:16.131 ✓ 处理完成: 输出文本长度 25 字符，耗时 1.764s
+2026-08-19 09:56:16.131 - src.asr.faster_whisper_streamer - INFO - 09:56:16.131 性能指标 - 段数: 1, 音频时长: 38.45s
+2026-08-19 09:56:16.131 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.764s, 实时率: 0.05
+2026-08-19 09:56:16.131 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.765s
+2026-08-19 09:56:16.131 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:56:19.597 - src.asr.faster_whisper_streamer - INFO - 09:56:19.597 ✓ 处理完成: 输出文本长度 12 字符，耗时 1.260s
+2026-08-19 09:56:19.597 - src.asr.faster_whisper_streamer - INFO - 09:56:19.597 性能指标 - 段数: 1, 音频时长: 42.25s
+2026-08-19 09:56:19.597 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.260s, 实时率: 0.03
+2026-08-19 09:56:19.597 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.260s
+2026-08-19 09:56:19.598 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:56:23.107 - src.asr.faster_whisper_streamer - INFO - 09:56:23.107 ✓ 处理完成: 输出文本长度 13 字符，耗时 1.254s
+2026-08-19 09:56:23.107 - src.asr.faster_whisper_streamer - INFO - 09:56:23.107 性能指标 - 段数: 1, 音频时长: 46.12s
+2026-08-19 09:56:23.107 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.254s, 实时率: 0.03
+2026-08-19 09:56:23.108 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.255s
+2026-08-19 09:56:23.108 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:56:33.993 - src.asr.faster_whisper_streamer - INFO - 09:56:33.993 ✓ 处理完成: 输出文本长度 44 字符，耗时 1.709s
+2026-08-19 09:56:33.993 - src.asr.faster_whisper_streamer - INFO - 09:56:33.993 性能指标 - 段数: 1, 音频时长: 56.44s
+2026-08-19 09:56:33.993 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.708s, 实时率: 0.03
+2026-08-19 09:56:33.993 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.709s
+2026-08-19 09:56:33.993 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.002s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-19 09:56:42.463 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: '你好,帮我找个免费的景点,我希望评分是4.5分以上,游玩的时候尝试一小时减两小时,我要和我学姐出去旅游,建议你们去汉市桥湿地或沃龙公园,都是很好玩的景点。汉石桥市地的具体地址是在哪呢?我怎么觉得几年前我去过这个地方呢?地址是在北京市顺义区阳镇汉石桥村市地公园西门200米路北宝香烧烤区没去过的记错了它的附近有美味的餐馆吗?我和学姐都是两个吃货的有的呢是要油腐火锅阳镇点蔚蓝俱乐部西餐厅齿木木山新华联丽景温泉酒店中餐厅在这些餐馆中哪个的人均消费是50到100人并且评分是4.5分以上', 耗时: 6.09s
+2026-08-19 09:56:42.464 - src.llm.stream_llm_inference - INFO - prompt_text: <|im_start|>system
+You are a helpful assistant responding in Chinese.<|im_end|>
+<|im_start|>user
+你好,帮我找个免费的景点,我希望评分是4.5分以上,游玩的时候尝试一小时减两小时,我要和我学姐出去旅游,建议你们去汉市桥湿地或沃龙公园,都是很好玩的景点。汉石桥市地的具体地址是在哪呢?我怎么觉得几年前我去过这个地方呢?地址是在北京市顺义区阳镇汉石桥村市地公园西门200米路北宝香烧烤区没去过的记错了它的附近有美味的餐馆吗?我和学姐都是两个吃货的有的呢是要油腐火锅阳镇点蔚蓝俱乐部西餐厅齿木木山新华联丽景温泉酒店中餐厅在这些餐馆中哪个的人均消费是50到100人并且评分是4.5分以上<|im_end|>
+<|im_start|>assistant
+
+2026-08-19 09:56:44.268 - __main__ - INFO -   流式 TTFT: 1928.89 ms
+2026-08-19 09:56:44.268 - __main__ - INFO -   非流式 TTFT: 6173.33 ms
+2026-08-19 09:56:44.268 - __main__ - INFO -   优化: 4244.44 ms (68.8%)
+2026-08-19 09:56:44.269 - __main__ - INFO - 检查点已保存: 4 条结果
+2026-08-19 09:56:44.269 - __main__ - INFO - ✓ 最终检查点已保存 (2/2 完成)
+
+================================================================================
+实验一结果摘要：延迟与语音长度的关系
+================================================================================
+
+分组                样本数       平均时长       流式TTFT      非流式TTFT           优化
+--------------------------------------------------------------------------------
+very_long           2      50.18s    1575.06ms    4893.39ms  3318.33ms (67.8%)
+================================================================================
+2026-08-19 09:56:44.270 - __main__ - INFO - 详细结果已保存: /tmp/ab_test/v0/exp1_results_20260819_095644.json
+2026-08-19 09:56:44.271 - __main__ - INFO - CSV 汇总已保存: /tmp/ab_test/v0/exp1_summary_20260819_095644.csv
+2026-08-19 09:56:44.271 - __main__ - INFO - 统计结果已保存: /tmp/ab_test/v0/exp1_statistics_20260819_095644.csv
+2026-08-19 09:56:44.271 - __main__ - INFO - 
+实验完成！
+I0819 09:56:44.334000 391440 torch/_dynamo/utils.py:399] TorchDynamo compilation metrics:
+I0819 09:56:44.334000 391440 torch/_dynamo/utils.py:399] Function, Runtimes (s)
+I0819 09:56:44.341000 391440 torch/_subclasses/fake_tensor.py:2423] FakeTensor cache stats:
+I0819 09:56:44.342000 391440 torch/_subclasses/fake_tensor.py:2424]   cache_hits: 0
+I0819 09:56:44.342000 391440 torch/_subclasses/fake_tensor.py:2425]   cache_misses: 0

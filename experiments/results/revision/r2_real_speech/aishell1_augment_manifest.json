@@ -1,0 +1,1304 @@
+{
+  "dataset": "aishell1",
+  "seed": 42,
+  "subset": 30,
+  "variants": {
+    "snr20": {
+      "output": "aishell1_snr20",
+      "n_samples": 30,
+      "records": [
+        {
+          "sample_id": "aishell1_S0004_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.202,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0006_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.737,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0007_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.706,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0015_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.128,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0018_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.326,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0019_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.165,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0022_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.507,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0023_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.405,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0024_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.824,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0025_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.886,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0026_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.471,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0027_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.586,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0028_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.474,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0030_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.328,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0031_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.395,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0032_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.148,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0035_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.996,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0036_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.378,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0037_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.093,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0041_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.179,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0050_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 36.132,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0051_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.035,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0052_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.902,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0053_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.935,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0056_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.039,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0057_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.535,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0058_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.868,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0059_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.625,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0060_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.831,
+          "achieved_snr_db": 20.0
+        },
+        {
+          "sample_id": "aishell1_S0061_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.409,
+          "achieved_snr_db": 20.0
+        }
+      ]
+    },
+    "snr15": {
+      "output": "aishell1_snr15",
+      "n_samples": 30,
+      "records": [
+        {
+          "sample_id": "aishell1_S0002_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.204,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0003_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 22.205,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0004_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.202,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0009_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.279,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0010_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.142,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0012_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.602,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0013_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.701,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0018_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.326,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0020_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.234,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0021_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.768,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0022_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.507,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0023_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.405,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0027_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.586,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0028_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.474,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0031_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.395,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0034_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.816,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0035_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.996,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0036_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.378,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0040_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.243,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0041_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.179,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0045_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.056,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0046_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.991,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0048_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.203,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0050_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 36.132,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0053_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.935,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0054_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.647,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0055_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.477,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0057_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.535,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0058_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.868,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0059_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.625,
+          "achieved_snr_db": 15.0
+        }
+      ]
+    },
+    "snr10": {
+      "output": "aishell1_snr10",
+      "n_samples": 30,
+      "records": [
+        {
+          "sample_id": "aishell1_S0002_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.204,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0004_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.202,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0005_01",
+          "source_group": "long",
+          "new_group": "medium",
+          "duration_s": 15.0,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0006_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.737,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0011_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.197,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0012_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.602,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0013_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.701,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0014_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.045,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0018_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.326,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0019_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.165,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0020_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.234,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0023_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.405,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0025_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.886,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0028_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.474,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0031_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.395,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0032_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.148,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0038_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.051,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0039_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.551,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0041_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.179,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0042_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 35.35,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0043_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.222,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0046_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.991,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0047_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.186,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0048_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.203,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0049_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.604,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0054_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.647,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0056_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.039,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0057_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.535,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0060_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.831,
+          "achieved_snr_db": 10.0
+        },
+        {
+          "sample_id": "aishell1_S0061_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.409,
+          "achieved_snr_db": 10.0
+        }
+      ]
+    },
+    "speed09": {
+      "output": "aishell1_speed09",
+      "n_samples": 30,
+      "records": [
+        {
+          "sample_id": "aishell1_S0002_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.005,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0010_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 21.268,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0012_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 21.78,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0013_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.445,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0014_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.939,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0015_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 21.254,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0017_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.855,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0018_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.252,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0019_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.184,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0021_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.742,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0023_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.117,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0024_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.915,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0025_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.652,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0028_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.304,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0030_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 20.365,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0032_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 37.942,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0034_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 38.685,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0035_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.44,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0038_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 35.612,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0040_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 38.048,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0041_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.533,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0042_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 39.278,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0043_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.58,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0044_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 37.565,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0045_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.507,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0047_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.651,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0055_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 37.197,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0059_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.028,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0060_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.256,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0061_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 36.01,
+          "achieved_snr_db": null
+        }
+      ]
+    },
+    "speed11": {
+      "output": "aishell1_speed11",
+      "n_samples": 30,
+      "records": [
+        {
+          "sample_id": "aishell1_S0007_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.824,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0008_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.082,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0011_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.634,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0013_01",
+          "source_group": "long",
+          "new_group": "medium",
+          "duration_s": 14.274,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0015_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.389,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0017_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.063,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0018_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.751,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0019_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.514,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0020_01",
+          "source_group": "long",
+          "new_group": "medium",
+          "duration_s": 14.758,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0021_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.152,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0022_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.734,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0024_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.112,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0025_01",
+          "source_group": "long",
+          "new_group": "medium",
+          "duration_s": 14.442,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0029_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.165,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0031_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.541,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0034_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.651,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0037_01",
+          "source_group": "very_long",
+          "new_group": "long",
+          "duration_s": 29.175,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0039_01",
+          "source_group": "very_long",
+          "new_group": "long",
+          "duration_s": 28.683,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0040_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.13,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0042_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.137,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0044_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.735,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0045_01",
+          "source_group": "very_long",
+          "new_group": "long",
+          "duration_s": 28.233,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0046_01",
+          "source_group": "very_long",
+          "new_group": "long",
+          "duration_s": 29.083,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0048_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.094,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0050_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.847,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0052_01",
+          "source_group": "very_long",
+          "new_group": "long",
+          "duration_s": 29.002,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0054_01",
+          "source_group": "very_long",
+          "new_group": "long",
+          "duration_s": 28.77,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0057_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.487,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0059_01",
+          "source_group": "very_long",
+          "new_group": "long",
+          "duration_s": 27.841,
+          "achieved_snr_db": null
+        },
+        {
+          "sample_id": "aishell1_S0060_01",
+          "source_group": "very_long",
+          "new_group": "long",
+          "duration_s": 28.028,
+          "achieved_snr_db": null
+        }
+      ]
+    },
+    "babble": {
+      "output": "aishell1_babble",
+      "n_samples": 30,
+      "records": [
+        {
+          "sample_id": "aishell1_S0004_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.202,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0006_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.737,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0010_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.142,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0011_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.197,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0012_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.602,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0013_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.701,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0015_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.128,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0017_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.77,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0018_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 17.326,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0019_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.165,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0020_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.234,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0022_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 19.507,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0023_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 15.405,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0028_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 16.474,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0029_01",
+          "source_group": "long",
+          "new_group": "long",
+          "duration_s": 18.881,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0033_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.165,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0034_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.816,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0035_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.996,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0038_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.051,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0045_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.056,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0046_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.991,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0048_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 34.203,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0049_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.604,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0050_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 36.132,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0052_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.902,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0054_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 31.647,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0055_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 33.477,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0058_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.868,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0060_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 30.831,
+          "achieved_snr_db": 15.0
+        },
+        {
+          "sample_id": "aishell1_S0061_01",
+          "source_group": "very_long",
+          "new_group": "very_long",
+          "duration_s": 32.409,
+          "achieved_snr_db": 15.0
+        }
+      ]
+    }
+  },
+  "cmd": "python -m experiments.scripts.build_augmented_variants --dataset aishell1 --variants ['snr20', 'snr15', 'snr10', 'speed09', 'speed11', 'babble'] --subset 30 --babble_snr 15.0 --seed 42 --raw_root experiments/datasets/raw_data --json_dir experiments/datasets/processed/json --audio_dir experiments/datasets/processed/audio"
+}

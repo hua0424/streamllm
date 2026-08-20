@@ -1,0 +1,1191 @@
+{
+  "dataset": "aishell1",
+  "seed": 42,
+  "quota": {
+    "long": 30,
+    "very_long": 30,
+    "extra_long": 15
+  },
+  "produced": 75,
+  "group_counts": {
+    "long": 30,
+    "very_long": 30,
+    "extra_long": 15
+  },
+  "total_duration_min": 40.76,
+  "gap_policy": "U(0.2, 1.0) s between utterances",
+  "raw_root": "experiments/datasets/raw_data",
+  "samples": [
+    {
+      "sample_id": "aishell1_S0002_01",
+      "dialog_id": "S0002",
+      "duration_group": "long",
+      "audio_duration_s": 16.205,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0002W0122",
+        "BAC009S0002W0123",
+        "BAC009S0002W0124"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0003_01",
+      "dialog_id": "S0003",
+      "duration_group": "long",
+      "audio_duration_s": 22.205,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0003W0121",
+        "BAC009S0003W0122",
+        "BAC009S0003W0123"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0004_01",
+      "dialog_id": "S0004",
+      "duration_group": "long",
+      "audio_duration_s": 15.202,
+      "n_utterances": 4,
+      "source_utterances": [
+        "BAC009S0004W0121",
+        "BAC009S0004W0123",
+        "BAC009S0004W0124",
+        "BAC009S0004W0125"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0005_01",
+      "dialog_id": "S0005",
+      "duration_group": "long",
+      "audio_duration_s": 15.0,
+      "n_utterances": 4,
+      "source_utterances": [
+        "BAC009S0005W0121",
+        "BAC009S0005W0122",
+        "BAC009S0005W0123",
+        "BAC009S0005W0124"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0006_01",
+      "dialog_id": "S0006",
+      "duration_group": "long",
+      "audio_duration_s": 17.737,
+      "n_utterances": 4,
+      "source_utterances": [
+        "BAC009S0006W0121",
+        "BAC009S0006W0122",
+        "BAC009S0006W0123",
+        "BAC009S0006W0124"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0007_01",
+      "dialog_id": "S0007",
+      "duration_group": "long",
+      "audio_duration_s": 20.706,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0007W0121",
+        "BAC009S0007W0122",
+        "BAC009S0007W0123"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0008_01",
+      "dialog_id": "S0008",
+      "duration_group": "long",
+      "audio_duration_s": 17.69,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0008W0121",
+        "BAC009S0008W0122",
+        "BAC009S0008W0123"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0009_01",
+      "dialog_id": "S0009",
+      "duration_group": "long",
+      "audio_duration_s": 15.279,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0009W0121",
+        "BAC009S0009W0122",
+        "BAC009S0009W0123"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0010_01",
+      "dialog_id": "S0010",
+      "duration_group": "long",
+      "audio_duration_s": 19.142,
+      "n_utterances": 5,
+      "source_utterances": [
+        "BAC009S0010W0121",
+        "BAC009S0010W0122",
+        "BAC009S0010W0123",
+        "BAC009S0010W0124",
+        "BAC009S0010W0125"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0011_01",
+      "dialog_id": "S0011",
+      "duration_group": "long",
+      "audio_duration_s": 17.197,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0011W0121",
+        "BAC009S0011W0122",
+        "BAC009S0011W0123"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0012_01",
+      "dialog_id": "S0012",
+      "duration_group": "long",
+      "audio_duration_s": 19.602,
+      "n_utterances": 4,
+      "source_utterances": [
+        "BAC009S0012W0121",
+        "BAC009S0012W0122",
+        "BAC009S0012W0123",
+        "BAC009S0012W0124"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0013_01",
+      "dialog_id": "S0013",
+      "duration_group": "long",
+      "audio_duration_s": 15.701,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0013W0121",
+        "BAC009S0013W0122",
+        "BAC009S0013W0123"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0014_01",
+      "dialog_id": "S0014",
+      "duration_group": "long",
+      "audio_duration_s": 17.045,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0014W0121",
+        "BAC009S0014W0122",
+        "BAC009S0014W0123"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0015_01",
+      "dialog_id": "S0015",
+      "duration_group": "long",
+      "audio_duration_s": 19.128,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0015W0121",
+        "BAC009S0015W0122",
+        "BAC009S0015W0123"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0016_01",
+      "dialog_id": "S0016",
+      "duration_group": "long",
+      "audio_duration_s": 16.408,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0016W0121",
+        "BAC009S0016W0122",
+        "BAC009S0016W0123"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0017_01",
+      "dialog_id": "S0017",
+      "duration_group": "long",
+      "audio_duration_s": 18.77,
+      "n_utterances": 4,
+      "source_utterances": [
+        "BAC009S0017W0121",
+        "BAC009S0017W0122",
+        "BAC009S0017W0123",
+        "BAC009S0017W0124"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0018_01",
+      "dialog_id": "S0018",
+      "duration_group": "long",
+      "audio_duration_s": 17.327,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0018W0121",
+        "BAC009S0018W0122",
+        "BAC009S0018W0123"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0019_01",
+      "dialog_id": "S0019",
+      "duration_group": "long",
+      "audio_duration_s": 18.165,
+      "n_utterances": 4,
+      "source_utterances": [
+        "BAC009S0019W0121",
+        "BAC009S0019W0122",
+        "BAC009S0019W0123",
+        "BAC009S0019W0124"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0020_01",
+      "dialog_id": "S0020",
+      "duration_group": "long",
+      "audio_duration_s": 16.234,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0020W0121",
+        "BAC009S0020W0122",
+        "BAC009S0020W0123"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0021_01",
+      "dialog_id": "S0021",
+      "duration_group": "long",
+      "audio_duration_s": 17.768,
+      "n_utterances": 4,
+      "source_utterances": [
+        "BAC009S0021W0121",
+        "BAC009S0021W0122",
+        "BAC009S0021W0123",
+        "BAC009S0021W0124"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0022_01",
+      "dialog_id": "S0022",
+      "duration_group": "long",
+      "audio_duration_s": 19.507,
+      "n_utterances": 5,
+      "source_utterances": [
+        "BAC009S0022W0122",
+        "BAC009S0022W0123",
+        "BAC009S0022W0124",
+        "BAC009S0022W0125",
+        "BAC009S0022W0126"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0023_01",
+      "dialog_id": "S0023",
+      "duration_group": "long",
+      "audio_duration_s": 15.405,
+      "n_utterances": 2,
+      "source_utterances": [
+        "BAC009S0023W0121",
+        "BAC009S0023W0122"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0024_01",
+      "dialog_id": "S0024",
+      "duration_group": "long",
+      "audio_duration_s": 18.824,
+      "n_utterances": 4,
+      "source_utterances": [
+        "BAC009S0024W0121",
+        "BAC009S0024W0122",
+        "BAC009S0024W0123",
+        "BAC009S0024W0124"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0025_01",
+      "dialog_id": "S0025",
+      "duration_group": "long",
+      "audio_duration_s": 15.887,
+      "n_utterances": 4,
+      "source_utterances": [
+        "BAC009S0025W0121",
+        "BAC009S0025W0122",
+        "BAC009S0025W0123",
+        "BAC009S0025W0124"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0026_01",
+      "dialog_id": "S0026",
+      "duration_group": "long",
+      "audio_duration_s": 17.471,
+      "n_utterances": 4,
+      "source_utterances": [
+        "BAC009S0026W0121",
+        "BAC009S0026W0122",
+        "BAC009S0026W0123",
+        "BAC009S0026W0124"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0027_01",
+      "dialog_id": "S0027",
+      "duration_group": "long",
+      "audio_duration_s": 16.586,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0027W0121",
+        "BAC009S0027W0122",
+        "BAC009S0027W0123"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0028_01",
+      "dialog_id": "S0028",
+      "duration_group": "long",
+      "audio_duration_s": 16.474,
+      "n_utterances": 4,
+      "source_utterances": [
+        "BAC009S0028W0121",
+        "BAC009S0028W0122",
+        "BAC009S0028W0123",
+        "BAC009S0028W0124"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0029_01",
+      "dialog_id": "S0029",
+      "duration_group": "long",
+      "audio_duration_s": 18.882,
+      "n_utterances": 5,
+      "source_utterances": [
+        "BAC009S0029W0121",
+        "BAC009S0029W0122",
+        "BAC009S0029W0123",
+        "BAC009S0029W0124",
+        "BAC009S0029W0125"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0030_01",
+      "dialog_id": "S0030",
+      "duration_group": "long",
+      "audio_duration_s": 18.328,
+      "n_utterances": 4,
+      "source_utterances": [
+        "BAC009S0030W0121",
+        "BAC009S0030W0122",
+        "BAC009S0030W0123",
+        "BAC009S0030W0126"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0031_01",
+      "dialog_id": "S0031",
+      "duration_group": "long",
+      "audio_duration_s": 20.395,
+      "n_utterances": 3,
+      "source_utterances": [
+        "BAC009S0031W0121",
+        "BAC009S0031W0122",
+        "BAC009S0031W0123"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0032_01",
+      "dialog_id": "S0032",
+      "duration_group": "very_long",
+      "audio_duration_s": 34.148,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0032W0121",
+        "BAC009S0032W0122",
+        "BAC009S0032W0123",
+        "BAC009S0032W0124",
+        "BAC009S0032W0125",
+        "BAC009S0032W0126",
+        "BAC009S0032W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0033_01",
+      "dialog_id": "S0033",
+      "duration_group": "very_long",
+      "audio_duration_s": 31.166,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0033W0121",
+        "BAC009S0033W0122",
+        "BAC009S0033W0123",
+        "BAC009S0033W0124",
+        "BAC009S0033W0125",
+        "BAC009S0033W0126",
+        "BAC009S0033W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0034_01",
+      "dialog_id": "S0034",
+      "duration_group": "very_long",
+      "audio_duration_s": 34.817,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0034W0121",
+        "BAC009S0034W0122",
+        "BAC009S0034W0123",
+        "BAC009S0034W0124",
+        "BAC009S0034W0125",
+        "BAC009S0034W0126",
+        "BAC009S0034W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0035_01",
+      "dialog_id": "S0035",
+      "duration_group": "very_long",
+      "audio_duration_s": 30.996,
+      "n_utterances": 6,
+      "source_utterances": [
+        "BAC009S0035W0121",
+        "BAC009S0035W0122",
+        "BAC009S0035W0123",
+        "BAC009S0035W0124",
+        "BAC009S0035W0125",
+        "BAC009S0035W0126"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0036_01",
+      "dialog_id": "S0036",
+      "duration_group": "very_long",
+      "audio_duration_s": 30.378,
+      "n_utterances": 5,
+      "source_utterances": [
+        "BAC009S0036W0121",
+        "BAC009S0036W0122",
+        "BAC009S0036W0123",
+        "BAC009S0036W0124",
+        "BAC009S0036W0125"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0037_01",
+      "dialog_id": "S0037",
+      "duration_group": "very_long",
+      "audio_duration_s": 32.093,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0037W0121",
+        "BAC009S0037W0122",
+        "BAC009S0037W0123",
+        "BAC009S0037W0124",
+        "BAC009S0037W0125",
+        "BAC009S0037W0126",
+        "BAC009S0037W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0038_01",
+      "dialog_id": "S0038",
+      "duration_group": "very_long",
+      "audio_duration_s": 32.051,
+      "n_utterances": 6,
+      "source_utterances": [
+        "BAC009S0038W0121",
+        "BAC009S0038W0122",
+        "BAC009S0038W0123",
+        "BAC009S0038W0124",
+        "BAC009S0038W0125",
+        "BAC009S0038W0126"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0039_01",
+      "dialog_id": "S0039",
+      "duration_group": "very_long",
+      "audio_duration_s": 31.552,
+      "n_utterances": 5,
+      "source_utterances": [
+        "BAC009S0039W0121",
+        "BAC009S0039W0122",
+        "BAC009S0039W0123",
+        "BAC009S0039W0124",
+        "BAC009S0039W0125"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0040_01",
+      "dialog_id": "S0040",
+      "duration_group": "very_long",
+      "audio_duration_s": 34.243,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0040W0121",
+        "BAC009S0040W0122",
+        "BAC009S0040W0123",
+        "BAC009S0040W0124",
+        "BAC009S0040W0125",
+        "BAC009S0040W0126",
+        "BAC009S0040W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0041_01",
+      "dialog_id": "S0041",
+      "duration_group": "very_long",
+      "audio_duration_s": 30.179,
+      "n_utterances": 6,
+      "source_utterances": [
+        "BAC009S0041W0121",
+        "BAC009S0041W0122",
+        "BAC009S0041W0123",
+        "BAC009S0041W0124",
+        "BAC009S0041W0125",
+        "BAC009S0041W0126"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0042_01",
+      "dialog_id": "S0042",
+      "duration_group": "very_long",
+      "audio_duration_s": 35.351,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0042W0121",
+        "BAC009S0042W0122",
+        "BAC009S0042W0123",
+        "BAC009S0042W0124",
+        "BAC009S0042W0125",
+        "BAC009S0042W0126",
+        "BAC009S0042W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0043_01",
+      "dialog_id": "S0043",
+      "duration_group": "very_long",
+      "audio_duration_s": 30.223,
+      "n_utterances": 6,
+      "source_utterances": [
+        "BAC009S0043W0121",
+        "BAC009S0043W0122",
+        "BAC009S0043W0123",
+        "BAC009S0043W0124",
+        "BAC009S0043W0125",
+        "BAC009S0043W0126"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0044_01",
+      "dialog_id": "S0044",
+      "duration_group": "very_long",
+      "audio_duration_s": 33.808,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0044W0121",
+        "BAC009S0044W0122",
+        "BAC009S0044W0123",
+        "BAC009S0044W0124",
+        "BAC009S0044W0125",
+        "BAC009S0044W0126",
+        "BAC009S0044W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0045_01",
+      "dialog_id": "S0045",
+      "duration_group": "very_long",
+      "audio_duration_s": 31.056,
+      "n_utterances": 6,
+      "source_utterances": [
+        "BAC009S0045W0121",
+        "BAC009S0045W0122",
+        "BAC009S0045W0123",
+        "BAC009S0045W0124",
+        "BAC009S0045W0125",
+        "BAC009S0045W0126"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0046_01",
+      "dialog_id": "S0046",
+      "duration_group": "very_long",
+      "audio_duration_s": 31.991,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0046W0121",
+        "BAC009S0046W0122",
+        "BAC009S0046W0123",
+        "BAC009S0046W0124",
+        "BAC009S0046W0125",
+        "BAC009S0046W0126",
+        "BAC009S0046W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0047_01",
+      "dialog_id": "S0047",
+      "duration_group": "very_long",
+      "audio_duration_s": 31.186,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0047W0122",
+        "BAC009S0047W0123",
+        "BAC009S0047W0124",
+        "BAC009S0047W0125",
+        "BAC009S0047W0126",
+        "BAC009S0047W0127",
+        "BAC009S0047W0128"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0048_01",
+      "dialog_id": "S0048",
+      "duration_group": "very_long",
+      "audio_duration_s": 34.203,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0048W0121",
+        "BAC009S0048W0122",
+        "BAC009S0048W0123",
+        "BAC009S0048W0124",
+        "BAC009S0048W0125",
+        "BAC009S0048W0126",
+        "BAC009S0048W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0049_01",
+      "dialog_id": "S0049",
+      "duration_group": "very_long",
+      "audio_duration_s": 31.604,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0049W0121",
+        "BAC009S0049W0122",
+        "BAC009S0049W0123",
+        "BAC009S0049W0124",
+        "BAC009S0049W0125",
+        "BAC009S0049W0126",
+        "BAC009S0049W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0050_01",
+      "dialog_id": "S0050",
+      "duration_group": "very_long",
+      "audio_duration_s": 36.132,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0050W0121",
+        "BAC009S0050W0122",
+        "BAC009S0050W0123",
+        "BAC009S0050W0124",
+        "BAC009S0050W0125",
+        "BAC009S0050W0126",
+        "BAC009S0050W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0051_01",
+      "dialog_id": "S0051",
+      "duration_group": "very_long",
+      "audio_duration_s": 31.035,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0051W0121",
+        "BAC009S0051W0122",
+        "BAC009S0051W0123",
+        "BAC009S0051W0124",
+        "BAC009S0051W0125",
+        "BAC009S0051W0126",
+        "BAC009S0051W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0052_01",
+      "dialog_id": "S0052",
+      "duration_group": "very_long",
+      "audio_duration_s": 31.902,
+      "n_utterances": 6,
+      "source_utterances": [
+        "BAC009S0052W0121",
+        "BAC009S0052W0122",
+        "BAC009S0052W0123",
+        "BAC009S0052W0124",
+        "BAC009S0052W0125",
+        "BAC009S0052W0126"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0053_01",
+      "dialog_id": "S0053",
+      "duration_group": "very_long",
+      "audio_duration_s": 34.935,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0053W0121",
+        "BAC009S0053W0122",
+        "BAC009S0053W0123",
+        "BAC009S0053W0124",
+        "BAC009S0053W0125",
+        "BAC009S0053W0126",
+        "BAC009S0053W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0054_01",
+      "dialog_id": "S0054",
+      "duration_group": "very_long",
+      "audio_duration_s": 31.647,
+      "n_utterances": 6,
+      "source_utterances": [
+        "BAC009S0054W0121",
+        "BAC009S0054W0122",
+        "BAC009S0054W0123",
+        "BAC009S0054W0124",
+        "BAC009S0054W0125",
+        "BAC009S0054W0126"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0055_01",
+      "dialog_id": "S0055",
+      "duration_group": "very_long",
+      "audio_duration_s": 33.478,
+      "n_utterances": 8,
+      "source_utterances": [
+        "BAC009S0055W0121",
+        "BAC009S0055W0122",
+        "BAC009S0055W0123",
+        "BAC009S0055W0124",
+        "BAC009S0055W0125",
+        "BAC009S0055W0126",
+        "BAC009S0055W0127",
+        "BAC009S0055W0128"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0056_01",
+      "dialog_id": "S0056",
+      "duration_group": "very_long",
+      "audio_duration_s": 34.039,
+      "n_utterances": 6,
+      "source_utterances": [
+        "BAC009S0056W0121",
+        "BAC009S0056W0122",
+        "BAC009S0056W0123",
+        "BAC009S0056W0124",
+        "BAC009S0056W0125",
+        "BAC009S0056W0126"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0057_01",
+      "dialog_id": "S0057",
+      "duration_group": "very_long",
+      "audio_duration_s": 33.535,
+      "n_utterances": 8,
+      "source_utterances": [
+        "BAC009S0057W0121",
+        "BAC009S0057W0122",
+        "BAC009S0057W0123",
+        "BAC009S0057W0124",
+        "BAC009S0057W0125",
+        "BAC009S0057W0126",
+        "BAC009S0057W0127",
+        "BAC009S0057W0128"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0058_01",
+      "dialog_id": "S0058",
+      "duration_group": "very_long",
+      "audio_duration_s": 32.869,
+      "n_utterances": 8,
+      "source_utterances": [
+        "BAC009S0058W0121",
+        "BAC009S0058W0122",
+        "BAC009S0058W0123",
+        "BAC009S0058W0124",
+        "BAC009S0058W0125",
+        "BAC009S0058W0126",
+        "BAC009S0058W0127",
+        "BAC009S0058W0128"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0059_01",
+      "dialog_id": "S0059",
+      "duration_group": "very_long",
+      "audio_duration_s": 30.625,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0059W0121",
+        "BAC009S0059W0122",
+        "BAC009S0059W0123",
+        "BAC009S0059W0124",
+        "BAC009S0059W0125",
+        "BAC009S0059W0126",
+        "BAC009S0059W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0060_01",
+      "dialog_id": "S0060",
+      "duration_group": "very_long",
+      "audio_duration_s": 30.831,
+      "n_utterances": 7,
+      "source_utterances": [
+        "BAC009S0060W0121",
+        "BAC009S0060W0122",
+        "BAC009S0060W0123",
+        "BAC009S0060W0124",
+        "BAC009S0060W0125",
+        "BAC009S0060W0126",
+        "BAC009S0060W0127"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0061_01",
+      "dialog_id": "S0061",
+      "duration_group": "very_long",
+      "audio_duration_s": 32.409,
+      "n_utterances": 6,
+      "source_utterances": [
+        "BAC009S0061W0121",
+        "BAC009S0061W0122",
+        "BAC009S0061W0123",
+        "BAC009S0061W0124",
+        "BAC009S0061W0125",
+        "BAC009S0061W0126"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0062_01",
+      "dialog_id": "S0062",
+      "duration_group": "extra_long",
+      "audio_duration_s": 63.932,
+      "n_utterances": 12,
+      "source_utterances": [
+        "BAC009S0062W0121",
+        "BAC009S0062W0122",
+        "BAC009S0062W0123",
+        "BAC009S0062W0124",
+        "BAC009S0062W0125",
+        "BAC009S0062W0126",
+        "BAC009S0062W0127",
+        "BAC009S0062W0128",
+        "BAC009S0062W0129",
+        "BAC009S0062W0131",
+        "BAC009S0062W0132",
+        "BAC009S0062W0133"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0063_01",
+      "dialog_id": "S0063",
+      "duration_group": "extra_long",
+      "audio_duration_s": 65.381,
+      "n_utterances": 12,
+      "source_utterances": [
+        "BAC009S0063W0121",
+        "BAC009S0063W0122",
+        "BAC009S0063W0123",
+        "BAC009S0063W0124",
+        "BAC009S0063W0125",
+        "BAC009S0063W0126",
+        "BAC009S0063W0127",
+        "BAC009S0063W0128",
+        "BAC009S0063W0129",
+        "BAC009S0063W0130",
+        "BAC009S0063W0131",
+        "BAC009S0063W0132"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0064_01",
+      "dialog_id": "S0064",
+      "duration_group": "extra_long",
+      "audio_duration_s": 60.113,
+      "n_utterances": 13,
+      "source_utterances": [
+        "BAC009S0064W0121",
+        "BAC009S0064W0123",
+        "BAC009S0064W0124",
+        "BAC009S0064W0125",
+        "BAC009S0064W0126",
+        "BAC009S0064W0127",
+        "BAC009S0064W0128",
+        "BAC009S0064W0129",
+        "BAC009S0064W0130",
+        "BAC009S0064W0131",
+        "BAC009S0064W0132",
+        "BAC009S0064W0133",
+        "BAC009S0064W0134"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0065_01",
+      "dialog_id": "S0065",
+      "duration_group": "extra_long",
+      "audio_duration_s": 61.173,
+      "n_utterances": 13,
+      "source_utterances": [
+        "BAC009S0065W0121",
+        "BAC009S0065W0122",
+        "BAC009S0065W0123",
+        "BAC009S0065W0124",
+        "BAC009S0065W0125",
+        "BAC009S0065W0126",
+        "BAC009S0065W0127",
+        "BAC009S0065W0128",
+        "BAC009S0065W0129",
+        "BAC009S0065W0130",
+        "BAC009S0065W0131",
+        "BAC009S0065W0132",
+        "BAC009S0065W0133"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0066_01",
+      "dialog_id": "S0066",
+      "duration_group": "extra_long",
+      "audio_duration_s": 63.311,
+      "n_utterances": 13,
+      "source_utterances": [
+        "BAC009S0066W0121",
+        "BAC009S0066W0122",
+        "BAC009S0066W0123",
+        "BAC009S0066W0124",
+        "BAC009S0066W0125",
+        "BAC009S0066W0126",
+        "BAC009S0066W0127",
+        "BAC009S0066W0128",
+        "BAC009S0066W0129",
+        "BAC009S0066W0130",
+        "BAC009S0066W0131",
+        "BAC009S0066W0132",
+        "BAC009S0066W0133"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0067_01",
+      "dialog_id": "S0067",
+      "duration_group": "extra_long",
+      "audio_duration_s": 61.459,
+      "n_utterances": 12,
+      "source_utterances": [
+        "BAC009S0067W0121",
+        "BAC009S0067W0122",
+        "BAC009S0067W0123",
+        "BAC009S0067W0124",
+        "BAC009S0067W0125",
+        "BAC009S0067W0126",
+        "BAC009S0067W0127",
+        "BAC009S0067W0128",
+        "BAC009S0067W0129",
+        "BAC009S0067W0130",
+        "BAC009S0067W0131",
+        "BAC009S0067W0132"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0068_01",
+      "dialog_id": "S0068",
+      "duration_group": "extra_long",
+      "audio_duration_s": 60.544,
+      "n_utterances": 12,
+      "source_utterances": [
+        "BAC009S0068W0121",
+        "BAC009S0068W0122",
+        "BAC009S0068W0123",
+        "BAC009S0068W0124",
+        "BAC009S0068W0125",
+        "BAC009S0068W0126",
+        "BAC009S0068W0127",
+        "BAC009S0068W0128",
+        "BAC009S0068W0129",
+        "BAC009S0068W0130",
+        "BAC009S0068W0131",
+        "BAC009S0068W0132"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0069_01",
+      "dialog_id": "S0069",
+      "duration_group": "extra_long",
+      "audio_duration_s": 63.229,
+      "n_utterances": 12,
+      "source_utterances": [
+        "BAC009S0069W0121",
+        "BAC009S0069W0122",
+        "BAC009S0069W0123",
+        "BAC009S0069W0124",
+        "BAC009S0069W0125",
+        "BAC009S0069W0126",
+        "BAC009S0069W0127",
+        "BAC009S0069W0128",
+        "BAC009S0069W0129",
+        "BAC009S0069W0130",
+        "BAC009S0069W0131",
+        "BAC009S0069W0132"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0070_01",
+      "dialog_id": "S0070",
+      "duration_group": "extra_long",
+      "audio_duration_s": 61.193,
+      "n_utterances": 12,
+      "source_utterances": [
+        "BAC009S0070W0121",
+        "BAC009S0070W0122",
+        "BAC009S0070W0123",
+        "BAC009S0070W0124",
+        "BAC009S0070W0125",
+        "BAC009S0070W0126",
+        "BAC009S0070W0127",
+        "BAC009S0070W0128",
+        "BAC009S0070W0129",
+        "BAC009S0070W0130",
+        "BAC009S0070W0131",
+        "BAC009S0070W0132"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0071_01",
+      "dialog_id": "S0071",
+      "duration_group": "extra_long",
+      "audio_duration_s": 63.598,
+      "n_utterances": 15,
+      "source_utterances": [
+        "BAC009S0071W0121",
+        "BAC009S0071W0122",
+        "BAC009S0071W0123",
+        "BAC009S0071W0124",
+        "BAC009S0071W0125",
+        "BAC009S0071W0126",
+        "BAC009S0071W0127",
+        "BAC009S0071W0128",
+        "BAC009S0071W0129",
+        "BAC009S0071W0130",
+        "BAC009S0071W0131",
+        "BAC009S0071W0132",
+        "BAC009S0071W0133",
+        "BAC009S0071W0134",
+        "BAC009S0071W0135"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0072_01",
+      "dialog_id": "S0072",
+      "duration_group": "extra_long",
+      "audio_duration_s": 62.88,
+      "n_utterances": 13,
+      "source_utterances": [
+        "BAC009S0072W0121",
+        "BAC009S0072W0122",
+        "BAC009S0072W0123",
+        "BAC009S0072W0124",
+        "BAC009S0072W0125",
+        "BAC009S0072W0126",
+        "BAC009S0072W0127",
+        "BAC009S0072W0128",
+        "BAC009S0072W0129",
+        "BAC009S0072W0130",
+        "BAC009S0072W0131",
+        "BAC009S0072W0132",
+        "BAC009S0072W0133"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0073_01",
+      "dialog_id": "S0073",
+      "duration_group": "extra_long",
+      "audio_duration_s": 66.052,
+      "n_utterances": 10,
+      "source_utterances": [
+        "BAC009S0073W0121",
+        "BAC009S0073W0123",
+        "BAC009S0073W0124",
+        "BAC009S0073W0125",
+        "BAC009S0073W0126",
+        "BAC009S0073W0128",
+        "BAC009S0073W0129",
+        "BAC009S0073W0130",
+        "BAC009S0073W0131",
+        "BAC009S0073W0132"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0074_01",
+      "dialog_id": "S0074",
+      "duration_group": "extra_long",
+      "audio_duration_s": 62.809,
+      "n_utterances": 14,
+      "source_utterances": [
+        "BAC009S0074W0121",
+        "BAC009S0074W0122",
+        "BAC009S0074W0123",
+        "BAC009S0074W0124",
+        "BAC009S0074W0125",
+        "BAC009S0074W0126",
+        "BAC009S0074W0127",
+        "BAC009S0074W0128",
+        "BAC009S0074W0129",
+        "BAC009S0074W0130",
+        "BAC009S0074W0131",
+        "BAC009S0074W0132",
+        "BAC009S0074W0133",
+        "BAC009S0074W0134"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0075_01",
+      "dialog_id": "S0075",
+      "duration_group": "extra_long",
+      "audio_duration_s": 61.697,
+      "n_utterances": 11,
+      "source_utterances": [
+        "BAC009S0075W0121",
+        "BAC009S0075W0122",
+        "BAC009S0075W0123",
+        "BAC009S0075W0124",
+        "BAC009S0075W0125",
+        "BAC009S0075W0126",
+        "BAC009S0075W0127",
+        "BAC009S0075W0128",
+        "BAC009S0075W0129",
+        "BAC009S0075W0130",
+        "BAC009S0075W0131"
+      ]
+    },
+    {
+      "sample_id": "aishell1_S0076_01",
+      "dialog_id": "S0076",
+      "duration_group": "extra_long",
+      "audio_duration_s": 63.262,
+      "n_utterances": 14,
+      "source_utterances": [
+        "BAC009S0076W0121",
+        "BAC009S0076W0122",
+        "BAC009S0076W0123",
+        "BAC009S0076W0124",
+        "BAC009S0076W0125",
+        "BAC009S0076W0126",
+        "BAC009S0076W0127",
+        "BAC009S0076W0128",
+        "BAC009S0076W0129",
+        "BAC009S0076W0130",
+        "BAC009S0076W0131",
+        "BAC009S0076W0132",
+        "BAC009S0076W0133",
+        "BAC009S0076W0134"
+      ]
+    }
+  ],
+  "cmd": "python -m experiments.scripts.build_real_speech_set --source aishell1 --raw_root experiments/datasets/raw_data --json_dir experiments/datasets/processed/json --audio_dir experiments/datasets/processed/audio --quota long:30,very_long:30,extra_long:15 --seed 42 --librispeech_subsets test-clean --aishell_speakers None"
+}
