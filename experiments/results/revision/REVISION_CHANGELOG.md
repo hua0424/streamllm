@@ -120,3 +120,10 @@
 - 附加诊断（TTFC×文本长度，单次测量）：3 字符→1.37s / 17 字符→3.77s / 45 字符→7.64s / 200 字符→17.93s —— **TTFC 与文本长度近似线性**，该部署为句段级流式（句内不流式：短句首包≈全程合成完毕才到）。
 - 环境注记：TTS 前端文本处理 CPU 敏感，本机 KVM Xeon Gold 6133@2.5GHz 会放大 TTFC/RTF；按裁决 D 绑定平台披露。spk_id 晓伊→中文女 别名补丁仅影响音色，不影响延迟指标（见 TTS_SERVICE_HANDOFF §三）。
 
+
+## 2026-08-21 E3-LA 修复后全量重跑完成，评审 R2 七项 QA 全过（R3，意见4）
+
+- 命令：`uv run python -m experiments.scripts.run_exp_baseline_la --dataset all --sample-list $REV/r3_baseline_la/exp2_ablation_sample_list.json --asr-device cuda:0 --llm-device cuda:1 --output-dir $REV/r3_baseline_la --no-resume`（代码 c965240，含修复 6d74c1c）
+- 产物：`r3_baseline_la/la_results/la_summary/la_statistics` 三件套 + la_run.log + RUNINFO.md（七项 QA 结论）；E0 冒烟在 `r3_baseline_la/e0_smoke/`；旧无效现场在 `invalid_dev3_frame_bug/`
+- 关键数字：498/498 error 0；WER mean 0.130 / CER 0.118（修复前 0.545）；LA/SysB 长度比 0.98/0.99；divergence mean 1.0 max 7；LA TTFT mean 2115ms vs System B 1574ms（LA 全缓冲重解码开销，量级可解释）；回放抽查 3 样本无跳段无重复
+- 异常与处理：无。E3 三方同机对比齐备：System A 5310.8 / System B 1573.9 / LA 2115.0（mean TTFT ms）

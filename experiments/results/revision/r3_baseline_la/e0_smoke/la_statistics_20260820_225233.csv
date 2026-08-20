@@ -1,0 +1,5 @@
+scope,sample_count,avg_duration_s,ttft_mean_ms,ttft_std_ms,ttft_min_ms,ttft_max_ms,wer_mean,cer_mean
+group:long,1,22.91,1513.55,0.00,1513.55,1513.55,0.0619,0.1200
+group:very_long,1,39.23,2879.31,0.00,2879.31,2879.31,0.0566,0.1037
+dataset:crosswoz,2,31.07,2196.43,682.88,1513.55,2879.31,0.0592,0.1118
+overall,2,31.07,2196.43,682.88,1513.55,2879.31,0.0592,0.1118

@@ -59,14 +59,19 @@
 
 ---
 
-## 影响项 4（E3-LA，2026-08-20）：DEV-3 实现 bug 导致本轮 LA 结果无效 → 已修复（commit `6d74c1c`），待 GPU 机重跑
+## 影响项 4（E3-LA，2026-08-21 更新）：DEV-3 已修复并重跑通过，LA 三方同机对比数据可用
 
-- 现象：LA WER mean=0.545（异常高），79% 样本转写长度不足 System B 的 70%，提交文本中间被整段跳过。
-- 机制（逐轮重放实证）：`_trim_buffer()` 裁剪音频缓冲后，`n_committed`/`prev_words` 仍引用裁剪前的"全序列帧"下标，而下一轮重解码的假设是"尾段帧"——下标错帧导致提交跳过新假设前 n_committed 个词，中间文本静默丢失，flush 丢尾。
-- 处置：结果已标记 `*.INVALID_dev3_frame_bug` 保留现场；评审（`experiments/review/20260820-E3LA/`）判定定位与无效处置成立。
-- **修复（2026-08-20 完成）**：绝对时间轴提交 + 标点鲁棒一致比较 + 句界裁剪（修复过程中另发现"句末残片开头缓冲触发 Whisper turbo 幻听坍缩"的第二个机制，一并修复）；回归 16/16；典型样本回放 WER 0.8796→0.0185。详见 REVISION_CHANGELOG 2026-08-20 修复条目。
-- **对论文的影响（暂定）**：意见4 的 LA 对比数据待重跑后入表；不影响 E1/E2/E4/E5 的有效性（LA 组件独立于 System B 路径）。**论文方法描述注意**：若正文/回复中描述 LA-2 基线实现，应写修复后语义（绝对时间轴提交 + 句界裁剪），避免与 ufal 原版描述产生出入时被追问。
-- **待决事项**：GPU 机 E0 冒烟 + 全量重跑排期（前置条件见 GPU_EXPERIMENT_HANDOFF §E3）。
+- 现象与机制（2026-08-20，旧轮次）：LA WER mean=0.545、79% 样本转写长度不足 System B 的 70%——`_trim_buffer()` 裁剪后 `n_committed`/`prev_words` 下标错帧导致中段文本静默丢失、flush 丢尾。旧结果已归档 `invalid_dev3_frame_bug/` 保留现场；评审（`experiments/review/20260820-E3LA/`）判定定位与无效处置成立。
+- **修复**（commit `6d74c1c`）：绝对时间轴提交 + 标点鲁棒一致比较 + 句界裁剪（另修复"句末残片开头触发 Whisper turbo 幻听坍缩"的第二机制）；回归 16/16。
+- **重跑结果（2026-08-21，代码 c965240，498/498 error 0，评审 R2 七项 QA 全过，详见 `r3_baseline_la/RUNINFO.md`）**：
+  - **三方同机 TTFT：System A 5310.8ms / System B 1573.9ms / LA 2115.0ms**（LA 比 System B 慢约 34%，为全缓冲重解码开销；比 System A 快 60%）；
+  - 分组 TTFT：LA 1741/2200/2230ms vs System B 1464/1551/1638ms（long/very_long/extra_long）；
+  - LA 质量：WER mean 0.130 / CER 0.118；LA/SysB 长度比 mean 0.98 / median 0.99；divergence mean 1.0 max 7；
+  - 回放抽查 3 样本（含原 bug 样本 crosswoz_10296_turn2：WER 0.8796→0.0185）无跳段、无重复、flush 正常。
+- **对论文的影响**：
+  1. 意见4 回应数据齐备，三方同机可比，无跨机污染；结论方向：System B 的段级增量识别在同等转写质量下 TTFT 优于 LA-2 基线，支持论文系统设计主张；
+  2. 方法部分若描述 LA-2 基线，必须写修复后语义（绝对时间轴提交 + 句界裁剪 + `la_max_buffer_s=15.0`），不得只写"LocalAgreement-2"（评审 R2 保留项 2）。
+- 无遗留待决事项。
 
 ## 影响项 5（E4，2026-08-20）：turbo 下已提交文本重识别漂移实测存在（224 条/50 样本）
 
