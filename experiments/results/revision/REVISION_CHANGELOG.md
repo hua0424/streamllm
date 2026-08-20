@@ -83,3 +83,26 @@
 - 归因（逐轮重放 crosswoz_10296_turn2 实证）：`_trim_buffer()` 裁剪 buffer 后，`n_committed`/`prev_words` 仍停留在裁剪前"全序列帧"，下一轮假设是裁剪后"尾段帧"的词序列——下标错帧使提交跳过新假设前 n_committed 个词（实证：提交1='你好…住宿'，提交2 直接跳到 '600元有什么合适的吗?'，中间'我希望酒店的最低价格是500到'被静默丢弃），flush 同样丢尾。
 - 处置：结果 JSON 重命名为 `la_results_*.json.INVALID_dev3_frame_bug` 保留现场；按"发现缺漏停止上报，不自行修改实现"规则，已上报需求方待授权修复（建议：裁剪后重置 prev_words/n_committed 参考帧，提交条件改为时间下限 end > last_committed_end 叠加尾随保护）；修复后需重跑 E3-LA（约 6h）。
 - 注：E4/E5 走 System B 路径、与 LA 组件无关，经评估不受影响，继续按计划推进。
+
+## 2026-08-20 E4 插桩+完整回复复跑完成（R4+R5，意见5）
+
+- 命令：`uv run python -m experiments.scripts.run_exp_latency --dataset all --sample-list $REV/r1_stats/repeat_subset_ids.json --asr-device cuda:0 --llm-device cuda:1 --suffix-segments 0 --max-tokens 128 --save-full-response --save-fragments --output-dir $REV/r4_commit --no-resume`
+- 产物：`r4_commit/`（三件套 + commit_log.jsonl + checkpoint + run.log + RUNINFO.md）
+- 关键数字：50 样本 × 2 模式，error 0；full_response 50/50 非空（mean 208 字符）；committed_fragments 50/50；commit_log.jsonl 599 行（375 commit + 224 correction）覆盖 50/50；streaming TTFT mean 1423ms（与 E1 同口径一致）
+- 异常与处理：无。备注：turbo 下 50 样本观测到 224 条 correction（已提交段重识别漂移），供分词接缝/语义一致性分析；结果 JSON config 块未含 save_full_response/save_fragments 开关位（在 checkpoint config 中有），属记录完整性小瑕疵，不影响数据。
+
+## 2026-08-20 E5 端点等待测量完成（R6.1，意见2）
+
+- 命令：`uv run python -m experiments.scripts.run_exp_latency --dataset all --sample-list $REV/r1_stats/repeat_subset_ids.json --asr-device cuda:0 --llm-device cuda:1 --suffix-segments 0 --append-silence-ms 2000 --output-dir $REV/r6_ttfa/endpoint --no-resume`
+- 产物：`r6_ttfa/endpoint/`（三件套 + checkpoint + run.log + RUNINFO.md）
+- 关键数字：50 样本 × 2 模式，error 0；QA 四项全过：(a) audio_end−speech_end = 2.002s±0.001 ✓；(b) asr_no_speech 0 个 ✓；(c) final_speech ≤ final_is_final 无违例 ✓；(d) 无异常样本。端点指标（50/50 有效）：endpoint_detection_wait mean 53ms / median 109ms / p90 208ms；final_enqueue_wait mean 2053ms；post_endpoint_ttft mean 3012ms；total（speech_end→首 token）mean 3065ms
+- 异常与处理：无
+
+## 2026-08-20 E6 TTS 首包延迟测量完成（R6.2，意见2）
+
+- 命令：`uv run python -m experiments.scripts.measure_tts_first_chunk --from-e4 $REV/r4_commit --n-zh 25 --n-en 25 --url http://127.0.0.1:20401 --output $REV/r6_ttfa/tts_first_chunk.csv`
+- 产物：`r6_ttfa/tts_first_chunk.csv`（50 条，error 0）+ 自动 `.runinfo.md`；冷启动对照轮 `tts_first_chunk_run1_cold.csv`（9 条，手动中止归档）
+- 关键数字：zh(n=25) TTFC mean 13.99s / en(n=25) 11.86s；total mean 32.8–34.5s；RTF mean 0.71–0.72
+- 异常与处理：首轮冷启动 TTFC 偏高（mean 14.84s），按需求方建议做 3 次预热后重测——**冷热两轮无显著差异（14.84s vs 12.92s，RTF 0.74 vs 0.71），排除预热因素，确认为稳态行为**。
+- 附加诊断（TTFC×文本长度，单次测量）：3 字符→1.37s / 17 字符→3.77s / 45 字符→7.64s / 200 字符→17.93s —— **TTFC 与文本长度近似线性**，该部署为句段级流式（句内不流式：短句首包≈全程合成完毕才到）。
+- 环境注记：TTS 前端文本处理 CPU 敏感，本机 KVM Xeon Gold 6133@2.5GHz 会放大 TTFC/RTF；按裁决 D 绑定平台披露。spk_id 晓伊→中文女 别名补丁仅影响音色，不影响延迟指标（见 TTS_SERVICE_HANDOFF §三）。

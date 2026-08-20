@@ -1,0 +1,10 @@
+sample_id,language,n_chars,ttfc_ms,total_ms,audio_sec,rtf,text_source,error
+crosswoz_7701_turn3,zh,200,20146.65,36212.45,47.589,0.761,full_response,
+crosswoz_8672_turn3,zh,207,16156.72,36646.69,50.039,0.732,full_response,
+crosswoz_12315_turn3,zh,211,16308.88,34834.08,46.823,0.744,full_response,
+crosswoz_8907_turn3,zh,214,20096.85,38140.09,50.503,0.755,full_response,
+crosswoz_11592_turn2,zh,213,11010.80,38776.92,50.515,0.768,full_response,
+crosswoz_9577_turn3,zh,218,13272.06,39361.52,54.230,0.726,full_response,
+crosswoz_10574_turn4,zh,218,14163.53,40063.58,54.962,0.729,full_response,
+crosswoz_11730_turn3,zh,200,11248.92,31767.50,43.352,0.733,full_response,
+crosswoz_7196_turn3,zh,189,11171.77,37999.17,51.444,0.739,full_response,

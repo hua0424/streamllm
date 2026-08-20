@@ -6308,3 +6308,1067 @@ collect2: error: ld returned 1 exit status
 2026-08-20 17:57:50.645 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.052s, 实时率: 0.03
 2026-08-20 17:57:50.645 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.053s
 2026-08-20 17:57:50.645 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:57:58.560 - src.asr.faster_whisper_streamer - INFO - 17:57:58.560 ✓ 处理完成: 输出文本长度 34 字符，耗时 1.395s
+2026-08-20 17:57:58.560 - src.asr.faster_whisper_streamer - INFO - 17:57:58.560 性能指标 - 段数: 1, 音频时长: 39.47s
+2026-08-20 17:57:58.560 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.395s, 实时率: 0.04
+2026-08-20 17:57:58.560 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.396s
+2026-08-20 17:57:58.560 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:58:03.551 - src.asr.faster_whisper_streamer - INFO - 17:58:03.551 ✓ 处理完成: 输出文本长度 17 字符，耗时 1.430s
+2026-08-20 17:58:03.552 - src.asr.faster_whisper_streamer - INFO - 17:58:03.552 性能指标 - 段数: 1, 音频时长: 44.30s
+2026-08-20 17:58:03.552 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.430s, 实时率: 0.03
+2026-08-20 17:58:03.552 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.430s
+2026-08-20 17:58:03.552 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:58:05.144 - src.asr.faster_whisper_streamer - INFO - 17:58:05.144 ✓ 处理完成: 输出文本长度 7 字符，耗时 1.090s
+2026-08-20 17:58:05.145 - src.asr.faster_whisper_streamer - INFO - 17:58:05.145 性能指标 - 段数: 1, 音频时长: 46.29s
+2026-08-20 17:58:05.145 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.090s, 实时率: 0.02
+2026-08-20 17:58:05.145 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.091s
+2026-08-20 17:58:05.145 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:58:06.971 - src.asr.faster_whisper_streamer - INFO - 17:58:06.971 ✓ 处理完成: 输出文本长度 8 字符，耗时 0.923s
+2026-08-20 17:58:06.972 - src.asr.faster_whisper_streamer - INFO - 17:58:06.971 性能指标 - 段数: 1, 音频时长: 48.68s
+2026-08-20 17:58:06.972 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.923s, 实时率: 0.02
+2026-08-20 17:58:06.972 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.923s
+2026-08-20 17:58:06.972 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:58:12.724 - src.asr.faster_whisper_streamer - INFO - 17:58:12.724 ✓ 处理完成: 输出文本长度 23 字符，耗时 1.089s
+2026-08-20 17:58:12.725 - src.asr.faster_whisper_streamer - INFO - 17:58:12.725 性能指标 - 段数: 1, 音频时长: 53.83s
+2026-08-20 17:58:12.725 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.089s, 实时率: 0.02
+2026-08-20 17:58:12.725 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.090s
+2026-08-20 17:58:12.725 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:58:16.327 - src.asr.faster_whisper_streamer - INFO - 17:58:16.327 ✓ 处理完成: 输出文本长度 15 字符，耗时 1.196s
+2026-08-20 17:58:16.327 - src.asr.faster_whisper_streamer - INFO - 17:58:16.327 性能指标 - 段数: 1, 音频时长: 57.32s
+2026-08-20 17:58:16.327 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.195s, 实时率: 0.02
+2026-08-20 17:58:16.327 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.196s
+2026-08-20 17:58:16.328 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:58:17.988 - src.asr.faster_whisper_streamer - INFO - 17:58:17.988 ✓ 处理完成: 输出文本长度 0 字符，耗时 0.908s
+2026-08-20 17:58:17.989 - src.asr.faster_whisper_streamer - INFO - 17:58:17.989 性能指标 - 段数: 1, 音频时长: 59.30s
+2026-08-20 17:58:17.989 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.907s, 实时率: 0.02
+2026-08-20 17:58:17.989 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.909s
+2026-08-20 17:58:17.989 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:58:25.493 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: '你好,我朋友要吃自助水果,麻烦你帮我找个有这个的餐馆,我希望餐馆的人均消费是50到100元,评分是4分以上,只找到了一家叫望顺阁鱼头泡饼店,卫工村店,但是他家和人均消费是104元。好的,我们就去这个餐馆了,你建议我们几点过去用餐比较合适?您看下营业时间是11点到22点。嗯 这餐馆的附近有酒店吗我朋友我俩都是女孩用餐很晚的话就住宿了有的是齐鸥康福瑞连锁酒店北京学院南路店K英文康福瑞假日酒店北京京一大酒店北京骏马国际酒店那在这些酒店中哪个的最低价格是600到700元我俩出来旅游计划好的钱是有数的字幕志愿者 杨茜茜', 耗时: 5.48s
+2026-08-20 17:58:25.494 - src.llm.stream_llm_inference - INFO - prompt_text: <|im_start|>system
+You are a helpful assistant responding in Chinese.<|im_end|>
+<|im_start|>user
+你好,我朋友要吃自助水果,麻烦你帮我找个有这个的餐馆,我希望餐馆的人均消费是50到100元,评分是4分以上,只找到了一家叫望顺阁鱼头泡饼店,卫工村店,但是他家和人均消费是104元。好的,我们就去这个餐馆了,你建议我们几点过去用餐比较合适?您看下营业时间是11点到22点。嗯 这餐馆的附近有酒店吗我朋友我俩都是女孩用餐很晚的话就住宿了有的是齐鸥康福瑞连锁酒店北京学院南路店K英文康福瑞假日酒店北京京一大酒店北京骏马国际酒店那在这些酒店中哪个的最低价格是600到700元我俩出来旅游计划好的钱是有数的字幕志愿者 杨茜茜<|im_end|>
+<|im_start|>assistant
+
+2026-08-20 17:58:27.333 - __main__ - INFO -   流式 TTFT: 1045.99 ms
+2026-08-20 17:58:27.333 - __main__ - INFO -   非流式 TTFT: 5560.69 ms
+2026-08-20 17:58:27.333 - __main__ - INFO -   优化: 4514.70 ms (81.2%)
+2026-08-20 17:58:27.561 - __main__ - INFO - 
+[91/50] 测试样本: multiwoz_PMUL1745_turn6
+2026-08-20 17:58:27.562 - __main__ - INFO -   音频时长: 57.34s, 分组: very_long
+2026-08-20 17:58:28.880 - src.asr.streamaudio_segmenter - INFO - StreamAudioSegmenter initialized with sampling_rate=16000, silence_threshold=0.5
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:58:36.034 - src.asr.faster_whisper_streamer - INFO - 17:58:36.034 ✓ 处理完成: 输出文本长度 89 字符，耗时 1.032s
+2026-08-20 17:58:36.034 - src.asr.faster_whisper_streamer - INFO - 17:58:36.034 性能指标 - 段数: 1, 音频时长: 5.82s
+2026-08-20 17:58:36.035 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.031s, 实时率: 0.18
+2026-08-20 17:58:36.035 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.032s
+2026-08-20 17:58:36.035 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:58:38.410 - src.asr.faster_whisper_streamer - INFO - 17:58:38.410 ✓ 处理完成: 输出文本长度 36 字符，耗时 0.921s
+2026-08-20 17:58:38.411 - src.asr.faster_whisper_streamer - INFO - 17:58:38.411 性能指标 - 段数: 1, 音频时长: 8.35s
+2026-08-20 17:58:38.411 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.920s, 实时率: 0.11
+2026-08-20 17:58:38.411 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.921s
+2026-08-20 17:58:38.411 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:58:45.745 - src.asr.faster_whisper_streamer - INFO - 17:58:45.745 ✓ 处理完成: 输出文本长度 110 字符，耗时 1.115s
+2026-08-20 17:58:45.745 - src.asr.faster_whisper_streamer - INFO - 17:58:45.745 性能指标 - 段数: 1, 音频时长: 15.54s
+2026-08-20 17:58:45.746 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.115s, 实时率: 0.07
+2026-08-20 17:58:45.746 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.115s
+2026-08-20 17:58:45.746 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:58:52.997 - src.asr.faster_whisper_streamer - INFO - 17:58:52.997 ✓ 处理完成: 输出文本长度 95 字符，耗时 1.384s
+2026-08-20 17:58:52.998 - src.asr.faster_whisper_streamer - INFO - 17:58:52.998 性能指标 - 段数: 1, 音频时长: 22.45s
+2026-08-20 17:58:52.998 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.384s, 实时率: 0.06
+2026-08-20 17:58:52.998 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.385s
+2026-08-20 17:58:52.998 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:59:02.120 - src.asr.faster_whisper_streamer - INFO - 17:59:02.120 ✓ 处理完成: 输出文本长度 120 字符，耗时 1.450s
+2026-08-20 17:59:02.121 - src.asr.faster_whisper_streamer - INFO - 17:59:02.121 性能指标 - 段数: 1, 音频时长: 31.70s
+2026-08-20 17:59:02.121 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.449s, 实时率: 0.05
+2026-08-20 17:59:02.121 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.450s
+2026-08-20 17:59:02.121 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:59:04.723 - src.asr.faster_whisper_streamer - INFO - 17:59:04.723 ✓ 处理完成: 输出文本长度 32 字符，耗时 1.197s
+2026-08-20 17:59:04.723 - src.asr.faster_whisper_streamer - INFO - 17:59:04.723 性能指标 - 段数: 1, 音频时长: 34.26s
+2026-08-20 17:59:04.724 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.197s, 实时率: 0.03
+2026-08-20 17:59:04.724 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.198s
+2026-08-20 17:59:04.724 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:59:10.732 - src.asr.faster_whisper_streamer - INFO - 17:59:10.732 ✓ 处理完成: 输出文本长度 79 字符，耗时 1.093s
+2026-08-20 17:59:10.733 - src.asr.faster_whisper_streamer - INFO - 17:59:10.733 性能指标 - 段数: 1, 音频时长: 40.24s
+2026-08-20 17:59:10.733 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.092s, 实时率: 0.03
+2026-08-20 17:59:10.733 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.093s
+2026-08-20 17:59:10.733 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:59:14.247 - src.asr.faster_whisper_streamer - INFO - 17:59:14.247 ✓ 处理完成: 输出文本长度 54 字符，耗时 1.157s
+2026-08-20 17:59:14.247 - src.asr.faster_whisper_streamer - INFO - 17:59:14.247 性能指标 - 段数: 1, 音频时长: 44.01s
+2026-08-20 17:59:14.247 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.157s, 实时率: 0.03
+2026-08-20 17:59:14.248 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.157s
+2026-08-20 17:59:14.248 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:59:21.363 - src.asr.faster_whisper_streamer - INFO - 17:59:21.363 ✓ 处理完成: 输出文本长度 91 字符，耗时 1.196s
+2026-08-20 17:59:21.363 - src.asr.faster_whisper_streamer - INFO - 17:59:21.363 性能指标 - 段数: 1, 音频时长: 50.86s
+2026-08-20 17:59:21.364 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.196s, 实时率: 0.02
+2026-08-20 17:59:21.364 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.197s
+2026-08-20 17:59:21.364 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:59:27.880 - src.asr.faster_whisper_streamer - INFO - 17:59:27.880 ✓ 处理完成: 输出文本长度 84 字符，耗时 1.203s
+2026-08-20 17:59:27.880 - src.asr.faster_whisper_streamer - INFO - 17:59:27.880 性能指标 - 段数: 1, 音频时长: 57.42s
+2026-08-20 17:59:27.880 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.203s, 实时率: 0.02
+2026-08-20 17:59:27.880 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.204s
+2026-08-20 17:59:27.880 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:59:29.464 - src.asr.faster_whisper_streamer - INFO - 17:59:29.464 ✓ 处理完成: 输出文本长度 0 字符，耗时 0.931s
+2026-08-20 17:59:29.464 - src.asr.faster_whisper_streamer - INFO - 17:59:29.464 性能指标 - 段数: 1, 音频时长: 59.34s
+2026-08-20 17:59:29.464 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.931s, 实时率: 0.02
+2026-08-20 17:59:29.464 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.931s
+2026-08-20 17:59:29.464 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:59:36.393 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: 'I need to book a train to Cambridge please and thank you. I'd be happy to help with that. Where would you like to depart from? And what day are you traveling Arcee? I will be traveling on Sunday and departing from London King's Cross. What time will you be leaving Holurin? I don't have a leave time but I want to arrive by 2015. Ok, there is an 1117 that will get you there by 1208 or there are a few earlier trains if you want to get there sooner. Yes, that would be okay with me. How long is the travel time for that train, Usri? The travel time is 51 minutes. Would you like me to book it for you or no, thank you. I would like to find a place to stay, please. Are you looking for a guest house or a hotel or what area do you prefer, Asri? Any area but you has have free parking and a one star. You', 耗时: 4.61s
+2026-08-20 17:59:36.394 - src.llm.stream_llm_inference - INFO - prompt_text: <|im_start|>system
+You are a helpful assistant responding in Chinese.<|im_end|>
+<|im_start|>user
+I need to book a train to Cambridge please and thank you. I'd be happy to help with that. Where would you like to depart from? And what day are you traveling Arcee? I will be traveling on Sunday and departing from London King's Cross. What time will you be leaving Holurin? I don't have a leave time but I want to arrive by 2015. Ok, there is an 1117 that will get you there by 1208 or there are a few earlier trains if you want to get there sooner. Yes, that would be okay with me. How long is the travel time for that train, Usri? The travel time is 51 minutes. Would you like me to book it for you or no, thank you. I would like to find a place to stay, please. Are you looking for a guest house or a hotel or what area do you prefer, Asri? Any area but you has have free parking and a one star. You<|im_end|>
+<|im_start|>assistant
+
+2026-08-20 17:59:38.191 - __main__ - INFO -   流式 TTFT: 1072.70 ms
+2026-08-20 17:59:38.191 - __main__ - INFO -   非流式 TTFT: 4695.19 ms
+2026-08-20 17:59:38.191 - __main__ - INFO -   优化: 3622.49 ms (77.2%)
+2026-08-20 17:59:38.191 - __main__ - INFO - 
+[93/50] 测试样本: multiwoz_MUL0183_turn5
+2026-08-20 17:59:38.191 - __main__ - INFO -   音频时长: 57.67s, 分组: very_long
+2026-08-20 17:59:39.369 - src.asr.streamaudio_segmenter - INFO - StreamAudioSegmenter initialized with sampling_rate=16000, silence_threshold=0.5
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:59:53.372 - src.asr.faster_whisper_streamer - INFO - 17:59:53.372 ✓ 处理完成: 输出文本长度 194 字符，耗时 1.312s
+2026-08-20 17:59:53.372 - src.asr.faster_whisper_streamer - INFO - 17:59:53.372 性能指标 - 段数: 1, 音频时长: 12.25s
+2026-08-20 17:59:53.372 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.311s, 实时率: 0.11
+2026-08-20 17:59:53.372 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.313s
+2026-08-20 17:59:53.372 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 17:59:56.848 - src.asr.faster_whisper_streamer - INFO - 17:59:56.848 ✓ 处理完成: 输出文本长度 55 字符，耗时 1.319s
+2026-08-20 17:59:56.849 - src.asr.faster_whisper_streamer - INFO - 17:59:56.849 性能指标 - 段数: 1, 音频时长: 15.90s
+2026-08-20 17:59:56.849 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.318s, 实时率: 0.08
+2026-08-20 17:59:56.849 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.319s
+2026-08-20 17:59:56.849 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:00:02.814 - src.asr.faster_whisper_streamer - INFO - 18:00:02.814 ✓ 处理完成: 输出文本长度 88 字符，耗时 1.249s
+2026-08-20 18:00:02.815 - src.asr.faster_whisper_streamer - INFO - 18:00:02.815 性能指标 - 段数: 1, 音频时长: 21.72s
+2026-08-20 18:00:02.815 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.248s, 实时率: 0.06
+2026-08-20 18:00:02.815 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.249s
+2026-08-20 18:00:02.815 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:00:08.497 - src.asr.faster_whisper_streamer - INFO - 18:00:08.497 ✓ 处理完成: 输出文本长度 96 字符，耗时 1.418s
+2026-08-20 18:00:08.497 - src.asr.faster_whisper_streamer - INFO - 18:00:08.497 性能指标 - 段数: 1, 音频时长: 27.35s
+2026-08-20 18:00:08.497 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.418s, 实时率: 0.05
+2026-08-20 18:00:08.497 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.419s
+2026-08-20 18:00:08.497 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:00:18.119 - src.asr.faster_whisper_streamer - INFO - 18:00:18.119 ✓ 处理完成: 输出文本长度 135 字符，耗时 1.448s
+2026-08-20 18:00:18.119 - src.asr.faster_whisper_streamer - INFO - 18:00:18.119 性能指标 - 段数: 1, 音频时长: 36.98s
+2026-08-20 18:00:18.119 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.447s, 实时率: 0.04
+2026-08-20 18:00:18.119 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.448s
+2026-08-20 18:00:18.119 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:00:21.531 - src.asr.faster_whisper_streamer - INFO - 18:00:21.531 ✓ 处理完成: 输出文本长度 44 字符，耗时 1.505s
+2026-08-20 18:00:21.531 - src.asr.faster_whisper_streamer - INFO - 18:00:21.531 性能指标 - 段数: 1, 音频时长: 40.27s
+2026-08-20 18:00:21.531 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.504s, 实时率: 0.04
+2026-08-20 18:00:21.531 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.505s
+2026-08-20 18:00:21.531 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:00:28.241 - src.asr.faster_whisper_streamer - INFO - 18:00:28.241 ✓ 处理完成: 输出文本长度 96 字符，耗时 1.092s
+2026-08-20 18:00:28.242 - src.asr.faster_whisper_streamer - INFO - 18:00:28.242 性能指标 - 段数: 1, 音频时长: 47.70s
+2026-08-20 18:00:28.242 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.092s, 实时率: 0.02
+2026-08-20 18:00:28.242 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.093s
+2026-08-20 18:00:28.242 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:00:32.831 - src.asr.faster_whisper_streamer - INFO - 18:00:32.831 ✓ 处理完成: 输出文本长度 67 字符，耗时 1.178s
+2026-08-20 18:00:32.831 - src.asr.faster_whisper_streamer - INFO - 18:00:32.831 性能指标 - 段数: 1, 音频时长: 51.89s
+2026-08-20 18:00:32.831 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.177s, 实时率: 0.02
+2026-08-20 18:00:32.831 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.178s
+2026-08-20 18:00:32.831 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:00:38.784 - src.asr.faster_whisper_streamer - INFO - 18:00:38.784 ✓ 处理完成: 输出文本长度 84 字符，耗时 1.138s
+2026-08-20 18:00:38.784 - src.asr.faster_whisper_streamer - INFO - 18:00:38.784 性能指标 - 段数: 1, 音频时长: 57.77s
+2026-08-20 18:00:38.784 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.137s, 实时率: 0.02
+2026-08-20 18:00:38.784 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.138s
+2026-08-20 18:00:38.784 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:00:40.463 - src.asr.faster_whisper_streamer - INFO - 18:00:40.463 ✓ 处理完成: 输出文本长度 0 字符，耗时 0.926s
+2026-08-20 18:00:40.463 - src.asr.faster_whisper_streamer - INFO - 18:00:40.463 性能指标 - 段数: 1, 音频时长: 59.67s
+2026-08-20 18:00:40.463 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.926s, 实时率: 0.02
+2026-08-20 18:00:40.464 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.926s
+2026-08-20 18:00:40.464 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:00:46.877 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: 'i need to find a place to stay while in cambridge i do not need it to have internet but i do need it to have free parking there are currently no hotels in the cambridge area that have parking is there another area close by that would work for you esri maybe you can suggest a place close to the area of south i would appreciate that thank you there is nothing in the south though you You really need Parking Army Ana White, do. What about to the West Eye, what are the preferences you have for the Hotel Essary? I cannot seem to find one fitting the criteria you have listed. I need the hotel to at least have Freewide. Can you accommodate Essary or four hotels in the South with Free Wiber and Parking? But Star Rating? Would you like High Ray? I don't really care about the Star Rating. I just would like free wisdom and would need to book for three nights for six people.', 耗时: 4.42s
+2026-08-20 18:00:46.878 - src.llm.stream_llm_inference - INFO - prompt_text: <|im_start|>system
+You are a helpful assistant responding in Chinese.<|im_end|>
+<|im_start|>user
+i need to find a place to stay while in cambridge i do not need it to have internet but i do need it to have free parking there are currently no hotels in the cambridge area that have parking is there another area close by that would work for you esri maybe you can suggest a place close to the area of south i would appreciate that thank you there is nothing in the south though you You really need Parking Army Ana White, do. What about to the West Eye, what are the preferences you have for the Hotel Essary? I cannot seem to find one fitting the criteria you have listed. I need the hotel to at least have Freewide. Can you accommodate Essary or four hotels in the South with Free Wiber and Parking? But Star Rating? Would you like High Ray? I don't really care about the Star Rating. I just would like free wisdom and would need to book for three nights for six people.<|im_end|>
+<|im_start|>assistant
+
+2026-08-20 18:00:48.668 - __main__ - INFO -   流式 TTFT: 1062.95 ms
+2026-08-20 18:00:48.668 - __main__ - INFO -   非流式 TTFT: 4503.52 ms
+2026-08-20 18:00:48.668 - __main__ - INFO -   优化: 3440.57 ms (76.4%)
+2026-08-20 18:00:48.668 - __main__ - INFO - 
+[95/50] 测试样本: crosswoz_11406_turn5
+2026-08-20 18:00:48.668 - __main__ - INFO -   音频时长: 57.73s, 分组: very_long
+2026-08-20 18:00:49.830 - src.asr.streamaudio_segmenter - INFO - StreamAudioSegmenter initialized with sampling_rate=16000, silence_threshold=0.5
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:03.535 - src.asr.faster_whisper_streamer - INFO - 18:01:03.535 ✓ 处理完成: 输出文本长度 62 字符，耗时 1.469s
+2026-08-20 18:01:03.535 - src.asr.faster_whisper_streamer - INFO - 18:01:03.535 性能指标 - 段数: 1, 音频时长: 12.19s
+2026-08-20 18:01:03.536 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.469s, 实时率: 0.12
+2026-08-20 18:01:03.536 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.470s
+2026-08-20 18:01:03.536 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:04.831 - src.asr.faster_whisper_streamer - INFO - 18:01:04.830 ✓ 处理完成: 输出文本长度 4 字符，耗时 1.295s
+2026-08-20 18:01:04.831 - src.asr.faster_whisper_streamer - INFO - 18:01:04.831 性能指标 - 段数: 1, 音频时长: 13.43s
+2026-08-20 18:01:04.831 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.294s, 实时率: 0.10
+2026-08-20 18:01:04.831 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.295s
+2026-08-20 18:01:04.831 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:08.974 - src.asr.faster_whisper_streamer - INFO - 18:01:08.974 ✓ 处理完成: 输出文本长度 20 字符，耗时 0.984s
+2026-08-20 18:01:08.974 - src.asr.faster_whisper_streamer - INFO - 18:01:08.974 性能指标 - 段数: 1, 音频时长: 17.88s
+2026-08-20 18:01:08.974 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.984s, 实时率: 0.06
+2026-08-20 18:01:08.975 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.985s
+2026-08-20 18:01:08.975 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:11.532 - src.asr.faster_whisper_streamer - INFO - 18:01:11.532 ✓ 处理完成: 输出文本长度 10 字符，耗时 1.053s
+2026-08-20 18:01:11.532 - src.asr.faster_whisper_streamer - INFO - 18:01:11.532 性能指标 - 段数: 1, 音频时长: 20.37s
+2026-08-20 18:01:11.533 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.053s, 实时率: 0.05
+2026-08-20 18:01:11.533 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.053s
+2026-08-20 18:01:11.533 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:13.340 - src.asr.faster_whisper_streamer - INFO - 18:01:13.340 ✓ 处理完成: 输出文本长度 6 字符，耗时 0.904s
+2026-08-20 18:01:13.340 - src.asr.faster_whisper_streamer - INFO - 18:01:13.340 性能指标 - 段数: 1, 音频时长: 22.36s
+2026-08-20 18:01:13.340 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.903s, 实时率: 0.04
+2026-08-20 18:01:13.340 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.904s
+2026-08-20 18:01:13.340 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:16.446 - src.asr.faster_whisper_streamer - INFO - 18:01:16.446 ✓ 处理完成: 输出文本长度 13 字符，耗时 0.949s
+2026-08-20 18:01:16.447 - src.asr.faster_whisper_streamer - INFO - 18:01:16.447 性能指标 - 段数: 1, 音频时长: 25.39s
+2026-08-20 18:01:16.447 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.949s, 实时率: 0.04
+2026-08-20 18:01:16.447 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.950s
+2026-08-20 18:01:16.447 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:22.248 - src.asr.faster_whisper_streamer - INFO - 18:01:22.248 ✓ 处理完成: 输出文本长度 19 字符，耗时 1.188s
+2026-08-20 18:01:22.248 - src.asr.faster_whisper_streamer - INFO - 18:01:22.248 性能指标 - 段数: 1, 音频时长: 30.93s
+2026-08-20 18:01:22.248 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.188s, 实时率: 0.04
+2026-08-20 18:01:22.248 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.189s
+2026-08-20 18:01:22.248 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:33.251 - src.asr.faster_whisper_streamer - INFO - 18:01:33.251 ✓ 处理完成: 输出文本长度 47 字符，耗时 1.575s
+2026-08-20 18:01:33.252 - src.asr.faster_whisper_streamer - INFO - 18:01:33.252 性能指标 - 段数: 1, 音频时长: 41.55s
+2026-08-20 18:01:33.252 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.574s, 实时率: 0.04
+2026-08-20 18:01:33.252 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.575s
+2026-08-20 18:01:33.252 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:38.757 - src.asr.faster_whisper_streamer - INFO - 18:01:38.757 ✓ 处理完成: 输出文本长度 26 字符，耗时 1.695s
+2026-08-20 18:01:38.757 - src.asr.faster_whisper_streamer - INFO - 18:01:38.757 性能指标 - 段数: 1, 音频时长: 46.89s
+2026-08-20 18:01:38.757 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.694s, 实时率: 0.04
+2026-08-20 18:01:38.757 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.695s
+2026-08-20 18:01:38.757 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:42.888 - src.asr.faster_whisper_streamer - INFO - 18:01:42.888 ✓ 处理完成: 输出文本长度 22 字符，耗时 1.370s
+2026-08-20 18:01:42.888 - src.asr.faster_whisper_streamer - INFO - 18:01:42.888 性能指标 - 段数: 1, 音频时长: 51.59s
+2026-08-20 18:01:42.888 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.370s, 实时率: 0.03
+2026-08-20 18:01:42.888 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.371s
+2026-08-20 18:01:42.888 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:44.584 - src.asr.faster_whisper_streamer - INFO - 18:01:44.584 ✓ 处理完成: 输出文本长度 6 字符，耗时 1.093s
+2026-08-20 18:01:44.584 - src.asr.faster_whisper_streamer - INFO - 18:01:44.584 性能指标 - 段数: 1, 音频时长: 53.61s
+2026-08-20 18:01:44.584 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.093s, 实时率: 0.02
+2026-08-20 18:01:44.584 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.094s
+2026-08-20 18:01:44.584 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:49.212 - src.asr.faster_whisper_streamer - INFO - 18:01:49.212 ✓ 处理完成: 输出文本长度 18 字符，耗时 1.166s
+2026-08-20 18:01:49.213 - src.asr.faster_whisper_streamer - INFO - 18:01:49.213 性能指标 - 段数: 1, 音频时长: 57.80s
+2026-08-20 18:01:49.213 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.165s, 实时率: 0.02
+2026-08-20 18:01:49.213 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.166s
+2026-08-20 18:01:49.213 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:50.883 - src.asr.faster_whisper_streamer - INFO - 18:01:50.883 ✓ 处理完成: 输出文本长度 0 字符，耗时 0.917s
+2026-08-20 18:01:50.883 - src.asr.faster_whisper_streamer - INFO - 18:01:50.883 性能指标 - 段数: 1, 音频时长: 59.72s
+2026-08-20 18:01:50.883 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.917s, 实时率: 0.02
+2026-08-20 18:01:50.883 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.918s
+2026-08-20 18:01:50.883 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:01:59.066 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: '你好,我想找个酒店搬入住,最好能提供洗衣服务,并且最低价格是300到400元的,你有好的建议吗?推荐您去北京湘江带四酒店呢?保准没错,可以,就去这了。您知道这个酒店的评分是多少吗评分4.2还是不错的是啊我挺满意那酒店周围有啥好玩的景点不有挺多呢比如石不岔海宋庆林故居和中古楼去过的都说好好的多谢我还想找个地方玩上两小时然后门票最好是150到200元的你有啥好的推荐吗抱歉完全符合年要求的景点没能找到建议您去关副博物馆门票100元就能玩对比一下还划算了您看可以吗也行就贴你的那请问关副博物馆周围还有啥好玩的地方吗', 耗时: 5.53s
+2026-08-20 18:01:59.067 - src.llm.stream_llm_inference - INFO - prompt_text: <|im_start|>system
+You are a helpful assistant responding in Chinese.<|im_end|>
+<|im_start|>user
+你好,我想找个酒店搬入住,最好能提供洗衣服务,并且最低价格是300到400元的,你有好的建议吗?推荐您去北京湘江带四酒店呢?保准没错,可以,就去这了。您知道这个酒店的评分是多少吗评分4.2还是不错的是啊我挺满意那酒店周围有啥好玩的景点不有挺多呢比如石不岔海宋庆林故居和中古楼去过的都说好好的多谢我还想找个地方玩上两小时然后门票最好是150到200元的你有啥好的推荐吗抱歉完全符合年要求的景点没能找到建议您去关副博物馆门票100元就能玩对比一下还划算了您看可以吗也行就贴你的那请问关副博物馆周围还有啥好玩的地方吗<|im_end|>
+<|im_start|>assistant
+
+2026-08-20 18:02:00.992 - __main__ - INFO -   流式 TTFT: 1039.95 ms
+2026-08-20 18:02:00.992 - __main__ - INFO -   非流式 TTFT: 5610.25 ms
+2026-08-20 18:02:00.992 - __main__ - INFO -   优化: 4570.30 ms (81.5%)
+2026-08-20 18:02:00.992 - __main__ - INFO - 
+[97/50] 测试样本: crosswoz_10331_turn4
+2026-08-20 18:02:00.992 - __main__ - INFO -   音频时长: 59.61s, 分组: very_long
+2026-08-20 18:02:02.332 - src.asr.streamaudio_segmenter - INFO - StreamAudioSegmenter initialized with sampling_rate=16000, silence_threshold=0.5
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:02:12.228 - src.asr.faster_whisper_streamer - INFO - 18:02:12.228 ✓ 处理完成: 输出文本长度 44 字符，耗时 1.271s
+2026-08-20 18:02:12.228 - src.asr.faster_whisper_streamer - INFO - 18:02:12.228 性能指标 - 段数: 1, 音频时长: 8.57s
+2026-08-20 18:02:12.229 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.270s, 实时率: 0.15
+2026-08-20 18:02:12.229 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.271s
+2026-08-20 18:02:12.229 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:02:14.377 - src.asr.faster_whisper_streamer - INFO - 18:02:14.377 ✓ 处理完成: 输出文本长度 9 字符，耗时 0.945s
+2026-08-20 18:02:14.378 - src.asr.faster_whisper_streamer - INFO - 18:02:14.378 性能指标 - 段数: 1, 音频时长: 10.78s
+2026-08-20 18:02:14.378 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.944s, 实时率: 0.09
+2026-08-20 18:02:14.378 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.945s
+2026-08-20 18:02:14.378 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:02:21.690 - src.asr.faster_whisper_streamer - INFO - 18:02:21.690 ✓ 处理完成: 输出文本长度 30 字符，耗时 1.145s
+2026-08-20 18:02:21.691 - src.asr.faster_whisper_streamer - INFO - 18:02:21.691 性能指标 - 段数: 1, 音频时长: 17.82s
+2026-08-20 18:02:21.691 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.145s, 实时率: 0.06
+2026-08-20 18:02:21.691 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.146s
+2026-08-20 18:02:21.691 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:02:26.881 - src.asr.faster_whisper_streamer - INFO - 18:02:26.881 ✓ 处理完成: 输出文本长度 22 字符，耗时 1.328s
+2026-08-20 18:02:26.881 - src.asr.faster_whisper_streamer - INFO - 18:02:26.881 性能指标 - 段数: 1, 音频时长: 22.84s
+2026-08-20 18:02:26.881 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.327s, 实时率: 0.06
+2026-08-20 18:02:26.881 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.328s
+2026-08-20 18:02:26.881 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:02:40.594 - src.asr.faster_whisper_streamer - INFO - 18:02:40.594 ✓ 处理完成: 输出文本长度 53 字符，耗时 1.880s
+2026-08-20 18:02:40.594 - src.asr.faster_whisper_streamer - INFO - 18:02:40.594 性能指标 - 段数: 1, 音频时长: 35.99s
+2026-08-20 18:02:40.594 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.878s, 实时率: 0.05
+2026-08-20 18:02:40.594 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.880s
+2026-08-20 18:02:40.594 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.002s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:02:45.439 - src.asr.faster_whisper_streamer - INFO - 18:02:45.439 ✓ 处理完成: 输出文本长度 23 字符，耗时 1.885s
+2026-08-20 18:02:45.439 - src.asr.faster_whisper_streamer - INFO - 18:02:45.439 性能指标 - 段数: 1, 音频时长: 41.07s
+2026-08-20 18:02:45.439 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.884s, 实时率: 0.05
+2026-08-20 18:02:45.440 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.886s
+2026-08-20 18:02:45.440 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:02:54.268 - src.asr.faster_whisper_streamer - INFO - 18:02:54.268 ✓ 处理完成: 输出文本长度 40 字符，耗时 1.605s
+2026-08-20 18:02:54.269 - src.asr.faster_whisper_streamer - INFO - 18:02:54.269 性能指标 - 段数: 1, 音频时长: 49.97s
+2026-08-20 18:02:54.269 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.604s, 实时率: 0.03
+2026-08-20 18:02:54.269 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.605s
+2026-08-20 18:02:54.269 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:02:57.871 - src.asr.faster_whisper_streamer - INFO - 18:02:57.871 ✓ 处理完成: 输出文本长度 15 字符，耗时 1.846s
+2026-08-20 18:02:57.872 - src.asr.faster_whisper_streamer - INFO - 18:02:57.872 性能指标 - 段数: 1, 音频时长: 53.26s
+2026-08-20 18:02:57.872 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.845s, 实时率: 0.03
+2026-08-20 18:02:57.872 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.846s
+2026-08-20 18:02:57.872 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:03:03.320 - src.asr.faster_whisper_streamer - INFO - 18:03:03.320 ✓ 处理完成: 输出文本长度 29 字符，耗时 1.235s
+2026-08-20 18:03:03.320 - src.asr.faster_whisper_streamer - INFO - 18:03:03.320 性能指标 - 段数: 1, 音频时长: 59.69s
+2026-08-20 18:03:03.320 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.234s, 实时率: 0.02
+2026-08-20 18:03:03.320 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.235s
+2026-08-20 18:03:03.320 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:03:05.502 - src.asr.faster_whisper_streamer - INFO - 18:03:05.502 ✓ 处理完成: 输出文本长度 0 字符，耗时 1.028s
+2026-08-20 18:03:05.503 - src.asr.faster_whisper_streamer - INFO - 18:03:05.503 性能指标 - 段数: 1, 音频时长: 61.61s
+2026-08-20 18:03:05.503 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.027s, 实时率: 0.02
+2026-08-20 18:03:05.503 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.028s
+2026-08-20 18:03:05.503 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:03:12.945 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: '你好,你能帮我找一个有吹风机,消费最低价为1000元以上的酒店吗?过两天我朋友要过来玩?好的,我帮你找了一下,你可以安排朋友去北京利斯卡尔顿酒店,华茂中心,入住。哦,那就好,再帮我看看这个小店周边有餐馆吗?我们想吃点特色。有的,这个酒店附近有全聚德、朝阳北路店、菊气大月城店你们可以大吃一顿了那他好了,你再帮我看看有哪家餐馆可以吃到豆浆并且评分能达到五分,消费在50到100人的餐馆啊我们想找个环境好点的地方应餐这个的餐馆很容易找的我建议你们去鱼豆集大徽司店去尝尝这家餐馆可以满足你们的一切要求哦,那太完美了你能再帮我看看这个餐馆周边还有什么特色餐馆吗', 耗时: 5.45s
+2026-08-20 18:03:12.946 - src.llm.stream_llm_inference - INFO - prompt_text: <|im_start|>system
+You are a helpful assistant responding in Chinese.<|im_end|>
+<|im_start|>user
+你好,你能帮我找一个有吹风机,消费最低价为1000元以上的酒店吗?过两天我朋友要过来玩?好的,我帮你找了一下,你可以安排朋友去北京利斯卡尔顿酒店,华茂中心,入住。哦,那就好,再帮我看看这个小店周边有餐馆吗?我们想吃点特色。有的,这个酒店附近有全聚德、朝阳北路店、菊气大月城店你们可以大吃一顿了那他好了,你再帮我看看有哪家餐馆可以吃到豆浆并且评分能达到五分,消费在50到100人的餐馆啊我们想找个环境好点的地方应餐这个的餐馆很容易找的我建议你们去鱼豆集大徽司店去尝尝这家餐馆可以满足你们的一切要求哦,那太完美了你能再帮我看看这个餐馆周边还有什么特色餐馆吗<|im_end|>
+<|im_start|>assistant
+
+2026-08-20 18:03:14.722 - __main__ - INFO -   流式 TTFT: 1138.32 ms
+2026-08-20 18:03:14.722 - __main__ - INFO -   非流式 TTFT: 5526.03 ms
+2026-08-20 18:03:14.722 - __main__ - INFO -   优化: 4387.70 ms (79.4%)
+2026-08-20 18:03:14.722 - __main__ - INFO - 
+[99/50] 测试样本: multiwoz_PMUL4031_turn5
+2026-08-20 18:03:14.722 - __main__ - INFO -   音频时长: 59.73s, 分组: very_long
+2026-08-20 18:03:16.159 - src.asr.streamaudio_segmenter - INFO - StreamAudioSegmenter initialized with sampling_rate=16000, silence_threshold=0.5
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:03:26.859 - src.asr.faster_whisper_streamer - INFO - 18:03:26.859 ✓ 处理完成: 输出文本长度 130 字符，耗时 1.022s
+2026-08-20 18:03:26.859 - src.asr.faster_whisper_streamer - INFO - 18:03:26.859 性能指标 - 段数: 1, 音频时长: 9.44s
+2026-08-20 18:03:26.859 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.021s, 实时率: 0.11
+2026-08-20 18:03:26.860 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.022s
+2026-08-20 18:03:26.860 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:03:29.734 - src.asr.faster_whisper_streamer - INFO - 18:03:29.734 ✓ 处理完成: 输出文本长度 43 字符，耗时 0.967s
+2026-08-20 18:03:29.734 - src.asr.faster_whisper_streamer - INFO - 18:03:29.734 性能指标 - 段数: 1, 音频时长: 12.28s
+2026-08-20 18:03:29.734 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.967s, 实时率: 0.08
+2026-08-20 18:03:29.734 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.968s
+2026-08-20 18:03:29.734 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:03:35.898 - src.asr.faster_whisper_streamer - INFO - 18:03:35.898 ✓ 处理完成: 输出文本长度 78 字符，耗时 1.049s
+2026-08-20 18:03:35.898 - src.asr.faster_whisper_streamer - INFO - 18:03:35.898 性能指标 - 段数: 1, 音频时长: 18.39s
+2026-08-20 18:03:35.899 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.049s, 实时率: 0.06
+2026-08-20 18:03:35.899 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.049s
+2026-08-20 18:03:35.899 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:03:41.559 - src.asr.faster_whisper_streamer - INFO - 18:03:41.559 ✓ 处理完成: 输出文本长度 82 字符，耗时 1.197s
+2026-08-20 18:03:41.559 - src.asr.faster_whisper_streamer - INFO - 18:03:41.559 性能指标 - 段数: 1, 音频时长: 24.12s
+2026-08-20 18:03:41.560 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.197s, 实时率: 0.05
+2026-08-20 18:03:41.560 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.198s
+2026-08-20 18:03:41.560 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:03:46.572 - src.asr.faster_whisper_streamer - INFO - 18:03:46.572 ✓ 处理完成: 输出文本长度 61 字符，耗时 1.201s
+2026-08-20 18:03:46.573 - src.asr.faster_whisper_streamer - INFO - 18:03:46.573 性能指标 - 段数: 1, 音频时长: 29.17s
+2026-08-20 18:03:46.573 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.200s, 实时率: 0.04
+2026-08-20 18:03:46.573 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.201s
+2026-08-20 18:03:46.573 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:03:51.337 - src.asr.faster_whisper_streamer - INFO - 18:03:51.337 ✓ 处理完成: 输出文本长度 56 字符，耗时 1.003s
+2026-08-20 18:03:51.338 - src.asr.faster_whisper_streamer - INFO - 18:03:51.338 性能指标 - 段数: 1, 音频时长: 34.00s
+2026-08-20 18:03:51.338 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.003s, 实时率: 0.03
+2026-08-20 18:03:51.338 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.004s
+2026-08-20 18:03:51.338 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:03:53.204 - src.asr.faster_whisper_streamer - INFO - 18:03:53.204 ✓ 处理完成: 输出文本长度 26 字符，耗时 0.913s
+2026-08-20 18:03:53.205 - src.asr.faster_whisper_streamer - INFO - 18:03:53.205 性能指标 - 段数: 1, 音频时长: 36.18s
+2026-08-20 18:03:53.205 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.912s, 实时率: 0.03
+2026-08-20 18:03:53.205 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.913s
+2026-08-20 18:03:53.205 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:04:02.161 - src.asr.faster_whisper_streamer - INFO - 18:04:02.161 ✓ 处理完成: 输出文本长度 121 字符，耗时 1.181s
+2026-08-20 18:04:02.161 - src.asr.faster_whisper_streamer - INFO - 18:04:02.161 性能指标 - 段数: 1, 音频时长: 44.46s
+2026-08-20 18:04:02.161 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.181s, 实时率: 0.03
+2026-08-20 18:04:02.161 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.182s
+2026-08-20 18:04:02.161 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:04:09.699 - src.asr.faster_whisper_streamer - INFO - 18:04:09.699 ✓ 处理完成: 输出文本长度 89 字符，耗时 1.272s
+2026-08-20 18:04:09.700 - src.asr.faster_whisper_streamer - INFO - 18:04:09.700 性能指标 - 段数: 1, 音频时长: 51.72s
+2026-08-20 18:04:09.700 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.271s, 实时率: 0.02
+2026-08-20 18:04:09.700 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.272s
+2026-08-20 18:04:09.700 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:04:15.655 - src.asr.faster_whisper_streamer - INFO - 18:04:15.655 ✓ 处理完成: 输出文本长度 75 字符，耗时 1.240s
+2026-08-20 18:04:15.655 - src.asr.faster_whisper_streamer - INFO - 18:04:15.655 性能指标 - 段数: 1, 音频时长: 57.74s
+2026-08-20 18:04:15.655 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.240s, 实时率: 0.02
+2026-08-20 18:04:15.655 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.241s
+2026-08-20 18:04:15.655 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:04:17.277 - src.asr.faster_whisper_streamer - INFO - 18:04:17.277 ✓ 处理完成: 输出文本长度 32 字符，耗时 0.970s
+2026-08-20 18:04:17.278 - src.asr.faster_whisper_streamer - INFO - 18:04:17.278 性能指标 - 段数: 1, 音频时长: 59.82s
+2026-08-20 18:04:17.278 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.969s, 实时率: 0.02
+2026-08-20 18:04:17.278 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.970s
+2026-08-20 18:04:17.278 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:04:19.131 - src.asr.faster_whisper_streamer - INFO - 18:04:19.131 ✓ 处理完成: 输出文本长度 0 字符，耗时 0.800s
+2026-08-20 18:04:19.131 - src.asr.faster_whisper_streamer - INFO - 18:04:19.131 性能指标 - 段数: 1, 音频时长: 61.73s
+2026-08-20 18:04:19.131 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 0.799s, 实时率: 0.01
+2026-08-20 18:04:19.131 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 0.800s
+2026-08-20 18:04:19.131 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-20 18:04:26.057 - src.asr.faster_whisper_streamer - INFO - 完整转录完成: 'I need to find a Vietnamese restaurant in the moderate price range. I am sorry, we don't have anywhere that matches those criteria. Is there something else I can find for you? Ostri, can you try Chinese Ostri? I have four choices for Chinese restaurants. Three are in the center of town and one is in the north. I am a pathological liar. I don't want Chinese. I actually want British food, alrighty. Then, we have five moderately priced British restaurants. I am almost afraid to ask, but does location matter? I-I-D like it to be in the center, please. There are four options for British food in the center. Restaurant 1-7, the Oak Bistro, the Copper Kettle and Cotto, do any of those sound good to you? has to recommend one and book a table for three people at 1745 on Tuesday and get me the reference number.', 耗时: 4.37s
+2026-08-20 18:04:26.058 - src.llm.stream_llm_inference - INFO - prompt_text: <|im_start|>system
+You are a helpful assistant responding in Chinese.<|im_end|>
+<|im_start|>user
+I need to find a Vietnamese restaurant in the moderate price range. I am sorry, we don't have anywhere that matches those criteria. Is there something else I can find for you? Ostri, can you try Chinese Ostri? I have four choices for Chinese restaurants. Three are in the center of town and one is in the north. I am a pathological liar. I don't want Chinese. I actually want British food, alrighty. Then, we have five moderately priced British restaurants. I am almost afraid to ask, but does location matter? I-I-D like it to be in the center, please. There are four options for British food in the center. Restaurant 1-7, the Oak Bistro, the Copper Kettle and Cotto, do any of those sound good to you? has to recommend one and book a table for three people at 1745 on Tuesday and get me the reference number.<|im_end|>
+<|im_start|>assistant
+
+2026-08-20 18:04:27.839 - __main__ - INFO -   流式 TTFT: 973.24 ms
+2026-08-20 18:04:27.839 - __main__ - INFO -   非流式 TTFT: 4453.80 ms
+2026-08-20 18:04:27.840 - __main__ - INFO -   优化: 3480.56 ms (78.1%)
+2026-08-20 18:04:28.090 - __main__ - INFO - 检查点已保存: 100 条结果
+2026-08-20 18:04:28.090 - __main__ - INFO - ✓ 最终检查点已保存 (50/50 完成)
+
+================================================================================
+实验一结果摘要：延迟与语音长度的关系
+================================================================================
+
+分组                样本数       平均时长       流式TTFT      非流式TTFT           优化
+--------------------------------------------------------------------------------
+very_long          50      45.43s    1062.58ms    3928.87ms  2866.29ms (73.0%)
+================================================================================
+2026-08-20 18:04:28.103 - __main__ - INFO - 详细结果已保存: /dataA/streamllm/experiments/results/revision/r6_ttfa/endpoint/exp1_results_20260820_180428.json
+2026-08-20 18:04:28.104 - __main__ - INFO - CSV 汇总已保存: /dataA/streamllm/experiments/results/revision/r6_ttfa/endpoint/exp1_summary_20260820_180428.csv
+2026-08-20 18:04:28.105 - __main__ - INFO - 统计结果已保存: /dataA/streamllm/experiments/results/revision/r6_ttfa/endpoint/exp1_statistics_20260820_180428.csv
+2026-08-20 18:04:28.105 - __main__ - INFO - 
+实验完成！
+I0820 18:04:28.191000 2213686 .venv/lib/python3.10/site-packages/torch/_dynamo/utils.py:399] TorchDynamo compilation metrics:
+I0820 18:04:28.191000 2213686 .venv/lib/python3.10/site-packages/torch/_dynamo/utils.py:399] Function, Runtimes (s)
+I0820 18:04:28.198000 2213686 .venv/lib/python3.10/site-packages/torch/_subclasses/fake_tensor.py:2423] FakeTensor cache stats:
+I0820 18:04:28.200000 2213686 .venv/lib/python3.10/site-packages/torch/_subclasses/fake_tensor.py:2424]   cache_hits: 0
+I0820 18:04:28.202000 2213686 .venv/lib/python3.10/site-packages/torch/_subclasses/fake_tensor.py:2425]   cache_misses: 0

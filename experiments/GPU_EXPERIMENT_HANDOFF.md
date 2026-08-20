@@ -66,10 +66,9 @@ HF_TOKEN= uv run python -c "from huggingface_hub import snapshot_download; snaps
 # Silero VAD 预缓存（torch.hub 首次下载有交互信任提示，非交互 shell 会 EOF，必须 echo y 预缓存）
 echo y | uv run python -c "from src.asr.streamaudio_segmenter import StreamAudioSegmenter; StreamAudioSegmenter()"
 
-# 8) 【仅 E6 需要，可延后】Docker + CosyVoice TTS 服务
-#    部署方式见 experiments/datasets/tools/doc/TTS_USAGE.md；
-#    服务地址应与 tts.py 默认一致（host.docker.internal:20401）。
-#    若原镜像/部署方式无法恢复：记录现象并回告需求方，不要自行更换 TTS。
+# 8) 【仅 E6 需要】Docker + CosyVoice TTS 服务 —— ✅ 已部署完成（2026-08-20）
+#    部署与运行提醒见 experiments/TTS_SERVICE_HANDOFF.md；
+#    服务地址 http://127.0.0.1:20401（Linux 宿主机需显式 127.0.0.1，勿用 host.docker.internal）。
 ```
 
 说明：**本任务全程不需要在 GPU 机上 commit/push**——代码由需求方在本机开发并推送到 main，你侧只 `git pull`；实验结果按 §5.4 打包经文件渠道回传。
@@ -119,7 +118,7 @@ EOF
 - [ ] `.env` 本机适配已完成（§1.0 第 6 步）：`ASR_MODEL_NAME=turbo`、`LLM_MODEL_NAME=Qwen/Qwen2-7B-Instruct`、HF_HOME 为新机真实路径、HF_TOKEN 置空。
 - [ ] 模型预下载已完成（§1.0 第 7 步，含 silero VAD 预缓存）。
 - [ ] 安装手册 `GPU_HOST_SETUP.md` Step G 自检全部通过：回归套件 `10/10`、R2 构建冒烟 `16/16`、tiny 小模型 1 样本试跑无 error、turbo+Qwen2-7B 正式配置 1 样本试跑无 error（`--suffix-segments 0`）。
-- [ ] CosyVoice TTS 服务探活（仅 E6 前必须完成）：先读 `experiments/datasets/tools/doc/TTS_USAGE.md`，按其说明检查 `http://host.docker.internal:20401` 可达；不可达则记录现象并通知需求方，不自行换 TTS。
+- [ ] CosyVoice TTS 服务探活（仅 E6 前必须完成）：**已部署完成**，先读 `experiments/TTS_SERVICE_HANDOFF.md`（部署/运行提醒），用 `--url http://127.0.0.1:20401` 探活（Linux 宿主机上 `host.docker.internal` 不可解析）；不可达则记录现象并通知需求方，不自行换 TTS。
 - [ ] 版本存档（回信要用）：
 
 ```bash
