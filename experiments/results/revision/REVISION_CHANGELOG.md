@@ -83,3 +83,15 @@
 - 归因（逐轮重放 crosswoz_10296_turn2 实证）：`_trim_buffer()` 裁剪 buffer 后，`n_committed`/`prev_words` 仍停留在裁剪前"全序列帧"，下一轮假设是裁剪后"尾段帧"的词序列——下标错帧使提交跳过新假设前 n_committed 个词（实证：提交1='你好…住宿'，提交2 直接跳到 '600元有什么合适的吗?'，中间'我希望酒店的最低价格是500到'被静默丢弃），flush 同样丢尾。
 - 处置：结果 JSON 重命名为 `la_results_*.json.INVALID_dev3_frame_bug` 保留现场；按"发现缺漏停止上报，不自行修改实现"规则，已上报需求方待授权修复（建议：裁剪后重置 prev_words/n_committed 参考帧，提交条件改为时间下限 end > last_committed_end 叠加尾随保护）；修复后需重跑 E3-LA（约 6h）。
 - 注：E4/E5 走 System B 路径、与 LA 组件无关，经评估不受影响，继续按计划推进。
+
+## 2026-08-20 DEV-3 修复完成（commit `6d74c1c`）：错帧 + 裁剪幻听双重修复，评审门槛中本机侧全部达成
+
+- 评审：`experiments/review/20260820-E3LA/review-20260820-E3LA.md` 判定 bug 定位成立（P0）、结果无效处置正确、修复方向原则上通过，要求补齐跨帧/无重复/边界/flush/空识别/生产路径回归与真实样本回放后方可重跑。
+- 修复内容（`src/asr/local_agreement_streamer.py` 重写状态机）：
+  1. **错帧（原 bug）**：提交状态改为绝对音频时间轴（`committed_words`/`committed_end_abs`/`buffer_start_abs`），提交判定用时间下界 `end > committed_end_abs + eps` 而非跨帧词数下标；`prev_words` 保留未提交尾部作下一轮比较基线（两轮确认不削弱）。
+  2. **裁剪幻听（修复过程中新发现，同一样本本机回放暴露）**：原"末词 end−0.1s"裁剪把缓冲切成以句末残片（'宿。'）开头，Whisper turbo 对此坍缩为训练集水印幻听（'请不吝点赞订阅转发打赏支持明镜与点点栏目'）且连续三轮文本稳定一致，绕过 LA-2 两轮确认。实测：句末残片开头→幻听；干净句首/句中词边界切开→正常。修复：裁剪与提交解耦，优先裁到最后一个句末已提交词的 end（无回退），无句界锚点且缓冲超 15s（ufal buffer_trimming_sec 对齐）才强制裁到已提交边界。
+  3. **标点抖动卡死（同场暴露）**：Whisper 对同一音频的标点附着/分词跨轮不稳（'宿。'↔'宿'+'，'），逐字 LCP 会永远停在原地。修复：一致比较只取实质词、按去首尾标点规范化文本比较；纯标点词透明（不作锚点，提交时随区间带出）。
+- 回归：`test_revision_regressions` **16/16**（A1-A3 按新语义重写 + 新增 D1 跨帧跳段 / D2 强制裁剪多周期无重复 / D3 边界 ±0.1s 不重复不跳过 / D4 flush 幂等 / D5 生产路径 run_single_sample 全链路无缺口且 LLM 收到文本==提交文本 / D6 标点抖动不卡死）。
+- 真实样本回放（turbo，本机）：`crosswoz_10296_turn2` 修复前 WER 0.8796、24 字符、中段丢失；修复后 **WER 0.0185 / CER 0.0727**、116 字符、5 次提交覆盖全文（证据 `r3_baseline_la/handoff/replay_crosswoz_10296_turn2_fixed.json`）。
+- 附带硬化：`run_exp_baseline_la` 清单缺失样本改为硬失败（评审要求"停止而不是静默缩减"）；`la_max_buffer_s` 入结果 config 块。
+- 待办（GPU 机侧）：E0 冒烟 `--max-samples 2` → 隔离旧 checkpoint/INVALID 现场 → 全量重跑 E3-LA（命令与 QA 清单见 GPU_EXPERIMENT_HANDOFF §E3"2026-08-20 重跑前置"）。

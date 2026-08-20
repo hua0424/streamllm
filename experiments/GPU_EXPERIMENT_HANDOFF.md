@@ -241,16 +241,19 @@ class LocalAgreementStreamer:
         """流结束：提交缓冲区全部剩余文本。"""
 ```
 
-算法步骤（LA-2）：
+算法步骤（LA-2，**2026-08-20 修复版，commit `6d74c1c`**；下方"原算法"已废止）：
 
-1. 维护：音频缓冲 `buffer`、已提交词数 `n_committed`、上一轮假设词序列 `prev_words`（词对象含 `text/start/end`，时间轴相对 buffer 起点）、自上次解码以来新增音频时长 `new_audio`。
-2. `feed_segment`：音频追加到 buffer，`new_audio += segment.duration`；若 `new_audio < decode_trigger_s` 且非 final，直接返回空。
-3. 达到触发条件或 `is_final`：对**整个 buffer** 调 `model.transcribe` 得到当前假设 `cur_words`。
-4. 计算 `prev_words` 与 `cur_words` 的**最长公共前缀**（按词文本比较；中文按 Whisper 输出的词/字粒度即可）`agreed`。
-5. 从 `agreed[n_committed:]` 中提交满足 `word.end <= 当前音频总时长 − trailing_margin` 的词；`trailing_margin = 最新一个 VAD 段的时长`（对应 System B 的 suffix=1 保护；若当前运行配置 suffix=0，则 `trailing_margin=0`）。
-6. 新提交的词拼成文本片段返回，并更新 `n_committed`；将 `prev_words = cur_words`、`new_audio = 0`。
-7. 缓冲裁剪：丢弃 buffer 中"最后提交词 end 时间 − 0.1 s"之前的音频，并把所有词时间戳相应前移（保持相对轴一致）。
-8. `flush()`：提交所有未提交词，返回文本。
+> 原算法（n_committed 词数下标 + buffer 相对轴 + 末词 end−0.1s 裁剪）因错帧 bug 与裁剪幻听
+> 导致 E3-LA 首轮结果无效（见 `r3_baseline_la/handoff/E3_LA_BUG_REVIEW.md` 及其评审）。
+> 修复后语义如下，细节以 `src/asr/local_agreement_streamer.py` 模块 docstring 为准：
+
+1. 维护：音频缓冲 `buffer`、缓冲起点绝对时间 `buffer_start_abs`、`prev_words`（上轮假设未提交区域词，**绝对时间轴**）、`committed_words`/`committed_end_abs`（绝对轴 append-only 簿记）、`new_audio`。
+2. `feed_segment`：音频追加到 buffer；`new_audio < decode_trigger_s` 且非 final 时返回空；否则整缓冲解码，词时间戳换算为绝对轴。
+3. 未提交区域词：`end > committed_end_abs + eps` 且 `start >= committed_end_abs − eps`；骑跨边界且与重叠已提交词规范化文本相同的词视为重渲染排除（eps=0.02s）。
+4. 一致比较只取实质词（滤纯标点词），按去首尾标点的规范化文本求 LCP；提交 cur_new 中到最后一个达成一致词为止的全部词（含中间纯标点词），不超过 `缓冲末端 − trailing_margin` 提交线；与已提交词区间重叠且文本相同的重识别残留跳过。
+5. 缓冲裁剪与提交解耦：优先裁到最后一个**句末**已提交词（。！？!?.… 结尾）的 end（无回退）；无句界锚点且缓冲超过 `max_buffer_s=15s`（ufal buffer_trimming_sec 对齐）时强制裁到 `committed_end_abs`；否则不裁。句中词边界切开实测安全，句末残片开头会触发 Whisper turbo 幻听坍缩（'请不吝点赞订阅转发…'）。
+6. `flush()`：按同一时间下界提交全部剩余词（幂等）。
+7. 失配事件（`divergence_events`）：新假设改写已提交区域内容时记录（诊断用，不回滚）。
 
 ### DEV-4：`experiments/scripts/run_exp_baseline_la.py`（新脚本）
 
@@ -372,12 +375,22 @@ done
 
 前置：DEV-3/4 完成并冒烟通过；`exp2_ablation_sample_list.json` 已到位。
 
+**⚠️ 2026-08-20 重跑前置（错帧+幻听修复后，评审门槛逐条对应）：**
+
+1. `git pull` 至修复提交 **`6d74c1c`** 或更新（修复 DEV-3 错帧 + 裁剪幻听；评审文档 `experiments/review/20260820-E3LA/`）；
+2. 本机已通过：回归套件 `test_revision_regressions` **16/16**（含 D1 跨帧跳段 / D2 多周期无重复 / D3 边界不重复不跳过 / D4 flush 幂等 / D5 生产路径 / D6 标点抖动不卡死）；典型样本 `crosswoz_10296_turn2` 修复前后回放：WER 0.8796→**0.0185**、中段丢失消除（证据 `r3_baseline_la/handoff/replay_crosswoz_10296_turn2_fixed.json`）；
+3. **E0 冒烟**：先 `--max-samples 2` 跑通（无死锁、无空转、正常收尾），再全量；
+4. **隔离旧现场**：`r3_baseline_la/checkpoint.json` 与 `*.INVALID_dev3_frame_bug` 三件套移入 `r3_baseline_la/invalid_dev3_frame_bug/` 子目录备查（或用 `--no-resume` 并确认新结果时间戳全新）；
+5. 全量命令（注意：`trailing_margin_s=0.0` 在脚本内锁定并在结果 config 块记录，等效 `--suffix-segments 0`；清单缺失样本现在会**硬失败**而不是静默缩减）：
+
 ```bash
 uv run python -m experiments.scripts.run_exp_baseline_la \
   --dataset all --sample-list $REV/r3_baseline_la/exp2_ablation_sample_list.json \
   --asr-device cuda:0 --llm-device cuda:1 \
-  --output-dir $REV/r3_baseline_la
+  --output-dir $REV/r3_baseline_la --no-resume
 ```
+
+6. 跑后 QA（评审要求，不得只看 WER）：498/498、error 0；config 块 `trailing_margin_s=0.0`/`la_max_buffer_s=15.0`/设备锁定核对；LA/System B 转写长度比回到 ≈1.0 量级；`divergence_count` 分组统计可解释；提交片段拼接无重复无跳段（抽查 `--save-fragments` 重跑若干样本或回放脚本复核）。
 
 ### E4 插桩 + 完整回复合并复跑（R4+R5，意见5）｜约 4–5 GPU 小时
 
