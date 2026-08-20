@@ -4,7 +4,13 @@
 CISR 修改版回归测试（R3-P1-2）—— 纯 CPU，不依赖 GPU/大模型下载。
 
 覆盖：
-  A. LocalAgreement mock 三序列：空识别保留状态 / append-only / 失配记录与恢复
+  A. LocalAgreement 脚本化词序列（绝对时间轴驱动，真实喂缓冲/真实裁剪）：
+     A1 空识别恢复（R2-P0-1 语义）；A2 未提交改写 append-only 无失配；
+     A3 已提交区域改写记录失配并恢复
+  D. LocalAgreement 错帧修复验收（DEV-3 2026-08-20 修复，E3-LA 无效事件）：
+     D1 跨帧跳段（bug 复现序列：提交→裁剪→新假设前缀不同→再提交，中段不得丢失）；
+     D2 多裁剪周期无重复；D3 裁剪边界 ±0.1s 不重复不跳过；
+     D4 flush 裁剪后收尾且幂等；D5 生产路径 run_single_sample 全链路无缺口
   B. endpoint 四场景（StreamAudioSegmenter 层，对应 run_exp_latency 的
      final_speech_segment_commit_time / asr_no_speech 判定依据 contains_speech）：
      1) 正常语音 + 2s 尾静音；2) flush-only 语音（fixture 保证无中途闭段）；
@@ -32,68 +38,274 @@ CHUNK_SAMPLES = 8000  # 500ms @ 16k
 
 
 # =============================================================================
-# A. LocalAgreement mock 测试
+# A/D. LocalAgreement 脚本化词序列测试（绝对时间轴驱动）
 # =============================================================================
+# 驱动器约定：每轮真实喂入 seg_dur 秒静音推进缓冲（含真实 _trim_buffer 裁剪），
+# _decode_buffer 被替换为返回"脚本词"（绝对音频时间轴，驱动器内部转为 buffer 相对轴）。
+# 脚本词必须满足：abs_end <= 已累计喂入时长（提交线 = 缓冲末端）。
 
-def _make_la():
+def _make_la(max_buffer_s=15.0):
     from src.asr.local_agreement_streamer import LocalAgreementStreamer
     la = LocalAgreementStreamer.__new__(LocalAgreementStreamer)
     la.sample_rate = 16000
     la.decode_trigger_s = 2.0
     la.trailing_margin_s = 0.0
+    la.max_buffer_s = max_buffer_s
     la.reset()
     return la
 
 
 class _FakeSeg:
-    def __init__(self, dur):
+    def __init__(self, dur, is_final=False):
         self.audio_data = np.zeros(int(16000 * dur), dtype=np.float32)
         self.duration = dur
-        self.is_final = False
+        self.is_final = is_final
 
 
-def _drive(la, seq):
-    it = iter(seq)
-    la._decode_buffer = lambda: next(it)
-    outs = []
-    for _ in seq:
-        outs.append(la.feed_segment(_FakeSeg(2.0)))
-        la.buffer = np.zeros(160000, dtype=np.float32)  # 固定音频长度，解除提交线约束
-    outs.append(la.flush())
-    return outs
+def _drive_scripted(la, rounds, seg_dur=2.0):
+    """rounds: 每轮脚本词 [(text, abs_start, abs_end), ...]（绝对音频时间轴）。
+    返回 (逐轮提交片段列表, flush 收尾文本)。"""
+    it = iter(rounds)
+
+    def fake_decode():
+        base = la.buffer_start_abs
+        return [{"text": t, "start": s - base, "end": e - base} for t, s, e in next(it)]
+
+    la._decode_buffer = fake_decode
+    outs = [la.feed_segment(_FakeSeg(seg_dur)) for _ in rounds]
+    return outs, la.flush()
+
+
+def _committed_texts(la):
+    return [w["text"] for w in la.committed_words]
 
 
 def test_la_empty_decode_recovery():
-    """R2-P0-1 序列 1：空识别后不丢文本、不重复提交。"""
+    """A1 / R2-P0-1：空识别轮保留状态，恢复后不丢文本、不重复提交。"""
     la = _make_la()
-    w = lambda *ts: [{"text": t, "start": i, "end": i + 1} for i, t in enumerate(ts)]
-    outs = _drive(la, [w("hello", "world"), [], w("hello", "world", "again"),
-                       w("hello", "world", "again", "more")])
-    assert outs == [[], [], ["helloworld"], ["again"], "more"], outs
-    text = "".join(x for c in outs[:-1] for x in c) + outs[-1]
-    assert text.count("hello") == 1 and text.count("world") == 1
-    return "空识别轮保留状态；helloworld 一次、again/more 不丢"
+    outs, tail = _drive_scripted(la, [
+        [("a", 0, 1), ("b", 1, 2)],              # 首轮仅建立基线
+        [],                                       # 空识别：保留上一轮假设
+        [("a", 0, 1), ("b", 1, 2), ("c", 2, 3)],  # 恢复：提交 a,b → 裁剪至 1.9s
+        [("c", 2, 3), ("d", 3, 4)],               # 裁剪后新帧：c 重现即提交
+    ])
+    assert outs == [[], [], ["ab"], ["c"]], outs
+    assert tail == "d", tail
+    assert _committed_texts(la) == ["a", "b", "c", "d"]
+    assert len(la.divergence_events) == 0
+    return "空识别轮保留状态；恢复后 abcd 完整各一次（含跨裁剪帧的 c/d）"
 
 
 def test_la_append_only():
-    """R2-P0-1 序列 2：append-only 保持（world 从未被提交，无失配事件为正确）。"""
+    """A2 / R2-P0-1：未提交区域改写（b→x）属正常 LA 行为，不产生失配事件。"""
     la = _make_la()
-    w = lambda *ts: [{"text": t, "start": i, "end": i + 1} for i, t in enumerate(ts)]
-    outs = _drive(la, [w("hello", "world"), w("hello", "word"), w("hello", "word", "again")])
-    assert outs == [[], ["hello"], ["word"], "again"], outs
-    assert len(la.divergence_events) == 0
-    return "append-only 保持；假设词改写不产生已提交失配"
+    outs, tail = _drive_scripted(la, [
+        [("a", 0, 1), ("b", 1, 2)],
+        [("a", 0, 1), ("x", 1, 2)],               # b→x 改写在未提交区域
+        [("x", 1, 2), ("c", 2, 3)],
+    ])
+    assert outs == [[], ["a"], ["x"]], outs
+    assert tail == "c", tail
+    assert _committed_texts(la) == ["a", "x", "c"]
+    assert len(la.divergence_events) == 0, la.divergence_events
+    return "append-only 保持；未提交词改写不产生失配事件"
 
 
 def test_la_divergence_logged_and_recovers():
-    """失配触发：已提交词被改写必须记录事件并恢复。"""
+    """A3：新假设改写已提交区域（b→bx）必须记录失配事件；假设停滞一轮后恢复。"""
     la = _make_la()
-    w = lambda *ts: [{"text": t, "start": i, "end": i + 1} for i, t in enumerate(ts)]
-    outs = _drive(la, [w("hello", "world"), w("hello", "world", "again"),
-                       w("hello", "wurst", "again"), w("hello", "wurst", "again", "more")])
-    assert outs == [[], ["helloworld"], [], ["again"], "more"], outs
+    outs, tail = _drive_scripted(la, [
+        [("a", 0, 1), ("b", 1, 2)],
+        [("a", 0, 1), ("b", 1, 2), ("c", 2, 3)],  # 提交 a,b → 裁剪至 1.9s
+        [("bx", 1.9, 2.05), ("c", 2, 3)],         # 保留区内 b 被改写为 bx → 失配
+        [("c", 2, 3), ("d", 3, 4)],               # bx 不再出现：基线错位一轮
+        [("c", 2, 3), ("d", 3, 4), ("e", 4, 5)],  # 基线重建后恢复提交
+    ])
+    assert outs == [[], ["ab"], [], [], ["cd"]], outs
+    assert tail == "e", tail
+    assert _committed_texts(la) == ["a", "b", "c", "d", "e"]
     assert len(la.divergence_events) == 1, la.divergence_events
-    return "world→wurst 记录 1 次失配，公共前缀重延伸恢复，flush 收尾"
+    return "b→bx 记录 1 次失配；公共前缀重建后恢复，abcde 完整"
+
+
+# =============================================================================
+# D. 错帧修复验收（DEV-3 2026-08-20，E3-LA 无效事件）
+# =============================================================================
+
+def test_la_cross_frame_no_gap():
+    """D1：bug 复现序列——提交→句界裁剪→新假设前缀不同→再提交，中段词必须提交。
+
+    修复前：n_committed 停在旧帧下标，裁剪后新帧的前若干个未提交词被当作"已提交"跳过，
+    flush 丢尾，中段文本静默丢失（E3-LA 无效事件机制）。修复后：中段 m1m2 在第 5 轮
+    经正常提交产出（非 flush 兜底），全序列无缺无重。"""
+    la = _make_la()
+    outs, tail = _drive_scripted(la, [
+        [("w1", 0, 1), ("w2。", 1, 2)],
+        [("w1", 0, 1), ("w2。", 1, 2), ("w3", 2, 3), ("w4", 3, 4)],  # 提交 w1w2。→ 句界裁剪至 2.0s
+        [("w3", 2, 3), ("w4", 3, 4), ("w5", 4, 5)],   # 裁剪后新帧：未提交尾重现后继续
+        [("w5", 4, 5), ("m1", 5, 6), ("m2", 6, 7)],
+        [("m1", 5, 6), ("m2", 6, 7), ("m3。", 7, 8)],  # 中段 m1m2 本轮提交
+    ])
+    assert outs == [[], ["w1w2。"], ["w3w4"], ["w5"], ["m1m2"]], outs
+    assert tail == "m3。", tail
+    full = "".join(x for frags in outs for x in frags) + tail
+    assert full == "w1w2。w3w4w5m1m2m3。", full
+    assert _committed_texts(la) == ["w1", "w2。", "w3", "w4", "w5", "m1", "m2", "m3。"]
+    return "中段 m1m2 经正常提交（非 flush）；句界裁剪触发；全序列无缺无重"
+
+
+def test_la_no_duplicate_multi_cycle():
+    """D2：8 轮连续裁剪周期（max_buffer_s=5 触发强制裁剪路径），16 个稳定词各恰好提交一次。"""
+    la = _make_la(max_buffer_s=5.0)  # 无句界词 → 缓冲超限强制裁剪，覆盖强制裁剪路径
+    rounds = []
+    for r in range(8):  # 第 r 轮（喂后总长 2(r+1)s）：发出窗口 [max(0,2r-2), 2r+2) 的词
+        lo = max(0, 2 * r - 2)
+        hi = 2 * r + 2
+        rounds.append([(f"w{k}", k, k + 1) for k in range(lo, hi)])
+    outs, tail = _drive_scripted(la, rounds)
+    texts = _committed_texts(la)
+    assert texts == [f"w{k}" for k in range(16)], texts
+    assert len(texts) == len(set(texts)), "存在重复提交"
+    ends = [w["end"] for w in la.committed_words]
+    assert all(b >= a for a, b in zip(ends, ends[1:])), "提交时间轴非单调"
+    assert la.buffer_start_abs > 0, "强制裁剪路径未被触发"
+    return "8 轮强制裁剪周期 16 词各一次、顺序与时间轴单调"
+
+
+def test_la_boundary_overlap_no_dup_no_skip():
+    """D3：裁剪边界 ±0.1s——重识别残留（同文本区间重叠，end 越界 +0.06s）不得重复；
+    真实后继词（start 与前一提交词重叠 0.03s）不得跳过。"""
+    la = _make_la()
+    outs, tail = _drive_scripted(la, [
+        [("a", 0, 1), ("b", 1, 2)],
+        [("a", 0, 1), ("b", 1, 2), ("c", 2, 3)],           # 提交 a,b → 裁剪至 1.9s
+        [("b", 1.9, 2.06), ("c", 2, 3), ("d", 3, 4)],      # b 的重识别残留（同文本）
+        [("b", 1.9, 2.06), ("c", 2, 3), ("d", 3, 4), ("e", 4, 5)],  # 残留被去重守卫跳过
+        [("e", 4, 5), ("f", 4.97, 5.6)],                   # f 与 e 时间重叠 0.03s：须提交
+    ])
+    full = "".join(x for frags in outs for x in frags) + tail
+    assert full == "abcdef", full
+    assert full.count("b") == 1, full
+    assert _committed_texts(la) == ["a", "b", "c", "d", "e", "f"]
+    assert len(la.divergence_events) == 0  # 同文本重识别不算失配
+    return "边界残留 b 未重复；重叠 0.03s 的真实后继词 f 未跳过；abcdef 完整"
+
+
+def test_la_flush_after_trim_idempotent():
+    """D4：发生裁剪后 flush 提交全部剩余词且不重复已提交文本；二次 flush 返回空。
+    另验证无任何提交时 flush 直接提交当前假设。"""
+    la = _make_la()
+    outs, tail = _drive_scripted(la, [
+        [("a", 0, 1), ("b", 1, 2)],
+        [("a", 0, 1), ("b", 1, 2), ("c", 2, 3)],  # 提交 a,b → 裁剪
+    ])
+    assert outs == [[], ["ab"]], outs
+    assert tail == "c", tail
+    assert la.flush() == "", "flush 必须幂等"
+    assert _committed_texts(la) == ["a", "b", "c"]
+
+    la2 = _make_la()
+    outs2, tail2 = _drive_scripted(la2, [[("x", 0, 1), ("y", 1, 2)]])
+    assert outs2 == [[]] and tail2 == "xy", (outs2, tail2)
+    return "裁剪后 flush 提交剩余词一次且幂等；无提交时 flush 提交当前假设"
+
+
+def test_la_punctuation_flap_no_stall():
+    """D6：标点附着/纯标点词在解码轮间不稳定（'b,'→'b'、悬置'，'）不得卡死提交。
+
+    真实样本实证：同一音频在不同缓冲长度下 '宿。'/'宿'/'，' 渲染不稳，
+    逐字比较会让公共前缀永远停在原地。修复后规范化比较 + 纯标点词透明。"""
+    la = _make_la()
+    outs, tail = _drive_scripted(la, [
+        [("a", 0, 1), ("b,", 1, 2)],                 # 首轮基线：'b,'
+        [("a", 0, 1), ("b", 1, 2), ("c", 2, 3)],     # 'b,'→'b' 标点抖动：仍应一致并提交
+        [("，", 1.98, 2.1), ("c", 2, 3), ("d", 3, 4)],  # 悬置纯标点词不得作锚点卡死
+        [("d", 3, 4), ("e", 4, 5)],
+    ])
+    assert outs[1] == ["ab"], outs  # 标点抖动未阻断提交
+    assert outs[2], "悬置纯标点词导致提交卡死"
+    lexical = [t for t in _committed_texts(la) if t.strip("，。！？,.!?")]
+    assert lexical == ["a", "b", "c", "d", "e"], lexical
+    assert _committed_texts(la).count("，") <= 1
+    return "标点抖动/悬置标点不卡死；a..e 完整无缺无重"
+
+
+def test_la_production_path_no_gap():
+    """D5：生产路径 run_exp_baseline_la.run_single_sample 全链路（真实分段器+线程队列+
+    LLM 收尾），parrot 解码（每秒一词）→ 提交文本必须逐秒连续无缺无重，
+    且 LLM 收到的文本 == 提交文本。"""
+    import re
+    import tempfile
+    from types import SimpleNamespace
+    import soundfile as sf
+    from experiments.scripts.run_exp_baseline_la import LAExperiment
+    from experiments.scripts.run_exp_latency import SampleInfo
+    from src.asr.local_agreement_streamer import LocalAgreementStreamer
+
+    la = LocalAgreementStreamer.__new__(LocalAgreementStreamer)
+    la.sample_rate = 16000
+    la.decode_trigger_s = 2.0
+    la.trailing_margin_s = 0.0
+    la.max_buffer_s = 15.0
+    la.reset()
+
+    def parrot_decode():
+        """每秒一格的确定性词序列（绝对网格），覆盖当前缓冲全部完整秒；
+        每第 4 词带句末标点，让句界裁剪路径在生产链路中被真实触发。"""
+        base = la.buffer_start_abs
+        end_abs = base + len(la.buffer) / la.sample_rate
+        words = []
+        k = max(0, int(np.floor(base)))
+        while k + 1 <= end_abs + 1e-9:
+            if k + 1 > base + 1e-9:
+                text = f"w{k}。" if k % 4 == 3 else f"w{k}"
+                words.append({"text": text, "start": k - base, "end": k + 1 - base})
+            k += 1
+        return words
+
+    la._decode_buffer = parrot_decode
+
+    class FakeLLM:
+        def __init__(self):
+            self.texts = []
+
+        def reset_timings(self):
+            pass
+
+        def cache_prompt(self, text, pre_cache=None, is_end=False):
+            if text:
+                self.texts.append(text)
+            return object()
+
+        def generate(self, pre_cache=None, max_new_tokens=50):
+            yield "好"
+
+    fake_llm = FakeLLM()
+    args = SimpleNamespace(chunk_duration=500, max_tokens=5,
+                           save_full_response=False, save_fragments=True)
+    exp = LAExperiment(la, fake_llm, args)
+
+    audio = np.concatenate([_speech_fixture(), np.zeros(32000, dtype=np.float32)])  # 4s 语音 + 2s 静音
+    with tempfile.TemporaryDirectory() as td:
+        wav = Path(td) / "la_stub.wav"
+        sf.write(str(wav), audio, 16000, subtype="PCM_16")
+        sample = SampleInfo(sample_id="la_stub", dialog_id="0", turn_index=1, text="参考文本",
+                            text_length=4, audio_file="la_stub.wav", audio_path=wav,
+                            audio_duration=len(audio) / 16000, language="zh", dataset="stub",
+                            duration_group="medium")
+        result = exp.run_single_sample(sample)
+
+    assert not result.error, result.error
+    assert result.first_token_time > 0, "LLM 未产生首 token（收尾失败）"
+    ids = [int(m) for m in re.findall(r"w(\d+)", result.transcribed_text)]
+    assert ids == list(range(ids[0], ids[-1] + 1)), f"提交序列有缺口/重复: {ids}"
+    assert ids[-1] >= 4, f"覆盖时长不足: {ids}"
+    llm_text = "".join(fake_llm.texts)
+    assert llm_text == result.transcribed_text.replace(" ", ""), \
+        "LLM 收到的文本与 ASR 提交文本不一致"
+    assert result.divergence_count == 0, result.divergence_count
+    return (f"生产路径提交 w{ids[0]}..w{ids[-1]} 连续无缺无重；"
+            f"LLM 收到的文本与提交文本一致；error 空")
 
 
 # =============================================================================
@@ -354,6 +566,12 @@ def main():
         ("A1 LA 空识别恢复", test_la_empty_decode_recovery),
         ("A2 LA append-only", test_la_append_only),
         ("A3 LA 失配记录恢复", test_la_divergence_logged_and_recovers),
+        ("D1 LA 跨帧跳段（错帧 bug 复现序列）", test_la_cross_frame_no_gap),
+        ("D2 LA 多裁剪周期无重复", test_la_no_duplicate_multi_cycle),
+        ("D3 LA 裁剪边界不重复不跳过", test_la_boundary_overlap_no_dup_no_skip),
+        ("D4 LA flush 裁剪后收尾幂等", test_la_flush_after_trim_idempotent),
+        ("D5 LA 生产路径全链路无缺口", test_la_production_path_no_gap),
+        ("D6 LA 标点抖动不卡死提交", test_la_punctuation_flap_no_stall),
         ("B1 endpoint 正常语音+尾静音", test_endpoint_normal_speech_with_silence),
         ("B2 endpoint flush-only 语音", test_endpoint_flush_only_speech),
         ("B3 endpoint 全静音", test_endpoint_all_silence),

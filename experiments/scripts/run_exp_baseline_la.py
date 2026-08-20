@@ -303,6 +303,7 @@ def save_la_results(results: List[ExperimentResult], output_dir: Path, args) -> 
                 "warmup_rounds": args.warmup_rounds,
                 "decode_trigger_s": args.recognition_threshold,
                 "trailing_margin_s": 0.0,
+                "la_max_buffer_s": args.la_max_buffer_s,
                 "dataset": args.dataset,
                 "sample_list": args.sample_list,
                 "timestamp": timestamp,
@@ -358,6 +359,8 @@ def main():
     parser.add_argument('--warmup-rounds', type=int, default=3)
     parser.add_argument('--recognition-threshold', type=float, default=2.0,
                         help='LA 解码触发新增音频时长（秒），与 System B 锁定值对齐')
+    parser.add_argument('--la-max-buffer-s', type=float, default=15.0,
+                        help='LA 缓冲长度上限（秒），对齐 ufal whisper_streaming buffer_trimming_sec=15')
     parser.add_argument('--output-dir', type=str, default='experiments/results/revision/r3_baseline_la')
     parser.add_argument('--batch-size', type=int, default=100)
     parser.add_argument('--no-resume', action='store_true')
@@ -396,7 +399,9 @@ def main():
         missing = allow_ids - {s.sample_id for s in samples}
         logger.info(f"样本清单过滤: {before} -> {len(samples)}（清单 {len(allow_ids)} 条）")
         if missing:
-            logger.warning(f"清单中 {len(missing)} 条未在数据集中找到: {sorted(missing)[:5]}...")
+            # E3-LA 评审要求：清单缺失必须停止而不是静默缩减（否则 498 成对比较失效）
+            logger.error(f"清单中 {len(missing)} 条未在数据集中找到: {sorted(missing)[:5]}...")
+            sys.exit(1)
 
     if not samples:
         logger.error("没有找到有效样本")
@@ -414,6 +419,7 @@ def main():
         device=args.asr_device,
         decode_trigger_s=args.recognition_threshold,
         trailing_margin_s=0.0,  # 锁定配置 suffix=0
+        max_buffer_s=args.la_max_buffer_s,
     )
     # LLM：与 System B 相同的增量预填路径
     llm_inference = StreamLLMInference(
@@ -455,6 +461,7 @@ def main():
         "llm_model": args.llm_model_name,
         "decode_trigger_s": args.recognition_threshold,
         "trailing_margin_s": 0.0,
+        "la_max_buffer_s": args.la_max_buffer_s,
         "chunk_duration_ms": args.chunk_duration,
         "max_tokens": args.max_tokens,
         "sample_list": args.sample_list,
