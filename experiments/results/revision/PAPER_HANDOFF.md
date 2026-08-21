@@ -122,14 +122,14 @@
 
 - `sentence_end_found` 50/50 = 100%（全部回复在 max_tokens=128 内出现句末标点）；解码速率 mean 26.0 tok/s。
 - 中英文差异来自首句长度（英文首句 token 数更多），非速度差异（分语种 tok/s 相同）。
-- **论文可用**（2026-08-21 审查 P0 裁决=方案2，对称剔除 2s 装置等待；以此为准）：
-  `TTFA = T_endpoint(E5: 53ms) + T_post_final_enqueue(E5: 1012.5ms) + T_decode_to_first_sentence(本测: 389ms) + T_TTS_first_chunk(E6: zh 13.99s / en 11.86s)`；
-  Table VIII 装配稿 `r6_ttfa/ttfa_budget.csv` 已按此口径生成：**B ALL 14.38s / A ALL 22.67s**。
+- **论文可用**（2026-08-21 审查 P0 两轮裁决，最终=方案 (a)；以此为准）：
+  `TTFA = T_endpoint(E5: 53.1ms) + TTFT(E4 streaming 同 50 样本: 1422.9ms) + T_decode_to_first_sentence(补测: 389.0ms) + T_TTS_first_chunk(E6: zh 13.99s / en 11.86s)`；
+  Table VIII 装配稿 `r6_ttfa/ttfa_budget.csv` 已按此口径生成：**B ALL 14.79s（zh 15.58 / en 13.99）/ A ALL 22.67s**。
   逐项 mean±std 由 `r6_ttfa/decode_to_first_sentence.summary.txt` 与各实验 RUNINFO 取数。
-- ⚠️ 口径要点（审查 P0）：E5 的 `final_enqueue_wait≈2s` 是实时喂追加静音的**测量装置等待**，
-  已从 B 行 post 分项剔除（A 行 ttft 从 audio_end 起算本就不含）——两系统口径对称；
-  B 行 post 为 final 段入队→首 token 的真实处理（末段 ASR + LLM 预填解码，1012.5ms）。
-  论文正文须写明该剔除规则。
+- ⚠️ 口径要点（审查 P0 两轮）：E5 的 `final_enqueue_wait≈2s` 是实时喂追加静音的测量装置属性，
+  不进预算表；但窗内 ~410ms 是端点时积压队列的真实排空（E4 TTFT − E5 post-flush 逐样本 50/50 为正），
+  故 B 行 post 取 **E4 streaming TTFT 直接实测**（端点触发 flush 的尾延迟），而非 E5 窗后分项。
+  A 行 ttft 从 audio_end 起算本就不含装置等待，两系统口径对称。
 - ⚠️ CSV 中 `first_token_latency_ms` 是重放口径参考值，**不是** TTFT。
 
 ## 二、环境存档与可追溯

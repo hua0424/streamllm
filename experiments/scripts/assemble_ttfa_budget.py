@@ -3,12 +3,14 @@
 """
 R6 §7.3：TTFA 预算表装配（Table VIII）—— 纯离线。
 
-组成（逐样本对齐相加；2026-08-21 审查 P0 裁决=方案2：对称剔除 2s 装置等待）：
-  TTFA = T_endpoint（E5：speech_end → 最后语音段入队，mean 53ms）
-       + T_post_endpoint（E5：**final is_final 段入队 → 首 token**，mean 1012.5ms；
-         端点入队（+2053ms）前的 ~2.0s 是实时喂追加静音的测量装置等待，对称剔除——
-         System A 的 ttft 从 audio_end 起算本就不含该 2s）
-       + T_decode_to_first_sentence（2026-08-21 补测：首 token → 首句末 token）
+组成（逐样本对齐相加；2026-08-21 审查 P0 两轮裁决，最终=方案 (a)）：
+  TTFA = T_endpoint（E5：speech_end → 最后语音段入队，mean 53.1ms）
+       + T_post_endpoint（**E4 streaming TTFT**（同 50 样本，mean 1422.9ms）——
+         "端点触发 flush"尾延迟的直接实测。说明：E5 的 2s 追加静音窗并非纯空转，
+         窗内 ~410ms 是端点时积压队列的真实排空（E4 TTFT − E5 post-flush 逐样本
+         50/50 为正，mean 410.5ms）；取 final 段入队→首 token（1012.5ms）会把这部分
+         真实工作一并剔除、低于直接实测，故用 E4 口径）
+       + T_decode_to_first_sentence（2026-08-21 补测：首 token → 首句末 token，mean 389.0ms）
        + T_TTS_first_chunk（E6：TTS 首包）
 System B 四项全为实测；System A 的 decode/TTFC 项为估计值（source 列标注）：
   - A 的 pipeline 项 = E5 non-streaming 实测（ttft = audio_end → 首 token）+ 同样本端点等待；
@@ -79,20 +81,24 @@ def load_inputs(endpoint_glob, decode_csv, tts_csv, e4_glob):
     e4_files = sorted(glob.glob(e4_glob))
     e4 = json.loads(Path(e4_files[-1]).read_text(encoding="utf-8"))
     a_chars = {}  # lang -> [chars]
+    b_ttft = {}   # sid -> E4 streaming ttft（方案 (a)：B 行 post 分项的直接实测）
     for r in e4["results"]:
-        if r.get("error") or r["mode"] != "non-streaming":
+        if r.get("error"):
             continue
-        a_chars.setdefault(lang_of(r["sample_id"]), []).append(
-            len((r.get("full_response") or "").strip()))
-    return pipeline, decode, tts, a_chars
+        if r["mode"] == "non-streaming":
+            a_chars.setdefault(lang_of(r["sample_id"]), []).append(
+                len((r.get("full_response") or "").strip()))
+        elif r["mode"] == "streaming":
+            b_ttft[r["sample_id"]] = float(r["ttft"])
+    return pipeline, decode, tts, a_chars, b_ttft
 
 
-def assemble(pipeline: dict, decode: dict, tts: dict, a_chars: dict) -> list:
+def assemble(pipeline: dict, decode: dict, tts: dict, a_chars: dict, b_ttft: dict) -> list:
     rows = []
     sids_b = sorted(s for s, m in pipeline.items()
-                    if "streaming" in m and s in decode and s in tts)
+                    if "streaming" in m and s in decode and s in tts and s in b_ttft)
     if not sids_b:
-        raise SystemExit("无三源齐全的 System B 样本（endpoint/decode/tts）")
+        raise SystemExit("无四源齐全的 System B 样本（endpoint/decode/tts/E4 ttft）")
     a_char_mean = {lg: float(np.mean(v)) for lg, v in a_chars.items()}
 
     for system in ("streaming", "non-streaming"):
@@ -105,7 +111,7 @@ def assemble(pipeline: dict, decode: dict, tts: dict, a_chars: dict) -> list:
                 m = pipeline[sid]
                 if system == "streaming":
                     endpoint = m["streaming"]["endpoint"]
-                    post = m["streaming"]["post"]
+                    post = b_ttft[sid]  # 方案 (a)：E4 streaming TTFT（端点触发 flush 的直接实测）
                     dec = decode[sid]
                     ttfc = tts[sid]
                 else:
@@ -170,21 +176,23 @@ def self_test() -> int:
                        encoding="utf-8")
         e4 = tp / "exp1_results_e4.json"
         e4.write_text(json.dumps({"results": [
+            {"sample_id": "crosswoz_a", "mode": "streaming", "error": "", "ttft": 3000.0},
+            {"sample_id": "multiwoz_b", "mode": "streaming", "error": "", "ttft": 3000.0},
             {"sample_id": "crosswoz_a", "mode": "non-streaming", "error": "",
              "full_response": "好" * 100},
             {"sample_id": "multiwoz_b", "mode": "non-streaming", "error": "",
              "full_response": "x" * 200}]}), encoding="utf-8")
 
-        pipeline, decode, tts_d, a_chars = load_inputs(str(ep), str(dec), str(tts), str(e4))
-        rows = assemble(pipeline, decode, tts_d, a_chars)
+        pipeline, decode, tts_d, a_chars, b_ttft = load_inputs(str(ep), str(dec), str(tts), str(e4))
+        rows = assemble(pipeline, decode, tts_d, a_chars, b_ttft)
         b_all = [r for r in rows if r["system"] == "streaming" and r["language"] == "ALL"]
         check("B 行存在", len(b_all) == 1 and b_all[0]["n"] == 2)
-        # B: endpoint=50ms, post=3000-50=2950ms；zh: dec400+tts10000；en: dec600+tts8000
+        # B: endpoint=50ms, post=E4 ttft=3000ms；zh: dec400+tts10000；en: dec600+tts8000
         b = b_all[0]
-        check("B 分量", b["t_endpoint_ms_mean"] == "50.0" and b["t_post_endpoint_ms_mean"] == "1000.0",
+        check("B 分量", b["t_endpoint_ms_mean"] == "50.0" and b["t_post_endpoint_ms_mean"] == "3000.0",
               f"{b['t_endpoint_ms_mean']}/{b['t_post_endpoint_ms_mean']}")
-        check("B 合计", b["ttfa_total_ms_mean"] == "10550.0",
-              b["ttfa_total_ms_mean"] + "（50+1000+500+9000=10550）")
+        check("B 合计", b["ttfa_total_ms_mean"] == "12550.0",
+              b["ttfa_total_ms_mean"] + "（50+3000+500+9000=12550）")
         a = [r for r in rows if r["system"] == "non-streaming" and r["language"] == "zh"]
         # A zh: endpoint50 + post(5000-50=4950) + dec代理400 + ttfc 0.09*1000*100=9000 → 14400
         check("A 估计链", len(a) == 1 and a[0]["ttfa_total_ms_mean"] == "14400.0",
@@ -217,9 +225,9 @@ def main():
     if args.self_test:
         sys.exit(self_test())
 
-    pipeline, decode, tts, a_chars = load_inputs(args.endpoint_results, args.decode_csv,
-                                                 args.tts_csv, args.e4_results)
-    rows = assemble(pipeline, decode, tts, a_chars)
+    pipeline, decode, tts, a_chars, b_ttft = load_inputs(args.endpoint_results, args.decode_csv,
+                                                         args.tts_csv, args.e4_results)
+    rows = assemble(pipeline, decode, tts, a_chars, b_ttft)
     out = PROJECT_ROOT / args.output
     out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "w", newline="", encoding="utf-8") as f:
