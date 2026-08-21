@@ -322,3 +322,14 @@
   headers-only 慢流测试；集成测试表述降级并 CLI 化；self-test 显式计数；
 - self-test 69 PASS / 0 FAIL；W3-W5 不变全过；集成检查复跑 ALL PASS；
   .gitattributes 显式 CSV whitespace 规则。
+
+## 2026-08-21 Gate1 r2 复核通过：探活+3条冒烟放行，GPU 冒烟 handoff 交付
+
+- 审查 `review-implementation-r2-20260821.md`：W3/W4/W5/独立探活/3 条冒烟（有条件）放行，
+  正式 50×2 仍待冒烟结果级复核；
+- 剩余条件登记：TTS total deadline 内部主动取消仅在 chunk 间生效（headers-后停发场景由
+  动态 read timeout/pair deadline 兜底，冒烟需保存慢流证据）；本机 self-test 不替代 GPU
+  真实路径验证；
+- 交付 `r7_ttfa_unified/R7_GPU_SMOKE_HANDOFF.md`：固定 Silero 目录确定（--silero-dir 优先）→
+  探活 → self-test 69 项 → smoke 3（2 zh+1 en，含 asr_error 注入）→ 8 项验收清单 →
+  W2 环境记录 → 产物提交与禁止事项。
