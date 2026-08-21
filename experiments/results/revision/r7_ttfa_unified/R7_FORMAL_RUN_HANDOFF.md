@@ -51,6 +51,38 @@ uv run python -m experiments.scripts.run_ttfa_unified \
 - 产物 push 后形成 result_artifact_commit，与 code_commit 一并回传（区分三者）；
 - fatal/thread_leak/pair_timeout/schema 错误 → 立即停止，保留终态记录，反馈现场。
 
+### 2b. 非末位 fatal 小 smoke（Gate 第 10 项：cancelled 运行级证据；**在 §2 正式 run 之前执行**；独立 run，不入正式结果）
+
+```bash
+uv run python -m experiments.scripts.run_ttfa_unified \
+    --sample-list experiments/results/revision/r1_stats/repeat_subset_ids.json \
+    --json-dir experiments/datasets/processed/json \
+    --audio-dir experiments/datasets/processed/audio \
+    --datasets crosswoz multiwoz \
+    --asr-model turbo --asr-device cuda:0 \
+    --llm-model Qwen/Qwen2-7B-Instruct --llm-device cuda:1 \
+    --tts-url http://127.0.0.1:20401 --tts-spk 晓伊 --tts-speed 0.8 \
+    --silero-dir ~/.cache/torch/hub/snakers4_silero-vad_master \
+    --smoke 3 --inject-fault asr_error --inject-fault-index 1 \
+    --output-dir experiments/results/revision/r7_ttfa_unified \
+    --run-id r7_smoke_fatal
+```
+
+验收：任务 0 success；任务 1 error（含 `fault_injection`）且 fatal=True；任务 2–5 全部
+`terminal_state=cancelled`、`error=cancelled_after_fatal`；QA 记录数=6。该 run 与 r7_main
+完全独立，不参与任何论文数据。
+
+### 2c. self-test 归档（Gate 第 11 项；**在 §2 正式 run 之前执行**）
+
+开发侧已归档本机 90 PASS（`selftest_archive/selftest_20260822.md/.log`，含命令/退出码/
+HEAD/输出 hash）。GPU 主机请在 clean 树上复跑并另存：
+
+```bash
+uv run python -m experiments.scripts.run_ttfa_unified --self-test \
+    > experiments/results/revision/r7_ttfa_unified/selftest_archive/selftest_gpu_$(date +%Y%m%d).log 2>&1
+echo "exit=$?" >> experiments/results/revision/r7_ttfa_unified/selftest_archive/selftest_gpu_$(date +%Y%m%d).log
+```
+
 ## 3. 匹配文本 TTS 控制（主实验完成后；`--tts-control-only` 已实现并自测）
 
 ```bash
@@ -58,6 +90,7 @@ uv run python -m experiments.scripts.run_ttfa_unified \
     --tts-control-only \
     --control-from experiments/results/revision/r7_ttfa_unified/checkpoint_r7_main.jsonl \
     --sample-list experiments/results/revision/r1_stats/repeat_subset_ids.json \
+    --platform-conditions-file experiments/results/revision/r7_ttfa_unified/env/platform_conditions.txt \
     --tts-url http://127.0.0.1:20401 --tts-spk 晓伊 --tts-speed 0.8 \
     --output-dir experiments/results/revision/r7_ttfa_unified \
     --run-id r7_tts_control

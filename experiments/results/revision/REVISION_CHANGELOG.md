@@ -392,3 +392,15 @@
 - 晓伊→内置中文女映射固化为 SPEAKER_MAPPING_NOTE 常量，自动入 RUNINFO/binding（G10）；
 - self-test 86 → 90 PASS / 0 FAIL；正式 handoff 重写为 Gate 版（G1-G8 + 加严验收）；
 - 待审查方复核回复函后出具书面放行记录（Gate 第 11 项）。
+
+## 2026-08-22 冒烟复核二轮意见（Gate 未完成项）全量采纳
+
+- 两处真代码缺口修复：run_tts_control 显式计算并绑定 platform_conditions_sha256
+  （审查 §4 指出的 control 读取路径）；新增 --inject-fault-index（默认末位，非末位可指定）
+  支撑"非末位 fatal → cancelled"运行级证据；
+- handoff（Gate 版）新增 2b 非末位 fatal 小 smoke（r7_smoke_fatal，验收=1 success+1 fault
+  error+fatal+4 cancelled_after_fatal，独立 run 不入正式）与 2c self-test 归档
+  （GPU clean 树复跑），并明确顺序：G1-G8→2b→2c→书面放行→r7_main；
+- 本机 self-test 不可变归档生成：selftest_archive/selftest_20260822.md/.log
+  （命令/exit 0/HEAD/环境/90 项输出/输出 sha256）；
+- self-test 90 PASS / 0 FAIL 复跑一致；§3.1-3.3 属现场采集项，已固化 handoff 待执行。

@@ -2487,10 +2487,13 @@ def run_tts_control(args, probe: dict) -> int:
 
     out_dir = Path(args.output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    platform_sha = (sha256_file(args.platform_conditions_file)
+                    if getattr(args, "platform_conditions_file", None) else None)
     cfg = {"tts_control": True, "control_from": str(args.control_from),
            "control_from_sha256": sha256_file(args.control_from),
            "tts_url": args.tts_url, "tts_spk": args.tts_spk, "tts_speed": args.tts_speed,
-           "tts_speaker_mapping_note": SPEAKER_MAPPING_NOTE}
+           "tts_speaker_mapping_note": SPEAKER_MAPPING_NOTE,
+           "platform_conditions_sha256": platform_sha}
     cfg_hash = config_hash(cfg)
     binding = {"schema_version": SCHEMA_VERSION, "run_id": args.run_id,
                "config_hash": cfg_hash, "schedule_hash": sha256_text("tts_control_only"),
@@ -2603,6 +2606,8 @@ def main() -> int:
     ap.add_argument("--smoke", type=int, default=0, help="冒烟：分层选取 N 个样本（repeat 0）")
     ap.add_argument("--inject-fault", choices=["none", "asr_error"], default="none",
                     help="可控故障注入（仅限 --smoke；正式模式禁止）")
+    ap.add_argument("--inject-fault-index", type=int, default=-1,
+                    help="注入任务下标（0 起；-1=最后一个任务）。非末位用于生成 cancelled 运行级证据")
     ap.add_argument("--tts-probe", action="store_true", help="仅执行 TTS 探活")
     ap.add_argument("--tts-control-only", action="store_true",
                     help="匹配文本 TTS 控制模式（不加载 ASR/LLM/Silero，仅 TTS 调用）")
@@ -2763,8 +2768,11 @@ def main() -> int:
     fatal_stop = bool(getattr(ck, "fatal_seen", False))
     if fatal_stop:
         logger.warning("checkpoint 含 fatal 记录：本 run 恢复 fail-stop，剩余任务补 cancelled")
-    fault_task_key = tasks[-1] and f"{tasks[-1]['sample_id']}|{tasks[-1]['mode']}|{tasks[-1]['repeat_idx']}" \
-        if args.inject_fault != "none" else None
+    if args.inject_fault != "none":
+        _ft = tasks[args.inject_fault_index]
+        fault_task_key = "%s|%s|%s" % (_ft['sample_id'], _ft['mode'], _ft['repeat_idx'])
+    else:
+        fault_task_key = None
     for task in tasks:
         key = f"{task['sample_id']}|{task['mode']}|{task['repeat_idx']}"
         if key in ck.done:
