@@ -1,1 +1,6 @@
 experiments/results/**/*.csv -whitespace
+
+# r7 gate/实验产物按字节原样检出（LF 保持），保证跨平台 hash 可复算
+experiments/results/revision/r7_ttfa_unified/** -text
+
+experiments/results/revision/r7_ttfa_unified/** -text
