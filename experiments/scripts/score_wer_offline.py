@@ -81,14 +81,22 @@ def scope_of(sample_id: str) -> str:
 
 
 def collect_rows(results_globs: list) -> list:
-    """读取全部结果 JSON，返回展开的行列表。"""
-    rows = []
+    """读取全部结果 JSON，返回展开的行列表。
+
+    按**目录**分组取最新一份（2026-08-21 修正：带引号的单 glob 会在 Python 内展开成
+    多目录多文件，旧 files[-1] 只读到最后一目录；分组取最新后带不带引号行为一致）。
+    """
+    by_dir = {}
     for pattern in results_globs:
         files = sorted(glob.glob(pattern))
         if not files:
             raise SystemExit(f"结果 glob 无匹配: {pattern}")
-        path = files[-1]  # 每个目录取最新一份
-        data = json.loads(Path(path).read_text(encoding="utf-8"))
+        for f in files:
+            by_dir.setdefault(str(Path(f).parent), []).append(f)
+    rows = []
+    for dir_key in sorted(by_dir):
+        path = Path(sorted(by_dir[dir_key])[-1])  # 每个目录取最新一份
+        data = json.loads(path.read_text(encoding="utf-8"))
         n = 0
         for r in data.get("results", []):
             if r.get("error"):
@@ -229,6 +237,22 @@ def self_test() -> int:
             check("缺参考退出", False, "应 SystemExit")
         except SystemExit:
             check("缺参考退出", True)
+        # collect_rows：单 glob 跨多目录 → 按目录分组取最新（2026-08-21 修正）
+        for sub in ("ds_a", "ds_b"):
+            (tp / "res" / sub).mkdir(parents=True)
+        for ts, marker in (("20260101_000000", 111.0), ("20260102_000000", 222.0)):
+            (tp / "res" / "ds_a" / f"exp1_results_{ts}.json").write_text(json.dumps({"results": [
+                {"sample_id": "cw_s1", "mode": "streaming", "error": "",
+                 "transcribed_text": "你好世界", "duration_group": "long", "ttft": marker}]}),
+                encoding="utf-8")
+        (tp / "res" / "ds_b" / "exp1_results_20260101_000000.json").write_text(json.dumps({"results": [
+            {"sample_id": "cw_s1", "mode": "streaming", "error": "",
+             "transcribed_text": "你好世界", "duration_group": "long", "ttft": 333.0}]}),
+            encoding="utf-8")
+        got = collect_rows([str(tp / "res" / "*" / "exp1_results_*.json")])
+        check("单 glob 多目录收全", len(got) == 2 and {r["_dir"] for r in got} == {"ds_a", "ds_b"})
+        check("每目录取最新", sorted(r["ttft"] for r in got) == [222.0, 333.0],
+              str([r["ttft"] for r in got]))
         # dir 口径：_dir 标签决定分组（R2 变体逐条件拆分）
         rows_dir = [dict(r, _dir="libri_clean") for r in rows]
         wer_rows_d, _ = compute(rows_dir, idx, scope_by="dir")
