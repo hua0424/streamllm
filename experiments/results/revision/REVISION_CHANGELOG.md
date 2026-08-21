@@ -1,5 +1,14 @@
 # REVISION_CHANGELOG — CISR 修订补充实验执行记录
 
+## 2026-08-21 R2 终口径刷新完成（4b9587b）——论文数据全部定稿
+
+- 主机重跑任务 1（中文 CER 去接缝空格终口径）：wer_real.csv 仅 12 行 aishell1 的 CER 两列变化，
+  逐行回落到与同行 WER 一致（aishell1_clean streaming 0.1652→0.1180；非流式 0.1081→0.1077 几乎不动，
+  侧面印证接缝空格假设）；librispeech 15 行与 ttft_real.csv 逐字节不变；带引号 glob 行为验证正确。
+- `PAPER_WRITING_REFERENCE.md` §一数字已更新为终版、§十 标记"全部定稿"。
+- **至此论文修改的数据准备全部完成**（Table III–VIII、Fig.6、§IV/§V 新小节、limitations、
+  回复信证据链），无待刷新项。
+
 ## 2026-08-21 中文 CER 接缝空格口径修正（影响 Table VI/VII 的 zh CER 列）
 
 - 发现：结果 JSON 的 `transcribed_text` 为 `" ".join(fragments)` 展示重构，接缝空格被中文 CER

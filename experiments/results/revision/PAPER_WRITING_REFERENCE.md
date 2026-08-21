@@ -41,13 +41,12 @@
 | librispeech | A / B | 1655 / 1773 | 2957 / 1628 | 4805 / **1559** | **67.5%** |
 | aishell1 | A / B | 1627 / 1659 | 2982 / 1707 | 5140 / **1763** | **65.7%** |
 
-**转写质量（干净集，离线同口径；英文大小写折叠、中文去接缝空格）**：
+**转写质量（干净集，离线同口径终版；英文大小写折叠、中文去接缝空格）**：
 librispeech_clean：A WER 2.97% / CER 1.05%；B WER 5.65% / CER 1.36%。
-aishell1_clean：A WER 10.77% / CER 10.81%；B WER 11.80% / **CER 16.52%（⚠️ 待刷新，见下）**。
+aishell1_clean：A WER 10.77% / CER 10.77%；B WER 11.80% / CER 11.80%
+（中文 WER/CER 同为字级粒度，数值一致属正常）。
 
 **写作注意**：
-- ⚠️ **aishell1 的 streaming 列 CER 待主机重跑刷新**（接缝空格口径修正，2026-08-21 三次追加；
-  刷新前勿引用 16.52% 及其余 aishell1 streaming CER 行；刷新后以 `wer_real.csv` 为准）。
 - **zh CER 脚注（必加）**：aishell1 参考用中文数字、Whisper 输出阿拉伯数字（"百分之二十二点六" vs
   "22.6%"），影响 49/75 样本（受影响 mean 0.1476，未受影响 0.0313）；不注明会被质疑与 librispeech 反差。
 - **逐条件行用 `overall` 行**（speed 变体时长重判产生 medium 子组：librispeech 5 条、aishell1 3 条）。
@@ -216,8 +215,8 @@ TTS 首包是最大项（句段级流式部署 + TTFC-长度近似线性）。
 5. append-only → 两层精确表述；6. TTFC → 长度关系式 + 短回复示例。
 （TTFA 口径经两轮 P0 裁决定稿=方案 (a)，见 §二。）
 
-## 十、唯一待刷新的数据格
+## 十、数据状态：全部定稿
 
-`wer_real.csv` 中 aishell1 的 streaming 各行 CER（接缝空格口径修正后的重跑，主机 1 分钟任务，
-见 `r2_real_speech/OFFLINE_SCORING_HANDOFF.md` 三次追加）——刷新前勿引用这些格子
-（当前值系统性偏高约 3–6pt）。其余全部定稿。
+全部数据格已定稿（最后一次口径刷新：2026-08-21 中文 CER 去接缝空格，主机重跑 4b9587b，
+核验 12 行 aishell1 CER 回落、英文 WER 与 TTFT 逐字节不变、带引号 glob 行为正确）。
+无待刷新项，可直接动笔。
