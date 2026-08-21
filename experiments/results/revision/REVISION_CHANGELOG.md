@@ -453,3 +453,15 @@
   材料提交后再写 artifact commit+porcelain；
 - §2c selftest 直接写 env/gate；§2b 先 mkdir 后 tee run.log；子目录守卫保持；
 - 正式 r7_main/control 仍不启动，待 GPU 重建最小材料包后最终书面复核。
+
+## 2026-08-22 Gate 材料包 r3 原子重建核验通过（GPU a1fbb82/6aaf356，code_commit b8893d6）
+
+- GPU 在唯一 clean 基线 `b8893d6` 重建最小材料包：G1 clean 证明（porcelain 真正为空，材料生成前采集）、
+  G7 TTS provenance、G8 platform、§2c GPU self-test 90/0、§2b 非末位 fatal smoke、§0b 完整 manifest；
+- 上一轮 5 项阻塞全部关闭：唯一 code_commit（四处引用统一 b8893d6）；fatal smoke 绑定
+  platform_conditions_sha256=a4c40057…（不再 null）；manifest 12 项覆盖 + 显式 LF-normalized 语义；
+  材料全落 artifact commit、提交后 porcelain 空；self-test HEAD 统一；
+- 本机以 Git blob + LF-normalized 内容 SHA-256 重算 manifest 12/12 一致；
+- fatal smoke 6 记录（success→fault error+fatal→4×cancelled_after_fatal）QA 0，run.log 完整落盘；
+- 新增 `gate-material-verification-r3-20260822.md`，建议审查方出具正式书面放行
+  （r7_main 主实验 → 结果级 QA 通过后 tts_control）。
