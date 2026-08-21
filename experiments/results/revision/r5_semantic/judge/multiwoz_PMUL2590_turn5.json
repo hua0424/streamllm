@@ -1,0 +1,7 @@
+{
+  "score": 4,
+  "equivalent": true,
+  "rationale": "双方均满足查找酒店需求，涵盖位置、星级、停车及入住信息。乙将4人误写为4房间，属细微差异，不影响整体意图。",
+  "sample_id": "multiwoz_PMUL2590_turn5",
+  "order": "BA"
+}

@@ -1,0 +1,7 @@
+{
+  "score": 2,
+  "equivalent": false,
+  "rationale": "乙缺失16:45到达需求及8842车次预订等关键信息，且误要求确认地点，信息不完整。",
+  "sample_id": "multiwoz_MUL2018_turn5",
+  "order": "AB"
+}

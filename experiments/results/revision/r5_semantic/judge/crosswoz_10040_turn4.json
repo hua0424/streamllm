@@ -1,0 +1,7 @@
+{
+  "score": 3,
+  "equivalent": true,
+  "rationale": "两者均提供地址和餐馆推荐，但推荐具体餐馆不同，存在部分信息差异，不影响核心需求。",
+  "sample_id": "crosswoz_10040_turn4",
+  "order": "AB"
+}

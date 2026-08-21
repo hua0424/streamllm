@@ -1,0 +1,7 @@
+{
+  "score": 4,
+  "equivalent": true,
+  "rationale": "两者均提供餐馆和酒店信息，甲给出具体时间建议而乙较泛，细微差异不影响核心需求。",
+  "sample_id": "crosswoz_12299_turn4",
+  "order": "AB"
+}

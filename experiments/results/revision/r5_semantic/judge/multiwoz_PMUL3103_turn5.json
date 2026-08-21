@@ -1,0 +1,7 @@
+{
+  "score": 2,
+  "equivalent": false,
+  "rationale": "甲推荐旅馆且未明确免费取消，乙提供客舍选项但星级不符；关键需求回应不一致。",
+  "sample_id": "multiwoz_PMUL3103_turn5",
+  "order": "AB"
+}

@@ -1,0 +1,7 @@
+{
+  "score": 4,
+  "equivalent": true,
+  "rationale": "双方都理解火车与住宿需求，乙直接确认预订而甲询问确认，差异细微不影响意图满足。",
+  "sample_id": "multiwoz_PMUL1745_turn6",
+  "order": "BA"
+}

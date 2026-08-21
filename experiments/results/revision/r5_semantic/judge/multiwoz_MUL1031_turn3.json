@@ -1,0 +1,7 @@
+{
+  "score": 2,
+  "equivalent": false,
+  "rationale": "甲回应了预订和参考号，乙仅要求补充日期且未提及参考号，信息差异明显。",
+  "sample_id": "multiwoz_MUL1031_turn3",
+  "order": "AB"
+}

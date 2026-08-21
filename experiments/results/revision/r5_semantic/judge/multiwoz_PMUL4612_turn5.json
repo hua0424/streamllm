@@ -1,0 +1,7 @@
+{
+  "score": 4,
+  "equivalent": true,
+  "rationale": "核心预订信息一致，乙额外提供其他餐厅推荐，但不影响用户主要意图满足。",
+  "sample_id": "multiwoz_PMUL4612_turn5",
+  "order": "AB"
+}

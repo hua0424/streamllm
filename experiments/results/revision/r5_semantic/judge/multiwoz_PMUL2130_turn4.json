@@ -1,0 +1,7 @@
+{
+  "score": 5,
+  "equivalent": true,
+  "rationale": "两者均正确回应南部无博物馆并推荐印度餐厅，信息一致，仅餐厅英文名细节微差，不影响语义。",
+  "sample_id": "multiwoz_PMUL2130_turn4",
+  "order": "AB"
+}

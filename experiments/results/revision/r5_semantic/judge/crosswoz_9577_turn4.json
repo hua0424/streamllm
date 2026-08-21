@@ -1,0 +1,7 @@
+{
+  "score": 2,
+  "equivalent": false,
+  "rationale": "甲推荐满足人均的餐馆，乙未筛选人均且推荐不同，语义有差异。",
+  "sample_id": "crosswoz_9577_turn4",
+  "order": "BA"
+}

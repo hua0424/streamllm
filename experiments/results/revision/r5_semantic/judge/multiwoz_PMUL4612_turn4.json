@@ -1,0 +1,7 @@
+{
+  "score": 2,
+  "equivalent": false,
+  "rationale": "甲未处理预订请求，乙确认并协助预订，甲缺失关键信息。",
+  "sample_id": "multiwoz_PMUL4612_turn4",
+  "order": "BA"
+}

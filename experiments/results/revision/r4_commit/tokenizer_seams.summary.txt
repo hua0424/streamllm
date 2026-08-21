@@ -1,0 +1,5 @@
+samples=50 mismatch=25 (50.0%)
+diff_blocks(接缝点): mean=4.36 median=5.0 max=8
+oneshot_diff_tokens: mean=5.60 median=6.0 max=12
+decoded_text_identical: 50/50
+len_diff: mean=1.600

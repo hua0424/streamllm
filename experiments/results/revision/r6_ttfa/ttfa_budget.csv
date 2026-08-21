@@ -1,0 +1,7 @@
+system,language,n,source,t_endpoint_ms_mean,t_endpoint_ms_std,t_post_endpoint_ms_mean,t_post_endpoint_ms_std,t_decode_first_sentence_ms_mean,t_decode_first_sentence_ms_std,t_tts_first_chunk_ms_mean,t_tts_first_chunk_ms_std,ttfa_total_ms_mean,ttfa_total_ms_std
+streaming,zh,25,全实测,52.7,193.8,3028.9,207.7,142.3,338.9,13985.7,2424.6,17209.6,2364.2
+streaming,en,25,全实测,53.5,216.3,2995.0,209.9,635.7,387.7,11858.9,2422.6,15543.0,2372.0
+streaming,ALL,50,全实测,53.1,205.3,3011.9,209.5,389.0,439.8,12922.3,2646.6,16376.3,2510.5
+non-streaming,zh,25,pipeline 实测；decode/TTFC 估计（见脚本 docstring）,52.7,193.8,4390.2,897.5,142.3,0.0,18342.0,0.0,22927.3,940.2
+non-streaming,en,25,pipeline 实测；decode/TTFC 估计（见脚本 docstring）,53.5,216.3,3467.5,578.8,635.7,0.0,18262.8,0.0,22419.5,662.5
+non-streaming,ALL,50,pipeline 实测；decode/TTFC 估计（见脚本 docstring）,53.1,205.3,3928.9,884.9,389.0,246.7,18302.4,39.6,22673.4,852.0

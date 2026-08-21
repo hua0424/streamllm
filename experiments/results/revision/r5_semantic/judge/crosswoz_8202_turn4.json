@@ -1,0 +1,7 @@
+{
+  "score": 2,
+  "equivalent": false,
+  "rationale": "两者均未完整提供酒店信息，甲截断且缺酒店，乙提及但未完成，关键信息缺失，存在明显差异。",
+  "sample_id": "crosswoz_8202_turn4",
+  "order": "BA"
+}

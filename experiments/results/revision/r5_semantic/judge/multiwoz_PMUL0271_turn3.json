@@ -1,0 +1,7 @@
+{
+  "score": 5,
+  "equivalent": true,
+  "rationale": "两回复均提供相同电话号码，核心信息一致，仅格式和微小拼写差异，不影响语义。",
+  "sample_id": "multiwoz_PMUL0271_turn3",
+  "order": "BA"
+}

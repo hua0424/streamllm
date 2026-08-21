@@ -1,5 +1,26 @@
 # REVISION_CHANGELOG — CISR 修订补充实验执行记录
 
+## 2026-08-21 本机离线分析批：分词接缝 / 提交分歧 / TTFA 预算装配 / Fig.6 重绘
+
+- **分词接缝**（R4 §5.2，`check_tokenizer_seams.py`，self-test 7/7）：复现生产增量分词路径 vs 一次性分词。
+  50 样本中 25（50.0%）存在接缝分歧，但**逐样本解码文本完全一致（50/50）**——分歧均为片段接缝处的
+  BPE 跨缝重切（'.'+'Is'→'.Is' 型），分歧块 mean 4.36 处 / oneshot 侧 mean 5.60 token（max 12）。
+  产物 `r4_commit/tokenizer_seams.csv` + `.summary.txt`。
+  注：接缝无空格是生产真实行为（raw fragment 直拼）；论文表述应为"接缝分歧常见但仅为重切分、
+  文本恒等，语义影响由 R5 证据兜底"，不得写"不匹配率极低"。
+- **提交分歧完整统计**（R4 §5.3，`analyze_commit_divergence.py`，self-test 6/6）：
+  375 commit / 224 correction（涉及段 224/425=52.7%，涉及样本 49/50）；
+  correction 编辑距离 mean 2.3 字符、p90 6、max 16（归一化比率 mean 5.6%、max 47.1%）——
+  **修正 PAPER_HANDOFF"属同音字/标点级"的过轻表述**：多数为小改但存在实词级漂移（如 "Inak."→". Enough!"），
+  论文措辞以实测分布为准。外部一致性：streaming 拼接 vs System A 全量转写 WER mean 4.93%（max 14.2%）。
+  产物 `r4_commit/commit_divergence.json`（含 top-5 漂移示例，供定性分析）。
+- **TTFA 预算装配**（R6 §7.3，`assemble_ttfa_budget.py`，self-test 5/5；口径=用户裁决的 E5 链条）：
+  System B TTFA mean **zh 17.2s / en 15.5s / ALL 16.4s**（端点 53ms + 后端 3012ms + 解码首句 389ms
+  + TTFC zh 13.99s/en 11.86s，四项全实测）；System A ALL 22.7s（pipeline 实测，decode/TTFC 为估计项，
+  CSV source 列已标注）。产物 `r6_ttfa/ttfa_budget.csv`。
+- **Fig.6 重绘**（R7 §8.1，`plot_fig6_trend.py`，self-test 4/4）：exp1 归档逐样本数据，12 等频分箱，
+  mean 折线 + P5–P95 阴影带。产物 `results/revision/fig/Fig6.pdf/.png/.bins.csv`。
+
 ## 2026-08-21 离线评分脚本 score_wer_offline 完成（E3 已出数）+ 中文 CER 口径勘误
 
 - 产物：`experiments/scripts/score_wer_offline.py`（self-test 9/9）；E3 三系统已出数

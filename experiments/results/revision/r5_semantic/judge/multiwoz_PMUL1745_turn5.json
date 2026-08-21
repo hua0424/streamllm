@@ -1,0 +1,7 @@
+{
+  "score": 3,
+  "equivalent": false,
+  "rationale": "乙擅自决定预订火车，甲仅提供查询，差异影响后续操作；但两者均处理了住宿询问。",
+  "sample_id": "multiwoz_PMUL1745_turn5",
+  "order": "AB"
+}

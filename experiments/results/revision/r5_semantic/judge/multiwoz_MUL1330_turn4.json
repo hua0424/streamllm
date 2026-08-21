@@ -1,0 +1,7 @@
+{
+  "score": 2,
+  "equivalent": false,
+  "rationale": "回复甲提供了餐厅地址电话，回复乙仅复述对话，未给出所请求的具体信息。",
+  "sample_id": "multiwoz_MUL1330_turn4",
+  "order": "BA"
+}

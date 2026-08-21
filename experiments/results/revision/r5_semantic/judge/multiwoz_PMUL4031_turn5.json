@@ -1,0 +1,7 @@
+{
+  "score": 2,
+  "equivalent": false,
+  "rationale": "乙误写餐厅名Cotto且漏掉Restaurant 17，数量不符；甲更贴近原输入。",
+  "sample_id": "multiwoz_PMUL4031_turn5",
+  "order": "BA"
+}

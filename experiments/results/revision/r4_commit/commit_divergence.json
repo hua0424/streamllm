@@ -1,0 +1,71 @@
+{
+  "inputs": {
+    "commit_log": "D:\\project\\my\\research\\streamllm\\experiments\\results\\revision\\r4_commit\\commit_log.jsonl",
+    "e4_results": "D:\\project\\my\\research\\streamllm\\experiments\\results\\revision\\r4_commit\\exp1_results_20260820_171522.json"
+  },
+  "commit_events": 375,
+  "correction_events": 224,
+  "committed_segments": 425,
+  "corrected_segments": 224,
+  "corrected_segment_ratio": 0.5270588235294118,
+  "samples_with_correction": 49,
+  "rollback_events": 0,
+  "correction_edit_distance": {
+    "mean": 2.3169642857142856,
+    "median": 1.0,
+    "p90": 6.0,
+    "max": 16
+  },
+  "correction_edit_ratio": {
+    "mean": 0.05577147680712465,
+    "median": 0.035098522167487683,
+    "p90": 0.13607954545454545,
+    "max": 0.47058823529411764
+  },
+  "external_consistency": {
+    "n_samples": 50,
+    "wer_mean": 0.04933101092540995,
+    "wer_std": 0.03383241060989124,
+    "cer_mean": 0.04600034104447446,
+    "cer_std": 0.028879821733781015,
+    "wer_max": 0.1415929203539823,
+    "cer_max": 0.12037037037037036
+  },
+  "top_drift_examples": [
+    {
+      "sample_id": "crosswoz_7196_turn3",
+      "segment_id": "seg_005",
+      "edit_ratio": 0.471,
+      "old": "840-2620-23844-9556好的去之前我先打个电话咨询一下",
+      "new": "好的,去之前我先打个电话咨询一下"
+    },
+    {
+      "sample_id": "crosswoz_10040_turn4",
+      "segment_id": "seg_009",
+      "edit_ratio": 0.417,
+      "old": "有的是药油腐火锅洋镇店。",
+      "new": "有的是要约复火锅、洋阵点"
+    },
+    {
+      "sample_id": "crosswoz_8202_turn4",
+      "segment_id": "seg_004",
+      "edit_ratio": 0.4,
+      "old": "中关村店吧",
+      "new": "中关孙殿吧"
+    },
+    {
+      "sample_id": "multiwoz_PMUL1745_turn5",
+      "segment_id": "seg_005",
+      "edit_ratio": 0.333,
+      "old": "Ok.",
+      "new": "OK,"
+    },
+    {
+      "sample_id": "crosswoz_12011_turn4",
+      "segment_id": "seg_005",
+      "edit_ratio": 0.3,
+      "old": "他加持评分为3.5分",
+      "new": "他家视频分为3.5分"
+    }
+  ]
+}
