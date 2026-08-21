@@ -23,36 +23,45 @@
 5. 结论：需要一次小规模补测。这是本次唯一需要 GPU 主机执行的补充实验；
    其余论文缺口（离线 WER/CER、分词接缝、语义一致性、表格装配）均为本机离线分析，不涉及主机。
 
-## 2. 为什么独立 LLM 测量在方法学上成立（请审查重点确认）
+## 2. 为什么独立 LLM 测量在方法学上成立（2026-08-21 审查 P0 修正后：fragment replay 口径）
 
 - 待测量是**纯 LLM 解码段时延**。生产管线中，首 token 之后 ASR 已收尾，解码在 GPU 独占状态下
-  逐 token 进行；该时段与 ASR/VAD 队列无耦合。因此"独立喂同一提示文本、测量同一解码段"与
+  逐 token 进行；该时段与 ASR/VAD 队列无耦合。因此"独立重放同一提示序列、测量同一解码段"与
   管线内测量的是同一个物理量。
-- 输入提示取 **E4 落盘的 50 条 streaming 模式 `transcribed_text`**——即 LLM 当时真实收到的用户输入，
-  不是参考文本、不是重新识别的文本。
-- 预填/解码走生产同款路径：`StreamLLMInference.cache_prompt(text, is_end=True)` + `generate()`，
-  同模型（Qwen/Qwen2-7B-Instruct）同设备（默认 cuda:1）同 `max_tokens=128`。
-  一次性预填与生产的增量预填在提示内容上等价（chat template 相同）；差异只影响预填段
-  （TTFT 已有 E4/E5 实测值，不取本脚本的预填计时），**不影响解码段测量**。
+- **输入重放 E4 落盘的 `committed_fragments` 片段序列**（审查 P0 修正）：
+  生产路径（`run_exp_latency.py:731-734, 760-762`）对每个 ASR 提交片段依次
+  `cache_prompt(fragment, pre_cache=kv, is_end=False)`，最后 `cache_prompt("", is_end=True)`
+  加生成提示。本补测逐片段复现该调用序列，不用 `transcribed_text`——该字段是
+  `" ".join()` 的重构（`run_exp_latency.py:801`），人为插入空格且丢失片段边界，
+  与生产增量预填的 token 序列不保证一致。
+- 同模型（Qwen/Qwen2-7B-Instruct）同设备（默认 cuda:1）同 `max_tokens=128`（与 E4 一致）。
 - 逐 token 时刻在 `generate()` 每次 yield 处记录（yield 紧接该 token 解码完成，见
-  `src/llm/stream_llm_inference.py:218`）。
+  `src/llm/stream_llm_inference.py:218`）。**本分项 = 首个句末标点 token 的 yield 时刻 −
+  首个 token 的 yield 时刻，不把预填时间并入**（预填段 TTFT 已有 E4/E5 实测值；
+  CSV 中 `first_token_latency_ms` 为重放口径首 token 延迟，仅供参考、不进预算表）。
 - 句末判定规则：首个 `。！？!?`；英文 `.` 仅在非数字夹击中计数（豁免 `3.5` 类小数）。
   无句末标点的回复回退为整段解码时间并置 `sentence_end_found=0`（汇总时可见）。
 - 平台口径：本测量与 E1–E6 同一 GPU 主机，绝对值同样绑定该平台（裁决 D），不与他机混排。
 
 ## 3. 补测脚本
 
-`experiments/scripts/measure_decode_to_first_sentence.py`
+`experiments/scripts/measure_decode_to_first_sentence.py`（2026-08-21 按审查意见修订版）
 
-- 输入：E4 结果 JSON（默认 `r4_commit/exp1_results_*.json` 最新一个，取 streaming 模式、
-  error 空、transcribed_text 非空的样本；E4 为 50 条）。
-- 输出：`decode_to_first_sentence.csv`（逐样本：n_tokens / ttft_ms（独立预填口径，仅参考）/
-  first_sentence_token_idx / decode_to_first_sentence_ms / decode_total_ms / tokens_per_s /
-  sentence_end_found / first_sentence_text）+ 同名 `.summary.txt`（overall 与分语言
-  mean/std/p50/p90）。
-- 预热 3 轮（与生产一致）；`--repeat` 可重复测量（默认 1）；`--max-samples` 供冒烟。
-- **本机自检**：`--self-test` 不加载模型，用脚本化 token 流验证句末检测（中文/英文/小数豁免/
-  无句末回退）、首句 token 定位、计时关系、CSV 与汇总链路——2026-08-21 本机 12/12 断言通过。
+- 输入：E4 结果 JSON（默认 `r4_commit/exp1_results_*.json` 最新一个），取 streaming 模式、
+  error 空的样本，**使用 `committed_fragments` 重放**；样本缺 fragments 直接报错退出，
+  不静默退回 `transcribed_text`。
+- **输入强制校验**（审查 P1）：恰好 50 条（`--expected-samples`，`--max-samples` 冒烟模式豁免）、
+  sample_id 唯一、E4 config 的 llm_model/max_tokens/llm_device 与本次一致；任一不满足即退出。
+- 输出：`decode_to_first_sentence.csv`（逐样本：fragment_count / fragments_sha256 / prompt_tokens /
+  n_tokens / first_token_latency_ms / first_sentence_token_idx / decode_to_first_sentence_ms /
+  decode_total_ms / tokens_per_s / sentence_end_found / first_sentence_text / **error**）+
+  同名 `.summary.txt`（error 行不进汇总）+ **`.runinfo.md`**（命令、git commit、输入文件+sha256、
+  样本清单哈希、生成参数、起止耗时、重放模式）+ `.checkpoint.jsonl`（逐行追加，中断不丢）。
+- **逐样本容错**（审查 P1）：单样本异常写入 error 列继续跑；进程结束时有失败则 exit 1。
+- 预热 3 轮（与生产一致）；`--repeat` 可重复测量（默认 1）；`--max-samples` 仅供冒烟。
+- **本机自检**：`--self-test` 不加载模型，覆盖句末检测四种情形、**重放调用序列**
+  （逐片段 is_end=False + 空片段 is_end=True）、空片段拒绝、输入校验五种失败路径、
+  计时关系、CSV/汇总/RUNINFO 链路——2026-08-21 修订后本机 23/23 断言通过。
 
 ## 4. GPU 主机执行
 
@@ -71,11 +80,14 @@ uv run python -m experiments.scripts.measure_decode_to_first_sentence \
 
 ## 5. 验收标准
 
-1. 50/50 样本完成、无异常（脚本遇 generate 空产出会抛错，应为 0）；
-2. `sentence_end_found` 比例合理（预期 ≥90%；无句末样本回退整段解码，属正常口径）；
-3. summary 中 `decode_to_first_sentence` mean 量级预期 0.3–1.5s（首句约 10–30 token × 3090 解码速率）；
+1. 50/50 样本完成、CSV `error` 列全空（脚本逐样本容错，失败会 exit 1 并在 CSV/checkpoint 留痕）；
+2. **RUNINFO 必须存在**且字段齐全（命令、git commit、输入文件 sha256、样本清单哈希、
+   生成参数、起止耗时、重放模式 `fragment_replay`）；无 RUNINFO 不通过验收；
+3. `sentence_end_found` 比例合理（预期 ≥90%；无句末样本回退整段解码，属正常口径）；
+4. summary 中 `decode_to_first_sentence` mean 量级预期 0.3–1.5s（首句约 10–30 token × 3090 解码速率）；
    若显著超出（如 >5s）应停止并保留现场上报，不得强行入表；
-4. CSV + summary 落盘，RUNINFO 记录命令、commit、耗时。
+5. 结果级 QA 关系检查（审查 P2）：每行 `decode_to_first_sentence_ms <= decode_total_ms`、
+   `n_tokens > 0`、`sentence_end_found=1` 的样本 `first_sentence_token_idx` 落在 `[0, n_tokens)`。
 
 ## 6. 产出如何进论文（Table VIII 装配，本机离线完成）
 
