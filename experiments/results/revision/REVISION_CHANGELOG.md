@@ -444,3 +444,12 @@
 - 两处非阻塞瑕疵登记：selftest 归档路径复制对齐（原始保留）；fatal smoke run.log 因 tee 先于目录创建
   未落盘（控制台后台日志+checkpoint/RUNINFO/QA/summary/CV 完整）；handoff 已修先 mkdir；
 - 新增 `gate-material-verification-20260822.md`，建议提交最终书面放行复核（r7_main + tts_control）。
+
+## 2026-08-22 Gate材料复核整改 r2（唯一基线+原子材料包）
+
+- 审查意见全部采纳：版本混用/clean记录矛盾/platform 未绑定/manifest 不完整+hash语义未明/材料 modified 均属实；
+- handoff 升级 r3：唯一 code_commit clean checkout；clean证明在材料生成前取得；fatal binding 绑定同一 platform hash；
+  manifest 明确 LF-normalized 内容 SHA-256，覆盖 selftest log+md/fatal checkpoint+RUNINFO+QA+run.log/platform/probe/全部 provenance；
+  材料提交后再写 artifact commit+porcelain；
+- §2c selftest 直接写 env/gate；§2b 先 mkdir 后 tee run.log；子目录守卫保持；
+- 正式 r7_main/control 仍不启动，待 GPU 重建最小材料包后最终书面复核。

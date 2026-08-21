@@ -1,25 +1,25 @@
-# R7 正式实验交接文档（Gate 版 r2，2026-08-22）
+# R7 正式实验交接文档（Gate 版 r3，2026-08-22）
 
-- **执行权限划分（消除流程循环，对应审查 2026-08-22 终裁）**：
-  - **放行前允许执行的 Gate（无需书面放行，GPU 主机即可执行）**：
-    §1 的 G1–G8 采集（clean 树/provenance/TTS 服务端/平台条件）＋ §2b 非末位 fatal 小 smoke
-    ＋ §2c GPU clean 树 self-test 归档。产物 push 后提交**最终放行复核**；
-  - **需审查方书面放行后才可执行**：仅 §2 正式 run（r7_main，120 任务）与
-    §3 匹配文本控制（依赖 r7_main 产物）。两者在放行前不得启动。
-- 代码基线：`git pull` 至本次 push（含 `--tts-control-only`/`--inject-fault-index`/
-  speaker 与平台条件绑定）或更新
-- 脚本 self-test 期望值：**90 PASS / 0 FAIL**
+- **本版针对 Gate 复核的核心修正**：正式 code_commit 唯一化、clean 记录与材料归档分离、fatal smoke 显式绑定 platform conditions、完整 manifest 覆盖全部放行材料；manifest hash 统一明示为 **LF-normalized 内容 SHA-256**（不是 Git blob hash）。
+- **执行权限**：G1–G8 采集、§2b fatal smoke、§2c GPU self-test 仍为书面放行前允许的 Gate；仅 §2 r7_main 与其后的 §3 control 需书面放行。
+- **代码基线**：GPU 主机先 pull 本文档所在提交，随后选定唯一 `code_commit` 并在该提交 clean checkout；后续 Gate 运行不得混用其他 commit。
+- self-test 期望：90 PASS / 0 FAIL
 
-## 0. GPU 主机待执行清单（放行前 Gate，按序）
+## 0. GPU 主机待执行清单（放行前 Gate，**r3 原子材料包流程，按序执行**）
+
+> **关键规则**：先在唯一 code_commit 的 clean checkout 完成全部 Gate；运行会产生未跟踪材料文件，
+> 这是预期的 artifact，不可再把 `git status --porcelain` 当作 Gate 后期 clean 条件。
+> clean 证明（G1）必须在任何 Gate artifact 生成**之前**保存；Gate 完成后将材料提交为单独
+> `result_artifact_commit`，提交后再次记录 porcelain 为空。
 
 | 步骤 | 产物（随放行申请提交） |
 |---|---|
-| §1 G1 | `git status --porcelain` 空输出记录（clean 树） |
-| §1 G2 | 拟用于正式 run 的 code_commit（pull 后 HEAD） |
-| §1 G7 | CosyVoice commit+本地 diff、镜像 digest、模型与 `spk2info.pt` hash、启动配置 |
-| §1 G8 | `env/platform_conditions.txt`（驱动/CUDA/fallback 登记/双 3090/独占声明/nvidia-smi） |
-| §2b | `checkpoint_r7_smoke_fatal.jsonl` + `QA_r7_smoke_fatal.md`（非末位 fatal→cancelled 证据） |
-| §2c | `selftest_archive/selftest_gpu_YYYYMMDD.log`（GPU clean 树 90 PASS + exit code） |
+| §1 G1/G2 | `env/gate/gate_clean_git.txt` | **Gate 前**唯一 code_commit 的 HEAD + 真正空 porcelain（材料生成前） |
+| §1 G7 | `env/gate/tts_provenance/` | CosyVoice commit+本地 diff、镜像 digest、模型与 `spk2info.pt` hash、启动配置 |
+| §1 G8 | `env/platform_conditions.txt` | 驱动/CUDA/fallback 登记/双 3090/独占声明/nvidia-smi |
+| §2b | `fatal_smoke/checkpoint_r7_smoke_fatal.jsonl` + `fatal_smoke/RUNINFO_r7_smoke_fatal.md`/`fatal_smoke/QA_r7_smoke_fatal.md`/**`fatal_smoke/r7_smoke_fatal_run.log`** | 非末位 fatal→cancelled 证据（独立子目录） |
+| §2c | `env/gate/gate_selftest_gpu.log` + `.md` | GPU clean 树 90 PASS + exit code；md 附命令/HEAD/环境/输出 sha256 |
+| Gate 后 | `env/gate/gate_artifact_commit.txt` | Gate 材料提交后的 artifact commit + porcelain 空证明 |
 
 全部齐备 → 按 §0b 打包 Gate manifest → 开发侧核验 → 提交审查方最终放行复核 → 书面放行后执行 §2、§3。
 
@@ -35,17 +35,36 @@
 | 6 | `env/gate/tts_probe_new.json` | 新一轮探活（header/payload 允许策略；speaker 映射注记已在 probe 输出） |
 | 7 | `env/gate/GATE_MANIFEST.md` | 见下方命令 |
 
-Gate manifest 生成（把材料包 hash 与拟批准 code_commit 绑定）：
+Gate manifest 生成（**全部 hash 按 `dos2unix` 等价的 LF-normalized 内容 SHA-256，非 Git blob hash/工作树原始字节 hash**；覆盖全部放行依据）：
 
 ```bash
 cd /dataA/streamllm/experiments/results/revision/r7_ttfa_unified
-{ echo "# R7 放行前 Gate manifest"; echo "code_commit=$(git rev-parse HEAD)";
+mkdir -p env/gate
+lfsha() { printf '%s  %s\n' "$(sed 's/\r$//' "$1" | sha256sum | awk '{print $1}')" "$1"; }
+{
+  echo "# R7 放行前 Gate manifest";
+  echo "hash_scheme=LF-normalized-content-sha256";
+  echo "code_commit=$(cat env/gate/gate_clean_git.txt | sed -n 's/^HEAD=//p')";
   echo "generated=$(date -Is)";
-  sha256sum env/gate/gate_clean_git.txt env/gate/gate_selftest_gpu.log \
-            fatal_smoke/checkpoint_r7_smoke_fatal.jsonl env/platform_conditions.txt \
-            env/gate/tts_probe_new.json env/gate/tts_provenance/* ; } > env/gate/GATE_MANIFEST.md
+  lfsha env/gate/gate_clean_git.txt;
+  lfsha env/gate/gate_selftest_gpu.log;
+  lfsha env/gate/gate_selftest_gpu.md;
+  lfsha fatal_smoke/checkpoint_r7_smoke_fatal.jsonl;
+  lfsha fatal_smoke/RUNINFO_r7_smoke_fatal.md;
+  lfsha fatal_smoke/QA_r7_smoke_fatal.md;
+  lfsha fatal_smoke/r7_smoke_fatal_run.log;
+  lfsha env/platform_conditions.txt;
+  lfsha env/gate/tts_probe_new.json;
+  for f in env/gate/tts_provenance/*; do lfsha "$f"; done;
+} > env/gate/GATE_MANIFEST.md
 git add -A && git commit -m "R7放行前Gate材料包" && git push
+{ echo "artifact_commit=$(git rev-parse HEAD)"; echo "--- porcelain ---"; git status --porcelain; } \
+  > env/gate/gate_artifact_commit.txt
+git add env/gate/gate_artifact_commit.txt && git commit -m "登记R7 Gate材料artifact commit" && git push
 ```
+
+> 注意：先 `mkdir -p fatal_smoke` 再执行 §2b 命令并用 `tee fatal_smoke/r7_smoke_fatal_run.log`
+> 保存完整控制台日志；run log 属 Gate 材料，不能缺失。
 
 
 ### 0c. 目录安排说明（消除与"一目录一 checkpoint"守卫的冲突，方案 A）
@@ -104,6 +123,7 @@ uv run python -m experiments.scripts.run_ttfa_unified \
 ### 2b. 非末位 fatal 小 smoke（Gate 第 10 项：cancelled 运行级证据；**在 §2 正式 run 之前执行**；独立 run，不入正式结果）
 
 ```bash
+mkdir -p experiments/results/revision/r7_ttfa_unified/fatal_smoke
 uv run python -m experiments.scripts.run_ttfa_unified \
     --sample-list experiments/results/revision/r1_stats/repeat_subset_ids.json \
     --json-dir experiments/datasets/processed/json \
@@ -115,7 +135,8 @@ uv run python -m experiments.scripts.run_ttfa_unified \
     --silero-dir ~/.cache/torch/hub/snakers4_silero-vad_master \
     --smoke 3 --inject-fault asr_error --inject-fault-index 1 \
     --output-dir experiments/results/revision/r7_ttfa_unified/fatal_smoke \
-    --run-id r7_smoke_fatal
+    --run-id r7_smoke_fatal \
+    2>&1 | tee experiments/results/revision/r7_ttfa_unified/fatal_smoke/r7_smoke_fatal_run.log
 ```
 
 验收：任务 0 success；任务 1 error（含 `fault_injection`）且 fatal=True；任务 2–5 全部
