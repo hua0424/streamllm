@@ -1,11 +1,12 @@
 # 修订实验数据交接文档（论文编写用）
 
 > **读者**：论文编写人。
-> **内容**：CISR 修订补充实验（E1–E6）全部完成并通过验收（2026-08-19 ~ 2026-08-21，GPU 实验机）。
+> **内容**：CISR 修订补充实验（E1–E6 + TTFA 解码补测）全部完成并通过验收（2026-08-19 ~ 2026-08-21，GPU 实验机）。
 > 本文给出每个实验的产物位置、论文可用数字、引用口径与注意事项。
 > **配套**：`PAPER_IMPACT_NOTES.md`（影响与待决清单，7 项）、`REVISION_CHANGELOG.md`（执行流水）、
 > `r1_stats/attribution/README.md`（平台差异归因证据链）。各结果目录内均有 `RUNINFO.md`（命令/时间/样本数/error 数）。
-> **验收状态**：总验收 33/33 项通过（产物完整性、格式、config 锁定、error 率 0/2316、预期值区间、异常值扫描）。
+> **验收状态**：E1–E6 总验收 33/33 项通过（产物完整性、格式、config 锁定、error 率 0/2316、预期值区间、异常值扫描）；
+> TTFA 解码补测（2026-08-21）跑后 QA 7/7 通过（见 `r6_ttfa/RUNINFO.md`）。
 
 ---
 
@@ -99,6 +100,26 @@
 - **论文可用**：TTFA 预算中 TTS 首包是最大项（≫ 管线侧 3.1s ≫ 端点 0.05s）。若原文暗示"TTS 流式
   首包很快"需修正；建议给 TTFC-长度关系或限定短回复场景。注意本机 CPU 放大 TTFC（平台披露覆盖）。
 
+### TTFA 解码至首句补测（意见2，预算表第三项）— `r6_ttfa/decode_to_first_sentence.csv`
+
+**为什么有这次补测**：E4 复跑未记录逐 token 时刻，TTFA 预算表缺"首 token → 首个句末标点 token"分项且
+无法离线恢复；2026-08-21 用 E4 落盘的 `committed_fragments` 逐片段重放生产增量预填序列后逐 token 计时
+补测（方法与三轮评审记录见 `r3_baseline_la/handoff/E6_TTFA_DECODE_FIRST_SENTENCE_HANDOFF.md`）。
+50 样本（与 E4 同 50 条），error 0，QA 7/7 全过。
+
+| 分项 | mean | p50 | p90 | 分语种 |
+|---|---|---|---|---|
+| decode_to_first_sentence | **389.0ms** | 92.0ms | 967.1ms | en 635.7ms / zh 142.3ms |
+
+- `sentence_end_found` 50/50 = 100%（全部回复在 max_tokens=128 内出现句末标点）；解码速率 mean 26.0 tok/s。
+- 中英文差异来自首句长度（英文首句 token 数更多），非速度差异（分语种 tok/s 相同）。
+- **论文可用**：TTFA 预算表四组成项自此齐备——
+  `TTFA = T_endpoint(E5: 53ms) + TTFT(E4 streaming mean 1423ms) + T_decode_to_first_sentence(本测: 389ms) + T_TTS_first_chunk(E6: zh 13.99s / en 11.86s)`。
+  逐项 mean±std 由 `r6_ttfa/decode_to_first_sentence.summary.txt` 与各实验 RUNINFO 取数；
+  Table VIII 装配稿 `r6_ttfa/ttfa_budget.csv` 由本机侧生成（生成后以之为准）。
+- ⚠️ CSV 中 `first_token_latency_ms` 是重放口径参考值，**不是** TTFT（TTFT 用 E4/E5 实测值）；
+  E5 的 `final_enqueue_wait≈2s` 为测量装置属性，不进预算表，正文需说明。
+
 ## 二、环境存档与可追溯
 
 - `env_versions.txt`（项目 venv 真实版本 + nvidia-smi）；repo 状态见 git log（结果已随 main 提交）。
@@ -107,6 +128,9 @@
 - 每次运行均有 RUNINFO.md + run.log；changelog 逐条登记。
 
 ## 三、待论文侧决策清单（汇总自 PAPER_IMPACT_NOTES.md）
+
+> 注：TTFA 预算表的数据缺口（`T_decode_to_first_sentence`）已于 2026-08-21 补测关闭，四组成项数字齐备，
+> 仅剩装配（机械工作，本机侧进行），**不属于**待决项。以下为仍需论文侧拍板的 6 项：
 
 1. LA 对比表是否引用 exp2 中间消融臂 `streaming_asr_only`（旧机数字 1171.0ms；引用需脚注或补跑 +4h）；
 2. babble 结果进正文的口径（10 变体 vs 12 变体）与 limitations 措辞；
