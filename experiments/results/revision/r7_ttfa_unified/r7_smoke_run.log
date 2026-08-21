@@ -1,17 +1,15 @@
-2026-08-21 22:38:41.200 - experiments.scripts.run_exp_latency - INFO - 加载了 503 个有效样本
-2026-08-21 22:38:41.200 - experiments.scripts.run_exp_latency - INFO - 样本分组统计:
-2026-08-21 22:38:41.200 - experiments.scripts.run_exp_latency - INFO -   extra_long: 298 个样本
-2026-08-21 22:38:41.200 - experiments.scripts.run_exp_latency - INFO -   long: 57 个样本
-2026-08-21 22:38:41.200 - experiments.scripts.run_exp_latency - INFO -   medium: 48 个样本
-2026-08-21 22:38:41.200 - experiments.scripts.run_exp_latency - INFO -   short: 4 个样本
-2026-08-21 22:38:41.200 - experiments.scripts.run_exp_latency - INFO -   very_long: 96 个样本
-2026-08-21 22:38:41.240 - experiments.scripts.run_exp_latency - INFO - 加载了 630 个有效样本
-2026-08-21 22:38:41.241 - experiments.scripts.run_exp_latency - INFO - 样本分组统计:
-2026-08-21 22:38:41.241 - experiments.scripts.run_exp_latency - INFO -   extra_long: 382 个样本
-2026-08-21 22:38:41.241 - experiments.scripts.run_exp_latency - INFO -   long: 64 个样本
-2026-08-21 22:38:41.241 - experiments.scripts.run_exp_latency - INFO -   medium: 41 个样本
-2026-08-21 22:38:41.241 - experiments.scripts.run_exp_latency - INFO -   short: 31 个样本
-2026-08-21 22:38:41.241 - experiments.scripts.run_exp_latency - INFO -   very_long: 112 个样本
-fatal: not a git repository (or any of the parent directories): .git
-2026-08-21 22:38:42.778 - __main__ - INFO - PSE 预扫描…
-PSE 失败 crosswoz_7701_turn3: pse_single_algorithm_failure（停止）
+2026-08-21 23:07:03.955 - experiments.scripts.run_exp_latency - INFO - 加载了 503 个有效样本
+2026-08-21 23:07:03.955 - experiments.scripts.run_exp_latency - INFO - 样本分组统计:
+2026-08-21 23:07:03.955 - experiments.scripts.run_exp_latency - INFO -   extra_long: 298 个样本
+2026-08-21 23:07:03.955 - experiments.scripts.run_exp_latency - INFO -   long: 57 个样本
+2026-08-21 23:07:03.955 - experiments.scripts.run_exp_latency - INFO -   medium: 48 个样本
+2026-08-21 23:07:03.955 - experiments.scripts.run_exp_latency - INFO -   short: 4 个样本
+2026-08-21 23:07:03.955 - experiments.scripts.run_exp_latency - INFO -   very_long: 96 个样本
+2026-08-21 23:07:03.995 - experiments.scripts.run_exp_latency - INFO - 加载了 630 个有效样本
+2026-08-21 23:07:03.995 - experiments.scripts.run_exp_latency - INFO - 样本分组统计:
+2026-08-21 23:07:03.995 - experiments.scripts.run_exp_latency - INFO -   extra_long: 382 个样本
+2026-08-21 23:07:03.996 - experiments.scripts.run_exp_latency - INFO -   long: 64 个样本
+2026-08-21 23:07:03.996 - experiments.scripts.run_exp_latency - INFO -   medium: 41 个样本
+2026-08-21 23:07:03.996 - experiments.scripts.run_exp_latency - INFO -   short: 31 个样本
+2026-08-21 23:07:03.996 - experiments.scripts.run_exp_latency - INFO -   very_long: 112 个样本
+TTS 探活失败: {'url': 'http://127.0.0.1:20401', 'endpoint': 'http://127.0.0.1:20401/inference_sft', 'spk_id': '晓伊', 'speed': 0.8, 'status': 200, 'content_type': None, 'content_encoding': None, 'allow_content_type': None, 'allow_content_encoding': None, 'policy_note': '缺失头按 None 原样固定为允许值；正式请求逐项严格相等比对，任何偏离（含头新增/取值变化）记 error，不放宽', 'payload_class': 'json', 'magic_hex': '7bffbcff94ff89ff', 'ok': False}（停止）
