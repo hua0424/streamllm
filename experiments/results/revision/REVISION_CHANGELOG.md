@@ -1,5 +1,18 @@
 # REVISION_CHANGELOG — CISR 修订补充实验执行记录
 
+## 2026-08-21 离线评分脚本 score_wer_offline 完成（E3 已出数）+ 中文 CER 口径勘误
+
+- 产物：`experiments/scripts/score_wer_offline.py`（self-test 9/9）；E3 三系统已出数
+  `r3_baseline_la/{wer,ttft}_la_vs_b.csv`（498 样本：LA WER 0.1073 / B 0.1047 / A 0.0951，
+  同引擎同量级，支撑"同等质量下 B TTFT 优约 34%"）；英文统一大小写折叠（计划 §3.4），
+  与 la_results 内联无折叠口径（LA 0.130）差异源于 multiwoz 混合大小写，以离线折叠版为准。
+- **勘误（指标口径，非数据问题）**：`qa_real_speech.py` 原中文分支误用
+  `cer(zh_to_word_seq(...), zh_to_word_seq(...))`，逐字空格污染 CER 分母——E2-0 登记的
+  "aishell1 CER 6.72%" 口径有误；exp3 原生口径为 `cer(ref, hyp)` 直接吃原文
+  （`run_exp_quality.py:606`）。已修正脚本并加 `--recompute-from-csv` 免模型重算模式；
+  修正后数值待主机侧重算（`r2_real_speech/OFFLINE_SCORING_HANDOFF.md` 任务 2），若超 10% 验收线另行上报。
+- R2 的 wer_real/ttft_real 需主机侧执行（样本 JSON 只在主机），交接同上文档任务 1。
+
 ## 2026-08-21 TTFA 预算缺项补测脚本完成（待审查后 GPU 主机执行）
 
 - 起因：E1–E6 验收完成后本机离线核对产物，发现计划 §7.3 预算表分项 `T_decode_to_first_sentence`

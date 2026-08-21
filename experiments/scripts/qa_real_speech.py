@@ -131,7 +131,10 @@ def run_transcribe(dataset: str, json_dir: Path, audio_dir: Path,
             err = wer(normalize_text(m["text"]).lower(),
                       normalize_text(hyp).lower(), normalize=False)
         else:
-            err = cer(zh_to_word_seq(m["text"]), zh_to_word_seq(hyp))
+            # exp3 原生口径（run_exp_quality.py:606）：cer 直接吃原文。
+            # 不得先 zh_to_word_seq——逐字空格会污染 cer 的字符分母（2026-08-21 修正，
+            # 此前口径把分母 inflate 约 2n-1，CER 被稀释；旧值以修正后重算为准）。
+            err = cer(m["text"], hyp)
         errors.append(err)
         report_rows.append({
             "dataset": dataset, "sample_id": m["sample_id"],
@@ -147,10 +150,55 @@ def run_transcribe(dataset: str, json_dir: Path, audio_dir: Path,
     return mean_err
 
 
+def recompute_from_csv(csv_path: Path, json_dir: Path, wer_limit: float) -> int:
+    """用修正口径从既有 qa_transcribe.csv 重算（2026-08-21 中文 CER 口径修正）。
+
+    CSV 里的 reference 列是截断的（前 120 字符），完整参考从样本 JSON 取。
+    英文 WER 口径未变（重算值应与原值一致，作为交叉验证）。
+    """
+    from experiments.scripts.run_exp_quality import cer, normalize_text, wer
+
+    rows = list(csv.DictReader(open(csv_path, encoding="utf-8")))
+    if not rows:
+        print(f"[recompute] {csv_path} 为空")
+        return 1
+    out_rows = []
+    by_dataset = {}
+    for r in rows:
+        meta_path = json_dir / r["dataset"] / f"{r['sample_id']}.json"
+        meta = json.load(open(meta_path, encoding="utf-8"))
+        hyp = r["hypothesis"].strip()
+        if r["metric"] == "WER":
+            new_err = wer(normalize_text(meta["text"]).lower(),
+                          normalize_text(hyp).lower(), normalize=False)
+        else:
+            new_err = cer(meta["text"], hyp)
+        out_rows.append({**r, "reference_full": meta["text"],
+                         "error_rate_corrected": round(new_err, 4)})
+        by_dataset.setdefault(r["dataset"], []).append((float(r["error_rate"]), new_err))
+
+    out_path = csv_path.with_suffix(".corrected.csv")
+    with open(out_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(out_rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(out_rows)
+    worst = 0.0
+    for ds, pairs in sorted(by_dataset.items()):
+        old = [p[0] for p in pairs]
+        new = [p[1] for p in pairs]
+        worst = max(worst, float(np.mean(new)))
+        print(f"[recompute] {ds}: 旧 mean={np.mean(old):.4f} → 修正 mean={np.mean(new):.4f} "
+              f"(max={max(new):.4f}, n={len(new)})")
+    print(f"[recompute] 已保存: {out_path}")
+    return 0 if worst <= wer_limit else 2
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="R2 真实语音数据集 QA")
-    parser.add_argument("--datasets", required=True,
+    parser.add_argument("--datasets", required=False, default=None,
                         help="逗号分隔目录名，如 librispeech,aishell1 或变体目录 librispeech_snr15")
+    parser.add_argument("--recompute-from-csv", type=Path, default=None,
+                        help="从既有 qa_transcribe.csv 用修正口径重算（无需模型；2026-08-21 中文 CER 修正）")
     parser.add_argument("--json-dir", type=Path, default=Path("experiments/datasets/processed/json"))
     parser.add_argument("--audio-dir", type=Path, default=Path("experiments/datasets/processed/audio"))
     parser.add_argument("--report-dir", type=Path,
@@ -165,6 +213,12 @@ def main() -> None:
     parser.add_argument("--wer-limit", type=float, default=0.10,
                         help="干净集错误率验收线（默认 0.10）")
     args = parser.parse_args()
+
+    if args.recompute_from_csv:
+        raise SystemExit(recompute_from_csv(args.recompute_from_csv, args.json_dir,
+                                            args.wer_limit))
+    if not args.datasets:
+        parser.error("需要 --datasets 或 --recompute-from-csv")
 
     expected_quota = dict(
         (kv.split("=")[0], int(kv.split("=")[1]))
