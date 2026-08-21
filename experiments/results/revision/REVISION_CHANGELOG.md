@@ -421,3 +421,16 @@
   r7_smoke_fatal 三件套/platform_conditions/tts_provenance/tts_probe_new/
   GATE_MANIFEST），附 manifest 生成命令（材料 hash 绑定拟批准 code_commit）；
 - 本机无剩余整改项；等 GPU 主机执行 §0→§0b 后核验并申请最终书面放行。
+
+## 2026-08-22 §2b 目录守卫冲突定夺（方案 A）+ GPU Gate 产物首批判收
+
+- 冲突（R7_FORMAL_GATE_CHECKPOINT_DIR_CONFLICT_HANDOFF.md）：三 run 同目录与"一目录一
+  checkpoint"守卫冲突；定夺方案 A 且一次改到位——fatal_smoke/ r7_main/ tts_control/ 三
+  子目录，守卫零改动（方案 B 需重新过审，弃）；
+- handoff 更新：§0c 目录说明、§0b 材料包与 manifest 路径、§2/§2b/§3 命令、§5 产物说明；
+- GPU 首批 Gate 产物收妥核验：clean 树（HEAD=2e54ac2）、GPU self-test 90 PASS、
+  platform_conditions（双 3090/驱动 550.127.05/CUDA 12.4/Triton fallback×4）、
+  TTS provenance（commit 8555549e+163 行 diff/image digest/依赖）与新探活（ok/pcm）；
+- 关键发现：spk2info.pt 中"晓伊"与"中文女"embedding 完全相等（diff=0.0）——speaker
+  映射注记获模型级证据；
+- 待 GPU：§2b 新目录重跑 + manifest 重生成 → 本机核验 → 最终书面放行复核。

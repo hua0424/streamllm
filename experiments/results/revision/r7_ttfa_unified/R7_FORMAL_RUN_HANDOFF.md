@@ -29,7 +29,7 @@
 |---|---|---|
 | 1 | `env/gate/gate_clean_git.txt` | `{ echo "HEAD=$(git rev-parse HEAD)"; echo "--- porcelain ---"; git status --porcelain; echo "---(空=clean)---"; } > …/env/gate/gate_clean_git.txt` |
 | 2 | `env/gate/gate_selftest_gpu.log` + `.md` | §2c 命令输出（90 PASS + exit code；.md 附命令/HEAD/环境/输出 sha256） |
-| 3 | `checkpoint_r7_smoke_fatal.jsonl` + `RUNINFO_r7_smoke_fatal.md`/`QA_r7_smoke_fatal.md`/run log | §2b 小 smoke 产物 |
+| 3 | `fatal_smoke/checkpoint_r7_smoke_fatal.jsonl` + 同目录 `RUNINFO_r7_smoke_fatal.md`/`QA_r7_smoke_fatal.md`/run log | §2b 小 smoke 产物（独立子目录，见 §0c） |
 | 4 | `env/platform_conditions.txt` | §1 G8 采集（CPU/OS/kernel/线程、双 3090/驱动/CUDA、Triton fallback 状态、ASR/LLM/TTS 显存分配、独占声明、nvidia-smi 原始快照、TTS 与 ASR 共用 cuda:0 说明） |
 | 5 | `env/gate/tts_provenance/` | §1 G7：CosyVoice commit + 本地 diff、image ID/registry digest、模型 snapshot/hash、`spk2info.pt` hash、启动命令/挂载/环境变量非敏感摘要、依赖快照 |
 | 6 | `env/gate/tts_probe_new.json` | 新一轮探活（header/payload 允许策略；speaker 映射注记已在 probe 输出） |
@@ -42,11 +42,18 @@ cd /dataA/streamllm/experiments/results/revision/r7_ttfa_unified
 { echo "# R7 放行前 Gate manifest"; echo "code_commit=$(git rev-parse HEAD)";
   echo "generated=$(date -Is)";
   sha256sum env/gate/gate_clean_git.txt env/gate/gate_selftest_gpu.log \
-            checkpoint_r7_smoke_fatal.jsonl env/platform_conditions.txt \
+            fatal_smoke/checkpoint_r7_smoke_fatal.jsonl env/platform_conditions.txt \
             env/gate/tts_probe_new.json env/gate/tts_provenance/* ; } > env/gate/GATE_MANIFEST.md
 git add -A && git commit -m "R7放行前Gate材料包" && git push
 ```
 
+
+### 0c. 目录安排说明（消除与"一目录一 checkpoint"守卫的冲突，方案 A）
+
+守卫语义**不变**（同目录存在其他 run 的 checkpoint 即拒——审查已确认的 fail-closed 行为）。
+改为**每个 run 独立子目录**：§2b → `fatal_smoke/`，§2 → `r7_main/`，§3 → `tts_control/`。
+既有产物（r7_smoke 三件套、env/、selftest_archive/）留在主目录不动；G1/G2/G7/G8/2c
+已采集产物无需重跑，仅 §2b 待按新目录重跑并重新生成 GATE_MANIFEST。
 
 ## 1. 启动前 Gate 清单（逐项执行并留存证据）
 
@@ -83,7 +90,7 @@ uv run python -m experiments.scripts.run_ttfa_unified \
     --tts-url http://127.0.0.1:20401 --tts-spk 晓伊 --tts-speed 0.8 \
     --silero-dir ~/.cache/torch/hub/snakers4_silero-vad_master \
     --platform-conditions-file experiments/results/revision/r7_ttfa_unified/env/platform_conditions.txt \
-    --output-dir experiments/results/revision/r7_ttfa_unified \
+    --output-dir experiments/results/revision/r7_ttfa_unified/r7_main \
     --run-id r7_main
 ```
 
@@ -107,7 +114,7 @@ uv run python -m experiments.scripts.run_ttfa_unified \
     --tts-url http://127.0.0.1:20401 --tts-spk 晓伊 --tts-speed 0.8 \
     --silero-dir ~/.cache/torch/hub/snakers4_silero-vad_master \
     --smoke 3 --inject-fault asr_error --inject-fault-index 1 \
-    --output-dir experiments/results/revision/r7_ttfa_unified \
+    --output-dir experiments/results/revision/r7_ttfa_unified/fatal_smoke \
     --run-id r7_smoke_fatal
 ```
 
@@ -131,11 +138,11 @@ echo "exit=$?" >> experiments/results/revision/r7_ttfa_unified/selftest_archive/
 ```bash
 uv run python -m experiments.scripts.run_ttfa_unified \
     --tts-control-only \
-    --control-from experiments/results/revision/r7_ttfa_unified/checkpoint_r7_main.jsonl \
+    --control-from experiments/results/revision/r7_ttfa_unified/r7_main/checkpoint_r7_main.jsonl \
     --sample-list experiments/results/revision/r1_stats/repeat_subset_ids.json \
     --platform-conditions-file experiments/results/revision/r7_ttfa_unified/env/platform_conditions.txt \
     --tts-url http://127.0.0.1:20401 --tts-spk 晓伊 --tts-speed 0.8 \
-    --output-dir experiments/results/revision/r7_ttfa_unified \
+    --output-dir experiments/results/revision/r7_ttfa_unified/tts_control \
     --run-id r7_tts_control
 ```
 
@@ -155,6 +162,7 @@ uv run python -m experiments.scripts.run_ttfa_unified \
 
 ## 5. 产物与反馈
 
-`r7_ttfa_unified/`（checkpoint_r7_main、RUNINFO/QA/summary/CV、tts_control 三件套、
-run.log、tts_probe.json、env/ 含 platform_conditions.txt 与 G1-G8 证据）→ push →
+`r7_ttfa_unified/`（`r7_main/` 子目录：checkpoint/RUNINFO/QA/summary/CV；
+`tts_control/` 子目录：控制三件套；主目录：run.log、tts_probe.json、
+env/ 含 platform_conditions.txt 与 G1-G8 证据）→ push →
 本机结果级核验（区分三元 commit）→ 装配新 Table VIII → W8 阶段 2 → 审查复核 → 论文放行。
