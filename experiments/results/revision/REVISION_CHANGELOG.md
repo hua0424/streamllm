@@ -413,3 +413,11 @@
   待执行清单（步骤→产物→核验→最终放行复核）；§2 节头注明放行后执行；
 - 回复函（reply-review-final-gate-20260822.md）逐项归属 8 项缺失产物
   （#2/#7/#8 属放行后事项，非前置）。
+
+## 2026-08-22 最终 Gate 复核意见落地：handoff 增补 0b 最小放行材料包
+
+- 评审结论：实现级全过，7 项放行前材料全部为 GPU 现场产物（本机归档不接受）；
+- handoff §0b 与评审材料包命名逐项对应（gate_clean_git/gate_selftest_gpu/
+  r7_smoke_fatal 三件套/platform_conditions/tts_provenance/tts_probe_new/
+  GATE_MANIFEST），附 manifest 生成命令（材料 hash 绑定拟批准 code_commit）；
+- 本机无剩余整改项；等 GPU 主机执行 §0→§0b 后核验并申请最终书面放行。

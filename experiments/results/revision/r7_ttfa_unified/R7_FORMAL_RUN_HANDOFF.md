@@ -21,7 +21,32 @@
 | §2b | `checkpoint_r7_smoke_fatal.jsonl` + `QA_r7_smoke_fatal.md`（非末位 fatal→cancelled 证据） |
 | §2c | `selftest_archive/selftest_gpu_YYYYMMDD.log`（GPU clean 树 90 PASS + exit code） |
 
-全部齐备 → 开发侧核验 → 提交审查方最终放行复核 → 书面放行后执行 §2、§3。
+全部齐备 → 按 §0b 打包 Gate manifest → 开发侧核验 → 提交审查方最终放行复核 → 书面放行后执行 §2、§3。
+
+### 0b. 最小放行材料包（与审查 `review-reply-final-gate-20260822.md` §5 命名逐项对应）
+
+| # | 材料 | 生成 |
+|---|---|---|
+| 1 | `env/gate/gate_clean_git.txt` | `{ echo "HEAD=$(git rev-parse HEAD)"; echo "--- porcelain ---"; git status --porcelain; echo "---(空=clean)---"; } > …/env/gate/gate_clean_git.txt` |
+| 2 | `env/gate/gate_selftest_gpu.log` + `.md` | §2c 命令输出（90 PASS + exit code；.md 附命令/HEAD/环境/输出 sha256） |
+| 3 | `checkpoint_r7_smoke_fatal.jsonl` + `RUNINFO_r7_smoke_fatal.md`/`QA_r7_smoke_fatal.md`/run log | §2b 小 smoke 产物 |
+| 4 | `env/platform_conditions.txt` | §1 G8 采集（CPU/OS/kernel/线程、双 3090/驱动/CUDA、Triton fallback 状态、ASR/LLM/TTS 显存分配、独占声明、nvidia-smi 原始快照、TTS 与 ASR 共用 cuda:0 说明） |
+| 5 | `env/gate/tts_provenance/` | §1 G7：CosyVoice commit + 本地 diff、image ID/registry digest、模型 snapshot/hash、`spk2info.pt` hash、启动命令/挂载/环境变量非敏感摘要、依赖快照 |
+| 6 | `env/gate/tts_probe_new.json` | 新一轮探活（header/payload 允许策略；speaker 映射注记已在 probe 输出） |
+| 7 | `env/gate/GATE_MANIFEST.md` | 见下方命令 |
+
+Gate manifest 生成（把材料包 hash 与拟批准 code_commit 绑定）：
+
+```bash
+cd /dataA/streamllm/experiments/results/revision/r7_ttfa_unified
+{ echo "# R7 放行前 Gate manifest"; echo "code_commit=$(git rev-parse HEAD)";
+  echo "generated=$(date -Is)";
+  sha256sum env/gate/gate_clean_git.txt env/gate/gate_selftest_gpu.log \
+            checkpoint_r7_smoke_fatal.jsonl env/platform_conditions.txt \
+            env/gate/tts_probe_new.json env/gate/tts_provenance/* ; } > env/gate/GATE_MANIFEST.md
+git add -A && git commit -m "R7放行前Gate材料包" && git push
+```
+
 
 ## 1. 启动前 Gate 清单（逐项执行并留存证据）
 
