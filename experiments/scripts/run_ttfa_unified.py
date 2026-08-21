@@ -294,14 +294,29 @@ class StreamingSentenceDetector:
 
 # ============================================================ TTS 客户端
 
+def _tts_endpoint(url: str) -> str:
+    """TTS 端点归一化：幂等拼接 /inference_sft（CosyVoice FastAPI 契约，与 E6 一致）。
+
+    覆盖三种输入：裸基址 / 带尾斜杠 / 已带后缀，均不重复拼接。
+    """
+    base = url.rstrip("/")
+    if base.endswith("/inference_sft"):
+        return base
+    return base + "/inference_sft"
+
+
+def _tts_form_body(text: str, spk_id: str, speed: float) -> dict:
+    """form 编码请求体（服务端 Form() 参数）：全部显式字符串。"""
+    return {"tts_text": text, "spk_id": spk_id, "stream": "True", "speed": str(speed)}
+
+
 def tts_probe(url: str, spk_id: str, speed: float) -> dict:
     """探活：确认服务返回预期裸 PCM；固定允许策略（Content-Type/Encoding 取值），
-    正式请求据此逐项校验，不得临时放宽。"""
+    正式请求据此逐项校验，不得临时放宽。缺失头也按 None 原样固定为允许值。"""
     import requests
-    out = {"url": url, "spk_id": spk_id, "speed": speed}
+    out = {"url": url, "endpoint": _tts_endpoint(url), "spk_id": spk_id, "speed": speed}
     try:
-        resp = requests.post(url, json={"tts_text": "探活", "spk_id": spk_id,
-                                        "stream": True, "speed": speed},
+        resp = requests.post(_tts_endpoint(url), data=_tts_form_body("探活", spk_id, speed),
                              stream=True, timeout=(TTS_CONNECT_TIMEOUT_S, TTS_READ_TIMEOUT_S))
         out["status"] = resp.status_code
         out["content_type"] = resp.headers.get("Content-Type")
@@ -309,6 +324,8 @@ def tts_probe(url: str, spk_id: str, speed: float) -> dict:
         # 固定允许策略：探活时的取值即正式允许值（None 也作为固定策略记录下来）
         out["allow_content_type"] = out["content_type"]
         out["allow_content_encoding"] = out["content_encoding"]
+        out["policy_note"] = ("缺失头按 None 原样固定为允许值；正式请求逐项严格相等比对，"
+                              "任何偏离（含头新增/取值变化）记 error，不放宽")
         buf = bytearray()
         for chunk in resp.iter_content(64):
             buf += chunk
@@ -348,8 +365,7 @@ def tts_measure(url: str, text: str, spk_id: str, speed: float, probe: dict,
     http = requests_session or requests
     resp = None
     try:
-        resp = http.post(url, json={"tts_text": text, "spk_id": spk_id,
-                                    "stream": True, "speed": speed},
+        resp = http.post(_tts_endpoint(url), data=_tts_form_body(text, spk_id, speed),
                          stream=True, timeout=(connect_timeout, read_timeout))
         if resp_holder is not None:
             resp_holder["resp"] = resp  # 外层可主动 close() 打断阻塞 read
@@ -1451,7 +1467,26 @@ class _FakeTTSServer:
         class H(BaseHTTPRequestHandler):
             def do_POST(self):
                 length = int(self.headers.get("Content-Length", 0))
-                self.rfile.read(length)
+                body = self.rfile.read(length)
+                # 契约严格路由（与真实 CosyVoice FastAPI 一致，回归防护）：
+                # 非法路径 → 404 JSON；非 form 编码 → 422 JSON
+                if not self.path.rstrip("/").endswith("/inference_sft"):
+                    payload = json.dumps({"detail": "Not Found"}).encode()
+                    self.send_response(404)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_header("Content-Length", str(len(payload)))
+                    self.end_headers()
+                    self.wfile.write(payload)
+                    return
+                if "application/x-www-form-urlencoded" not in \
+                        (self.headers.get("Content-Type") or ""):
+                    payload = json.dumps({"detail": "Form body required"}).encode()
+                    self.send_response(422)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_header("Content-Length", str(len(payload)))
+                    self.end_headers()
+                    self.wfile.write(payload)
+                    return
                 if outer.mode == "empty":
                     self.send_response(200)
                     self.send_header("Content-Type", "application/octet-stream")
@@ -2131,6 +2166,23 @@ def _self_test() -> int:
     except ValueError:
         check("注入缺 utils 拒绝", True)
 
+    # 24) TTS 契约回归（r2 冒烟现场修复）：端点归一化 + form 编码 + 契约严格假服务
+    check("端点归一化·裸基址",
+          _tts_endpoint("http://127.0.0.1:20401") == "http://127.0.0.1:20401/inference_sft")
+    check("端点归一化·尾斜杠",
+          _tts_endpoint("http://127.0.0.1:20401/") == "http://127.0.0.1:20401/inference_sft")
+    check("端点归一化·已带后缀幂等",
+          _tts_endpoint("http://x:1/inference_sft") == "http://x:1/inference_sft")
+    with _FakeTTSServer("normal") as srv:  # 契约严格假服务：错路径 404 / 非 form 422
+        pr = tts_probe(srv.url, "x", 1.0)
+        check("探活走 form+/inference_sft 契约", pr.get("ok") is True
+              and pr.get("payload_class") == "pcm", json.dumps(pr)[:160])
+        import requests as _rq
+        r404 = _rq.post(srv.url, json={"tts_text": "x"}, timeout=5)
+        check("契约防护·根路径+JSON 得 404", r404.status_code == 404, str(r404.status_code))
+        r422 = _rq.post(srv.url + "/inference_sft", json={"tts_text": "x"}, timeout=5)
+        check("契约防护·对路径+JSON 得 422", r422.status_code == 422, str(r422.status_code))
+
     print(f"\nself-test {n_checks[0]} PASS / {len(fails)} FAIL"
           + ("" if not fails else ": " + "; ".join(fails)))
     return 1 if fails else 0
@@ -2176,7 +2228,11 @@ def _silero_artifact_meta(ref: str | None, silero_dir: str | None) -> dict:
             meta["repo_dirty"] = bool(subprocess.check_output(
                 ["git", "-C", str(d), "status", "--porcelain"], text=True).strip())
         except Exception:
-            pass
+            # torch hub 缓存目录通常不是完整 git checkout（无 .git）——
+            # 锁定依据转为 artifact sha256（下方必填，找不到即拒启动）
+            meta["repo_commit_note"] = "目录非 git checkout，锁定依据为 artifact_sha256"
+            meta["repo_commit"] = None
+            meta["repo_dirty"] = None
         candidates = sorted(d.rglob("*.jit")) + sorted(d.rglob("*.pt")) + sorted(d.rglob("*.onnx"))
     else:
         import torch

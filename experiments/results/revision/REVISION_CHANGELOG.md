@@ -333,3 +333,14 @@
 - 交付 `r7_ttfa_unified/R7_GPU_SMOKE_HANDOFF.md`：固定 Silero 目录确定（--silero-dir 优先）→
   探活 → self-test 69 项 → smoke 3（2 zh+1 en，含 asr_error 注入）→ 8 项验收清单 →
   W2 环境记录 → 产物提交与禁止事项。
+
+## 2026-08-21 TTS 客户端契约错配修复（GPU 冒烟现场反馈，两处回归）
+
+- 现场（R7_TTS_CLIENT_CONTRACT_BUG_HANDOFF.md）：探活 404——根路径 + json= 编码与真实
+  CosyVoice 契约（POST /inference_sft + form）不符；对照 E6 measure_tts_first_chunk.py 核实属实；
+- 修复：_tts_endpoint() 幂等拼后缀 + _tts_form_body() 全字符串 form 编码（探活/正式共用）；
+  假 TTS 服务改契约严格路由（错路径 404/非 form 422）堵住自测覆盖缺口；
+- self-test 69 → 75 PASS / 0 FAIL；3060 真实组件集成检查复跑 ALL PASS；
+- 次要定夺：Content-Type 缺头按 None 原样固定为允许策略（probe 加 policy_note）；Silero
+  缓存非 git checkout 时 repo_commit=None+注记，锁定依据 artifact sha256；
+- 交付 R7_GPU_SMOKE_HANDOFF_R2.md（执行版 handoff）+ 现场回复函。
