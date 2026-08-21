@@ -263,3 +263,33 @@
 - 产物：`r3_baseline_la/la_results/la_summary/la_statistics` 三件套 + la_run.log + RUNINFO.md（七项 QA 结论）；E0 冒烟在 `r3_baseline_la/e0_smoke/`；旧无效现场在 `invalid_dev3_frame_bug/`
 - 关键数字：498/498 error 0；WER mean 0.130 / CER 0.118（修复前 0.545）；LA/SysB 长度比 0.98/0.99；divergence mean 1.0 max 7；LA TTFT mean 2115ms vs System B 1574ms（LA 全缓冲重解码开销，量级可解释）；回放抽查 3 样本无跳段无重复
 - 异常与处理：无。E3 三方同机对比齐备：System A 5310.8 / System B 1573.9 / LA 2115.0（mean TTFT ms）
+
+
+## 2026-08-21 PRE-PAPER-AUDIT 整改：方案 v3.1 冻结 + W1/W3/W4/W5 实现（总册降级整改中）
+
+- 背景：撰稿前审计（`experiments/review/20260821-PRE-PAPER-AUDIT/`）5 项 P0 全部经本机独立核验属实
+  （TTFA 跨运行装配非闭合、E5 端点 8/50 负值、0.09s/字符不被正式 50 条支持[slope=−13.8ms/字符,R²=0.017]、
+  CV 口径 ddof 依赖、WER 宏平均未标注）；方案经三轮复审冻结为 v3.1（Gate 0 口径统一 + Gate 1 实现细则）。
+- **新发现**：`_decode_logits` 的 `repetition_penalty` 为死参数从未生效（`stream_llm_inference.py`）——
+  全部历史生成的实际采样为 temperature=0.1/top_p=0.9/无重复惩罚；E6 changelog 的"TTFC×长度近似线性"
+  来自单次长度扫描（3→200 字符），与正式 50 条（99–260 字符段内无相关性）不矛盾，0.09 系该扫描斜率。
+- W3（本机）：`recompute_cv_stats.py` → `r1_stats/repeat_cv_summary.csv/md`（ddof=1：
+  B 5.19/4.05/10.73/18.96%、19/50>5%；A 5.23/4.65/9.92/14.01%、23/50>5%），与审计锚点逐位一致。
+- W4（本机）：`score_wer_offline.py` 扩展 corpus 口径（逐样本 WER/CER 各 S/D/I/N，DP 回溯与
+  _levenshtein 距离断言一致；corpus=Σ(S+D+I)/ΣN）；`wer_real.csv`/`wer_la_vs_b.csv` 重生成，
+  宏平均列与定稿版逐字节一致（0 行差异）。**本机无 R2 样本 JSON，新增 --ref-csv 用
+  qa_transcribe.corrected.csv 的 reference_full 列（reference 为截断展示版，误用会把
+  aishell1_clean ns CER 0.1077 抬到 0.2009，已核实规避）**。
+- W5（本机）：`paired_inference.py` → `stats_inference/paired_inference.csv/md`（21 比较；
+  bootstrap 10k seed=20260821 percentile CI；Wilcoxon 双侧 wilcox/auto/无校正；Holm 族：
+  Table III 三分组、R2 十二增强条件）。锚点核对：table3 extra_long 差 5657.9ms、
+  改善率 34.6%/65.6%/83.9%、table7 A/B 70.4%、B/LA 25.6%（CI [485.3,599.9]ms,p=1.2e-70）、
+  R5 B−A=−0.06 CI [−0.34,0.22] 跨 0。
+- W1（待 GPU）：`run_ttfa_unified.py` 统一时间轴 TTFA 实测脚本完成（PSE 双法裁决+固定 Silero ref、
+  因果回放 planned/actual、A 等待 feed_end、无条件 INPUT_CLOSED sentinel[修复 flush=None 死锁=
+  历史 4 条挂起样本机制]、流式句末 lookahead、PCM 512B/1324B playable、配对 seed、fail-closed
+  checkpoint），self-test 33 项全过；`stream_llm_inference.py` 新增 generate_with_meta（旧接口不动）。
+- W6/W7/W9 文档：`r5_semantic/REPRO_METADATA.md`、`r2_real_speech/MANUAL_SPOT_CHECK.md`
+  （试听待人完成）、`r3_baseline_la/LA_METHOD_AND_EXCLUSION.md`。
+- W8 阶段 1：`PAPER_WRITING_REFERENCE.md` §十降级"整改中"，五处作废表述行内标记。
+- 下一步：代码级审查（Gate 1）→ GPU handoff（TTS 探活→冒烟 3 条→正式 50×2+子集补轮+匹配文本控制+W2 环境）。

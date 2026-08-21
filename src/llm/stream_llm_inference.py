@@ -192,6 +192,50 @@ class StreamLLMInference:
         self.timing_events[self.TimingEventType.END_FUNCTION] = time.perf_counter()
         return result
     
+    def generate_with_meta(self, pre_cache: "KVCache | None", max_new_tokens=50,
+                           temperature=0.1, top_p=0.9) -> Generator[dict, None, None]:
+        """与 generate() 相同的解码循环，但逐 token 暴露元信息（W1 统一 TTFA 用）。
+
+        逐项 yield: {"token_id", "decoded_text", "is_eos", "token_index"}；
+        stop_reason 写入 self.last_stop_reason（"eos" | "max_tokens"），异常时不设置。
+        EOS token 自身也会 yield（decoded_text 通常为空串），由调用方决定取舍。
+        旧 generate() 行为不变（兼容既有调用方）。
+        """
+        self.reset_timings()
+        if pre_cache is None:
+            raise Exception("未进行kv缓存初始化")
+        self.last_stop_reason = None
+        past_key_values = pre_cache.past_key_values
+        gen_attention_mask = pre_cache.pre_attention_mask
+        next_token_logits = pre_cache.next_token_logits
+
+        for i in range(max_new_tokens):
+            next_token_id = self._decode_logits(next_token_logits, temperature, top_p, 1.0)
+            is_eos = next_token_id.item() == self.tokenizer.eos_token_id
+            token_text = self.tokenizer.decode(next_token_id[0], skip_special_tokens=True)
+            yield {"token_id": int(next_token_id.item()), "decoded_text": token_text,
+                   "is_eos": is_eos, "token_index": i}
+            if self.eval_mode or is_eos:
+                self.last_stop_reason = "eos" if is_eos else "max_tokens"
+                break
+            gen_input_ids = next_token_id
+            gen_attention_mask = torch.cat(
+                [gen_attention_mask, torch.ones(next_token_id.shape, device=self.device)],
+                dim=-1
+            )
+            with torch.no_grad():
+                outputs = self.model(
+                    input_ids=gen_input_ids,
+                    attention_mask=gen_attention_mask,
+                    past_key_values=past_key_values,
+                    use_cache=True,
+                    return_dict=True
+                )
+            past_key_values = outputs.past_key_values
+            next_token_logits = outputs.logits[:, -1, :]
+        if self.last_stop_reason is None:
+            self.last_stop_reason = "max_tokens"
+
     def generate(self, pre_cache:KVCache | None, max_new_tokens=50, temperature=0.1, top_p=0.9, repetition_penalty=1.1) -> Generator[str, None, None]:
         self.reset_timings()
         if pre_cache is None:
