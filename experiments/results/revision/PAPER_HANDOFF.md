@@ -48,6 +48,11 @@
 - **论文可用**：真实语音上流式优势成立（与原论文合成集结论同量级）；babble 为诚实披露的边界条件，
   建议进 limitations。⚠️ 分析注意：空输出样本的 `asr_time`/`llm_prefill_time` 是哨兵值（`last_text_time=0`），
   统计这两个字段时剔除零提交样本；`ttft` 不受影响。
+- ⚠️ **zh CER 口径脚注（引用 aishell1 CER 必加）**：参考文本中文数字 vs Whisper 阿拉伯数字写法失配
+  影响 49/75 样本（受影响 mean CER 0.1476，未受影响仅 0.0313）；不注明会被质疑与 librispeech
+  WER 的反差（changelog 2026-08-21 已登记）。
+- ⚠️ speed 变体时长重判分组出现 medium 子组（librispeech 5 条、aishell1 3 条）；Table VI 逐条件行
+  建议用 `overall` 行，或注明分组按变速后时长重判。
 
 ### E3 LocalAgreement-2 基线（意见4）— `r3_baseline_la/`
 
@@ -60,7 +65,8 @@
 | LA-2 基线 | 2115.0ms | 1741 | 2200 | 2230 |
 
 - LA 质量：WER mean 0.130 / CER 0.118（与 System B 同引擎同量级）；divergence mean 1.0。
-- **论文可用**："System B 在同等转写质量下 TTFT 优于 LA-2 基线约 34%（LA 需全缓冲重解码），
+- **论文可用**（口径修正 2026-08-21）："**LA-2 基线比 System B 慢约 34%**（LA 2115.0 vs B 1573.9ms；
+  等价表述：B 比 LA 低约 26%——两种表述不得混用），同等转写质量下成立（LA 需全缓冲重解码），
   且 LA 在长音频上退化更明显（very_long 以上 LA 2230ms vs B 1551–1638ms）"。
 - ⚠️ **方法描述必须写修复后语义**（绝对时间轴提交 + 句界裁剪 + la_max_buffer_s=15.0），不得只写
   "LocalAgreement-2"（评审 R2 保留项）；LA 实现经历一次 bug 修复重跑，过程文档在
@@ -74,8 +80,11 @@
 
 - `commit_log.jsonl`：599 行 = 375 commit + **224 correction**（已提交段在后续重识别中文本漂移，下游不可见）；
 - `full_response` 50/50 完整（mean 208 字符）供分词接缝与语义一致性分析；`committed_fragments` 50/50。
-- **论文可用**："append-only 对下游输出成立（无回滚下发）；内部重识别漂移实测存在（224/50 样本），
-  属同音字/标点级"——若原文有"内部从不变化"类强声明需按此软化。
+- **论文可用**（2026-08-21 按完整统计修正，不得再用"同音字/标点级"表述）：
+  "append-only 对下游输出成立（回滚下发 = 0，构造保证）；内部重识别漂移实测存在
+  （224 次 / 49~50 样本，涉及段 52.7%），编辑距离 mean 2.3 字符、p90 6、max 16
+  （归一化比率 mean 5.6%、max 47.1%，含实词级漂移，见 commit_divergence.json top 示例）；
+  下游不可见"——若原文有"内部从不变化"类强声明需按此软化。
 
 ### E5 端点等待（意见2）— `r6_ttfa/endpoint/`
 
@@ -113,12 +122,15 @@
 
 - `sentence_end_found` 50/50 = 100%（全部回复在 max_tokens=128 内出现句末标点）；解码速率 mean 26.0 tok/s。
 - 中英文差异来自首句长度（英文首句 token 数更多），非速度差异（分语种 tok/s 相同）。
-- **论文可用**：TTFA 预算表四组成项自此齐备——
-  `TTFA = T_endpoint(E5: 53ms) + TTFT(E4 streaming mean 1423ms) + T_decode_to_first_sentence(本测: 389ms) + T_TTS_first_chunk(E6: zh 13.99s / en 11.86s)`。
-  逐项 mean±std 由 `r6_ttfa/decode_to_first_sentence.summary.txt` 与各实验 RUNINFO 取数；
-  Table VIII 装配稿 `r6_ttfa/ttfa_budget.csv` 由本机侧生成（生成后以之为准）。
-- ⚠️ CSV 中 `first_token_latency_ms` 是重放口径参考值，**不是** TTFT（TTFT 用 E4/E5 实测值）；
-  E5 的 `final_enqueue_wait≈2s` 为测量装置属性，不进预算表，正文需说明。
+- **论文可用**（2026-08-21 审查 P0 裁决=方案2，对称剔除 2s 装置等待；以此为准）：
+  `TTFA = T_endpoint(E5: 53ms) + T_post_final_enqueue(E5: 1012.5ms) + T_decode_to_first_sentence(本测: 389ms) + T_TTS_first_chunk(E6: zh 13.99s / en 11.86s)`；
+  Table VIII 装配稿 `r6_ttfa/ttfa_budget.csv` 已按此口径生成：**B ALL 14.38s / A ALL 22.67s**。
+  逐项 mean±std 由 `r6_ttfa/decode_to_first_sentence.summary.txt` 与各实验 RUNINFO 取数。
+- ⚠️ 口径要点（审查 P0）：E5 的 `final_enqueue_wait≈2s` 是实时喂追加静音的**测量装置等待**，
+  已从 B 行 post 分项剔除（A 行 ttft 从 audio_end 起算本就不含）——两系统口径对称；
+  B 行 post 为 final 段入队→首 token 的真实处理（末段 ASR + LLM 预填解码，1012.5ms）。
+  论文正文须写明该剔除规则。
+- ⚠️ CSV 中 `first_token_latency_ms` 是重放口径参考值，**不是** TTFT。
 
 ## 二、环境存档与可追溯
 

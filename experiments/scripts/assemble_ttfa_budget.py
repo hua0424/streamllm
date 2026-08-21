@@ -3,9 +3,11 @@
 """
 R6 §7.3：TTFA 预算表装配（Table VIII）—— 纯离线。
 
-组成（逐样本对齐相加；用户裁决 2026-08-21：TTFT 项用 E5 链条口径）：
-  TTFA = T_endpoint（E5：speech_end → 最后语音段入队）
-       + T_post_endpoint（E5：段入队 → 首 token；含末段 ASR + LLM 预填解码）
+组成（逐样本对齐相加；2026-08-21 审查 P0 裁决=方案2：对称剔除 2s 装置等待）：
+  TTFA = T_endpoint（E5：speech_end → 最后语音段入队，mean 53ms）
+       + T_post_endpoint（E5：**final is_final 段入队 → 首 token**，mean 1012.5ms；
+         端点入队（+2053ms）前的 ~2.0s 是实时喂追加静音的测量装置等待，对称剔除——
+         System A 的 ttft 从 audio_end 起算本就不含该 2s）
        + T_decode_to_first_sentence（2026-08-21 补测：首 token → 首句末 token）
        + T_TTS_first_chunk（E6：TTS 首包）
 System B 四项全为实测；System A 的 decode/TTFC 项为估计值（source 列标注）：
@@ -60,9 +62,11 @@ def load_inputs(endpoint_glob, decode_csv, tts_csv, e4_glob):
         sid = r["sample_id"]
         if r["mode"] == "streaming":
             endpoint_ms = (r["final_speech_segment_commit_time"] - r["speech_end_time"]) * 1000
-            total_ms = (r["first_token_time"] - r["speech_end_time"]) * 1000
+            # 方案2：post 从 final is_final 段入队起算，剔除 2s 追加静音的装置等待
+            post_ms = (r["first_token_time"] - r["final_is_final_segment_enqueue_time"]) * 1000
             pipeline.setdefault(sid, {})["streaming"] = {
-                "endpoint": endpoint_ms, "post": total_ms - endpoint_ms, "total": total_ms}
+                "endpoint": endpoint_ms, "post": post_ms,
+                "total": endpoint_ms + post_ms}
         else:
             # non-streaming 的端点时间戳为哨兵 0（不跟踪）；pipeline 项直接取 ttft 字段
             pipeline.setdefault(sid, {})["non-streaming"] = {"post": r["ttft"]}
@@ -143,12 +147,14 @@ def self_test() -> int:
     with tempfile.TemporaryDirectory() as td:
         tp = Path(td)
         # E5 风格结果：2 样本 × 2 模式（streaming：speech_end=100，commit=100.05，
-        # first_token=103；non-streaming 端点字段为哨兵 0，取 ttft=4950ms）
+        # final_enqueue=102.0（方案2 post=1000ms），first_token=103；
+        # non-streaming 端点字段为哨兵 0，取 ttft=4950ms）
         results = []
         for i, sid in enumerate(["crosswoz_a", "multiwoz_b"]):
             results.append({"sample_id": sid, "mode": "streaming", "error": "",
                             "speech_end_time": 100.0,
                             "final_speech_segment_commit_time": 100.05,
+                            "final_is_final_segment_enqueue_time": 102.0,
                             "first_token_time": 103.0})
             results.append({"sample_id": sid, "mode": "non-streaming", "error": "",
                             "speech_end_time": 0.0,
@@ -175,10 +181,10 @@ def self_test() -> int:
         check("B 行存在", len(b_all) == 1 and b_all[0]["n"] == 2)
         # B: endpoint=50ms, post=3000-50=2950ms；zh: dec400+tts10000；en: dec600+tts8000
         b = b_all[0]
-        check("B 分量", b["t_endpoint_ms_mean"] == "50.0" and b["t_post_endpoint_ms_mean"] == "2950.0",
+        check("B 分量", b["t_endpoint_ms_mean"] == "50.0" and b["t_post_endpoint_ms_mean"] == "1000.0",
               f"{b['t_endpoint_ms_mean']}/{b['t_post_endpoint_ms_mean']}")
-        check("B 合计", b["ttfa_total_ms_mean"] == "12500.0",
-              b["ttfa_total_ms_mean"] + "（50+2950+500+9000=12500）")
+        check("B 合计", b["ttfa_total_ms_mean"] == "10550.0",
+              b["ttfa_total_ms_mean"] + "（50+1000+500+9000=10550）")
         a = [r for r in rows if r["system"] == "non-streaming" and r["language"] == "zh"]
         # A zh: endpoint50 + post(5000-50=4950) + dec代理400 + ttfc 0.09*1000*100=9000 → 14400
         check("A 估计链", len(a) == 1 and a[0]["ttfa_total_ms_mean"] == "14400.0",

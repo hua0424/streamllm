@@ -41,7 +41,11 @@
 
 ### 移交说明（给本机侧）
 
-- 本测分项用于装配 `ttfa_budget.csv`（Table VIII）：`TTFA = E5.endpoint_detection_wait(53ms) + E4.TTFT(streaming mean) + 本测 decode_to_first_sentence(mean) + E6.TTFC(zh 13.99s / en 11.86s)`；装配与 changelog 登记由本机侧完成。
-- CSV 中 `first_token_latency_ms` 为重放口径参考值，**不是**预算表 TTFT（TTFT 用 E4/E5 实测值）。
+- 本测分项用于装配 `ttfa_budget.csv`（Table VIII）；装配与 changelog 登记由本机侧完成。
+  **装配口径（2026-08-21 审查 P0 裁决=方案2，以此为准，替换此处此前的 E4-TTFT 链条公式）**：
+  `TTFA = E5.endpoint_detection_wait(53ms) + E5.post_final_enqueue(1012.5ms，final 段入队→首 token) + 本测 decode_to_first_sentence(389ms) + E6.TTFC(zh 13.99s / en 11.86s)`——
+  2s 追加静音的装置等待从 B 行对称剔除（A 行 ttft 从 audio_end 起算本就不含）；
+  装配结果 B ALL 14.38s / A ALL 22.67s。
+- CSV 中 `first_token_latency_ms` 为重放口径参考值，**不是**预算表分项。
 - 中英文差异明显（en 636ms vs zh 142ms）：英文首句普遍更长（token 数多），装配分语种行时可直接引用 summary 分组数字。
 - 全部数字绑定本 GPU 主机平台口径（裁决 D），不与他机混排。

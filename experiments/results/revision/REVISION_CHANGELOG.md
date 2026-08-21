@@ -1,5 +1,24 @@
 # REVISION_CHANGELOG — CISR 修订补充实验执行记录
 
+## 2026-08-21 论文数据就绪度审查（20260821-PAPER-DATA）处置：P0 口径裁决 + 三处文档对齐 + P1 修正
+
+- 审查逐项独立复核全部通过（Table III/V 逐字一致、E1–E6 数字吻合、R4/R5/R6 产物吻合）。
+- **P0（Table VIII 装置等待不对称）成立**：B 行 post 原含 ~2.0s 实时喂追加静音的装置等待
+  （first_token−speech_end=3065ms 中，final 段入队在 +2053ms），A 行 ttft 从 audio_end 起算本就不含。
+  **需求方裁决=方案2（对称剔除）**：B 行 post 改为 final 段入队→首 token（1012.5ms）。
+  `assemble_ttfa_budget.py` 已修正（self-test 5/5），重装配：**B ALL 14.38s / A ALL 22.67s**（差距 8.3s）。
+  PAPER_HANDOFF §TTFA 公式、r6_ttfa/RUNINFO 移交说明公式已对齐到同一口径（原文档写"2s 不进预算表"
+  与旧装配结果矛盾，修正后该表述成立）。
+- **P1-1** PAPER_HANDOFF E4 漂移表述更新为实测分布（mean 2.3 字符/p90 6/max 16、归一化 max 47.1%、
+  涉及段 52.7%，含实词级漂移，不得再写"同音字/标点级"）。
+- **P1-2** Table IV 498 清单重算值已核验与 table4_ablation_percentiles.csv 一致（Extra Long KV 增益
+  40.82ms=3.3%、Very Long 2.73ms≈0 等），论文 §IV-B 连锁数字替换列入改稿清单（含样本量 108/150/240
+  表述与排除规则）。
+- **P1-3** LA 优势口径统一为"LA-2 基线比 System B 慢约 34%"（B 比 LA 低约 26%），PAPER_HANDOFF 已改。
+- P2 八条写作注意事项登记备查（含 zh CER 脚注已补入 PAPER_HANDOFF E2 条目、speed 变体 medium 子组说明、
+  R5 三轨用法约束、"near-zero"限定合成集、babble 归因链口径等）。
+- 审查回复：`experiments/review/20260821-PAPER-DATA/reply-20260821-PAPER-DATA.md`。
+
 ## 2026-08-21 R2 重跑产物核验（8036780）+ glob 取样缺陷修复闭环
 
 - 任务 1 重跑产物核验通过：wer_real.csv 30 行 / ttft_real.csv 102 行，14 个条件目录逐行齐全，
