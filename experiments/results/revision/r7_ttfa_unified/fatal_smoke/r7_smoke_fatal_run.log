@@ -1,0 +1,95 @@
+2026-08-22 03:19:45.381 - experiments.scripts.run_exp_latency - INFO - 加载了 503 个有效样本
+2026-08-22 03:19:45.382 - experiments.scripts.run_exp_latency - INFO - 样本分组统计:
+2026-08-22 03:19:45.382 - experiments.scripts.run_exp_latency - INFO -   extra_long: 298 个样本
+2026-08-22 03:19:45.382 - experiments.scripts.run_exp_latency - INFO -   long: 57 个样本
+2026-08-22 03:19:45.382 - experiments.scripts.run_exp_latency - INFO -   medium: 48 个样本
+2026-08-22 03:19:45.382 - experiments.scripts.run_exp_latency - INFO -   short: 4 个样本
+2026-08-22 03:19:45.382 - experiments.scripts.run_exp_latency - INFO -   very_long: 96 个样本
+2026-08-22 03:19:45.422 - experiments.scripts.run_exp_latency - INFO - 加载了 630 个有效样本
+2026-08-22 03:19:45.422 - experiments.scripts.run_exp_latency - INFO - 样本分组统计:
+2026-08-22 03:19:45.422 - experiments.scripts.run_exp_latency - INFO -   extra_long: 382 个样本
+2026-08-22 03:19:45.423 - experiments.scripts.run_exp_latency - INFO -   long: 64 个样本
+2026-08-22 03:19:45.423 - experiments.scripts.run_exp_latency - INFO -   medium: 41 个样本
+2026-08-22 03:19:45.423 - experiments.scripts.run_exp_latency - INFO -   short: 31 个样本
+2026-08-22 03:19:45.423 - experiments.scripts.run_exp_latency - INFO -   very_long: 112 个样本
+fatal: not a git repository (or any of the parent directories): .git
+2026-08-22 03:19:46.876 - __main__ - INFO - PSE 预扫描…
+2026-08-22 03:19:50.512 - src.asr.faster_whisper_streamer - INFO - Loading ASR model: turbo on cuda:0
+2026-08-22 03:20:10.085 - src.asr.faster_whisper_streamer - INFO - Whisper 模型 turbo 加载成功
+2026-08-22 03:20:10.090 - src.asr.faster_whisper_streamer - INFO - ASR model loaded successfully
+2026-08-22 03:20:10.090 - src.llm.stream_llm_inference - INFO - Loading LLM model Qwen/Qwen2-7B-Instruct on cuda:1
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:08,  2.93s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:06<00:06,  3.42s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:10<00:03,  3.71s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.62s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:14<00:00,  3.55s/it]
+2026-08-22 03:20:26.801 - src.llm.stream_llm_inference - INFO - LLM模型加载完成。
+2026-08-22 03:20:26.809 - src.asr.streamaudio_segmenter - INFO - StreamAudioSegmenter initialized with sampling_rate=16000, silence_threshold=0.5
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/dataA/streamllm/.venv/lib/python3.10/site-packages/whisper/timing.py:42: UserWarning: Failed to launch Triton kernels, likely due to missing CUDA toolkit; falling back to a slower median kernel implementation...
+  warnings.warn(
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/dataA/streamllm/.venv/lib/python3.10/site-packages/whisper/timing.py:146: UserWarning: Failed to launch Triton kernels, likely due to missing CUDA toolkit; falling back to a slower DTW implementation...
+  warnings.warn(
+2026-08-22 03:20:43.844 - src.asr.faster_whisper_streamer - INFO - 03:20:43.844 ✓ 处理完成: 输出文本长度 181 字符，耗时 4.839s
+2026-08-22 03:20:43.844 - src.asr.faster_whisper_streamer - INFO - 03:20:43.844 性能指标 - 段数: 1, 音频时长: 11.55s
+2026-08-22 03:20:43.844 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 4.838s, 实时率: 0.42
+2026-08-22 03:20:43.844 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 4.839s
+2026-08-22 03:20:43.844 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.002s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/dataA/streamllm/.venv/lib/python3.10/site-packages/whisper/timing.py:42: UserWarning: Failed to launch Triton kernels, likely due to missing CUDA toolkit; falling back to a slower median kernel implementation...
+  warnings.warn(
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/dataA/streamllm/.venv/lib/python3.10/site-packages/whisper/timing.py:146: UserWarning: Failed to launch Triton kernels, likely due to missing CUDA toolkit; falling back to a slower DTW implementation...
+  warnings.warn(
+2026-08-22 03:20:45.207 - src.asr.faster_whisper_streamer - INFO - 03:20:45.207 ✓ 处理完成: 输出文本长度 62 字符，耗时 1.197s
+2026-08-22 03:20:45.208 - src.asr.faster_whisper_streamer - INFO - 03:20:45.208 性能指标 - 段数: 1, 音频时长: 16.44s
+2026-08-22 03:20:45.208 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.197s, 实时率: 0.07
+2026-08-22 03:20:45.208 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.198s
+2026-08-22 03:20:45.208 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-22 03:20:55.139 - src.asr.faster_whisper_streamer - INFO - 03:20:55.139 ✓ 处理完成: 输出文本长度 123 字符，耗时 1.539s
+2026-08-22 03:20:55.140 - src.asr.faster_whisper_streamer - INFO - 03:20:55.140 性能指标 - 段数: 1, 音频时长: 26.07s
+2026-08-22 03:20:55.140 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.539s, 实时率: 0.06
+2026-08-22 03:20:55.140 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.540s
+2026-08-22 03:20:55.140 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+/usr/bin/ld: cannot find -lcuda: No such file or directory
+/usr/bin/ld: skipping incompatible /lib/i386-linux-gnu/libcuda.so when searching for -lcuda
+collect2: error: ld returned 1 exit status
+2026-08-22 03:20:58.354 - src.asr.faster_whisper_streamer - INFO - 03:20:58.354 ✓ 处理完成: 输出文本长度 56 字符，耗时 1.306s
+2026-08-22 03:20:58.355 - src.asr.faster_whisper_streamer - INFO - 03:20:58.355 性能指标 - 段数: 1, 音频时长: 30.09s
+2026-08-22 03:20:58.355 - src.asr.faster_whisper_streamer - INFO -   转录耗时: 1.305s, 实时率: 0.04
+2026-08-22 03:20:58.355 - src.asr.faster_whisper_streamer - INFO -   总处理时间: 1.306s
+2026-08-22 03:20:58.355 - src.asr.faster_whisper_streamer - INFO -   系统开销: 0.001s
+2026-08-22 03:21:00.416 - __main__ - INFO - multiwoz_PMUL0271_turn3|streaming|0: success TTFA_playable=3091ms
+2026-08-22 03:21:30.539 - __main__ - ERROR - multiwoz_PMUL0271_turn3|non-streaming|0 发生 fatal（Traceback (most recent call last):
+  File "/dataA/streamllm/experiments/scripts/run_ttfa_unified.py", line 1007, in run_），本 run 后续任务记 cancelled
+2026-08-22 03:21:30.539 - __main__ - INFO - multiwoz_PMUL0271_turn3|non-streaming|0: error Traceback (most recent call last):
+  File "/dataA/streamllm/experiments/scripts/run_ttfa_unified.py"
+2026-08-22 03:21:30.555 - __main__ - WARNING - fail-stop：补写 4 条 cancelled 终态
+/dataA/streamllm/.venv/lib/python3.10/site-packages/numpy/core/_methods.py:206: RuntimeWarning: Degrees of freedom <= 0 for slice
+  ret = _var(a, axis=axis, dtype=dtype, out=out, ddof=ddof,
+/dataA/streamllm/.venv/lib/python3.10/site-packages/numpy/core/_methods.py:198: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+完成: 6 记录，success 1 / 非成功 5；QA 问题 0

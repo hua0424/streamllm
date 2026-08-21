@@ -76,7 +76,7 @@
 [PASS] 单语种 smoke≥2 拒绝
 [PASS] 双语种 smoke 命中
 [PASS] 零命中 smoke 拒绝
-2026-08-22 01:26:09.484 - src.asr.streamaudio_segmenter - INFO - StreamAudioSegmenter initialized with sampling_rate=16000, silence_threshold=0.5
+2026-08-22 03:18:21.198 - src.asr.streamaudio_segmenter - INFO - StreamAudioSegmenter initialized with sampling_rate=16000, silence_threshold=0.5
 [PASS] segmenter 注入不触发 hub
 [PASS] 注入缺 utils 拒绝
 [PASS] 端点归一化·裸基址
