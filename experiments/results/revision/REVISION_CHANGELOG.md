@@ -308,3 +308,17 @@
 - self-test：W1 56 项全过；W3/W4/W5 全过；新增本机真实组件集成测试
   `ttfa_local_integration.py`（3060 + whisper-tiny + Qwen2-0.5B 本地目录）ALL PASS（仅路径验证）；
 - 模型/设备改 CLI（默认取 src/config）；EXPERIMENT_DESIGN.md 同步排结果 QA 后。
+
+## 2026-08-21 Gate1 r2 复核整改（review-reply-implementation-v3.1-r2 全量接纳）
+
+- P0-1 final-drain 竞态：state_lock 内先 final 化后发布 close；真实 ASRCache + 放慢转写
+  的确定性交错回归×3；
+- P0-2 双 runner 主线程 ASR/LLM 异常无条件 fatal；`_backfill_cancelled()` 可测回填；
+- P0-3 Checkpoint.fatal_seen 恢复 run 级 fail-stop（剩余任务只补 cancelled）；
+- P0-4 StreamAudioSegmenter 支持注入固定 silero_model/utils（注入不触 hub）；W1 断言
+  PSE 与分段器同一 artifact；RUNINFO 双侧 meta；
+- P0-5 `_select_smoke()` 精确命中/双语种/N×2 校验；QA 断言成功+故障路径均执行；
+- P1：TTS 派生字段一致性校验+负向×3；resp_holder+动态 read timeout+外层主动 close+
+  headers-only 慢流测试；集成测试表述降级并 CLI 化；self-test 显式计数；
+- self-test 69 PASS / 0 FAIL；W3-W5 不变全过；集成检查复跑 ALL PASS；
+  .gitattributes 显式 CSV whitespace 规则。

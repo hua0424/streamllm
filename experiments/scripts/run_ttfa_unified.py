@@ -328,12 +328,15 @@ def tts_probe(url: str, spk_id: str, speed: float) -> dict:
 def tts_measure(url: str, text: str, spk_id: str, speed: float, probe: dict,
                 cancel_event: threading.Event, total_deadline_ns: int,
                 requests_session=None, connect_timeout: float = TTS_CONNECT_TIMEOUT_S,
-                read_timeout: float = TTS_READ_TIMEOUT_S) -> dict:
+                read_timeout: float = TTS_READ_TIMEOUT_S,
+                resp_holder: dict | None = None) -> dict:
     """流式 TTS 首包测量。返回 tts_request_start/headers/first_byte/playable/done 等。
 
     - 应用层把任意 read 重切为 ≤512B granule（iter_content 不保证块大小）；
     - 字节连续累积，不丢奇数字节；只在完整 sample 边界推进 playable 计数；
     - 先累积 ≥16 字节前缀再判定格式（与探活同一 classify_payload）；
+    - resp_holder（r2 P1-2）：response 句柄写入 holder["resp"]，外层超时/取消可主动
+      close() 打断阻塞中的 HTTP read；
     - 读到自然结束（不提前断连），结束时总字节非 sample-width 倍数 → 整行 error；
     - HTTP/格式/对齐/零内容错误 → error 字段（调用方整行 error，不降级）。
     """
@@ -348,6 +351,8 @@ def tts_measure(url: str, text: str, spk_id: str, speed: float, probe: dict,
         resp = http.post(url, json={"tts_text": text, "spk_id": spk_id,
                                     "stream": True, "speed": speed},
                          stream=True, timeout=(connect_timeout, read_timeout))
+        if resp_holder is not None:
+            resp_holder["resp"] = resp  # 外层可主动 close() 打断阻塞 read
         rec["tts_response_headers_ns"] = now_ns()
         if resp.status_code != 200:
             rec["error"] = f"tts_http_{resp.status_code}"
@@ -565,6 +570,23 @@ def validate_record(rec: dict, expected_config_hash: str | None = None,
         errs.append("tts_text_missing")
     if rec.get("tts_n_bytes_utf8", 0) <= 0:
         errs.append("tts_utf8_bytes_missing")
+    # r2 P1-1：TTS 文本派生字段一致性（长度/UTF-8 字节/哈希/来源与 mode·fallback 一致）
+    tts_text = rec.get("tts_text")
+    if tts_text is not None:
+        if rec.get("tts_n_chars") != len(tts_text):
+            errs.append("tts_n_chars_mismatch")
+        if rec.get("tts_n_bytes_utf8") != len(tts_text.encode("utf-8")):
+            errs.append("tts_utf8_mismatch")
+        if rec.get("tts_text_sha256") != sha256_text(tts_text):
+            errs.append("tts_sha_mismatch")
+    if mode == "non-streaming":
+        expect_src = "capped_full_response"
+    else:
+        expect_src = ("first_sentence"
+                      if rec.get("sentence_end_found") and not rec.get("sentence_fallback")
+                      else "capped_full_response")
+    if rec.get("tts_text_source") != expect_src:
+        errs.append(f"tts_text_source_inconsistent({rec.get('tts_text_source')}!={expect_src})")
     if rec.get("tts_seeded") is not False:
         errs.append("tts_seeded_flag")  # 本 TTS 服务不可控随机性，必须显式标 False
     if rec.get("generation_seed") is None:
@@ -642,6 +664,7 @@ def run_streaming(sample, audio, sr, models, pse, tts_cfg, probe, seed, cancel_e
     convert = models["convert_audio_segment"]
     cache_box = [models["new_asr_cache"]()]
     drain = {"pending_empty_wq": False}
+    state_lock = threading.Lock()  # close 发布/队列 final 化/drain 标志的原子保护（r2 P0-1）
 
     def segmentation_worker():
         try:
@@ -685,17 +708,19 @@ def run_streaming(sample, audio, sr, models, pse, tts_cfg, probe, seed, cancel_e
                 except queue.Empty:
                     continue
                 if isinstance(item, InputClosed):
-                    ev["pipeline_input_close_ns"] = now_ns()
-                    if not saw_final:
-                        # P0-1：无 is_final 段 → 显式 final drain，保证尾段被消费
-                        cache = cache_box[0]
-                        if cache.waiting_segment_queue:
-                            cache.waiting_segment_queue[-1].is_final = True
-                            rec["final_drain_triggered"] = True
-                        elif cache.segment_queue:
-                            cache.segment_queue[-1].is_final = True
-                            rec["final_drain_triggered"] = True
-                            drain["pending_empty_wq"] = True
+                    # P0-1（r2）：final 化与 drain 标志在锁内**先于** close 发布完成，
+                    # transcriber 一旦看到 closed 即可安全依据 must_call 判定退出
+                    with state_lock:
+                        if not saw_final:
+                            cache = cache_box[0]
+                            if cache.waiting_segment_queue:
+                                cache.waiting_segment_queue[-1].is_final = True
+                                rec["final_drain_triggered"] = True
+                            elif cache.segment_queue:
+                                cache.segment_queue[-1].is_final = True
+                                rec["final_drain_triggered"] = True
+                                drain["pending_empty_wq"] = True
+                        ev["pipeline_input_close_ns"] = now_ns()
                     return
                 saw_final = saw_final or bool(getattr(item, "is_final", False))
                 cache_box[0].add_segment(item)
@@ -711,10 +736,12 @@ def run_streaming(sample, audio, sr, models, pse, tts_cfg, probe, seed, cancel_e
                     return
                 if remaining_s(pair_deadline) <= 0:
                     raise PairTimeout("transcriber")
-                closed = ev["pipeline_input_close_ns"] is not None
-                cache = cache_box[0]
-                must_call = bool(cache.waiting_segment_queue) or drain["pending_empty_wq"]
-                if closed and not must_call:
+                with state_lock:
+                    closed = ev["pipeline_input_close_ns"] is not None
+                    cache = cache_box[0]
+                    must_call = bool(cache.waiting_segment_queue) or drain["pending_empty_wq"]
+                    exit_now = closed and not must_call
+                if exit_now:
                     break
                 if not must_call:
                     time.sleep(0.005)
@@ -807,7 +834,7 @@ def run_streaming(sample, audio, sr, models, pse, tts_cfg, probe, seed, cancel_e
                 rec["tts_n_bytes_utf8"] = len(tts_text.encode("utf-8"))
                 rec["tts_text_sha256"] = sha256_text(tts_text)
                 th = threading.Thread(target=_tts_into, args=(
-                    tts_holder, tts_text, tts_cfg, probe, cancel_event),
+                    tts_holder, tts_text, tts_cfg, probe, cancel_event, pair_deadline),
                     name="tts", daemon=True)
                 th.start()
                 tts_thread.append(th)
@@ -830,13 +857,14 @@ def run_streaming(sample, audio, sr, models, pse, tts_cfg, probe, seed, cancel_e
             rec["tts_n_bytes_utf8"] = len(tts_text.encode("utf-8"))
             rec["tts_text_sha256"] = sha256_text(tts_text)
             th = threading.Thread(target=_tts_into, args=(
-                tts_holder, tts_text, tts_cfg, probe, cancel_event),
+                tts_holder, tts_text, tts_cfg, probe, cancel_event, pair_deadline),
                 name="tts", daemon=True)
             th.start()
             tts_thread.append(th)
         while "done" not in tts_holder:
             if remaining_s(pair_deadline) <= 0:
                 cancel_event.set()
+                _close_resp(tts_holder)  # r2 P1-2：打断阻塞中的 HTTP read
                 raise PairTimeout("tts_join")
             time.sleep(0.005)
         rec["tts"] = tts_holder.get("rec", {})
@@ -853,11 +881,12 @@ def run_streaming(sample, audio, sr, models, pse, tts_cfg, probe, seed, cancel_e
         rec["terminal_state"] = "timeout"
         rec["fatal"] = True
     except Exception:
+        # r2 P0-2：ASR/LLM/模型状态异常（主线程或 worker）一律 fail-stop；
+        # 可恢复错误（TTS/输入类）在到达此处前已提前 return，不会落入本分支
         if not rec.get("error"):
             rec["error"] = traceback.format_exc()[-500:]
         rec["terminal_state"] = "error"
-        if not exc_q.empty():
-            rec["fatal"] = True  # 模型/GPU worker 异常 → fail-stop run
+        rec["fatal"] = True
     finally:
         cancel_event.set()
         if rec["terminal_state"] is None:
@@ -867,12 +896,28 @@ def run_streaming(sample, audio, sr, models, pse, tts_cfg, probe, seed, cancel_e
     return rec
 
 
-def _tts_into(holder, text, tts_cfg, probe, cancel_event):
+def _close_resp(holder: dict) -> None:
+    """主动关闭 TTS response（外层超时/取消时打断阻塞 read，r2 P1-2）。"""
+    resp = (holder.get("resp_holder") or {}).get("resp")
+    if resp is not None:
+        try:
+            resp.close()
+        except Exception:
+            pass
+
+
+def _tts_into(holder, text, tts_cfg, probe, cancel_event, pair_deadline_ns=None):
     deadline = now_ns() + int(tts_cfg.get("tts_total_timeout_s", 120.0) * 1e9)
+    holder["resp_holder"] = {}
+    read_timeout = tts_cfg.get("read_timeout_s", TTS_READ_TIMEOUT_S)
+    if pair_deadline_ns is not None:
+        # r2 P1-2：read timeout 动态收紧为配置值与 pair 剩余时间的较小者
+        read_timeout = max(min(read_timeout, remaining_s(pair_deadline_ns)), 0.1)
     holder["rec"] = tts_measure(tts_cfg["url"], text, tts_cfg["spk_id"], tts_cfg["speed"],
                                 probe, cancel_event, deadline,
                                 connect_timeout=tts_cfg.get("connect_timeout_s", TTS_CONNECT_TIMEOUT_S),
-                                read_timeout=tts_cfg.get("read_timeout_s", TTS_READ_TIMEOUT_S))
+                                read_timeout=read_timeout,
+                                resp_holder=holder["resp_holder"])
     holder["done"] = True
 
 
@@ -958,12 +1003,14 @@ def run_non_streaming(sample, audio, sr, models, pse, tts_cfg, probe, seed, canc
         rec["tts_text_sha256"] = sha256_text(full_text)
         tts_holder: dict = {}
         th = threading.Thread(target=_tts_into, args=(
-            tts_holder, full_text, tts_cfg, probe, cancel_event), name="tts", daemon=True)
+            tts_holder, full_text, tts_cfg, probe, cancel_event, pair_deadline),
+            name="tts", daemon=True)
         th.start()
         tts_thread.append(th)
         while "done" not in tts_holder:
             if remaining_s(pair_deadline) <= 0:
                 cancel_event.set()
+                _close_resp(tts_holder)  # r2 P1-2：打断阻塞中的 HTTP read
                 raise PairTimeout("tts_join")
             time.sleep(0.005)
         rec["tts"] = tts_holder.get("rec", {"error": "tts_join_timeout"})
@@ -980,11 +1027,11 @@ def run_non_streaming(sample, audio, sr, models, pse, tts_cfg, probe, seed, canc
         rec["terminal_state"] = "timeout"
         rec["fatal"] = True
     except Exception:
+        # r2 P0-2：System A 主线程 full ASR / cache_prompt / generate 异常一律 fatal
         if not rec.get("error"):
             rec["error"] = traceback.format_exc()[-500:]
         rec["terminal_state"] = "error"
-        if not exc_q.empty():
-            rec["fatal"] = True
+        rec["fatal"] = True
     finally:
         cancel_event.set()
         if rec["terminal_state"] is None:
@@ -1131,6 +1178,9 @@ class Checkpoint:
             path.parent.mkdir(parents=True, exist_ok=True)
             header = {"type": "header", **{k: binding.get(k) for k in self.BINDING_KEYS}}
             self._write_all(header)
+        # r2 P0-3：恢复历史 fatal 记录 → run 级 fail-stop（main 据此只为剩余任务补
+        # cancelled 终态，不再执行任何 GPU 任务）
+        self.fatal_seen = any(bool(r.get("fatal")) for r in self.records)
 
     @staticmethod
     def key_of(rec: dict) -> str:
@@ -1411,6 +1461,9 @@ class _FakeTTSServer:
                 self.send_response(200)
                 self.send_header("Content-Type", "application/octet-stream")
                 self.end_headers()
+                if outer.mode == "headers_only":
+                    time.sleep(10.0)  # 发 headers 后停发 body（r2 P1-2 慢流测试）
+                    return
                 if outer.mode == "wav_magic":
                     try:
                         self.wfile.write(b"RIFF" + b"\x00" * 2000)
@@ -1507,7 +1560,10 @@ def _st_pse(e):
 def _self_test() -> int:
     fails = []
 
+    n_checks = [0]
+
     def check(name, cond, detail=""):
+        n_checks[0] += 1
         if not cond:
             fails.append(f"{name}: {detail}")
         print(f"[{'PASS' if cond else 'FAIL'}] {name}{(' :' + str(detail)[:160]) if not cond else ''}")
@@ -1907,7 +1963,176 @@ def _self_test() -> int:
                         "c", "s", "r", "")
     check("error 行缺诊断被拦截", "error_row_missing_diagnostic" in validate_record(bad, "c", "s"))
 
-    print(f"\nself-test {'ALL PASS' if not fails else f'{len(fails)} FAIL: ' + '; '.join(fails)}")
+    # 17) TTS 派生字段一致性负向（r2 P1-1）：篡改字节数/哈希/来源 → 拦截
+    bad2 = json.loads(json.dumps(rec))
+    bad2["tts_n_bytes_utf8"] += 1
+    check("TTS 字节数篡改被拦截", "tts_utf8_mismatch" in validate_record(bad2, "c", "s"))
+    bad3 = json.loads(json.dumps(rec))
+    bad3["tts_text_sha256"] = "deadbeef"
+    check("TTS 哈希篡改被拦截", "tts_sha_mismatch" in validate_record(bad3, "c", "s"))
+    bad4 = json.loads(json.dumps(rec))
+    bad4["tts_text_source"] = "capped_full_response"  # B 首句成功路径应为 first_sentence
+    v4 = validate_record(bad4, "c", "s")
+    check("TTS 来源不一致被拦截",
+          any(e.startswith("tts_text_source_inconsistent") for e in v4), str(v4))
+
+    # 18) final-drain 竞态回归（r2 P0-1）：真实 ASRCache + 首次转写被放慢，
+    # close 发布与 final 化的交错窗口内 transcriber 不得提前退出（锁+先 final 化后发布）
+    from src.asr.faster_whisper_streamer import ASRCache as _RealCacheRace
+
+    class _SlowProtocolASR:
+        recognition_threshold = 2.0
+        prefix_segments = 1
+        suffix_segments_atleast = 0
+
+        def __init__(self):
+            self.slowed = False
+
+        def transcribe_audio_segment(self, cache):
+            if not self.slowed:
+                self.slowed = True
+                time.sleep(0.4)  # 强制与 close 发布交错
+            if not cache.set_processing():
+                return cache, None, False
+            try:
+                cache.add_to_asr_segments()
+                seg = cache.segment_queue[-1]
+                if not cache.should_process(self.recognition_threshold,
+                                            self.prefix_segments,
+                                            self.suffix_segments_atleast, seg.is_final):
+                    return cache, None, False
+                text = "".join(getattr(s, "payload", "") for s in cache.segment_queue)
+                cache.segment_queue.clear()
+                return cache, text, seg.is_final
+            finally:
+                cache.set_processed()
+
+        def transcribe_complete_audio(self, **kw):
+            return {"text": "完整。"}
+
+    for trial in range(3):
+        with _FakeTTSServer("normal") as srv:
+            models = _make_models([], "x", ["句", "。"], flush_none=True)
+            models["asr"] = _SlowProtocolASR()
+            models["new_asr_cache"] = _RealCacheRace
+            recr = run_streaming(_st_sample(f"crosswoz_race{trial}_turn1"), audio3, sr,
+                                 models, _st_pse(e3), _st_cfg(srv.url), probe,
+                                 seed_for_pair(f"crosswoz_race{trial}_turn1", 0),
+                                 threading.Event())
+            # 尾段 = segmenter 产出的"段2"（drain 翻转 is_final 后经真实 cache 输出）
+            ok = (recr["terminal_state"] == "success" and recr["final_drain_triggered"]
+                  and any("段2" in p for p in models["llm"].prompts))
+            if not ok:
+                break
+    check("final-drain 竞态回归×3（真实 ASRCache）", ok,
+          f"trial {trial}: {recr['terminal_state']} {recr['error'][:120]} "
+          f"{models['llm'].prompts}")
+
+    # 19) checkpoint 恢复 fatal-stop + 回填（r2 P0-3）
+    with tempfile.TemporaryDirectory() as td:
+        p = Path(td) / "checkpoint_runF.jsonl"
+        binding = {k: "v2" for k in Checkpoint.BINDING_KEYS}
+        ckf = Checkpoint(p, "runF", binding)
+        fatal_rec = json.loads(json.dumps(rec10))
+        fatal_rec["fatal"] = True
+        ckf.append(fatal_rec)  # 模拟：写入 fatal 后进程崩溃，后续任务未补
+        ck2 = Checkpoint(p, "runF", binding)
+        check("checkpoint 恢复 fatal_seen", ck2.fatal_seen is True)
+        tasks_left = [{"sample_id": fatal_rec["sample_id"], "mode": "non-streaming",
+                       "repeat_idx": 0},
+                      {"sample_id": fatal_rec["sample_id"], "mode": "streaming",
+                       "repeat_idx": 1}]
+        n_back = _backfill_cancelled(ck2, tasks_left, "runF", "v2", "v2")
+        check("fatal 回填 cancelled", n_back == 2 and all(
+            ck2.done[f"{t['sample_id']}|{t['mode']}|{t['repeat_idx']}"] == "cancelled"
+            for t in tasks_left), str(n_back))
+
+    # 20) System A 主线程 ASR/LLM 异常 → 无条件 fatal（r2 P0-2）
+    with _FakeTTSServer("normal") as srv:
+        models = _make_models([], "完整。", ["完", "。"], asr_fail=True)
+        recA1 = run_non_streaming(_st_sample("crosswoz_t20a_turn1"), audio, sr, models,
+                                  _st_pse(e), _st_cfg(srv.url), probe,
+                                  seed_for_pair("crosswoz_t20a_turn1", 0), threading.Event())
+    check("A ASR 异常 fatal", recA1["terminal_state"] == "error" and recA1["fatal"] is True,
+          f"{recA1['terminal_state']} {recA1['fatal']}")
+    with _FakeTTSServer("normal") as srv:
+        models = _make_models([], "完整。", ["完", "。"])
+
+        class _BoomLLM(_FakeLLM):
+            def cache_prompt(self, prompt, pre_cache=None, is_end=False):
+                raise RuntimeError("llm cache boom")
+        models["llm"] = _BoomLLM(["完", "。"])
+        recA2 = run_non_streaming(_st_sample("crosswoz_t20b_turn1"), audio, sr, models,
+                                  _st_pse(e), _st_cfg(srv.url), probe,
+                                  seed_for_pair("crosswoz_t20b_turn1", 0), threading.Event())
+    check("A LLM cache 异常 fatal", recA2["terminal_state"] == "error"
+          and recA2["fatal"] is True, f"{recA2['terminal_state']} {recA2['fatal']}")
+
+    # 21) headers 后停发 body → read timeout 打断（r2 P1-2）
+    with _FakeTTSServer("headers_only") as srv:
+        cfg = _st_cfg(srv.url)
+        cfg["read_timeout_s"] = 0.5
+        cfg["tts_total_timeout_s"] = 3.0
+        models = _make_models(["x。"], "x", ["句", "。"])
+        t0 = time.time()
+        rec21 = run_streaming(_st_sample("crosswoz_t21_turn1"), audio, sr, models,
+                              _st_pse(e), cfg, probe, seed_for_pair("crosswoz_t21_turn1", 0),
+                              threading.Event())
+        dur = time.time() - t0
+    check("headers-only 慢流被 read timeout 打断",
+          rec21["terminal_state"] == "error" and "tts" in rec21["error"] and dur < 8.0,
+          f"{rec21['terminal_state']} {rec21['error'][:100]} dur={dur:.1f}s")
+
+    # 22) 零命中/少命中 smoke 拒绝（r2 P0-5）
+    smoke_samples = [{"sample_id": f"s{i}", "language": "zh", "duration_group": "long"}
+                     for i in range(3)]
+    smoke_tasks = [{"seq": 2 * i + k, "sample_id": f"s{i}", "mode": m, "repeat_idx": 0,
+                    "order": "AB"} for i in range(3) for k, m in
+                   enumerate(("non-streaming", "streaming"))]
+    try:
+        _select_smoke(smoke_samples, smoke_tasks, 2)
+        check("单语种 smoke≥2 拒绝", False)  # 3 样本全 zh，smoke=2 无法覆盖两语种
+    except SystemExit:
+        check("单语种 smoke≥2 拒绝", True)
+    bi_samples = smoke_samples + [{"sample_id": "e1", "language": "en",
+                                   "duration_group": "long"}]
+    bi_tasks = smoke_tasks + [{"seq": 99, "sample_id": "e1", "mode": m, "repeat_idx": 0,
+                               "order": "AB"} for m in ("non-streaming", "streaming")]
+    s_ok, t_ok = _select_smoke(bi_samples, bi_tasks, 2)
+    check("双语种 smoke 命中", len(s_ok) == 2 and len(t_ok) == 4
+          and {x["language"] for x in s_ok} == {"zh", "en"},
+          f"{[x['sample_id'] for x in s_ok]}")
+    ghost_samples = [dict(bi_samples[0], sample_id="ghost")]
+    try:
+        _select_smoke(ghost_samples, [], 1)
+        check("零命中 smoke 拒绝", False)
+    except SystemExit:
+        check("零命中 smoke 拒绝", True)
+
+    # 23) segmenter 注入固定 Silero（r2 P0-4）：注入路径不得二次访问 torch.hub
+    from src.asr.streamaudio_segmenter import StreamAudioSegmenter as _Seg
+    import torch as _tt
+    _orig_hub = _tt.hub.load
+
+    def _no_hub(*a, **kw):
+        raise AssertionError("segmenter 注入路径不得访问 torch.hub")
+    _tt.hub.load = _no_hub
+    try:
+        seg = _Seg(silero_model=object(), silero_utils=(lambda *a, **kw: [], None, None, None, None))
+        check("segmenter 注入不触发 hub", seg.silero_injected is True
+              and callable(seg.get_speech_timestamps))
+    except AssertionError as exc:
+        check("segmenter 注入不触发 hub", False, str(exc))
+    finally:
+        _tt.hub.load = _orig_hub
+    try:
+        _Seg(silero_model=object())
+        check("注入缺 utils 拒绝", False)
+    except ValueError:
+        check("注入缺 utils 拒绝", True)
+
+    print(f"\nself-test {n_checks[0]} PASS / {len(fails)} FAIL"
+          + ("" if not fails else ": " + "; ".join(fails)))
     return 1 if fails else 0
 
 # ============================================================ main
@@ -2017,6 +2242,43 @@ def _error_record(sample: dict, task: dict, cfg_hash: str, sched_hash: str,
             "tts_text_sha256": None, "generation_seed": None, "error": error}
 
 
+def _select_smoke(samples: list[dict], tasks: list[dict], n_smoke: int):
+    """冒烟分层选取 + 精确命中校验（r2 P0-5，独立可测）。返回 (samples, tasks)。"""
+    zh_s = [s for s in samples if s["language"] == "zh"]
+    en_s = [s for s in samples if s["language"] == "en"]
+    keep, i = [], 0
+    while len(keep) < n_smoke and (i < len(zh_s) or i < len(en_s)):
+        if i < len(zh_s):
+            keep.append(zh_s[i]["sample_id"])
+        if len(keep) < n_smoke and i < len(en_s):
+            keep.append(en_s[i]["sample_id"])
+        i += 1
+    keep_set = set(keep[:n_smoke])
+    if len(keep_set) != n_smoke:
+        raise SystemExit(f"smoke 命中 {len(keep_set)}/{n_smoke} 个样本（停止）")
+    if n_smoke >= 2 and len({s["language"] for s in samples if s["sample_id"] in keep_set}) < 2:
+        raise SystemExit("smoke 未覆盖中英两语种（停止）")
+    new_tasks = [t for t in tasks if t["sample_id"] in keep_set and t["repeat_idx"] == 0]
+    if len(new_tasks) != n_smoke * 2:
+        raise SystemExit(f"smoke 任务数 {len(new_tasks)} != {n_smoke}*2（停止）")
+    new_samples = [s for s in samples if s["sample_id"] in keep_set]
+    return new_samples, new_tasks
+
+
+def _backfill_cancelled(ck: "Checkpoint", tasks: list[dict], run_id: str,
+                        cfg_hash: str, sched_hash: str) -> int:
+    """fatal 后为全部剩余任务补写 cancelled 终态（r2 P0-2/P0-3 可测函数）。"""
+    n = 0
+    for task in tasks:
+        key = f"{task['sample_id']}|{task['mode']}|{task['repeat_idx']}"
+        if key in ck.done:
+            continue
+        ck.append(_error_record({}, task, cfg_hash, sched_hash, run_id,
+                                "cancelled_after_fatal", terminal="cancelled"))
+        n += 1
+    return n
+
+
 def main() -> int:
     from src.config import ASR_MODEL_NAME, LLM_MODEL_NAME
     ap = argparse.ArgumentParser(description=__doc__,
@@ -2093,19 +2355,8 @@ def main() -> int:
         subset_ids = zh + en
     tasks = build_schedule(samples, subset_ids)
     if args.smoke:
-        # 分层选取：中英交替，确保两语种覆盖（P1-7）
-        zh_s = [s for s in samples if s["language"] == "zh"]
-        en_s = [s for s in samples if s["language"] == "en"]
-        keep, i = [], 0
-        while len(keep) < args.smoke and (i < len(zh_s) or i < len(en_s)):
-            if i < len(zh_s):
-                keep.append(zh_s[i]["sample_id"])
-            if len(keep) < args.smoke and i < len(en_s):
-                keep.append(en_s[i]["sample_id"])
-            i += 1
-        keep_set = set(keep[:args.smoke])
-        tasks = [t for t in tasks if t["sample_id"] in keep_set and t["repeat_idx"] == 0]
-        samples = [s for s in samples if s["sample_id"] in keep_set]
+        # 分层选取 + 精确命中校验（r2 P0-5，零命中/少命中立即非零退出）
+        samples, tasks = _select_smoke(samples, tasks, args.smoke)
 
     git = _git_info()
     env = _env_versions()
@@ -2135,11 +2386,11 @@ def main() -> int:
     cfg_hash = config_hash(cfg)
 
     if args.silero_dir:
-        _, utils = torch.hub.load(repo_or_dir=args.silero_dir, model="silero_vad",
-                                  source="local", onnx=False, verbose=False)
+        silero_model, utils = torch.hub.load(repo_or_dir=args.silero_dir, model="silero_vad",
+                                             source="local", onnx=False, verbose=False)
     else:
-        _, utils = torch.hub.load(repo_or_dir=f"snakers4/silero-vad:{args.silero_ref}",
-                                  model="silero_vad", onnx=False, verbose=False)
+        silero_model, utils = torch.hub.load(repo_or_dir=f"snakers4/silero-vad:{args.silero_ref}",
+                                             model="silero_vad", onnx=False, verbose=False)
     get_speech_timestamps = utils[0]
 
     # PSE 预扫描（fail fast；音频 hash 映射入 binding）
@@ -2160,7 +2411,13 @@ def main() -> int:
                              eval_mode=False)
     if args.inject_fault == "asr_error":
         asr_processor = _FaultASRProxy(asr_processor)
-    segmenter = StreamAudioSegmenter()
+    # r2 P0-4：正式分段器注入与 PSE 同一固定 Silero 实例（不再二次浮动 hub 加载）
+    segmenter = StreamAudioSegmenter(silero_model=silero_model, silero_utils=utils)
+    if not getattr(segmenter, "silero_injected", False):
+        raise SystemExit("segmenter 未使用注入的固定 Silero（停止）")
+    segmenter_meta = {"pse_and_segmenter_same_artifact": True,
+                      "artifact_sha256": silero_meta.get("artifact_sha256"),
+                      "segmenter_silero_injected": segmenter.silero_injected}
     models = {"segmenter": segmenter, "asr": asr_processor, "llm": llm,
               "new_asr_cache": ASRCache, "convert_audio_segment": convert_audio_segment,
               "decode_fn": lambda ids: llm.tokenizer.decode(ids, skip_special_tokens=True)}
@@ -2183,8 +2440,10 @@ def main() -> int:
     if args.no_resume and ck_path.exists():
         ck_path.unlink()
     ck = Checkpoint(ck_path, args.run_id, binding)
-
-    fatal_stop = False
+    # r2 P0-3：恢复 fatal-stop（历史 fatal 记录 → 剩余任务只补 cancelled，不执行）
+    fatal_stop = bool(getattr(ck, "fatal_seen", False))
+    if fatal_stop:
+        logger.warning("checkpoint 含 fatal 记录：本 run 恢复 fail-stop，剩余任务补 cancelled")
     fault_task_key = tasks[-1] and f"{tasks[-1]['sample_id']}|{tasks[-1]['mode']}|{tasks[-1]['repeat_idx']}" \
         if args.inject_fault != "none" else None
     for task in tasks:
@@ -2193,10 +2452,7 @@ def main() -> int:
             logger.info(f"跳过已完成 {key}（{ck.done[key]}）")
             continue
         if fatal_stop:
-            rec = _error_record({}, task, cfg_hash, sched_hash, args.run_id,
-                                f"cancelled_after_fatal", terminal="cancelled")
-            ck.append(rec)
-            continue
+            continue  # 循环外统一 _backfill_cancelled 补写 cancelled 终态
         sample = dict(next(s for s in samples if s["sample_id"] == task["sample_id"]),
                       repeat_idx=task["repeat_idx"])
         cancel = threading.Event()
@@ -2236,6 +2492,10 @@ def main() -> int:
         logger.info(f"{key}: {rec['terminal_state']}"
                     + (f" TTFA_playable={ttfa_ms(rec):.0f}ms"
                        if rec["terminal_state"] == "success" else f" {rec['error'][:100]}"))
+    # r2 P0-2/P0-3：fatal（本次或 checkpoint 恢复）→ 剩余任务统一补 cancelled
+    if fatal_stop:
+        n_cancel = _backfill_cancelled(ck, tasks, args.run_id, cfg_hash, sched_hash)
+        logger.warning(f"fail-stop：补写 {n_cancel} 条 cancelled 终态")
 
     # 汇总 + QA
     import csv as _csv
@@ -2253,10 +2513,23 @@ def main() -> int:
         w.writeheader()
         w.writerows(cv_rows)
     problems = qa_records(all_records, tasks, cfg_hash, sched_hash)
+    n_success = sum(1 for r in all_records if r["terminal_state"] == "success")
+    n_err = sum(1 for r in all_records if r["terminal_state"] != "success")
+    # r2 P0-5：QA 断言成功路径与故障路径均实际执行（不只看计数）
+    if args.smoke and args.inject_fault == "none" and n_success == 0:
+        problems.append("smoke 无任何成功路径记录（冒烟无效）")
+    if args.smoke and args.inject_fault == "asr_error":
+        fault_ok = any("fault_injection" in (r.get("error") or "")
+                       for r in all_records)
+        if not fault_ok:
+            problems.append("故障注入未产生预期 error 终态（冒烟无效）")
+        if n_success == 0:
+            problems.append("故障冒烟无成功路径记录（冒烟无效）")
     qa_md = ["# TTFA 统一实测 QA", "",
              f"- run_id: {args.run_id}", f"- config_hash: {cfg_hash}",
              f"- schedule_hash: {sched_hash}", f"- 任务数: {len(tasks)}",
-             f"- 记录数: {len(all_records)}", f"- QA 问题数: {len(problems)}", ""]
+             f"- 记录数: {len(all_records)}（success {n_success} / 非成功 {n_err}）",
+             f"- QA 问题数: {len(problems)}", ""]
     qa_md += [f"- {p}" for p in problems] or ["- 无"]
     (out_dir / f"QA_{args.run_id}.md").write_text("\n".join(qa_md) + "\n", encoding="utf-8")
     runinfo = ["# TTFA 统一实测 RUNINFO", "", f"- 命令参数: {sys.argv}",
@@ -2265,15 +2538,16 @@ def main() -> int:
                f"- config_hash: {cfg_hash}", f"- schedule_hash: {sched_hash}",
                f"- git: {git}", f"- env_versions: {json.dumps(env)}",
                f"- silero_meta: {json.dumps(silero_meta, ensure_ascii=False)}",
+               f"- segmenter_meta: {json.dumps(segmenter_meta, ensure_ascii=False)}"
+               "（PSE 与流式分段器同一固定 artifact，已断言一致）",
                f"- subset_sha256: {binding['subset_sha256']}",
                f"- audio_map_sha256: {audio_map_hash}",
                f"- playable 阈值: {PLAYABLE_BYTES} bytes（22050Hz×16bit×30ms）",
                f"- 采样实际生效参数: temperature=0.1, top_p=0.9, repetition_penalty=not_applied",
                f"- 故障注入: {args.inject_fault}（仅冒烟）", ""]
     (out_dir / f"RUNINFO_{args.run_id}.md").write_text("\n".join(runinfo), encoding="utf-8")
-    n_err = sum(1 for r in all_records if r["terminal_state"] != "success")
-    print(f"完成: {len(all_records)} 记录，{n_err} 非成功；QA 问题 {len(problems)}")
-    return 1 if problems or n_err else 0
+    print(f"完成: {len(all_records)} 记录，success {n_success} / 非成功 {n_err}；QA 问题 {len(problems)}")
+    return 1 if problems else 0
 
 
 if __name__ == "__main__":

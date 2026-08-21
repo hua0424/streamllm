@@ -90,17 +90,23 @@ class StreamAudioSegmenter:
         silence_threshold: float = 0.5,
         min_speech_duration_ms: int = 250,
         min_silence_duration_ms: int = 300,
-        window_size_ms: int = 64
+        window_size_ms: int = 64,
+        silero_model=None,
+        silero_utils=None
     ):
         """
         初始化流式音频分段器
-        
+
         参数:
             sampling_rate: 采样率，默认16000Hz
             silence_threshold: 静音阈值，0-1之间，默认0.5
-            min_speech_duration_ms: 最小语音段时长（毫秒），默认250ms
-            min_silence_duration_ms: 最小静音时长（毫秒），默认300ms
+            min_speech_duration_ms: 最小语音段时长（毫秒），默认250
+            min_silence_duration_ms: 最小静音时长（毫秒），默认300
             window_size_ms: VAD窗口大小（毫秒），默认64ms
+            silero_model: 可选，注入已加载并固定 revision/hash 的 Silero VAD 模型
+                （W1 统一 TTFA：与 PSE 使用同一 artifact，避免二次浮动 hub 加载）
+            silero_utils: 可选，与 silero_model 配套的 utils 元组（第一项须为
+                get_speech_timestamps）；注入时不再访问 torch.hub
         """
         # Silero VAD 仅支持 8000 或 16000 (或 16000 的倍数) 的采样率
         if sampling_rate not in (8000, 16000):
@@ -113,24 +119,31 @@ class StreamAudioSegmenter:
         self.min_speech_duration_ms = min_speech_duration_ms
         self.min_silence_duration_ms = min_silence_duration_ms
         self.window_size_ms = window_size_ms
-        
+        self.silero_injected = silero_model is not None
+
         # 计算采样点数
         self.min_speech_samples = int(sampling_rate * min_speech_duration_ms / 1000)
         self.min_silence_samples = int(sampling_rate * min_silence_duration_ms / 1000)
         self.window_size_samples = int(sampling_rate * window_size_ms / 1000)
-        
-        # 加载Silero VAD模型（优先从本地缓存加载，避免网络访问）
-        # torch.hub.load 会自动使用 ~/.cache/torch/hub/ 中的缓存，无需特殊处理
-        model, utils = torch.hub.load(
-            repo_or_dir='snakers4/silero-vad',
-            model='silero_vad',
-            force_reload=False,  # 优先使用本地缓存
-            onnx=False,
-            trust_repo='check',  # 如果已缓存则跳过检查
-            verbose=False  # 减少输出
-        )
-        logger.debug("Silero VAD 模型加载成功（从本地缓存或网络）")
-        
+
+        if silero_model is not None:
+            if silero_utils is None:
+                raise ValueError("注入 silero_model 时必须同时提供 silero_utils")
+            model, utils = silero_model, silero_utils
+            logger.debug("Silero VAD 使用外部注入的固定模型（未访问 torch.hub）")
+        else:
+            # 加载Silero VAD模型（优先从本地缓存加载，避免网络访问）
+            # torch.hub.load 会自动使用 ~/.cache/torch/hub/ 中的缓存，无需特殊处理
+            model, utils = torch.hub.load(
+                repo_or_dir='snakers4/silero-vad',
+                model='silero_vad',
+                force_reload=False,  # 优先使用本地缓存
+                onnx=False,
+                trust_repo='check',  # 如果已缓存则跳过检查
+                verbose=False  # 减少输出
+            )
+            logger.debug("Silero VAD 模型加载成功（从本地缓存或网络）")
+
         self.model = model
         # 获取VAD检测函数
         (self.get_speech_timestamps, _, _, _, _) = utils

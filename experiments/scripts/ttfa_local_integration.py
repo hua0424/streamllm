@@ -1,21 +1,22 @@
-"""W1 本机小模型真实路径集成测试（RTX 3060 6GB，非正式实验数据）。
+"""W1 本机小模型真实路径集成检查（RTX 3060 6GB，非正式实验数据）。
 
-用途（评审 §6/§9 测试证据补强）：self-test 的 fake 编排之外，用**真实组件**跑通
-run_streaming / run_non_streaming 全路径——真实 StreamAudioSegmenter（Silero VAD）、
-真实 StreamingASRProcessor（whisper tiny）、真实 ASRCache 状态机、真实
-StreamLLMInference.generate_with_meta()（Qwen2-0.5B-Instruct 本地目录）+ 真实
-tokenizer 累计重解码 + 请求级 torch.Generator。TTS 用假 PCM HTTP 服务
-（格式/计时接口与正式一致，不依赖外部服务）。
+定位（评审 r2 P1-3 措辞降级）：**真实 CUDA 组件加载与 A/B 路径集成检查**——用真实
+StreamAudioSegmenter（Silero VAD）、真实 StreamingASRProcessor（whisper tiny）、真实
+ASRCache 状态机、真实 StreamLLMInference.generate_with_meta()（Qwen2-0.5B 本地目录）
++ 真实 tokenizer 累计重解码 + 请求级 torch.Generator 跑通 run_streaming /
+run_non_streaming。**不是完整生产协议验证**：输入为宽带噪声+静音（Whisper 转写为空、
+PSE 用能量法注入、final-drain 未在真实 ASR 上触发）、TTS 为 fake HTTP PCM、未做 AB/BA
+同 seed 重复性比较；正式冒烟仍在 GPU 实验机执行。
 
-仅验证生产代码路径可用性与记录合法性（validate_record 全过），
-不产出任何论文数字；正式实验仍在 GPU 实验机按 handoff 执行。
-
-用法：
-  uv run python -m experiments.scripts.ttfa_local_integration
+用法（模型目录/设备可配，便于他机复现）：
+  uv run python -m experiments.scripts.ttfa_local_integration \
+      [--qwen-dir C:/Users/hua/.cache/models/qwen2-0.5b-instruct] [--asr-model tiny] \
+      [--device cuda]
 """
 
 from __future__ import annotations
 
+import argparse
 import sys
 import threading
 from pathlib import Path
@@ -30,10 +31,15 @@ from experiments.scripts.run_ttfa_unified import (  # noqa: E402
     sha256_text, validate_record, ttfa_ms, _ST_PROBE,
 )
 
-QWEN_LOCAL = "C:/Users/hua/.cache/models/qwen2-0.5b-instruct"
-
 
 def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--qwen-dir", default="C:/Users/hua/.cache/models/qwen2-0.5b-instruct")
+    ap.add_argument("--asr-model", default="tiny")
+    ap.add_argument("--device", default="cuda")
+    args = ap.parse_args()
+
     import torch
     from src.asr.streamaudio_segmenter import StreamAudioSegmenter
     from src.asr.faster_whisper_streamer import StreamingASRProcessor, ASRCache
@@ -41,11 +47,11 @@ def main() -> int:
     from src.asr.run_stream_asr_test import convert_audio_segment
 
     print(f"torch {torch.__version__} cuda={torch.cuda.is_available()}")
-    print("加载真实组件（whisper tiny + Qwen2-0.5B 本地 + Silero 缓存）…")
-    asr = StreamingASRProcessor(model_size="tiny", device="cuda", compute_type="auto",
-                                recognition_threshold=2.0, prefix_segments=1,
-                                suffix_segments_atleast=0)
-    llm = StreamLLMInference(model_name=QWEN_LOCAL, device="cuda", eval_mode=False)
+    print(f"加载真实组件（whisper {args.asr_model} + Qwen {args.qwen_dir} + Silero 缓存）…")
+    asr = StreamingASRProcessor(model_size=args.asr_model, device=args.device,
+                                compute_type="auto", recognition_threshold=2.0,
+                                prefix_segments=1, suffix_segments_atleast=0)
+    llm = StreamLLMInference(model_name=args.qwen_dir, device=args.device, eval_mode=False)
     segmenter = StreamAudioSegmenter()
     models = {"segmenter": segmenter, "asr": asr, "llm": llm,
               "new_asr_cache": ASRCache, "convert_audio_segment": convert_audio_segment,
