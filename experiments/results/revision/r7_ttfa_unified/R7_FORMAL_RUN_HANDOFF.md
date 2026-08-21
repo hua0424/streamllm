@@ -98,7 +98,15 @@ cd <CosyVoice 仓库目录> && git rev-parse HEAD && git diff > /tmp/g7_server_d
 
 ## 2. 正式主实验 + 重复子集（新 checkpoint，绝不从 smoke 续跑；**须书面放行后执行**。§2b/§2c 编号在后，但属放行前 Gate，先于本节完成）
 
+> **版本操作（书面放行后）**：正式 run 在 **origin/main 的 HEAD**（当前 `b5355ee` 及其后的
+> 放行提交）上执行，`git pull --ff-only` 后工作树须 clean。脚本 `run_ttfa_unified.py`、
+> `src/`、`sample-list` 在 `b8893d6` 与 origin/main 间**逐字节一致**，故 RUNINFO 记录的
+> `code_commit` 仍为 `b8893d6`（正式代码基线不变）；但放行绑定的 `platform_conditions.txt`
+> （hash `a4c40057…`）只在 Gate 材料包 `a1fbb82` 及之后存在，`b8893d6` 中是旧版 `6b0a2fcd…`，
+> 因此**必须在 origin/main 上运行**，`--platform-conditions-file` 才指向放行版。
+
 ```bash
+cd /dataA/streamllm && git pull --ff-only origin main && git status --porcelain   # 期望：空
 uv run python -m experiments.scripts.run_ttfa_unified \
     --sample-list experiments/results/revision/r1_stats/repeat_subset_ids.json \
     --json-dir experiments/datasets/processed/json \
@@ -113,9 +121,13 @@ uv run python -m experiments.scripts.run_ttfa_unified \
     --run-id r7_main
 ```
 
-- 120 任务（50×2 + 10 子集 ×2 模式 ×补 2 轮），预计 3–5 小时；脚本启动时自动做**新一轮探活**
-  并把 probe 绑定进 checkpoint（G5）；Silero artifact hash 自动核验并断言 PSE/分段器一致（G6）；
-- RUNINFO 自动记录：speaker 映射注记、platform_conditions_sha256、code_commit、
+- **140 任务**（50×2 主实验 = 100；10 子集 ×2 模式 ×2 补轮 = 40；合计 140），预计 4–6 小时；
+  脚本启动时自动做**新一轮探活**并把 probe 绑定进 checkpoint（G5）；Silero artifact hash 自动
+  核验并断言 PSE/分段器一致（G6）；
+  - 任务数由 `build_schedule` 实际产出：`repeat 0`=50 样本×2 模式=100，`repeat 1/2`=10 子集
+    ×2 模式×2 轮=40。QA 用 `tasks` 动态计算预期，不硬编码 120/140；RUNINFO 会打印实际
+    `任务数`，以脚本输出为准。
+- RUNINFO 自动记录：speaker 映射注记、platform_conditions_sha256、code_commit（`b8893d6`）、
   config/schedule/git/env hash（G3/G4/G10）；
 - 产物 push 后形成 result_artifact_commit，与 code_commit 一并回传（区分三者）；
 - fatal/thread_leak/pair_timeout/schema 错误 → 立即停止，保留终态记录，反馈现场。
@@ -173,7 +185,7 @@ uv run python -m experiments.scripts.run_ttfa_unified \
 
 ## 4. 正式验收清单（在原八项上按 Gate 加三项）
 
-1. 原 r4 版八项（QA 0 / 120 全终态 / 子集恰三轮 / validate 全过 / TTS 无 error / RUNINFO 齐全…）；
+1. 原 r4 版八项（QA 0 / 140 全终态 / 子集恰三轮 / validate 全过 / TTS 无 error / RUNINFO 齐全…）；
 2. **G1-G8 证据齐备**（clean 树、code_commit、新 checkpoint、探活绑定、Silero hash、
    TTS 服务 provenance、平台条件文件 hash 入 binding）；
 3. **commit 三元组回传**：code_commit（RUNINFO 内）/ result_artifact_commit（push 后）/

@@ -409,7 +409,7 @@
 
 - 审查终裁确认实现级全过；8 项缺失产物中除流程循环外全部为 GPU 现场执行项；
 - 修复循环：handoff 头部明确执行权限划分——G1-G8 采集/2b fatal 小 smoke/2c GPU 自测
-  归档为放行前允许；仅 r7_main（120 任务）与 tts-control 需书面放行；新增 §0 六步
+  归档为放行前允许；仅 r7_main（140 任务）与 tts-control 需书面放行；新增 §0 六步
   待执行清单（步骤→产物→核验→最终放行复核）；§2 节头注明放行后执行；
 - 回复函（reply-review-final-gate-20260822.md）逐项归属 8 项缺失产物
   （#2/#7/#8 属放行后事项，非前置）。
@@ -475,3 +475,13 @@
 - r3 核验清单 §5 同步修正提交后 clean 的独立证据表述（`e424eed` 上 `git status --porcelain` 空）；
   §4 补 manifest 生成时点说明（不含登记文件，因其在 artifact commit 之后才提交）；
 - 代码基线不变（b8893d6）；a1fbb82/6aaf356/e424eed 均非 formal code commit。
+
+## 2026-08-22 r7_main 书面放行后：修正 handoff 任务数 120→140 并写明版本操作
+
+- 审查方已书面授权 r7_main（50 条 A/B 主实验 + 10 条子集补轮；tts_control 仍须 r7_main 结果级 QA 后另行复核）；
+- 修正 handoff §2/§4 的「120 任务」笔误：`build_schedule` 实际产出 **140**（repeat 0=50×2=100，
+  repeat 1/2=10 子集×2 模式×2 轮=40）；QA 用 tasks 动态算预期、不硬编码，RUNINFO 打印实际任务数；
+- 写清版本操作：脚本/src/sample-list 在 b8893d6 与 origin/main 逐字节一致，RUNINFO 的 code_commit 仍记 b8893d6；
+  但放行版 platform_conditions.txt（a4c40057…）仅在 a1fbb82 及之后存在，b8893d6 中是旧版 6b0a2fcd…，
+  故正式 run 必须在 origin/main（含 Gate 材料包）上执行，--platform-conditions-file 才指向放行版；
+- 正式 run 边界重申：新 r7_main/ 目录、新 checkpoint、新 run_id、启动重新探活；不从 smoke 续跑、不跑真实 tts_control。
