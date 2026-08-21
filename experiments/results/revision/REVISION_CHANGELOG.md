@@ -434,3 +434,13 @@
 - 关键发现：spk2info.pt 中"晓伊"与"中文女"embedding 完全相等（diff=0.0）——speaker
   映射注记获模型级证据；
 - 待 GPU：§2b 新目录重跑 + manifest 重生成 → 本机核验 → 最终书面放行复核。
+
+## 2026-08-22 Gate 材料包核验完成（GPU commit 51f5d8f）
+
+- 独立核验 gate material：clean/code provenance、GPU selftest 90/0、CosyVoice provenance、
+  platform conditions、新探活、manifest 8 项全部齐备；Git blob 原始内容重算 manifest 8/8 hash 一致；
+- 非末位 fatal smoke 独立重算：success→fault error+fatal→4×cancelled_after_fatal，
+  cancelled 无事件污染，QA 0 问题；
+- 两处非阻塞瑕疵登记：selftest 归档路径复制对齐（原始保留）；fatal smoke run.log 因 tee 先于目录创建
+  未落盘（控制台后台日志+checkpoint/RUNINFO/QA/summary/CV 完整）；handoff 已修先 mkdir；
+- 新增 `gate-material-verification-20260822.md`，建议提交最终书面放行复核（r7_main + tts_control）。
