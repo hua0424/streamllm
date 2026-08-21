@@ -404,3 +404,12 @@
 - 本机 self-test 不可变归档生成：selftest_archive/selftest_20260822.md/.log
   （命令/exit 0/HEAD/环境/90 项输出/输出 sha256）；
 - self-test 90 PASS / 0 FAIL 复跑一致；§3.1-3.3 属现场采集项，已固化 handoff 待执行。
+
+## 2026-08-22 终裁整改：handoff 流程循环修复（Gate 版 r2）
+
+- 审查终裁确认实现级全过；8 项缺失产物中除流程循环外全部为 GPU 现场执行项；
+- 修复循环：handoff 头部明确执行权限划分——G1-G8 采集/2b fatal 小 smoke/2c GPU 自测
+  归档为放行前允许；仅 r7_main（120 任务）与 tts-control 需书面放行；新增 §0 六步
+  待执行清单（步骤→产物→核验→最终放行复核）；§2 节头注明放行后执行；
+- 回复函（reply-review-final-gate-20260822.md）逐项归属 8 项缺失产物
+  （#2/#7/#8 属放行后事项，非前置）。

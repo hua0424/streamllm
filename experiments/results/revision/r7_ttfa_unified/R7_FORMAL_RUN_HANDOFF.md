@@ -1,9 +1,27 @@
-# R7 正式实验交接文档（Gate 版，2026-08-22）
+# R7 正式实验交接文档（Gate 版 r2，2026-08-22）
 
-- 前置：**审查方书面放行**（对应 `review-dev-smoke-verification-20260821.md` §5 的 11 项 Gate；
-  开发侧已完成的整改见 `reply-review-dev-smoke-verification-20260821.md`）。未获书面放行前本文档不得执行。
-- 代码基线：`git pull` 至本次 push（含 `--tts-control-only` 实现与 speaker/平台条件绑定）或更新
+- **执行权限划分（消除流程循环，对应审查 2026-08-22 终裁）**：
+  - **放行前允许执行的 Gate（无需书面放行，GPU 主机即可执行）**：
+    §1 的 G1–G8 采集（clean 树/provenance/TTS 服务端/平台条件）＋ §2b 非末位 fatal 小 smoke
+    ＋ §2c GPU clean 树 self-test 归档。产物 push 后提交**最终放行复核**；
+  - **需审查方书面放行后才可执行**：仅 §2 正式 run（r7_main，120 任务）与
+    §3 匹配文本控制（依赖 r7_main 产物）。两者在放行前不得启动。
+- 代码基线：`git pull` 至本次 push（含 `--tts-control-only`/`--inject-fault-index`/
+  speaker 与平台条件绑定）或更新
 - 脚本 self-test 期望值：**90 PASS / 0 FAIL**
+
+## 0. GPU 主机待执行清单（放行前 Gate，按序）
+
+| 步骤 | 产物（随放行申请提交） |
+|---|---|
+| §1 G1 | `git status --porcelain` 空输出记录（clean 树） |
+| §1 G2 | 拟用于正式 run 的 code_commit（pull 后 HEAD） |
+| §1 G7 | CosyVoice commit+本地 diff、镜像 digest、模型与 `spk2info.pt` hash、启动配置 |
+| §1 G8 | `env/platform_conditions.txt`（驱动/CUDA/fallback 登记/双 3090/独占声明/nvidia-smi） |
+| §2b | `checkpoint_r7_smoke_fatal.jsonl` + `QA_r7_smoke_fatal.md`（非末位 fatal→cancelled 证据） |
+| §2c | `selftest_archive/selftest_gpu_YYYYMMDD.log`（GPU clean 树 90 PASS + exit code） |
+
+全部齐备 → 开发侧核验 → 提交审查方最终放行复核 → 书面放行后执行 §2、§3。
 
 ## 1. 启动前 Gate 清单（逐项执行并留存证据）
 
@@ -27,7 +45,7 @@ cd <CosyVoice 仓库目录> && git rev-parse HEAD && git diff > /tmp/g7_server_d
   > experiments/results/revision/r7_ttfa_unified/env/platform_conditions.txt
 ```
 
-## 2. 正式主实验 + 重复子集（新 checkpoint，绝不从 smoke 续跑）
+## 2. 正式主实验 + 重复子集（新 checkpoint，绝不从 smoke 续跑；**须书面放行后执行**。§2b/§2c 编号在后，但属放行前 Gate，先于本节完成）
 
 ```bash
 uv run python -m experiments.scripts.run_ttfa_unified \
