@@ -88,21 +88,40 @@ def remaining_s(deadline_ns: int) -> float:
     return (deadline_ns - now_ns()) / 1e9
 
 
-def classify_payload(prefix: bytes) -> str:
+def classify_payload(prefix: bytes, content_type: str | None = None) -> str:
     """TTS 响应格式判定（探活与正式请求共用同一校验器）。
 
-    调用方须先累积足够前缀（≥16 字节或流结束）再判定，防跨 read 分片绕过；
-    前导空白剥离后识别 JSON/HTML/XML 错误响应与 WAV 头。
+    裸 PCM 是 int16 字节流，首字节均匀分布于 0x00–0xff——**单字节前缀判 JSON/HTML
+    会把首字节恰为 '{'(0x7b)/'['(0x5b)/'<'(0x3c) 的正常音频误判为错误体**
+    （GPU 主机 200 次实测 2 次误判）。因此：
+
+    - WAV：4 字节 "RIFF" 前缀（PCM 撞上概率 1/2^32，可忽略）；
+    - JSON：lstrip 后以 '{'/'[' 开头**且整段前缀能严格 json.loads 通过**；解析失败
+      （音频字节）→ pcm；真实 FastAPI 错误体带 application/json 头且完整落在前缀内；
+    - HTML：'<' 后须匹配 <!doctype/<html 特征（大小写不敏感），否则 pcm；
+    - content_type 显式声明 json/html/xml 时以响应头为准（FastAPI HTTPException 必带）。
     """
+    ct = (content_type or "").lower()
+    if "json" in ct:
+        return "json"
+    if "html" in ct or "xml" in ct:
+        return "html"
     p = prefix.lstrip()
     if not p:
         return "empty"
     if p.startswith(b"RIFF"):
         return "wav"
     if p[:1] in (b"{", b"["):
-        return "json"
-    if p.startswith(b"<"):
-        return "html"
+        try:
+            json.loads(p.decode("utf-8", "strict"))
+            return "json"
+        except Exception:
+            return "pcm"  # 裸 PCM 首字节撞上 '{'/'['：解析失败按 PCM
+    if p[:1] == b"<":
+        head = p[:16].lower()
+        if head.startswith(b"<!doctype") or head.startswith(b"<html"):
+            return "html"
+        return "pcm"
     return "pcm"
 
 EVENT_FIELDS = [
@@ -341,7 +360,7 @@ def tts_probe(url: str, spk_id: str, speed: float) -> dict:
             buf += chunk
             if len(buf) >= 16:
                 break
-        kind = classify_payload(bytes(buf))
+        kind = classify_payload(bytes(buf), out["content_type"])
         out["payload_class"] = kind
         out["magic_hex"] = bytes(buf[:8]).hex()
         resp.close()
@@ -410,7 +429,7 @@ def tts_measure(url: str, text: str, spk_id: str, speed: float, probe: dict,
                 buf += raw[off:off + TTS_READ_GRANULE]
             if not format_checked and len(buf) >= 16:
                 format_checked = True
-                kind = classify_payload(bytes(buf[:64]))
+                kind = classify_payload(bytes(buf[:64]), resp.headers.get("Content-Type"))
                 if kind != "pcm":
                     rec["error"] = f"tts_format_not_pcm:{kind}"
                     return rec
@@ -424,8 +443,10 @@ def tts_measure(url: str, text: str, spk_id: str, speed: float, probe: dict,
         rec["tts_total_bytes"] = len(buf)
         if rec["first_pcm_byte_ns"] is None:
             rec["error"] = "tts_empty_body"
-        elif not format_checked and classify_payload(bytes(buf[:64])) != "pcm":
-            rec["error"] = f"tts_format_not_pcm:{classify_payload(bytes(buf[:64]))}"
+        elif not format_checked and classify_payload(
+                bytes(buf[:64]), resp.headers.get("Content-Type")) != "pcm":
+            _k = classify_payload(bytes(buf[:64]), resp.headers.get("Content-Type"))
+            rec["error"] = f"tts_format_not_pcm:{_k}"
         elif len(buf) % PCM_BYTES_PER_SAMPLE != 0:
             rec["error"] = "tts_misaligned_bytes"
         elif rec["first_playable_pcm_ns"] is None:
@@ -1864,6 +1885,30 @@ def _self_test() -> int:
     check("低于 playable 阈值", r.get("error") == "tts_below_playable_threshold", r.get("error"))
     r = run_tts([])
     check("空 body", r.get("error") == "tts_empty_body", r.get("error"))
+
+    # 8b) 裸 PCM 首字节撞上 '{'/'['/'<' 仍判 pcm（GPU 冒烟现场修复回归）
+    pcm0 = np.zeros(4096, dtype=np.int16)
+    pcm0[:4] = np.array([-133, -68, -108, -119], dtype=np.int16)  # 现场实测首样本
+    raw = pcm0.tobytes()
+    check("PCM 首字节 0x7b 判 pcm",
+          classify_payload(b"{" + raw[1:]) == "pcm")
+    check("PCM 首字节 0x5b 判 pcm",
+          classify_payload(b"[" + raw[1:]) == "pcm")
+    check("PCM 首字节 0x3c 判 pcm",
+          classify_payload(b"<" + raw[1:]) == "pcm")
+    check("真 JSON 体判 json",
+          classify_payload(b'  {"detail": "Not Found"}') == "json")
+    check("数组 JSON 判 json", classify_payload(b'[1, 2, 3]') == "json")
+    check("截断 JSON 无头判 pcm（残余风险已登记）",
+          classify_payload(b'{"detail": "Not Fou') == "pcm")
+    check("响应头声明 json 以头为准",
+          classify_payload(b'{"detail"', "application/json") == "json")
+    check("HTML 特征判 html", classify_payload(b"<!DOCTYPE html><html>") == "html"
+          and classify_payload(b"<html><body>err") == "html")
+    check("'<'后无特征判 pcm", classify_payload(b"<" + bytes([0,1,2,3])) == "pcm")
+    r = run_tts([b"{" + raw[1:64], raw[64:]])  # 首块以 0x7b 开头的正常 PCM
+    check("首字节 0x7b 的 PCM 流不被误判", not r.get("error")
+          and r["first_playable_pcm_ns"] is not None, r.get("error", ""))
 
     # 9) TTS 慢流 → 超时 error（短 read timeout）
     with _FakeTTSServer("normal", chunk_delay_s=2.0) as srv:

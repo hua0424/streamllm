@@ -356,3 +356,16 @@
 - self-test 75 → 76 PASS / 0 FAIL；集成检查复跑 ALL PASS（真实 Silero 路径实际跑通）；
 - 现场产物收妥：tts_probe.json（ok/pcm，任务 1 免重跑）、env/cpu_gpu.txt、pip_freeze.txt；
 - 交付 R7_GPU_SMOKE_HANDOFF_R3.md（任务 2 期望 76；任务 3 命令不变）+ 现场回复函。
+
+## 2026-08-21 TTS 裸 PCM 误判 JSON/HTML 修复（GPU 冒烟现场反馈第三轮）
+
+- 现场（R7_TTS_PCM_JSON_MISCLASSIFY_BUG_HANDOFF.md）：任务 3 冒烟在正式路径探活被
+  fail-closed——裸 PCM 首字节恰为 0x7b('{') 被 classify_payload 单字节判 json；
+  200 次实测 198 pcm/1 json/1 html（首字节均匀），证实概率性误判，探活与正式请求共用
+  分类器 → 不修则正式 50×2 每条 TTS 请求 ~1.6% 假失败；
+- 修复：JSON 须整段前缀严格 json.loads 通过；HTML 须 <!doctype/<html 特征；
+  Content-Type 显式声明 json/html/xml 以头为准；WAV 保持 RIFF。残余风险（无头且长于
+  前缀的截断 JSON 判 pcm）已登记，真实服务不构成该场景；
+- 新增 10 项回归（含现场首样本 (-133,-68,-108,-119) 还原与 measure 级 0x7b 首块流）；
+  self-test 76 → 86 PASS / 0 FAIL；集成检查复跑 ALL PASS；
+- 交付 R7_GPU_SMOKE_HANDOFF_R4.md（任务 2 期望 86；任务 3 命令不变）+ 现场回复函。
