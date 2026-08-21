@@ -1,5 +1,15 @@
 # REVISION_CHANGELOG — CISR 修订补充实验执行记录
 
+## 2026-08-21 TTFA 预算缺项补测脚本完成（待审查后 GPU 主机执行）
+
+- 起因：E1–E6 验收完成后本机离线核对产物，发现计划 §7.3 预算表分项 `T_decode_to_first_sentence`
+  无法从既有产物恢复（E4 未记录逐 token 时刻，`generate()` 无逐 token 日志）。
+- 产物：`experiments/scripts/measure_decode_to_first_sentence.py`（独立 LLM 解码段测量，
+  输入 E4 的 50 条 streaming transcribed_text，生产同款 cache_prompt+generate 路径，
+  逐 token 计时 + 句末标点检测含小数豁免）；`--self-test` 本机 12/12 断言通过。
+- 前因后果与方法学论证：`r3_baseline_la/handoff/E6_TTFA_DECODE_FIRST_SENTENCE_HANDOFF.md`（供审查）。
+- 待办：审查确认 → GPU 主机冒烟（3 条）→ 正式 50 条（约 0.5 GPU 小时）→ 本机装配 ttfa_budget.csv。
+
 ## 2026-08-19 E1 重复测量（R1.2，意见3）3 轮全部完成
 
 - 命令：`uv run python -m experiments.scripts.run_exp_latency --dataset all --sample-list $REV/r1_stats/repeat_subset_ids.json --asr-device cuda:0 --llm-device cuda:1 --suffix-segments 0 --output-dir $REV/r1_stats/repeat_r{1,2,3} --no-resume`（逐轮串行）
