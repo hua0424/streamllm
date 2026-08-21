@@ -93,6 +93,7 @@ def collect_rows(results_globs: list) -> list:
         for r in data.get("results", []):
             if r.get("error"):
                 continue
+            r["_dir"] = Path(path).parent.name  # 结果目录名（R2 变体口径的 scope 来源）
             rows.append(r)
             n += 1
         logger.info(f"读取 {path}（有效 {n} 行）")
@@ -101,8 +102,12 @@ def collect_rows(results_globs: list) -> list:
     return rows
 
 
-def compute(rows: list, sample_index: dict):
-    """返回 (wer_rows, ttft_rows)。缺参考文本的样本报错退出（不静默跳过）。"""
+def compute(rows: list, sample_index: dict, scope_by: str = "dir"):
+    """返回 (wer_rows, ttft_rows)。缺参考文本的样本报错退出（不静默跳过）。
+
+    scope_by="dir"：按结果目录名分组（R2 变体口径：librispeech_clean / *_snr20 / ...）；
+    scope_by="prefix"：按 sample_id 前缀分组（E3 口径：crosswoz / multiwoz）。
+    """
     scored = []
     for r in rows:
         if r.get("error"):
@@ -113,7 +118,10 @@ def compute(rows: list, sample_index: dict):
         ref, lang = sample_index[sid]
         hyp = (r.get("transcribed_text") or "").strip()
         w, c = score_pair(ref, hyp, lang or "zh")
-        scored.append({"scope": scope_of(sid), "mode": r["mode"],
+        scope = r.get("_dir") if scope_by == "dir" else scope_of(sid)
+        if not scope:
+            scope = scope_of(sid)
+        scored.append({"scope": scope, "mode": r["mode"],
                        "duration_group": r.get("duration_group", ""),
                        "ttft": r.get("ttft", 0.0), "wer": w, "cer": c,
                        "empty": int(len(hyp) == 0)})
@@ -205,7 +213,7 @@ def self_test() -> int:
             {"sample_id": "cw_s2", "mode": "streaming", "duration_group": "very_long",
              "ttft": 9999.0, "transcribed_text": "x", "error": "boom"},  # error 行排除
         ]
-        wer_rows, ttft_rows = compute(rows, idx)
+        wer_rows, ttft_rows = compute(rows, idx, scope_by="prefix")
         cw_stream = [r for r in wer_rows if r["scope"] == "cw" and r["mode"] == "streaming"][0]
         check("error 行排除", cw_stream["n"] == 2, f"n={cw_stream['n']}")
         check("空转写计数与 WER", cw_stream["n_empty"] == 1
@@ -221,6 +229,10 @@ def self_test() -> int:
             check("缺参考退出", False, "应 SystemExit")
         except SystemExit:
             check("缺参考退出", True)
+        # dir 口径：_dir 标签决定分组（R2 变体逐条件拆分）
+        rows_dir = [dict(r, _dir="libri_clean") for r in rows]
+        wer_rows_d, _ = compute(rows_dir, idx, scope_by="dir")
+        check("dir 口径分组", all(r["scope"] in ("libri_clean", "ALL") for r in wer_rows_d))
         # CSV 写出
         out = tp / "out"
         write_csv(wer_rows, list(wer_rows[0].keys()), out / "wer_real.csv")
@@ -239,6 +251,8 @@ def main():
     parser.add_argument("--out-dir", type=str, required=False)
     parser.add_argument("--tag", type=str, default="real",
                         help="输出文件名 tag：wer_<tag>.csv / ttft_<tag>.csv")
+    parser.add_argument("--scope-by", type=str, default="dir", choices=["dir", "prefix"],
+                        help="dir=按结果目录名分组（R2 变体）；prefix=按 sample_id 前缀（E3）")
     parser.add_argument("--self-test", action="store_true")
     parser.add_argument("--log-level", type=str, default="INFO",
                         choices=["DEBUG", "INFO", "WARNING", "ERROR"])
@@ -254,7 +268,7 @@ def main():
     sample_index = build_sample_index(PROJECT_ROOT / args.json_root)
     logger.info(f"样本索引: {len(sample_index)} 条")
     rows = collect_rows(args.results)
-    wer_rows, ttft_rows = compute(rows, sample_index)
+    wer_rows, ttft_rows = compute(rows, sample_index, args.scope_by)
 
     out_dir = PROJECT_ROOT / args.out_dir
     write_csv(wer_rows, ["scope", "mode", "n", "n_empty", "wer_mean", "wer_std",

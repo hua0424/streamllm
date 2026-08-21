@@ -1,5 +1,18 @@
 # REVISION_CHANGELOG — CISR 修订补充实验执行记录
 
+## 2026-08-21 R2 主机侧离线评分产物核验（d88c917）+ CER 勘误定性 + scope 口径修正
+
+- 主机侧完成 OFFLINE_SCORING_HANDOFF 两任务。核验结论：
+  1. 主机对 `qa_real_speech.py` 的 BOM 读取修复（utf-8-sig）正确；
+  2. 英文 WER 交叉验证通过（librispeech 新旧 mean 均 0.0298，口径未变部分不受影响）；
+  3. **中文 CER 勘误定性**：修正后 aishell1 mean 0.1073（旧污染口径 0.0672），超 10% 验收线，
+     但逐样本定性为**数字写法失配**——参考文本中文数字（"百分之二十二点六"）vs Whisper 阿拉伯数字
+     （"22.6%"），49/75 样本含此失配（其 mean CER 0.1476），**无失配的 26 样本 mean 仅 0.0313**；
+     非构建错位（错位会 50%+），E2-0 构建 sanity 结论维持有效。Table VI 引用 zh CER 时需注明该口径因素。
+- **scope 口径修正（本机发现）**：score_wer_offline 首轮按 sample_id 前缀分组，把 12 个变体并入
+  干净集、丢失 Table VI 逐条件行；已改为 `--scope-by dir`（默认，按结果目录分组）/ `prefix`（E3 用）。
+  E3 两 CSV 以 prefix 口径重出、与已提交版本逐字节一致；R2 两 CSV 待主机按交接文档重跑任务 1（约 1 分钟）。
+
 ## 2026-08-21 R5 语义一致性三轨完成（意见5 质量部分）
 
 - 脚本 `semantic_consistency.py`（self-test 6/6）；产物 `r5_semantic/semantic_consistency.csv` + `.summary.txt` + judge/judge_solo 逐样本 JSON（审计可溯）。
