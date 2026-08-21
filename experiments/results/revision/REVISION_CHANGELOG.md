@@ -1,5 +1,23 @@
 # REVISION_CHANGELOG — CISR 修订补充实验执行记录
 
+## 2026-08-21 R5 语义一致性三轨完成（意见5 质量部分）
+
+- 脚本 `semantic_consistency.py`（self-test 6/6）；产物 `r5_semantic/semantic_consistency.csv` + `.summary.txt` + judge/judge_solo 逐样本 JSON（审计可溯）。
+- **轨道 A（bge-m3 嵌入余弦）**：mean **0.8832** / std 0.0755 / min 0.6232 / p10 0.7951（n=50）。
+- **轨道 B1（成对等价 judge，DeepSeek deepseek-v4-flash，顺序随机化）**：mean 2.96/5，≥4 分 40.0%。
+  判语分析：低分主因是两模式各自采样导致**推荐内容不同**（不同餐馆/景点）+ 128 token 截断造成
+  "信息缺失"，属生成发散而非管线退化——成对等价口径无法分离这两者。
+- **轨道 B2（独立意图满足盲评，2026-08-21 增设，分离采样噪声）**：A 3.10/5 vs B 3.04/5，
+  **A−B 差 +0.06**（B≥4 分 26.0% vs A 30.0%）——独立口径下两模式下游意图满足度统计上不可区分，
+  与轨道 A 高余弦互证。绝对分 ~3/5 反映截断上限对两臂同等影响。
+- **论文表述建议**：以轨道 A + B2 为主证据（"嵌入余弦 0.88、独立意图满足差 0.06/5 不可区分"），
+  B1 成对分如实报告并归因（采样发散 + 截断）；定性 case：高一致 crosswoz_8717_turn3
+  （cosine 0.9784）、差异最大 crosswoz_7196_turn3（cosine 0.6232，judge 1 分但 B 独立分 4>A 的 2——
+  成对低分不代表 B 退化）。
+- 环境备注：bge-m3 经三次断流后 curl 断点续传下载（仓内权重为 pytorch_model.bin，torch 2.5.1
+  拒载 .bin（CVE-2025-32434），已转 model.safetensors 存 C:/Users/hua/.cache/models/bge-m3）；
+  DeepSeek 网关需非 python UA，judge max_tokens 提至 2048 后 3 条 reasoning 耗尽样本补齐（50/50）。
+
 ## 2026-08-21 本机离线分析批：分词接缝 / 提交分歧 / TTFA 预算装配 / Fig.6 重绘
 
 - **分词接缝**（R4 §5.2，`check_tokenizer_seams.py`，self-test 7/7）：复现生产增量分词路径 vs 一次性分词。
