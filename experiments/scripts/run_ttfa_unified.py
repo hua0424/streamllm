@@ -207,26 +207,36 @@ def energy_pse_sample(wave: np.ndarray) -> int | None:
     return int(end)
 
 
-def silero_pse_sample(wave: np.ndarray, get_speech_timestamps) -> int | None:
-    """Silero 法 PSE：最后一个 speech 段的 end（参数固定见 SILERO_PARAMS）。"""
+def silero_pse_sample(wave: np.ndarray, model, get_speech_timestamps) -> int | None:
+    """Silero 法 PSE：最后一个 speech 段的 end（参数固定见 SILERO_PARAMS）。
+
+    真实仓库签名为 get_speech_timestamps(audio, model, threshold=..., sampling_rate=...)，
+    model 为必填位置参数（与分段器 process_audio 内调用一致），此处透传。
+    """
     import torch
-    ts = get_speech_timestamps(torch.from_numpy(wave), sampling_rate=ANALYSIS_SR,
-                               **SILERO_PARAMS)
+    if model is None:
+        raise ValueError("silero_pse_sample 缺 model（显式拒止，不静默降级）")
+    ts = get_speech_timestamps(torch.from_numpy(wave), model,
+                               sampling_rate=ANALYSIS_SR, **SILERO_PARAMS)
     if not ts:
         return None
     return int(min(ts[-1]["end"], len(wave)))
 
 
-def analyze_pse(wav_path: str, get_speech_timestamps=None) -> dict:
+def analyze_pse(wav_path: str, model=None, get_speech_timestamps=None) -> dict:
     """双法 PSE 裁决。差 ≤200ms 取 energy；>200ms 取 Silero 并标记。
 
     任一算法无 speech/失败 → fail-closed（返回 error 字段，调用方记该行 error）。
+    model 为 None 且提供了 get_speech_timestamps → 显式拒止（pse_missing_model）。
     """
     wave, wav_hash, analysis_hash, loader = load_analysis_waveform(wav_path)
     out = {"wav_sha256": wav_hash, "analysis_waveform_sha256": analysis_hash,
            "analysis_sr": ANALYSIS_SR, "loader": loader,
            "pse_window_ms": PSE_WINDOW_MS, "pse_hop_ms": PSE_HOP_MS,
            "silero_params": SILERO_PARAMS}
+    if get_speech_timestamps is not None and model is None:
+        out["error"] = "pse_missing_model"
+        return out
     try:
         e = energy_pse_sample(wave)
     except Exception as exc:
@@ -235,7 +245,7 @@ def analyze_pse(wav_path: str, get_speech_timestamps=None) -> dict:
     s = None
     if get_speech_timestamps is not None:
         try:
-            s = silero_pse_sample(wave, get_speech_timestamps)
+            s = silero_pse_sample(wave, model, get_speech_timestamps)
         except Exception as exc:
             s = None
             out["silero_error"] = str(exc)
@@ -1609,7 +1619,12 @@ def _self_test() -> int:
     check("PSE energy 定位", e is not None and abs(e - sr * 0.5) <= 400 + 160, f"e={e}")
 
     def fake_silero(val):
-        return lambda wave, sampling_rate=16000, **kw: [{"end": val}] if val else []
+        # 签名与真实仓库一致（audio, model 为必填位置参数）——若调用方漏传 model，
+        # 此处直接 TypeError，防同类契约错配再漏过自测
+        def _call(audio, model, sampling_rate=16000, **kw):
+            assert model is not None, "漏传 model 位置参数"
+            return [{"end": val}] if val else []
+        return _call
 
     probe = dict(_ST_PROBE)
 
@@ -1965,13 +1980,17 @@ def _self_test() -> int:
     with _tf.TemporaryDirectory() as td:
         wp = Path(td) / "t.wav"
         sf.write(str(wp), audio, sr)
-        r1 = analyze_pse(str(wp), get_speech_timestamps=None)
+        r1 = analyze_pse(str(wp), model=object(), get_speech_timestamps=None)
         check("PSE 单算法失败 fail-closed", r1.get("error") == "pse_single_algorithm_failure",
               str(r1.get("error")))
-        r2 = analyze_pse(str(wp), get_speech_timestamps=fake_silero(e - 100))
+        # r2 冒烟现场修复回归：漏传 model 显式拒止；真实签名（含 model）可跑通
+        r1b = analyze_pse(str(wp), model=None, get_speech_timestamps=fake_silero(e - 100))
+        check("PSE 缺 model 显式拒止", r1b.get("error") == "pse_missing_model",
+              str(r1b.get("error")))
+        r2 = analyze_pse(str(wp), model=object(), get_speech_timestamps=fake_silero(e - 100))
         check("PSE 双法一致取 energy", r2.get("pse_method") == "energy"
               and r2.get("physical_speech_end_sample") == e, str(r2.get("pse_method")))
-        r3 = analyze_pse(str(wp), get_speech_timestamps=fake_silero(max(0, e - 8000)))
+        r3 = analyze_pse(str(wp), model=object(), get_speech_timestamps=fake_silero(max(0, e - 8000)))
         check("PSE 冲突取 silero_fallback", r3.get("pse_method") == "silero_fallback",
               str(r3.get("pse_method")))
 
@@ -2453,7 +2472,7 @@ def main() -> int:
     logger.info("PSE 预扫描…")
     pse_by_id: dict[str, dict] = {}
     for s in samples:
-        pse = analyze_pse(s["audio_path"], get_speech_timestamps)
+        pse = analyze_pse(s["audio_path"], silero_model, get_speech_timestamps)
         if pse.get("error"):
             raise SystemExit(f"PSE 失败 {s['sample_id']}: {pse['error']}（停止）")
         pse_by_id[s["sample_id"]] = pse

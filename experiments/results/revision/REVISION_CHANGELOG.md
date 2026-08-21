@@ -344,3 +344,15 @@
 - 次要定夺：Content-Type 缺头按 None 原样固定为允许策略（probe 加 policy_note）；Silero
   缓存非 git checkout 时 repo_commit=None+注记，锁定依据 artifact sha256；
 - 交付 R7_GPU_SMOKE_HANDOFF_R2.md（执行版 handoff）+ 现场回复函。
+
+## 2026-08-21 PSE Silero 签名错配修复（GPU 冒烟现场反馈第二轮）
+
+- 现场（R7_PSE_SILERO_SIGNATURE_BUG_HANDOFF.md）：任务 1/2 过，任务 3 PSE 预扫描
+  fail-closed——silero_pse_sample 漏传真实 get_speech_timestamps 的必填位置参数 model，
+  单算法失败拦停；现场已闭环验证补 model 后 n_segments=14、last_end 与能量法一致；
+- 修复：model 位置参数透传；analyze_pse 缺 model 显式拒止（pse_missing_model）；
+  self-test 假 Silero 改签名严格（漏传即断言失败）+ 缺 model 用例；本地集成检查加
+  "契约错误不许能量法兜底掩盖"防护（该兜底此前掩盖了本 bug）；
+- self-test 75 → 76 PASS / 0 FAIL；集成检查复跑 ALL PASS（真实 Silero 路径实际跑通）；
+- 现场产物收妥：tts_probe.json（ok/pcm，任务 1 免重跑）、env/cpu_gpu.txt、pip_freeze.txt；
+- 交付 R7_GPU_SMOKE_HANDOFF_R3.md（任务 2 期望 76；任务 3 命令不变）+ 现场回复函。

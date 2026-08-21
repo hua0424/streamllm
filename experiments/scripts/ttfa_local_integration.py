@@ -68,17 +68,20 @@ def main() -> int:
     sf.write(str(wav), audio, sr)
     # PSE：真实 Silero（torch.hub 缓存）；若双法之一对纯噪声无 speech → 手工注入能量法结果
     import torch as _t
-    _, utils = _t.hub.load(repo_or_dir="snakers4/silero-vad", model="silero_vad",
+    silero_model, utils = _t.hub.load(repo_or_dir="snakers4/silero-vad", model="silero_vad",
                            onnx=False, verbose=False)
-    pse = analyze_pse(str(wav), utils[0])
+    pse = analyze_pse(str(wav), silero_model, utils[0])
     if pse.get("error"):
+        # 契约类错误（签名/参数）不得被能量法兜底掩盖，直接失败（r2 冒烟现场教训）
+        if "missing" in (pse.get("silero_error") or "") or pse["error"] == "pse_missing_model":
+            raise SystemExit(f"PSE 契约错误（非无语音）: {pse}")
         from experiments.scripts.run_ttfa_unified import energy_pse_sample
         e = energy_pse_sample(audio)
         pse = {"wav_sha256": pse.get("wav_sha256", "x"),
                "analysis_waveform_sha256": pse.get("analysis_waveform_sha256", "x"),
                "physical_speech_end_sample": e, "pse_method": "energy_forced",
                "pse_diff_ms": None}
-        print(f"注：纯噪声下 PSE 双法未同时命中（{pse and 'expected'}），能量法注入 pse={e}")
+        print(f"注：纯噪声下 PSE 双法未同时命中（属预期），能量法注入 pse={e}")
 
     sample = {"sample_id": "integration_noise_1", "language": "zh",
               "duration_group": "long", "audio_path": str(wav), "repeat_idx": 0}
