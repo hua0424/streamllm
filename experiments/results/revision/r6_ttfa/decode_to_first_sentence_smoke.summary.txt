@@ -1,0 +1,4 @@
+rows=3 ok=3 error=0
+overall: n=3 sentence_end_found=3/3 decode_to_first_sentence mean=136.5ms std=91.2 p50=98.0 p90=229.4 | decode rate mean=24.3 tok/s
+lang:en: n=2 sentence_end_found=2/2 decode_to_first_sentence mean=180.2ms std=82.1 p50=180.2 p90=245.9 | decode rate mean=25.5 tok/s
+lang:zh: n=1 sentence_end_found=1/1 decode_to_first_sentence mean=49.2ms std=0.0 p50=49.2 p90=49.2 | decode rate mean=21.9 tok/s

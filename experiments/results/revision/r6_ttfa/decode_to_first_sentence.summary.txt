@@ -1,0 +1,4 @@
+rows=50 ok=50 error=0
+overall: n=50 sentence_end_found=50/50 decode_to_first_sentence mean=389.0ms std=439.8 p50=92.0 p90=967.1 | decode rate mean=26.0 tok/s
+lang:en: n=25 sentence_end_found=25/25 decode_to_first_sentence mean=635.7ms std=387.7 p50=656.1 p90=970.7 | decode rate mean=25.9 tok/s
+lang:zh: n=25 sentence_end_found=25/25 decode_to_first_sentence mean=142.3ms std=338.9 p50=43.0 p90=61.8 | decode rate mean=26.0 tok/s

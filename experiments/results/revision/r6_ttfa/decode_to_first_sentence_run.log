@@ -1,0 +1,69 @@
+2026-08-21 10:59:34.791 - __main__ - INFO - E4 输入: /dataA/streamllm/experiments/results/revision/r4_commit/exp1_results_20260820_171522.json（50 条 streaming 样本，fragment replay）
+2026-08-21 10:59:34.792 - src.llm.stream_llm_inference - INFO - Loading LLM model Qwen/Qwen2-7B-Instruct on cuda:1
+I0821 10:59:36.366000 3189650 .venv/lib/python3.10/site-packages/torch/distributed/nn/jit/instantiator.py:22] Created a temporary directory at /tmp/tmp2i8an9cr
+I0821 10:59:36.366000 3189650 .venv/lib/python3.10/site-packages/torch/distributed/nn/jit/instantiator.py:73] Writing /tmp/tmp2i8an9cr/_remote_module_non_scriptable.py
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:05,  1.73s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:03<00:03,  1.75s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:05<00:01,  1.69s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:06<00:00,  1.60s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:06<00:00,  1.64s/it]
+2026-08-21 10:59:43.543 - src.llm.stream_llm_inference - INFO - LLM模型加载完成。
+2026-08-21 10:59:46.014 - __main__ - INFO - 预热完成（3 轮）
+2026-08-21 10:59:48.871 - __main__ - INFO - [pass0 1/50] multiwoz_PMUL0271_turn3: decode_to_first_sentence=122.1ms (3/56 tokens)
+2026-08-21 10:59:54.870 - __main__ - INFO - [pass0 2/50] multiwoz_PMUL2590_turn4: decode_to_first_sentence=309.4ms (8/128 tokens)
+2026-08-21 11:00:01.497 - __main__ - INFO - [pass0 3/50] crosswoz_7701_turn3: decode_to_first_sentence=61.8ms (2/128 tokens)
+2026-08-21 11:00:07.411 - __main__ - INFO - [pass0 4/50] multiwoz_MUL2016_turn3: decode_to_first_sentence=656.1ms (12/128 tokens)
+2026-08-21 11:00:12.636 - __main__ - INFO - [pass0 5/50] crosswoz_8672_turn3: decode_to_first_sentence=44.5ms (2/128 tokens)
+2026-08-21 11:00:17.386 - __main__ - INFO - [pass0 6/50] multiwoz_MUL1031_turn3: decode_to_first_sentence=966.3ms (25/128 tokens)
+2026-08-21 11:00:22.084 - __main__ - INFO - [pass0 7/50] crosswoz_12315_turn3: decode_to_first_sentence=35.0ms (2/128 tokens)
+2026-08-21 11:00:27.020 - __main__ - INFO - [pass0 8/50] multiwoz_PMUL2936_turn4: decode_to_first_sentence=647.6ms (16/128 tokens)
+2026-08-21 11:00:31.837 - __main__ - INFO - [pass0 9/50] crosswoz_8907_turn3: decode_to_first_sentence=47.0ms (2/128 tokens)
+2026-08-21 11:00:36.788 - __main__ - INFO - [pass0 10/50] crosswoz_11592_turn2: decode_to_first_sentence=38.9ms (2/128 tokens)
+2026-08-21 11:00:41.745 - __main__ - INFO - [pass0 11/50] crosswoz_9577_turn3: decode_to_first_sentence=37.4ms (2/128 tokens)
+2026-08-21 11:00:46.610 - __main__ - INFO - [pass0 12/50] crosswoz_10574_turn4: decode_to_first_sentence=47.9ms (2/128 tokens)
+2026-08-21 11:00:51.627 - __main__ - INFO - [pass0 13/50] crosswoz_11730_turn3: decode_to_first_sentence=47.9ms (2/128 tokens)
+2026-08-21 11:00:56.850 - __main__ - INFO - [pass0 14/50] crosswoz_7196_turn3: decode_to_first_sentence=47.9ms (2/128 tokens)
+2026-08-21 11:01:01.868 - __main__ - INFO - [pass0 15/50] multiwoz_PMUL4031_turn4: decode_to_first_sentence=928.8ms (22/128 tokens)
+2026-08-21 11:01:06.650 - __main__ - INFO - [pass0 16/50] multiwoz_PMUL4612_turn4: decode_to_first_sentence=1229.1ms (29/112 tokens)
+2026-08-21 11:01:11.815 - __main__ - INFO - [pass0 17/50] multiwoz_MUL0183_turn4: decode_to_first_sentence=147.3ms (5/128 tokens)
+2026-08-21 11:01:17.311 - __main__ - INFO - [pass0 18/50] crosswoz_11592_turn3: decode_to_first_sentence=37.0ms (2/128 tokens)
+2026-08-21 11:01:22.946 - __main__ - INFO - [pass0 19/50] multiwoz_MUL0666_turn4: decode_to_first_sentence=773.4ms (21/128 tokens)
+2026-08-21 11:01:28.253 - __main__ - INFO - [pass0 20/50] crosswoz_8717_turn3: decode_to_first_sentence=35.0ms (2/128 tokens)
+2026-08-21 11:01:33.543 - __main__ - INFO - [pass0 21/50] multiwoz_PMUL2590_turn5: decode_to_first_sentence=333.5ms (8/128 tokens)
+2026-08-21 11:01:38.267 - __main__ - INFO - [pass0 22/50] multiwoz_PMUL2296_turn4: decode_to_first_sentence=34.8ms (2/128 tokens)
+2026-08-21 11:01:42.867 - __main__ - INFO - [pass0 23/50] multiwoz_MUL0023_turn4: decode_to_first_sentence=743.6ms (23/128 tokens)
+2026-08-21 11:01:47.612 - __main__ - INFO - [pass0 24/50] multiwoz_PMUL2130_turn4: decode_to_first_sentence=614.4ms (19/128 tokens)
+2026-08-21 11:01:52.406 - __main__ - INFO - [pass0 25/50] multiwoz_MUL1330_turn4: decode_to_first_sentence=34.6ms (2/128 tokens)
+2026-08-21 11:01:59.402 - __main__ - INFO - [pass0 26/50] crosswoz_8907_turn4: decode_to_first_sentence=47.5ms (2/128 tokens)
+2026-08-21 11:02:06.266 - __main__ - INFO - [pass0 27/50] crosswoz_11613_turn5: decode_to_first_sentence=1399.7ms (23/128 tokens)
+2026-08-21 11:02:12.722 - __main__ - INFO - [pass0 28/50] crosswoz_10382_turn4: decode_to_first_sentence=1172.4ms (26/128 tokens)
+2026-08-21 11:02:18.145 - __main__ - INFO - [pass0 29/50] multiwoz_PMUL4612_turn5: decode_to_first_sentence=1769.8ms (29/99 tokens)
+2026-08-21 11:02:24.136 - __main__ - INFO - [pass0 30/50] multiwoz_PMUL1745_turn5: decode_to_first_sentence=373.7ms (7/101 tokens)
+2026-08-21 11:02:31.505 - __main__ - INFO - [pass0 31/50] multiwoz_PMUL3103_turn5: decode_to_first_sentence=795.6ms (17/128 tokens)
+2026-08-21 11:02:37.756 - __main__ - INFO - [pass0 32/50] crosswoz_7701_turn4: decode_to_first_sentence=61.7ms (2/128 tokens)
+2026-08-21 11:02:43.078 - __main__ - INFO - [pass0 33/50] crosswoz_9394_turn4: decode_to_first_sentence=57.6ms (2/128 tokens)
+2026-08-21 11:02:48.044 - __main__ - INFO - [pass0 34/50] multiwoz_MUL1215_turn5: decode_to_first_sentence=349.0ms (11/128 tokens)
+2026-08-21 11:02:53.271 - __main__ - INFO - [pass0 35/50] crosswoz_8202_turn4: decode_to_first_sentence=43.0ms (2/128 tokens)
+2026-08-21 11:02:58.351 - __main__ - INFO - [pass0 36/50] multiwoz_MUL2018_turn5: decode_to_first_sentence=663.0ms (20/128 tokens)
+2026-08-21 11:03:03.392 - __main__ - INFO - [pass0 37/50] crosswoz_7652_turn3: decode_to_first_sentence=36.8ms (2/128 tokens)
+2026-08-21 11:03:08.482 - __main__ - INFO - [pass0 38/50] crosswoz_9577_turn4: decode_to_first_sentence=35.0ms (2/128 tokens)
+2026-08-21 11:03:13.569 - __main__ - INFO - [pass0 39/50] multiwoz_MUL1459_turn5: decode_to_first_sentence=860.5ms (23/128 tokens)
+2026-08-21 11:03:19.263 - __main__ - INFO - [pass0 40/50] crosswoz_12011_turn4: decode_to_first_sentence=34.7ms (2/128 tokens)
+2026-08-21 11:03:24.070 - __main__ - INFO - [pass0 41/50] multiwoz_PMUL0085_turn5: decode_to_first_sentence=888.6ms (19/105 tokens)
+2026-08-21 11:03:28.786 - __main__ - INFO - [pass0 42/50] multiwoz_PMUL3103_turn6: decode_to_first_sentence=455.3ms (14/124 tokens)
+2026-08-21 11:03:33.737 - __main__ - INFO - [pass0 43/50] crosswoz_10040_turn4: decode_to_first_sentence=35.8ms (2/128 tokens)
+2026-08-21 11:03:37.939 - __main__ - INFO - [pass0 44/50] crosswoz_98_turn3: decode_to_first_sentence=47.4ms (2/101 tokens)
+2026-08-21 11:03:43.000 - __main__ - INFO - [pass0 45/50] crosswoz_12299_turn4: decode_to_first_sentence=35.5ms (2/128 tokens)
+2026-08-21 11:03:47.446 - __main__ - INFO - [pass0 46/50] multiwoz_PMUL1745_turn6: decode_to_first_sentence=487.1ms (15/116 tokens)
+2026-08-21 11:03:52.416 - __main__ - INFO - [pass0 47/50] multiwoz_MUL0183_turn5: decode_to_first_sentence=973.6ms (29/128 tokens)
+2026-08-21 11:03:57.475 - __main__ - INFO - [pass0 48/50] crosswoz_11406_turn5: decode_to_first_sentence=34.8ms (2/128 tokens)
+2026-08-21 11:04:02.372 - __main__ - INFO - [pass0 49/50] crosswoz_10331_turn4: decode_to_first_sentence=35.2ms (2/128 tokens)
+2026-08-21 11:04:07.499 - __main__ - INFO - [pass0 50/50] multiwoz_PMUL4031_turn5: decode_to_first_sentence=735.1ms (21/128 tokens)
+
+rows=50 ok=50 error=0
+overall: n=50 sentence_end_found=50/50 decode_to_first_sentence mean=389.0ms std=439.8 p50=92.0 p90=967.1 | decode rate mean=26.0 tok/s
+lang:en: n=25 sentence_end_found=25/25 decode_to_first_sentence mean=635.7ms std=387.7 p50=656.1 p90=970.7 | decode rate mean=25.9 tok/s
+lang:zh: n=25 sentence_end_found=25/25 decode_to_first_sentence mean=142.3ms std=338.9 p50=43.0 p90=61.8 | decode rate mean=26.0 tok/s
+2026-08-21 11:04:07.507 - __main__ - INFO - 结果: /dataA/streamllm/experiments/results/revision/r6_ttfa/decode_to_first_sentence.csv；RUNINFO: /dataA/streamllm/experiments/results/revision/r6_ttfa/decode_to_first_sentence.runinfo.md
+I0821 11:04:07.574000 3189650 .venv/lib/python3.10/site-packages/torch/_dynamo/utils.py:399] TorchDynamo compilation metrics:
+I0821 11:04:07.574000 3189650 .venv/lib/python3.10/site-packages/torch/_dynamo/utils.py:399] Function, Runtimes (s)
+I0821 11:04:07.581000 3189650 .venv/lib/python3.10/site-packages/torch/_subclasses/fake_tensor.py:2423] FakeTensor cache stats:
+I0821 11:04:07.581000 3189650 .venv/lib/python3.10/site-packages/torch/_subclasses/fake_tensor.py:2424]   cache_hits: 0
+I0821 11:04:07.582000 3189650 .venv/lib/python3.10/site-packages/torch/_subclasses/fake_tensor.py:2425]   cache_misses: 0

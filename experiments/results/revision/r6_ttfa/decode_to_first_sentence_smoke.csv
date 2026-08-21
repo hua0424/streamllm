@@ -1,0 +1,4 @@
+sample_id,language,pass_idx,fragment_count,fragments_sha256,prompt_tokens,n_tokens,first_token_latency_ms,response_chars,sentence_end_found,first_sentence_char_idx,first_sentence_token_idx,decode_to_first_sentence_ms,decode_total_ms,tokens_per_s,first_sentence_text,error
+multiwoz_PMUL0271_turn3,en,0,4,44d062e029dcdc9289908a3c0fa90bee7c43c3e78f9113d511c4cee99f520610,5,56,1.5698770002927631,96,1,4,2,98.0104389891494,2413.3412420051172,23.189259248209435,当然可以。,
+multiwoz_PMUL2590_turn4,en,0,2,6fff498f031072e846bb22e21214a7c17ed2066ca0ba640958ac2fa0aaab238f,5,128,1.5891669900156558,238,1,13,7,262.295606022235,4607.137409009738,27.773398549301756,你好，我可以帮助你查找酒店。,
+crosswoz_7701_turn3,zh,0,8,6eb4c17381187088a2bd1fed78268db83b9eeddae84adb13eb2b3dda1f157fcb,5,128,1.5776910004206002,202,1,2,1,49.173267994774505,5835.022118000779,21.93057673794912,你好！,
