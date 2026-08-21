@@ -158,7 +158,7 @@ def recompute_from_csv(csv_path: Path, json_dir: Path, wer_limit: float) -> int:
     """
     from experiments.scripts.run_exp_quality import cer, normalize_text, wer
 
-    rows = list(csv.DictReader(open(csv_path, encoding="utf-8")))
+    rows = list(csv.DictReader(open(csv_path, encoding="utf-8-sig")))
     if not rows:
         print(f"[recompute] {csv_path} 为空")
         return 1

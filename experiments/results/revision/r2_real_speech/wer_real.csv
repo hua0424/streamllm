@@ -1,0 +1,7 @@
+scope,mode,n,n_empty,wer_mean,wer_std,cer_mean,cer_std
+aishell1,non-streaming,255,0,0.1213,0.1027,0.1216,0.1027
+aishell1,streaming,255,5,0.1492,0.1577,0.1903,0.1538
+librispeech,non-streaming,255,0,0.0326,0.0320,0.0132,0.0172
+librispeech,streaming,255,12,0.1094,0.2017,0.0637,0.2090
+ALL,non-streaming,510,0,0.0770,0.0881,0.0674,0.0914
+ALL,streaming,510,17,0.1293,0.1822,0.1270,0.1941
