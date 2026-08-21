@@ -35,14 +35,21 @@ def sha256_file(path: str) -> str:
     return h.hexdigest()
 
 
-def load_records(path: str) -> list[dict]:
-    """加载 exp1_results_*.json，返回记录列表。兼容 list / {"results": [...]} / dict 值。"""
+CONFIG_COMPARE_KEYS = ("asr_model", "llm_model", "asr_device", "llm_device",
+                       "chunk_duration_ms", "max_tokens", "prefix_segments",
+                       "suffix_segments", "recognition_threshold", "append_silence_ms",
+                       "sample_list")
+
+
+def load_records(path: str) -> tuple[list[dict], dict]:
+    """加载 exp1_results_*.json，返回 (记录列表, config)。兼容 list / {"results": [...]}。"""
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
     if isinstance(data, list):
-        recs = data
+        recs, cfg = data, {}
     elif isinstance(data, dict):
         recs = data.get("results", list(data.values()))
+        cfg = data.get("config", {}) if isinstance(data.get("config", {}), dict) else {}
     else:
         raise ValueError(f"无法识别的结果文件结构: {path}")
     if isinstance(recs, dict):
@@ -51,17 +58,35 @@ def load_records(path: str) -> list[dict]:
         missing = [k for k in REQUIRED_RECORD_FIELDS if k not in r]
         if missing:
             raise ValueError(f"{path} 第 {i} 条记录缺字段 {missing}")
-    return recs
+    # 文件内主键唯一（评审 W3 强化）
+    keys = [(str(r["sample_id"]), str(r["mode"])) for r in recs]
+    if len(keys) != len(set(keys)):
+        raise SystemExit(f"{path} 存在重复主键 (sample_id, mode)（停止）")
+    return recs, cfg
 
 
 def collect_cv_rows(paths: list[str]) -> list[dict]:
     """按 (sample_id, mode) 聚合三轮 TTFT，计算逐样本 CV（ddof=1）。
 
-    只保留三轮均有有效记录（无 error、ttft 为有限正数）的键。
+    冻结协议（评审 W3）：三个文件键集合完全一致、每文件每键恰一条（load 内查重）、
+    关键 config 字段跨文件一致；满足后每键恰三轮有效记录才纳入。
     """
-    per: dict[tuple[str, str], list[float]] = {}
+    per_file_keys = []
+    cfg_refs = []
+    loaded = []
     for p in paths:
-        for r in load_records(p):
+        recs, cfg = load_records(p)
+        loaded.append(recs)
+        per_file_keys.append({(str(r["sample_id"]), str(r["mode"])) for r in recs})
+        cfg_refs.append({k: cfg.get(k) for k in CONFIG_COMPARE_KEYS})
+    if per_file_keys[0] != per_file_keys[1] or per_file_keys[0] != per_file_keys[2]:
+        raise SystemExit("三个输入文件的 (sample_id, mode) 键集合不一致（停止）")
+    if not (cfg_refs[0] == cfg_refs[1] == cfg_refs[2]):
+        raise SystemExit(f"三个输入文件关键 config 字段不一致（停止）: {cfg_refs}")
+
+    per: dict[tuple[str, str], list[float]] = {}
+    for recs in loaded:
+        for r in recs:
             if r.get("error"):
                 continue
             try:
@@ -209,6 +234,34 @@ def _self_test() -> int:
     check("50 样本全保留", len(rows2) == 50, str(len(rows2)))
     s2 = summarize(rows2)[0]
     check("P90>=median", float(s2["cv_p90_pct"]) >= float(s2["cv_median_pct"]), str(s2))
+
+    # 负向（评审 W3）：文件内重复主键 / 键集合不一致 / config 不一致
+    with tempfile.TemporaryDirectory() as td:
+        def w(name, recs, cfg=None):
+            p = Path(td) / name
+            p.write_text(json.dumps({"results": recs, "config": cfg or {}}), encoding="utf-8")
+            return str(p)
+        base1 = [{"sample_id": "s1", "mode": "streaming", "ttft": 1.0}]
+        p1 = w("a.json", base1, {"asr_model": "turbo"})
+        pdup = w("b.json", base1 + base1, {"asr_model": "turbo"})
+        try:
+            collect_cv_rows([p1, pdup, p1])
+            check("重复主键退出", False)
+        except SystemExit:
+            check("重复主键退出", True)
+        p2 = w("c.json", [{"sample_id": "s2", "mode": "streaming", "ttft": 1.0}],
+               {"asr_model": "turbo"})
+        try:
+            collect_cv_rows([p1, p1, p2])
+            check("键集合不一致退出", False)
+        except SystemExit:
+            check("键集合不一致退出", True)
+        p3 = w("d.json", base1, {"asr_model": "base"})
+        try:
+            collect_cv_rows([p1, p1, p3])
+            check("config 不一致退出", False)
+        except SystemExit:
+            check("config 不一致退出", True)
 
     if fails:
         for f in fails:

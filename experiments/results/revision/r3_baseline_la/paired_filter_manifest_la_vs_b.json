@@ -1,0 +1,22 @@
+{
+ "crosswoz": {
+  "candidates": 336,
+  "kept": 336,
+  "modes": [
+   "la_streaming",
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "multiwoz": {
+  "candidates": 162,
+  "kept": 162,
+  "modes": [
+   "la_streaming",
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ }
+}

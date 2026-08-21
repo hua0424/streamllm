@@ -193,12 +193,15 @@ class StreamLLMInference:
         return result
     
     def generate_with_meta(self, pre_cache: "KVCache | None", max_new_tokens=50,
-                           temperature=0.1, top_p=0.9) -> Generator[dict, None, None]:
+                           temperature=0.1, top_p=0.9,
+                           generator=None) -> Generator[dict, None, None]:
         """与 generate() 相同的解码循环，但逐 token 暴露元信息（W1 统一 TTFA 用）。
 
         逐项 yield: {"token_id", "decoded_text", "is_eos", "token_index"}；
         stop_reason 写入 self.last_stop_reason（"eos" | "max_tokens"），异常时不设置。
         EOS token 自身也会 yield（decoded_text 通常为空串），由调用方决定取舍。
+        generator：可选 torch.Generator（绑定目标设备），传入后 multinomial 走请求级
+        独立随机流，不消费全局 RNG（W1 AB/BA 顺序隔离）；不传时行为与旧接口一致。
         旧 generate() 行为不变（兼容既有调用方）。
         """
         self.reset_timings()
@@ -210,7 +213,8 @@ class StreamLLMInference:
         next_token_logits = pre_cache.next_token_logits
 
         for i in range(max_new_tokens):
-            next_token_id = self._decode_logits(next_token_logits, temperature, top_p, 1.0)
+            next_token_id = self._decode_logits(next_token_logits, temperature, top_p, 1.0,
+                                                generator=generator)
             is_eos = next_token_id.item() == self.tokenizer.eos_token_id
             token_text = self.tokenizer.decode(next_token_id[0], skip_special_tokens=True)
             yield {"token_id": int(next_token_id.item()), "decoded_text": token_text,
@@ -349,9 +353,12 @@ class StreamLLMInference:
         self.timing_events[self.TimingEventType.END_KV_CACHE] = time.perf_counter()
         return self.KVCache(outputs.past_key_values, new_fragment_ids, attention_mask, outputs.logits[:, -1, :])
 
-    def _decode_logits(self, logits, temperature, top_p, repetition_penalty):
+    def _decode_logits(self, logits, temperature, top_p, repetition_penalty, generator=None):
         """
         根据温度、top_p和重复惩罚系数解码logits。
+
+        注意：repetition_penalty 为历史遗留参数，当前未应用（2026-08-21 核实）。
+        generator：可选 torch.Generator，仅作用于 multinomial 采样（请求级 RNG 隔离）。
         """
         # 应用温度和top_p采样
         if temperature > 0:
@@ -364,7 +371,7 @@ class StreamLLMInference:
                 sorted_indices_to_remove[..., 0] = 0
                 indices_to_remove = sorted_indices_to_remove.scatter(1, sorted_indices, sorted_indices_to_remove)
                 probs[indices_to_remove] = 0
-            next_token_id = torch.multinomial(probs, num_samples=1)
+            next_token_id = torch.multinomial(probs, num_samples=1, generator=generator)
         else: # greedy
             next_token_id = torch.argmax(logits, dim=-1).unsqueeze(-1)
 

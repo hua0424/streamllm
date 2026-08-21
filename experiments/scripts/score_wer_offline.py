@@ -80,7 +80,9 @@ def supplement_index_from_csv(index: dict, ref_csv: Path) -> dict:
     with open(ref_csv, encoding="utf-8-sig", newline="") as f:
         for row in csv.DictReader(f):
             sid = row["sample_id"]
-            ref = row.get("reference_full") or row["reference"]
+            ref = row.get("reference_full")  # 评审 W4：禁止回退到截断的 reference 列
+            if not ref or not ref.strip():
+                raise SystemExit(f"{ref_csv} 中 {sid} 的 reference_full 为空（禁止回退 reference，停止）")
             lang = lang_map.get(row.get("dataset", ""), "")
             if sid in index and index[sid][0] != ref:
                 raise SystemExit(f"参考文本冲突: {sid}（JSON 与 {ref_csv} 不一致，停止）")
@@ -213,12 +215,15 @@ def collect_rows(results_globs: list) -> list:
 
 
 def compute(rows: list, sample_index: dict, scope_by: str = "dir"):
-    """返回 (wer_rows, ttft_rows, persample_rows)。缺参考文本的样本报错退出（不静默跳过）。
+    """返回 (wer_rows, ttft_rows, persample_rows, paired_manifest)。
 
     scope_by="dir"：按结果目录名分组（R2 变体口径：librispeech_clean / *_snr20 / ...）；
     scope_by="prefix"：按 sample_id 前缀分组（E3 口径：crosswoz / multiwoz）。
+    评审 W4：每个 scope 内各模式取 sample_id 交集（paired filter），排除记录入 manifest；
+    重复 (scope, mode, sample_id) 直接退出。
     """
     scored = []
+    seen_keys = set()
     for r in rows:
         if r.get("error"):
             continue  # 双重保护：collect_rows 已过滤，compute 直接调用时也排除
@@ -231,10 +236,36 @@ def compute(rows: list, sample_index: dict, scope_by: str = "dir"):
         scope = r.get("_dir") if scope_by == "dir" else scope_of(sid)
         if not scope:
             scope = scope_of(sid)
+        dup_key = (scope, r["mode"], sid)
+        if dup_key in seen_keys:
+            raise SystemExit(f"重复记录 {dup_key}（停止）")
+        seen_keys.add(dup_key)
         scored.append({"sample_id": sid, "scope": scope, "mode": r["mode"],
                        "duration_group": r.get("duration_group", ""),
                        "ttft": r.get("ttft", 0.0), **sc,
                        "empty": int(len(hyp) == 0)})
+
+    # 配对过滤：scope 内各模式 sample_id 交集
+    manifest = {}
+    keep_map: dict[str, set] = {}
+    for scope in sorted({s["scope"] for s in scored}):
+        sub = [s for s in scored if s["scope"] == scope]
+        modes = sorted({s["mode"] for s in sub})
+        idsets = {m: {s["sample_id"] for s in sub if s["mode"] == m} for m in modes}
+        common = set.intersection(*idsets.values()) if idsets else set()
+        all_ids = set.union(*idsets.values()) if idsets else set()
+        excluded = []
+        for m in modes:
+            for sid in sorted(idsets[m] - common):
+                excluded.append({"sample_id": sid,
+                                 "reason": f"仅见于 {m}，不在全模式交集中"})
+        manifest[scope] = {"candidates": len(all_ids), "kept": len(common),
+                           "modes": modes, "excluded": excluded}
+        keep_map[scope] = common
+    for s in scored:
+        s["paired_keep"] = int(s["sample_id"] in keep_map[s["scope"]])
+    scored_all = scored
+    scored = [s for s in scored if s["paired_keep"]]
 
     def _corpus(mr, prefix):
         n_sum = sum(s[f"{prefix}_n"] for s in mr)
@@ -288,8 +319,9 @@ def compute(rows: list, sample_index: dict, scope_by: str = "dir"):
                        "wer_s": s["wer_s"], "wer_d": s["wer_d"], "wer_i": s["wer_i"],
                        "wer_n": s["wer_n"],
                        "cer_s": s["cer_s"], "cer_d": s["cer_d"], "cer_i": s["cer_i"],
-                       "cer_n": s["cer_n"], "empty": s["empty"]} for s in scored]
-    return wer_rows, ttft_rows, persample_rows
+                       "cer_n": s["cer_n"], "empty": s["empty"],
+                       "paired_keep": s["paired_keep"]} for s in scored_all]
+    return wer_rows, ttft_rows, persample_rows, manifest
 
 
 def write_csv(rows: list, fields: list, path: Path):
@@ -351,7 +383,7 @@ def self_test() -> int:
             {"sample_id": "cw_s2", "mode": "streaming", "duration_group": "very_long",
              "ttft": 9999.0, "transcribed_text": "x", "error": "boom"},  # error 行排除
         ]
-        wer_rows, ttft_rows, persample_rows = compute(rows, idx, scope_by="prefix")
+        wer_rows, ttft_rows, persample_rows, manifest = compute(rows, idx, scope_by="prefix")
         cw_stream = [r for r in wer_rows if r["scope"] == "cw" and r["mode"] == "streaming"][0]
         check("error 行排除", cw_stream["n"] == 2, f"n={cw_stream['n']}")
         check("空转写计数与 WER", cw_stream["n_empty"] == 1
@@ -403,13 +435,45 @@ def self_test() -> int:
               str([r["ttft"] for r in got]))
         # dir 口径：_dir 标签决定分组（R2 变体逐条件拆分）
         rows_dir = [dict(r, _dir="libri_clean") for r in rows]
-        wer_rows_d, _, _ = compute(rows_dir, idx, scope_by="dir")
+        wer_rows_d, _, _, _ = compute(rows_dir, idx, scope_by="dir")
         check("dir 口径分组", all(r["scope"] in ("libri_clean", "ALL") for r in wer_rows_d))
         # CSV 写出
         out = tp / "out"
         write_csv(wer_rows, list(wer_rows[0].keys()), out / "wer_real.csv")
         write_csv(ttft_rows, list(ttft_rows[0].keys()), out / "ttft_real.csv")
         check("CSV 写出", (out / "wer_real.csv").exists() and (out / "ttft_real.csv").exists())
+
+        # W4 配对过滤：cw_s1 增补 non-streaming 行后，cw_s2 不在交集 → 排除 + manifest
+        rows_pair = rows + [{"sample_id": "cw_s1", "mode": "non-streaming",
+                             "duration_group": "long", "ttft": 3000.0,
+                             "transcribed_text": "你好世界", "error": ""}]
+        wr2, _, ps2, mf2 = compute(rows_pair, idx, scope_by="prefix")
+        cw2 = [r for r in wr2 if r["scope"] == "cw" and r["mode"] == "streaming"][0]
+        check("配对过滤后 n=1", cw2["n"] == 1, str(cw2))
+        check("manifest 记录排除", bool(mf2["cw"]["excluded"])
+              and mf2["cw"]["excluded"][0]["sample_id"] == "cw_s2", str(mf2["cw"]["excluded"]))
+        check("persample 标记 paired_keep",
+              any(p["sample_id"] == "cw_s2" and p["paired_keep"] == 0 for p in ps2))
+        # 重复 ID 退出
+        try:
+            compute(rows_pair + [rows_pair[2]], idx, scope_by="prefix")
+            check("重复 ID 退出", False)
+        except SystemExit:
+            check("重复 ID 退出", True)
+        # reference_full 缺失禁止回退 / 存在时优先（评审 W4）
+        bad_csv = tp / "bad_ref.csv"
+        bad_csv.write_text("dataset,sample_id,reference,reference_full\n"
+                           "aishell1,cw_s9,你好世界,\n", encoding="utf-8")
+        try:
+            supplement_index_from_csv({}, bad_csv)
+            check("reference_full 缺失退出", False)
+        except SystemExit:
+            check("reference_full 缺失退出", True)
+        good_csv = tp / "good_ref.csv"
+        good_csv.write_text("dataset,sample_id,reference,reference_full\n"
+                            "aishell1,cw_s9,你好,你好世界\n", encoding="utf-8")
+        idx2 = supplement_index_from_csv({}, good_csv)
+        check("reference_full 优先", idx2.get("cw_s9") == ("你好世界", "zh"), str(idx2))
 
     print(f"\nself-test {'全部通过' if failures == 0 else f'{failures} 项失败'}")
     return 1 if failures else 0
@@ -444,7 +508,7 @@ def main():
     if args.ref_csv:
         sample_index = supplement_index_from_csv(sample_index, PROJECT_ROOT / args.ref_csv)
     rows = collect_rows(args.results)
-    wer_rows, ttft_rows, persample_rows = compute(rows, sample_index, args.scope_by)
+    wer_rows, ttft_rows, persample_rows, manifest = compute(rows, sample_index, args.scope_by)
 
     out_dir = PROJECT_ROOT / args.out_dir
     write_csv(wer_rows, ["scope", "mode", "n", "n_empty", "wer_mean", "wer_std",
@@ -453,10 +517,15 @@ def main():
                          "cer_S", "cer_D", "cer_I", "cer_N"], out_dir / f"wer_{args.tag}.csv")
     write_csv(persample_rows, ["sample_id", "scope", "mode", "duration_group", "wer", "cer",
                                "wer_s", "wer_d", "wer_i", "wer_n",
-                               "cer_s", "cer_d", "cer_i", "cer_n", "empty"],
+                               "cer_s", "cer_d", "cer_i", "cer_n", "empty", "paired_keep"],
               out_dir / f"wer_{args.tag}_persample.csv")
     write_csv(ttft_rows, ["scope", "mode", "duration_group", "n", "ttft_mean", "ttft_std",
                           "ttft_p50", "ttft_p95"], out_dir / f"ttft_{args.tag}.csv")
+    # 配对过滤 manifest（评审 W4：候选/保留/排除及原因落盘）
+    manifest_path = out_dir / f"paired_filter_manifest_{args.tag}.json"
+    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=1),
+                             encoding="utf-8")
+    logger.info(f"已保存: {manifest_path}")
 
 
 if __name__ == "__main__":

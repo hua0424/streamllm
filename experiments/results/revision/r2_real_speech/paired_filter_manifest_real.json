@@ -1,0 +1,128 @@
+{
+ "aishell1_babble": {
+  "candidates": 30,
+  "kept": 30,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "aishell1_clean": {
+  "candidates": 75,
+  "kept": 75,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "aishell1_snr10": {
+  "candidates": 30,
+  "kept": 30,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "aishell1_snr15": {
+  "candidates": 30,
+  "kept": 30,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "aishell1_snr20": {
+  "candidates": 30,
+  "kept": 30,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "aishell1_speed09": {
+  "candidates": 30,
+  "kept": 30,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "aishell1_speed11": {
+  "candidates": 30,
+  "kept": 30,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "librispeech_babble": {
+  "candidates": 30,
+  "kept": 30,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "librispeech_clean": {
+  "candidates": 75,
+  "kept": 75,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "librispeech_snr10": {
+  "candidates": 30,
+  "kept": 30,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "librispeech_snr15": {
+  "candidates": 30,
+  "kept": 30,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "librispeech_snr20": {
+  "candidates": 30,
+  "kept": 30,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "librispeech_speed09": {
+  "candidates": 30,
+  "kept": 30,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ },
+ "librispeech_speed11": {
+  "candidates": 30,
+  "kept": 30,
+  "modes": [
+   "non-streaming",
+   "streaming"
+  ],
+  "excluded": []
+ }
+}

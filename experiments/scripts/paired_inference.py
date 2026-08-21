@@ -68,14 +68,19 @@ def extract_pairs(records: list[dict], mode_slow: str, mode_fast: str,
     排除：error 行、ttft 非有限正值、任一侧缺失、exclude_ids。
     挂起过滤（TTFT>10s）只适用于流式侧——非流式 extra_long 合法超 10s
     （P99≈12.3s），与 table3 manifest 规则"流式模式 TTFT>10000ms 判定挂起"一致。
+    重复 (sample_id, mode) 或空配对直接退出（评审 W5 强化）。
     """
     exclude_ids = exclude_ids or set()
     by_id: dict[str, dict[str, float]] = {}
+    seen: set[tuple[str, str]] = set()
     for r in records:
         sid = str(r.get("sample_id", ""))
+        mode = str(r.get("mode", ""))
+        if (sid, mode) in seen and mode in (mode_slow, mode_fast):
+            raise SystemExit(f"重复记录 (sample_id={sid}, mode={mode})（停止）")
+        seen.add((sid, mode))
         if not sid or sid in exclude_ids or r.get("error"):
             continue
-        mode = str(r.get("mode", ""))
         if mode not in (mode_slow, mode_fast):
             continue
         try:
@@ -87,6 +92,8 @@ def extract_pairs(records: list[dict], mode_slow: str, mode_fast: str,
             continue
         by_id.setdefault(sid, {})[mode] = v
     ids = sorted(sid for sid, d in by_id.items() if mode_slow in d and mode_fast in d)
+    if not ids:
+        raise SystemExit(f"空配对（{mode_slow} vs {mode_fast} 无共同样本，停止）")
     return ids, np.array([by_id[s][mode_slow] for s in ids]), np.array([by_id[s][mode_fast] for s in ids])
 
 
@@ -222,6 +229,19 @@ def _self_test() -> int:
     ids, sa, fa = extract_pairs(recs, "non-streaming", "streaming", exclude_ids={"s4"})
     check("配对过滤", ids == ["s1"], str(ids))
 
+    # 6) 负向（评审 W5）：重复 (sample_id, mode) / 空配对
+    try:
+        extract_pairs(recs + [dict(recs[0])], "non-streaming", "streaming")
+        check("重复记录退出", False)
+    except SystemExit:
+        check("重复记录退出", True)
+    try:
+        extract_pairs([r for r in recs if r["mode"] != "streaming"],
+                      "non-streaming", "streaming")
+        check("空配对退出", False)
+    except SystemExit:
+        check("空配对退出", True)
+
     if fails:
         for f in fails:
             print(f"FAIL {f}")
@@ -267,13 +287,27 @@ def run_all(args) -> tuple[list[dict], list[dict]]:
     la_recs = load_records(args.table7_la)
     ids_ab, a_arr, b_arr = extract_pairs(ab_recs, "non-streaming", "streaming")
     rows.append(compare("table7_a_vs_b", "standalone", "验证性比较", ids_ab, a_arr, b_arr))
-    # B vs LA：LA 记录与 B 记录跨文件配对
-    b_map = {str(r["sample_id"]): float(r["ttft"]) for r in ab_recs
-             if r.get("mode") == "streaming" and not r.get("error")
-             and 0 < float(r["ttft"]) <= HANG_TTFT_MS}
-    la_map = {str(r["sample_id"]): float(r["ttft"]) for r in la_recs
-              if not r.get("error") and 0 < float(r["ttft"]) <= HANG_TTFT_MS}
+    # B vs LA：LA 记录限定 mode=la_streaming（评审 W5），与 B 跨文件配对
+    b_map = {}
+    for r in ab_recs:
+        if r.get("mode") == "streaming":
+            sid = str(r["sample_id"])
+            if sid in b_map:
+                raise SystemExit(f"A/B 文件重复 streaming 记录: {sid}（停止）")
+            if not r.get("error") and 0 < float(r["ttft"]) <= HANG_TTFT_MS:
+                b_map[sid] = float(r["ttft"])
+    la_map = {}
+    for r in la_recs:
+        if str(r.get("mode", "la_streaming")) != "la_streaming":
+            raise SystemExit(f"LA 文件出现非 la_streaming 记录: {r.get('mode')}（停止）")
+        sid = str(r["sample_id"])
+        if sid in la_map:
+            raise SystemExit(f"LA 文件重复记录: {sid}（停止）")
+        if not r.get("error") and 0 < float(r["ttft"]) <= HANG_TTFT_MS:
+            la_map[sid] = float(r["ttft"])
     ids_bl = sorted(set(b_map) & set(la_map))
+    if not ids_bl:
+        raise SystemExit("B/LA 空配对（停止）")
     rows.append(compare("table7_b_vs_la", "standalone", "主比较", ids_bl,
                         np.array([la_map[s] for s in ids_bl]),
                         np.array([b_map[s] for s in ids_bl])))
@@ -296,11 +330,16 @@ def run_all(args) -> tuple[list[dict], list[dict]]:
             ids, a, b = extract_pairs(load_records(str(f[0])), "non-streaming", "streaming")
             rows.append(compare(f"r2_{ds}_{cond}", "r2_augmented", "Holm 族内", ids, a, b))
 
-    # F4 R5：solo 评分 B−A，只报 CI
+    # F4 R5：solo 评分 B−A，只报 CI（ID 唯一性校验）
     reg(args.r5_csv)
     with open(args.r5_csv, encoding="utf-8-sig", newline="") as fh:
         srows = [r for r in csv.DictReader(fh)
                  if r.get("solo_score_A") and r.get("solo_score_B")]
+    r5_ids = [r["sample_id"] for r in srows]
+    if len(r5_ids) != len(set(r5_ids)):
+        raise SystemExit("R5 语义 CSV 存在重复 sample_id（停止）")
+    if not srows:
+        raise SystemExit("R5 语义 CSV 无有效配对行（停止）")
     sa = np.array([float(r["solo_score_A"]) for r in srows])
     sb = np.array([float(r["solo_score_B"]) for r in srows])
     bs = paired_bootstrap(sb, sa)  # diff = B − A

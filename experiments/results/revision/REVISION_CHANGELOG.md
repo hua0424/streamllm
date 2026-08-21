@@ -293,3 +293,18 @@
   （试听待人完成）、`r3_baseline_la/LA_METHOD_AND_EXCLUSION.md`。
 - W8 阶段 1：`PAPER_WRITING_REFERENCE.md` §十降级"整改中"，五处作废表述行内标记。
 - 下一步：代码级审查（Gate 1）→ GPU handoff（TTS 探活→冒烟 3 条→正式 50×2+子集补轮+匹配文本控制+W2 环境）。
+
+## 2026-08-21 Gate1 实现审查整改（review-implementation-v3.1 全量接纳）
+
+- P0-1 flush=None 显式 final drain（drain 无输出记 error，不静默截断）+ 真实 ASRCache 协议测试；
+- P0-2 pair 全程绝对 deadline + 线程终止确认 + fatal fail-stop（fatal 后任务补 cancelled 终态）；
+- P0-3 checkpoint 整文件原子快照 + 完整恢复绑定（git/env/模型/Silero/TTS/清单 hash），四负向用例；
+- P0-4 正式模式强制固定 Silero（ref/dir + artifact SHA-256，缺失拒启动）；
+- P1-1 EOS 优先于 first_model_token；P1-2 请求级 torch.Generator（multinomial 隔离）；
+  P1-3 语言×时长分层调度（stratum ≤1，全局 25/25）；P1-4/5 TTS 跨 read 格式校验+重切粒度+
+  读到自然结束+对齐校验；P1-6 schema/QA 扩项；P1-7 冒烟分层选取+可控故障注入（仅 smoke）；
+- W3 键集合/config 一致性；W4 配对交集过滤+paired_filter_manifest+reference_full 强制
+  （重生成 0 差异）；W5 重复/空配对/LA 模式限定/R5 唯一性（重跑数字不变）；
+- self-test：W1 56 项全过；W3/W4/W5 全过；新增本机真实组件集成测试
+  `ttfa_local_integration.py`（3060 + whisper-tiny + Qwen2-0.5B 本地目录）ALL PASS（仅路径验证）；
+- 模型/设备改 CLI（默认取 src/config）；EXPERIMENT_DESIGN.md 同步排结果 QA 后。
