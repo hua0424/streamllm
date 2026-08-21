@@ -2247,6 +2247,58 @@ def _self_test() -> int:
         r422 = _rq.post(srv.url + "/inference_sft", json={"tts_text": "x"}, timeout=5)
         check("契约防护·对路径+JSON 得 422", r422.status_code == 422, str(r422.status_code))
 
+    # 25) --tts-control-only（审查 §4.4）：匹配文本控制模式端到端
+    import argparse as _ap
+    with tempfile.TemporaryDirectory() as td:
+        main_ck = Path(td) / "checkpoint_r7_main.jsonl"
+        recs_main = []
+        for i in range(5):
+            for lang, sid in (("zh", f"crosswoz_c{i}"), ("en", f"multiwoz_c{i}")):
+                recs_main.append({"sample_id": sid, "mode": "streaming", "repeat_idx": 0,
+                                  "terminal_state": "success", "language": lang,
+                                  "tts_text": "这是首句。" if lang == "zh" else "First one."})
+                recs_main.append({"sample_id": sid, "mode": "non-streaming", "repeat_idx": 0,
+                                  "terminal_state": "success", "language": lang,
+                                  "tts_text": "第一句。第二句第三句" if lang == "zh"
+                                  else "First sentence. Second sentence"})
+        header_line = json.dumps({"type": "header", "run_id": "r7_main"})
+        main_ck.write_text(header_line + chr(10)
+                           + chr(10).join(json.dumps(r, ensure_ascii=False) for r in recs_main) + chr(10),
+                           encoding="utf-8")
+        ctl_out = Path(td) / "ctl"
+        sample_list_f = Path(td) / "sl.json"
+        sample_list_f.write_text("[]", encoding="utf-8")
+        args_c = _ap.Namespace(
+            tts_control_only=True, control_from=str(main_ck), output_dir=str(ctl_out),
+            run_id="ctl_test", sample_list=str(sample_list_f),
+            tts_url=None, tts_spk="x", tts_speed=1.0)
+        with _FakeTTSServer("normal") as srv:
+            args_c.tts_url = srv.url
+            rc = run_tts_control(args_c, dict(_ST_PROBE) | {"ok": True})
+        import csv as _csv2
+        rows = list(_csv2.DictReader(open(ctl_out / "tts_control_ctl_test.csv", encoding="utf-8")))
+        a_first = [r for r in rows if r["text_source"] == "a_first_sentence"
+                   and r["sample_id"] == "crosswoz_c0"][0]
+        check("控制模式 32 记录全成功", rc == 0 and len(rows) == 32
+              and all(r["terminal_state"] == "success" for r in rows), str(len(rows)))
+        check("A 首句派生正确", a_first["tts_n_chars"] == str(len("第一句。")),
+              a_first["tts_n_chars"])
+        check("校准句在", {r["sample_id"] for r in rows} >= {"calibration_zh", "calibration_en"})
+        # 负向：成功配对不足 10 → 拒绝
+        main_ck2 = Path(td) / "checkpoint_small.jsonl"
+        main_ck2.write_text(header_line + chr(10)
+                            + chr(10).join(json.dumps(r, ensure_ascii=False)
+                                           for r in recs_main[:8]) + chr(10), encoding="utf-8")
+        args_c2 = _ap.Namespace(**{**vars(args_c), "control_from": str(main_ck2),
+                                   "output_dir": str(Path(td) / "ctl2"), "run_id": "ctl2"})
+        try:
+            with _FakeTTSServer("normal") as srv:
+                args_c2.tts_url = srv.url
+                run_tts_control(args_c2, dict(_ST_PROBE) | {"ok": True})
+            check("控制模式配对不足拒绝", False)
+        except SystemExit:
+            check("控制模式配对不足拒绝", True)
+
     print(f"\nself-test {n_checks[0]} PASS / {len(fails)} FAIL"
           + ("" if not fails else ": " + "; ".join(fails)))
     return 1 if fails else 0
@@ -2385,6 +2437,133 @@ def _select_smoke(samples: list[dict], tasks: list[dict], n_smoke: int):
     return new_samples, new_tasks
 
 
+# ============================================================ TTS 匹配文本控制（W1 协议 v3.1）
+
+CALIBRATION_TEXTS = {"zh": "这是用于校准的固定参考句子。", "en": "This is a fixed calibration sentence."}
+
+# 审查 §4.3：请求音色名经本地服务配置映射到内置 embedding，正式材料必须披露
+SPEAKER_MAPPING_NOTE = ("requested speaker id '晓伊' was mapped by the local service "
+                        "configuration (spk2info.pt) to the built-in Chinese female "
+                        "speaker embedding; not identical to the original paper voice")
+
+
+def _first_sentence_offline(text: str) -> str | None:
+    """离线取首句（A 回复全文 → 首句文本），复用流式检测器的裁决规则。"""
+    det = StreamingSentenceDetector()
+    idx = det.update(text, final=True)
+    return text[:idx + 1] if idx is not None else None
+
+
+def run_tts_control(args, probe: dict) -> int:
+    """匹配文本 TTS 控制（--tts-control-only）：分离"早启动策略"与"输入长度"影响。
+
+    输入：--control-from（主实验 checkpoint，如 r7_main）。对分层选取的 ≥10 条成功配对：
+    每样本三次 TTS 调用——(i) B 首句文本重测（与主实验对照 = TTS 运行方差）、
+    (ii) A 回复首句文本、(iii) A 全文重测；另加固定校准句 zh/en 各一。
+    仅 TTS 调用，不加载 ASR/LLM/Silero，不跑 A/B 管线。
+    """
+    import csv as _csv
+    lines = Path(args.control_from).read_text(encoding="utf-8").splitlines()
+    main_header = json.loads(lines[0])
+    main_recs = [json.loads(l) for l in lines[1:]]
+    by_key = {}
+    for r in main_recs:
+        if r.get("terminal_state") == "success":
+            by_key[f"{r['sample_id']}|{r['mode']}|{r.get('repeat_idx', 0)}"] = r
+    # 分层选样：语言×时长，zh/en 各至少 5，成功 A/B 配对
+    pairs = {}
+    for k, r in by_key.items():
+        if r.get("repeat_idx", 0) != 0:
+            continue
+        pairs.setdefault(r["sample_id"], {})[r["mode"]] = r
+    complete = {sid: p for sid, p in pairs.items() if len(p) == 2}
+    if len(complete) < 10:
+        raise SystemExit(f"成功配对不足 10（{len(complete)}），控制实验暂缓（停止）")
+    zh = sorted([sid for sid, p in complete.items() if p["streaming"]["language"] == "zh"])[:5]
+    en = sorted([sid for sid, p in complete.items() if p["streaming"]["language"] == "en"])[:5]
+    if not zh or not en:
+        raise SystemExit("控制实验需要 zh/en 各至少 5 条成功配对（停止）")
+    selected = sorted(zh + en)
+
+    out_dir = Path(args.output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    cfg = {"tts_control": True, "control_from": str(args.control_from),
+           "control_from_sha256": sha256_file(args.control_from),
+           "tts_url": args.tts_url, "tts_spk": args.tts_spk, "tts_speed": args.tts_speed,
+           "tts_speaker_mapping_note": SPEAKER_MAPPING_NOTE}
+    cfg_hash = config_hash(cfg)
+    binding = {"schema_version": SCHEMA_VERSION, "run_id": args.run_id,
+               "config_hash": cfg_hash, "schedule_hash": sha256_text("tts_control_only"),
+               "git_commit": _git_info()["git_commit"], "git_dirty": _git_info()["git_dirty"],
+               "env_versions": _env_versions(), "asr_model": "not_applicable",
+               "llm_model": "not_applicable",
+               "silero_meta": {"not_applicable": True},
+               "tts_config": {"url": args.tts_url, "spk_id": args.tts_spk,
+                              "speed": args.tts_speed, "probe": probe,
+                              "speaker_mapping_note": SPEAKER_MAPPING_NOTE,
+                              "platform_conditions_sha256": cfg.get("platform_conditions_sha256")},
+               "sample_list_sha256": sha256_file(args.sample_list),
+               "subset_sha256": sha256_text(canonical_json(selected)),
+               "audio_map_sha256": sha256_text("tts_control_only")}
+    ck = Checkpoint(out_dir / f"checkpoint_{args.run_id}.jsonl", args.run_id, binding)
+
+    def _call(sid: str, source: str, text: str, lang: str) -> dict:
+        key = f"{sid}|{source}|0"  # 主键约定与 Checkpoint.key_of 一致（mode=text_source）
+        if key in ck.done:
+            return {"skipped": ck.done[key]}
+        holder: dict = {}
+        deadline = now_ns() + int(120 * 1e9)
+        rec_t = tts_measure(args.tts_url, text, args.tts_spk, args.tts_speed, probe,
+                            threading.Event(), deadline)
+        row = {"schema_version": SCHEMA_VERSION, "run_id": args.run_id, "sample_id": sid,
+               "mode": source, "repeat_idx": 0,
+               "language": lang, "text_source": source, "tts_text": text,
+               "tts_n_chars": len(text), "tts_n_bytes_utf8": len(text.encode("utf-8")),
+               "tts_text_sha256": sha256_text(text), "tts": rec_t,
+               "terminal_state": "success" if not rec_t.get("error") else "error",
+               "fatal": False, "error": rec_t.get("error", ""),
+               "config_hash": cfg_hash, "schedule_hash": binding["schedule_hash"]}
+        ck.append(row)
+        return row
+
+    n_err = 0
+    for sid in selected:
+        p = complete[sid]
+        lang = p["streaming"]["language"]
+        b_first = p["streaming"].get("tts_text") or ""
+        a_full = p["non-streaming"].get("tts_text") or ""
+        a_first = _first_sentence_offline(a_full) or a_full
+        for source, text in (("b_first_sentence", b_first), ("a_first_sentence", a_first),
+                             ("a_full_response", a_full)):
+            row = _call(sid, source, text, lang)
+            if row.get("terminal_state") != "success" and "skipped" not in row:
+                n_err += 1
+    for lang, text in CALIBRATION_TEXTS.items():
+        row = _call(f"calibration_{lang}", "calibration", text, lang)
+        if row.get("terminal_state") != "success" and "skipped" not in row:
+            n_err += 1
+
+    rows_out = list(ck.records)
+    fields = ["sample_id", "language", "text_source", "tts_n_chars", "tts_n_bytes_utf8",
+              "terminal_state", "error"]
+    with open(out_dir / f"tts_control_{args.run_id}.csv", "w", newline="", encoding="utf-8") as f:
+        w = _csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(rows_out)
+    ok = [r for r in rows_out if r["terminal_state"] == "success"]
+    ttfts = [ (r["tts"]["first_playable_pcm_ns"] - r["tts"]["tts_request_start_ns"]) / 1e6
+              for r in ok if r["tts"].get("first_playable_pcm_ns") ]
+    summary = ["# TTS 匹配文本控制 RUNINFO", "",
+               f"- run_id: {args.run_id}", f"- control_from: {args.control_from} ({cfg['control_from_sha256'][:16]}…)",
+               f"- 样本: {len(selected)}（zh {len(zh)} + en {len(en)}），每样本 3 调用 + 校准 2",
+               f"- 记录: {len(rows_out)}（success {len(ok)} / error {n_err}）",
+               f"- tts_req→playable ms: mean {sum(ttfts)/len(ttfts):.0f}" if ttfts else "- 无成功 playable",
+               f"- speaker 映射注记: {SPEAKER_MAPPING_NOTE}", ""]
+    (out_dir / f"RUNINFO_{args.run_id}.md").write_text(chr(10).join(summary), encoding="utf-8")
+    print(f"TTS 控制: {len(rows_out)} 记录，error {n_err}")
+    return 1 if n_err else 0
+
+
 def _backfill_cancelled(ck: "Checkpoint", tasks: list[dict], run_id: str,
                         cfg_hash: str, sched_hash: str) -> int:
     """fatal 后为全部剩余任务补写 cancelled 终态（r2 P0-2/P0-3 可测函数）。"""
@@ -2425,6 +2604,12 @@ def main() -> int:
     ap.add_argument("--inject-fault", choices=["none", "asr_error"], default="none",
                     help="可控故障注入（仅限 --smoke；正式模式禁止）")
     ap.add_argument("--tts-probe", action="store_true", help="仅执行 TTS 探活")
+    ap.add_argument("--tts-control-only", action="store_true",
+                    help="匹配文本 TTS 控制模式（不加载 ASR/LLM/Silero，仅 TTS 调用）")
+    ap.add_argument("--control-from", default=None,
+                    help="控制模式输入：主实验 checkpoint 路径（如 checkpoint_r7_main.jsonl）")
+    ap.add_argument("--platform-conditions-file", default=None,
+                    help="正式 run 平台条件记录文件（驱动/CUDA/fallback/GPU 独占等），hash 入 binding")
     ap.add_argument("--no-resume", action="store_true")
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args()
@@ -2435,6 +2620,15 @@ def main() -> int:
         out = tts_probe(args.tts_url, args.tts_spk, args.tts_speed)
         print(json.dumps(out, ensure_ascii=False, indent=2))
         return 0 if out.get("ok") else 1
+    if args.tts_control_only:
+        if not args.sample_list or not args.run_id or not args.control_from:
+            ap.error("--tts-control-only 需要 --sample-list、--run-id 与 --control-from")
+        probe_c = tts_probe(args.tts_url, args.tts_spk, args.tts_speed)
+        (Path(args.output_dir) / "tts_probe.json").write_text(
+            json.dumps(probe_c, ensure_ascii=False, indent=2), encoding="utf-8")
+        if not probe_c.get("ok"):
+            raise SystemExit(f"TTS 探活失败: {probe_c}（停止）")
+        return run_tts_control(args, probe_c)
     if not args.sample_list or not args.run_id:
         ap.error("正式模式需要 --sample-list 与 --run-id")
     # P0-4：正式/冒烟模式必须固定 Silero 来源
@@ -2488,7 +2682,10 @@ def main() -> int:
            "tts_url": args.tts_url, "tts_spk": args.tts_spk, "tts_speed": args.tts_speed,
            "sample_list_sha256": sha256_file(args.sample_list),
            "requested_repetition_penalty": 1.1, "effective_repetition_penalty": "not_applied",
-           "temperature": 0.1, "top_p": 0.9}
+           "temperature": 0.1, "top_p": 0.9,
+           "tts_speaker_mapping_note": SPEAKER_MAPPING_NOTE,
+           "platform_conditions_sha256": (sha256_file(args.platform_conditions_file)
+                                          if args.platform_conditions_file else None)}
     sched_hash = schedule_hash(tasks)
 
     # TTS 探活（正式前必过；允许策略由探活固定）
@@ -2552,7 +2749,9 @@ def main() -> int:
                "env_versions": env, "asr_model": args.asr_model, "llm_model": args.llm_model,
                "silero_meta": silero_meta,
                "tts_config": {"url": args.tts_url, "spk_id": args.tts_spk,
-                              "speed": args.tts_speed, "probe": probe},
+                              "speed": args.tts_speed, "probe": probe,
+                              "speaker_mapping_note": SPEAKER_MAPPING_NOTE,
+                              "platform_conditions_sha256": cfg.get("platform_conditions_sha256")},
                "sample_list_sha256": cfg["sample_list_sha256"],
                "subset_sha256": sha256_text(canonical_json(sorted(subset_ids))),
                "audio_map_sha256": audio_map_hash}
@@ -2664,6 +2863,8 @@ def main() -> int:
                f"- audio_map_sha256: {audio_map_hash}",
                f"- playable 阈值: {PLAYABLE_BYTES} bytes（22050Hz×16bit×30ms）",
                f"- 采样实际生效参数: temperature=0.1, top_p=0.9, repetition_penalty=not_applied",
+               f"- speaker 映射注记: {SPEAKER_MAPPING_NOTE}",
+               f"- platform_conditions_sha256: {cfg.get('platform_conditions_sha256')}",
                f"- 故障注入: {args.inject_fault}（仅冒烟）", ""]
     (out_dir / f"RUNINFO_{args.run_id}.md").write_text("\n".join(runinfo), encoding="utf-8")
     print(f"完成: {len(all_records)} 记录，success {n_success} / 非成功 {n_err}；QA 问题 {len(problems)}")

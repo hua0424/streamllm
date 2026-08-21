@@ -1,12 +1,33 @@
-# R7 正式实验交接文档（50×2 主实验 + 子集补轮 + 匹配文本控制）
+# R7 正式实验交接文档（Gate 版，2026-08-22）
 
-- 日期：2026-08-21（待审查复核通过后执行）
-- 前置：冒烟结果级核验通过（`experiments/review/20260821-PRE-PAPER-AUDIT/dev-smoke-verification-20260821.md`）
-  **且审查方书面放行正式实验**——未获放行前本文档不得执行。
-- 代码基线：`git pull` 至 `cdeb927` 或更新
-- 脚本：`experiments/scripts/run_ttfa_unified.py`（探活/self-test 期望与 r4 版一致：86 PASS）
+- 前置：**审查方书面放行**（对应 `review-dev-smoke-verification-20260821.md` §5 的 11 项 Gate；
+  开发侧已完成的整改见 `reply-review-dev-smoke-verification-20260821.md`）。未获书面放行前本文档不得执行。
+- 代码基线：`git pull` 至本次 push（含 `--tts-control-only` 实现与 speaker/平台条件绑定）或更新
+- 脚本 self-test 期望值：**90 PASS / 0 FAIL**
 
-## 1. 正式主实验 + 重复子集（单条命令）
+## 1. 启动前 Gate 清单（逐项执行并留存证据）
+
+```bash
+cd /dataA/streamllm && git pull
+# G1 clean 工作树（dirty 不得开跑；若有本地改动须留 patch 并获批准）
+git status --porcelain | tee /tmp/g1_status.txt      # 期望：空
+git rev-parse HEAD | tee /tmp/g2_code_commit.txt     # G2 批准的 code_commit（回传待批）
+# G7 TTS 服务端 provenance
+docker inspect --format='{{.Image}}' $(docker ps -q --filter ancestor=cosyvoice:v2.0) \
+  | tee /tmp/g7_image_digest.txt                     # 镜像 digest
+docker images --digests | grep cosyvoice | tee -a /tmp/g7_image_digest.txt
+sha256sum <CosyVoice模型目录>/….pt <TTS 服务 spk2info.pt 路径> | tee /tmp/g7_model_hashes.txt
+# CosyVoice 服务代码 commit + 本地修改 diff（server.py/requirements 有本地修改）
+cd <CosyVoice 仓库目录> && git rev-parse HEAD && git diff > /tmp/g7_server_dirty.patch && cd /dataA/streamllm
+# G8 平台条件记录（--platform-conditions-file 将绑定其 hash）
+{ nvidia-smi; nvcc --version 2>/dev/null || cat /usr/local/cuda/version.txt 2>/dev/null;
+  grep -c "falling back to a slower" <(tail -100 r7_ttfa_unified/r7_smoke_run.log) || true;
+  echo "triton_fallback=observed_in_smoke_log(已登记为第二平台固定条件)";
+  echo "GPU 独占声明: 实验期间无其他 GPU 作业"; nvidia-smi --query-gpu=memory.used,memory.total --format=csv; } \
+  > experiments/results/revision/r7_ttfa_unified/env/platform_conditions.txt
+```
+
+## 2. 正式主实验 + 重复子集（新 checkpoint，绝不从 smoke 续跑）
 
 ```bash
 uv run python -m experiments.scripts.run_ttfa_unified \
@@ -18,53 +39,46 @@ uv run python -m experiments.scripts.run_ttfa_unified \
     --llm-model Qwen/Qwen2-7B-Instruct --llm-device cuda:1 \
     --tts-url http://127.0.0.1:20401 --tts-spk 晓伊 --tts-speed 0.8 \
     --silero-dir ~/.cache/torch/hub/snakers4_silero-vad_master \
+    --platform-conditions-file experiments/results/revision/r7_ttfa_unified/env/platform_conditions.txt \
     --output-dir experiments/results/revision/r7_ttfa_unified \
     --run-id r7_main
 ```
 
-与冒烟的差异（全部由脚本内置，无需额外参数）：
+- 120 任务（50×2 + 10 子集 ×2 模式 ×补 2 轮），预计 3–5 小时；脚本启动时自动做**新一轮探活**
+  并把 probe 绑定进 checkpoint（G5）；Silero artifact hash 自动核验并断言 PSE/分段器一致（G6）；
+- RUNINFO 自动记录：speaker 映射注记、platform_conditions_sha256、code_commit、
+  config/schedule/git/env hash（G3/G4/G10）；
+- 产物 push 后形成 result_artifact_commit，与 code_commit 一并回传（区分三者）；
+- fatal/thread_leak/pair_timeout/schema 错误 → 立即停止，保留终态记录，反馈现场。
 
-- 无 `--smoke`/`--inject-fault`（正式模式禁用故障注入）；
-- 50 样本全量、AB/BA 分层平衡调度（25/25，语言×时长 stratum ≤1）；
-- 自动含 10 条重复子集（5 zh + 5 en，repeat 0 计入三轮 + 自动补 repeat 1/2，
-  三轮交替 AB/BA/AB 或 BA/AB/BA），schedule 共 50×2×1 + 10×2×2 = **120 任务**；
-- 每任务预计 1–4 分钟（A 全文 TTS 15–40s 主导），总计约 **3–5 小时**；
-- checkpoint 断点续跑：中断后同 run_id 重跑自动跳过已终态任务；
-  **fatal（模型/线程级）会 fail-stop 并把剩余任务补 cancelled，此时停下反馈，勿换 run_id 重试**。
-
-## 2. 匹配文本 TTS 控制（主实验完成后）
-
-对主实验产出的分层 ≥10 条子集（语言×时长平衡），仅做 TTS 调用分离"早启动策略"与
-"输入长度"影响。执行方式见下（从 checkpoint 读取 B 首句/A 回复文本后逐条调 TTS）：
+## 3. 匹配文本 TTS 控制（主实验完成后；`--tts-control-only` 已实现并自测）
 
 ```bash
 uv run python -m experiments.scripts.run_ttfa_unified \
+    --tts-control-only \
+    --control-from experiments/results/revision/r7_ttfa_unified/checkpoint_r7_main.jsonl \
     --sample-list experiments/results/revision/r1_stats/repeat_subset_ids.json \
-    --json-dir experiments/datasets/processed/json \
-    --audio-dir experiments/datasets/processed/audio \
     --tts-url http://127.0.0.1:20401 --tts-spk 晓伊 --tts-speed 0.8 \
-    --silero-dir ~/.cache/torch/hub/snakers4_silero-vad_master \
     --output-dir experiments/results/revision/r7_ttfa_unified \
-    --run-id r7_tts_control --tts-control-only
+    --run-id r7_tts_control
 ```
 
-说明：`--tts-control-only` 为只跑控制测量、不跑 A/B 管线的模式（每样本：B 首句文本重测
-= 运行方差、A 回复首句、A 全文重测；另加固定校准句中英各一）。该模式本轮由开发侧随
-放行一并实现并自测——**若该 flag 尚未在代码中，请勿自行改造，反馈后由开发侧补齐**。
+- 自动分层选 10 条成功配对（zh/en 各 5），每样本 3 次 TTS 调用（B 首句重测 / A 回复首句 /
+  A 全文）+ 固定校准句中英各一 = 32 调用；产物 `tts_control_r7_tts_control.csv` + RUNINFO；
+- 不加载 ASR/LLM/Silero；成功配对不足 10 或 zh/en 不足 5 → fail-closed。
 
-## 3. 验收清单（正式实验）
+## 4. 正式验收清单（在原八项上按 Gate 加三项）
 
-1. `QA_r7_main.md`：问题 0；任务 120 全部终态（无 cancelled/timeout；error 行保留并逐条反馈）；
-2. 50 条主实验每配对键 A/B 双记录、WAV hash 与 seed 一致；
-3. 子集 10 条每 (sample, mode) 恰 3 轮成功（`ttfa_subset_cv_r7_main.csv` 有 CV 值）；
-4. 成功记录：validate 全过、闭合残差 0、TTFA 非负；
-5. TTS 无 error（偶发错误保留记录反馈，不删不改不重试掩盖）；
-6. RUNINFO：git/env/Silero artifact/TTS 探活策略/清单 hash 齐全；
-7. `-lcuda` 噪声属已知登记项，不影响验收。
+1. 原 r4 版八项（QA 0 / 120 全终态 / 子集恰三轮 / validate 全过 / TTS 无 error / RUNINFO 齐全…）；
+2. **G1-G8 证据齐备**（clean 树、code_commit、新 checkpoint、探活绑定、Silero hash、
+   TTS 服务 provenance、平台条件文件 hash 入 binding）；
+3. **commit 三元组回传**：code_commit（RUNINFO 内）/ result_artifact_commit（push 后）/
+   verification_commit（本机核验后）；
+4. 晓伊→内置中文女映射、CUDA/Triton fallback、max_tokens=128 等限定已由 RUNINFO/注记固化
+   （论文边界照 review §6 执行，不在 GPU 侧处理）。
 
-## 4. 产物与反馈
+## 5. 产物与反馈
 
-- `r7_ttfa_unified/`：checkpoint_r7_main.jsonl、RUNINFO/QA/summary/CV、run.log、
-  r7_tts_control 同套产物、tts_probe.json；
-- push 后本机做结果级核验 → 装配新 Table VIII（TTFA_playable 主口径）→ 总册 W8 阶段 2
-  同步 → 审查复核 → 论文修改放行。
+`r7_ttfa_unified/`（checkpoint_r7_main、RUNINFO/QA/summary/CV、tts_control 三件套、
+run.log、tts_probe.json、env/ 含 platform_conditions.txt 与 G1-G8 证据）→ push →
+本机结果级核验（区分三元 commit）→ 装配新 Table VIII → W8 阶段 2 → 审查复核 → 论文放行。

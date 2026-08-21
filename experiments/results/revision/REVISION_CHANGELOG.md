@@ -380,3 +380,15 @@
 - 首扫误报登记：核验脚本曾把字段名 final_drain_empty 当命中，修正后 0 问题；
 - -lcuda 链接噪声：ctranslate2 JIT 探测 32 位 libcuda，非门禁，登记沿用；
 - 待审查复核通过后发正式实验 handoff（50×2 + 子集补轮 + 匹配文本控制）。
+
+## 2026-08-22 冒烟复核意见（provenance Gate）全量采纳落实
+
+- 五项阻塞全部成立并处置：dirty 树→Gate 版 handoff G1（clean 前置）；commit 混淆→核验报告
+  addendum 拆分 code(1a0ddc8)/artifact(b1e1206)/verification(cdeb927) 三元；TTS 服务
+  provenance→handoff G7 采集命令（commit+diff/镜像 digest/模型/spk2info hash）；
+  --tts-control-only→已实现（10 配对×3 调用+中英校准句=32 调用，独立 binding 含
+  control-from hash，配对不足 fail-closed）+4 项 self-test；平台条件→
+  --platform-conditions-file hash 入 config/binding；
+- 晓伊→内置中文女映射固化为 SPEAKER_MAPPING_NOTE 常量，自动入 RUNINFO/binding（G10）；
+- self-test 86 → 90 PASS / 0 FAIL；正式 handoff 重写为 Gate 版（G1-G8 + 加严验收）；
+- 待审查方复核回复函后出具书面放行记录（Gate 第 11 项）。

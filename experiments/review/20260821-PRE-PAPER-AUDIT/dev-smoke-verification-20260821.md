@@ -42,3 +42,22 @@
 冒烟八项全过、真实 GPU 路径（固定 Silero PSE+分段器、Whisper final-drain、Qwen 生成、
 TTS 契约、故障注入、双语双模式）均有实测证据。**申请审查复核通过后放行正式实验**：
 50×2 主实验 + 10 条子集补 repeat 1/2 + 匹配文本 TTS 控制（正式 handoff 已备好待发）。
+
+---
+
+## 勘误与补充（2026-08-22，对应 review-dev-smoke-verification §4.2）
+
+原报告"核验对象：commit `b1e1206` 产物"表述混淆了三类 commit，按审查要求拆分更正：
+
+| 角色 | commit | 说明 |
+|---|---|---|
+| **code_commit（实际运行代码）** | `1a0ddc8` | RUNINFO/checkpoint binding 中的 `git_commit`；冒烟工作树 `git_dirty=true`（见下） |
+| **result_artifact_commit（产物提交）** | `b1e1206` | 冒烟产物（checkpoint/RUNINFO/QA/log）入库提交，非运行代码 |
+| **verification_commit（核验提交）** | `cdeb927` | 本核验报告入库提交 |
+
+- 冒烟运行时工作树 dirty：`git_dirty=true` 已在 binding 如实记录；按审查 §4.1 裁定，
+  **正式 run 不从 smoke checkpoint 续跑**（本就计划新 run_id=r7_main + 新 checkpoint），
+  且正式 run 启动前必须 clean 工作树（正式 handoff Gate 版已列为启动前置）；
+- 晓伊→内置中文女 speaker 映射、TTS 服务端 provenance（commit/镜像 digest/模型/
+  spk2info.pt hash）、CUDA/Triton fallback 与 ASR/TTS 共存 cuda:0 的平台条件记录：
+  均已列入正式 handoff Gate 版启动前/后采集清单，`--tts-control-only` 已实现（见回复函）。
