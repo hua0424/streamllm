@@ -9,7 +9,7 @@
   "allow_content_type": null,
   "allow_content_encoding": null,
   "policy_note": "缺失头按 None 原样固定为允许值；正式请求逐项严格相等比对，任何偏离（含头新增/取值变化）记 error，不放宽",
-  "payload_class": "json",
-  "magic_hex": "7bffbcff94ff89ff",
-  "ok": false
+  "payload_class": "pcm",
+  "magic_hex": "2f007400c5ffccff",
+  "ok": true
 }
