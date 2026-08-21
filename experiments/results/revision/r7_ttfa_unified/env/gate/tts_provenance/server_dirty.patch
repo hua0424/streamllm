@@ -1,0 +1,163 @@
+diff --git a/requirements.txt b/requirements.txt
+index 782c1f7..cc0b468 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -29,9 +29,6 @@ pyworld==0.3.4
+ rich==13.7.1
+ soundfile==0.12.1
+ tensorboard==2.14.0
+-tensorrt-cu12==10.0.1; sys_platform == 'linux'
+-tensorrt-cu12-bindings==10.0.1; sys_platform == 'linux'
+-tensorrt-cu12-libs==10.0.1; sys_platform == 'linux'
+ torch==2.3.1
+ torchaudio==2.3.1
+ transformers==4.40.1
+diff --git a/runtime/python/fastapi/server.py b/runtime/python/fastapi/server.py
+index 74c62d8..0a8ca13 100644
+--- a/runtime/python/fastapi/server.py
++++ b/runtime/python/fastapi/server.py
+@@ -15,18 +15,34 @@ import os
+ import sys
+ import argparse
+ import logging
++import torch  # [新增] 引入torch用于设置线程和检查GPU
+ logging.getLogger('matplotlib').setLevel(logging.WARNING)
+ from fastapi import FastAPI, UploadFile, Form, File
+ from fastapi.responses import StreamingResponse
+ from fastapi.middleware.cors import CORSMiddleware
+ import uvicorn
+ import numpy as np
++
+ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+ sys.path.append('{}/../../..'.format(ROOT_DIR))
+ sys.path.append('{}/../../../third_party/Matcha-TTS'.format(ROOT_DIR))
+ from cosyvoice.cli.cosyvoice import CosyVoice, CosyVoice2
+ from cosyvoice.utils.file_utils import load_wav
+ 
++# --- 初始化模型（关键：放到全局，worker启动时自动加载）---
++# 注意：每个worker会独立加载一次模型！需要足够内存（8 workers × 2~3GB ≈ 16~24GB RAM）
++MODEL_DIR = "/pretrained_models/CosyVoice-300M-SFT"  # 可从环境变量读取
++try:
++    cosyvoice = CosyVoice(MODEL_DIR)
++    print(f"[Worker {os.getpid()}] CosyVoice model loaded successfully.")
++except Exception as e1:
++    try:
++        cosyvoice = CosyVoice2(MODEL_DIR)
++        print(f"[Worker {os.getpid()}] CosyVoice2 model loaded successfully.")
++    except Exception as e2:
++        raise RuntimeError(f"Failed to load model: {e1}, {e2}")
++
++
+ app = FastAPI()
+ # set cross region allowance
+ app.add_middleware(
+@@ -45,57 +61,80 @@ def generate_data(model_output):
+ 
+ @app.get("/inference_sft")
+ @app.post("/inference_sft")
+-async def inference_sft(tts_text: str = Form(), spk_id: str = Form()):
+-    model_output = cosyvoice.inference_sft(tts_text, spk_id)
++def inference_sft(tts_text: str = Form(), spk_id: str = Form(), speed: float = Form(1.0)):
++    # [修改] 增加 speed 参数并传递给模型
++    model_output = cosyvoice.inference_sft(tts_text, spk_id, speed=speed)
+     return StreamingResponse(generate_data(model_output))
+ 
+ 
+ @app.get("/inference_zero_shot")
+ @app.post("/inference_zero_shot")
+-async def inference_zero_shot(tts_text: str = Form(), prompt_text: str = Form(), prompt_wav: UploadFile = File()):
++def inference_zero_shot(tts_text: str = Form(), prompt_text: str = Form(), prompt_wav: UploadFile = File(), speed: float = Form(1.0)):
+     prompt_speech_16k = load_wav(prompt_wav.file, 16000)
+-    model_output = cosyvoice.inference_zero_shot(tts_text, prompt_text, prompt_speech_16k)
++    # [修改] 增加 speed 参数并传递给模型
++    model_output = cosyvoice.inference_zero_shot(tts_text, prompt_text, prompt_speech_16k, speed=speed)
+     return StreamingResponse(generate_data(model_output))
+ 
+ 
+ @app.get("/inference_cross_lingual")
+ @app.post("/inference_cross_lingual")
+-async def inference_cross_lingual(tts_text: str = Form(), prompt_wav: UploadFile = File()):
++def inference_cross_lingual(tts_text: str = Form(), prompt_wav: UploadFile = File(), speed: float = Form(1.0)):
+     prompt_speech_16k = load_wav(prompt_wav.file, 16000)
+-    model_output = cosyvoice.inference_cross_lingual(tts_text, prompt_speech_16k)
++    # [修改] 增加 speed 参数并传递给模型
++    model_output = cosyvoice.inference_cross_lingual(tts_text, prompt_speech_16k, speed=speed)
+     return StreamingResponse(generate_data(model_output))
+ 
+ 
+ @app.get("/inference_instruct")
+ @app.post("/inference_instruct")
+-async def inference_instruct(tts_text: str = Form(), spk_id: str = Form(), instruct_text: str = Form()):
+-    model_output = cosyvoice.inference_instruct(tts_text, spk_id, instruct_text)
++def inference_instruct(tts_text: str = Form(), spk_id: str = Form(), instruct_text: str = Form(), speed: float = Form(1.0)):
++    # [修改] 增加 speed 参数并传递给模型
++    model_output = cosyvoice.inference_instruct(tts_text, spk_id, instruct_text, speed=speed)
+     return StreamingResponse(generate_data(model_output))
+ 
+ 
+ @app.get("/inference_instruct2")
+ @app.post("/inference_instruct2")
+-async def inference_instruct2(tts_text: str = Form(), instruct_text: str = Form(), prompt_wav: UploadFile = File()):
++def inference_instruct2(tts_text: str = Form(), instruct_text: str = Form(), prompt_wav: UploadFile = File(), speed: float = Form(1.0)):
+     prompt_speech_16k = load_wav(prompt_wav.file, 16000)
+-    model_output = cosyvoice.inference_instruct2(tts_text, instruct_text, prompt_speech_16k)
++    # [修改] 增加 speed 参数并传递给模型
++    model_output = cosyvoice.inference_instruct2(tts_text, instruct_text, prompt_speech_16k, speed=speed)
+     return StreamingResponse(generate_data(model_output))
+ 
+ 
+-if __name__ == '__main__':
+-    parser = argparse.ArgumentParser()
+-    parser.add_argument('--port',
+-                        type=int,
+-                        default=50000)
+-    parser.add_argument('--model_dir',
+-                        type=str,
+-                        default='iic/CosyVoice-300M',
+-                        help='local path or modelscope repo id')
+-    args = parser.parse_args()
+-    try:
+-        cosyvoice = CosyVoice(args.model_dir)
+-    except Exception:
+-        try:
+-            cosyvoice = CosyVoice2(args.model_dir)
+-        except Exception:
+-            raise TypeError('no valid model_type!')
+-    uvicorn.run(app, host="0.0.0.0", port=args.port)
++#if __name__ == '__main__':
++#    parser = argparse.ArgumentParser()
++##    parser.add_argument('--workers', type=int, default=4)  # 添加worker参数
++#    parser.add_argument('--port',
++#                        type=int,
++#                        default=50000)
++#    parser.add_argument('--model_dir',
++#                        type=str,
++#                        default='iic/CosyVoice-300M',
++#                        help='local path or modelscope repo id')
++#    args = parser.parse_args()
++#
++#    # [新增] 启动时的环境检查与设置
++#    print("--- Environment Check ---")
++#    if torch.cuda.is_available():
++#        print(f"CUDA Available: YES")
++#        print(f"GPU Model: {torch.cuda.get_device_name(0)}")
++#    else:
++#        print(f"CUDA Available: NO (Running on CPU)")
++#    
++#    # [新增] 针对你的 16 核 CPU 进行优化设置
++#    # 防止 PyTorch 默认使用单核，或者 Docker 容器内 OpenMP 限制了线程数
++#    cpu_cores = 12
++#    torch.set_num_threads(cpu_cores)
++#    print(f"Set torch CPU threads to: {cpu_cores}")
++#    print("-------------------------")
++#
++#    try:
++#        cosyvoice = CosyVoice(args.model_dir)
++#    except Exception:
++#        try:
++#            cosyvoice = CosyVoice2(args.model_dir)
++#        except Exception:
++#            raise TypeError('no valid model_type!')
++#    uvicorn.run(app, host="0.0.0.0", port=args.port)
++##	    uvicorn.run(app, host="0.0.0.0", port=args.port, workers=args.workers, reload=False)
+\ No newline at end of file
