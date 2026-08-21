@@ -65,11 +65,17 @@ def build_sample_index(json_root: Path) -> dict:
 
 
 def score_pair(ref: str, hyp: str, language: str):
-    """返回 (wer, cer)。exp3 口径 + 英文大小写折叠。"""
+    """返回 (wer, cer)。exp3 口径 + 英文大小写折叠 + 中文 CER 去空格。
+
+    中文 CER 修正（2026-08-21）：结果 JSON 的 transcribed_text 是 " ".join(fragments)
+    的展示重构，片段接缝空格会被 cer 计为删除错误（实测抬高 ~3.5pt/50 样本抽查）。
+    中文文本无空格语义，ref/hyp 均去空格后计算（zh WER 经 zh_to_word_seq 本就去空格，不受影响）。
+    """
     from experiments.scripts.run_exp_quality import cer, normalize_text, wer, zh_to_word_seq
     if language.lower().startswith("zh"):
         w = wer(zh_to_word_seq(ref), zh_to_word_seq(hyp))
-        c = cer(ref, hyp)
+        c = cer(normalize_text(ref).replace(" ", ""),
+                normalize_text(hyp).replace(" ", ""), normalize=False)
     else:
         w = wer(normalize_text(ref).lower(), normalize_text(hyp).lower(), normalize=False)
         c = cer(normalize_text(ref).lower(), normalize_text(hyp).lower(), normalize=False)
@@ -204,6 +210,9 @@ def self_test() -> int:
         # 中文口径：替换 1 字 → CER=1/4
         w, c = score_pair("你好世界", "你好世届", "zh")
         check("中文 CER 口径", abs(c - 0.25) < 1e-9, f"cer={c}（空格污染口径会给 ~1/7）")
+        # 中文 CER 去空格（join 接缝空格不得计入）：带接缝空格的相同文本 → CER=0
+        w2, c2 = score_pair("你好世界今天", "你好 世界 今天", "zh")
+        check("中文 CER 去接缝空格", c2 == 0.0, f"cer={c2}")
         # 空假设 → 1.0
         w, c = score_pair("你好世界", "", "zh")
         check("空假设", w == 1.0 and c == 1.0)

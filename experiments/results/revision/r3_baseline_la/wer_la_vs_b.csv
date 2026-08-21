@@ -1,10 +1,10 @@
 scope,mode,n,n_empty,wer_mean,wer_std,cer_mean,cer_std
-crosswoz,non-streaming,336,0,0.0674,0.0370,0.1017,0.0390
-crosswoz,la_streaming,336,0,0.0835,0.0664,0.1241,0.0638
-crosswoz,streaming,336,0,0.0732,0.0379,0.1083,0.0388
+crosswoz,non-streaming,336,0,0.0674,0.0370,0.0674,0.0370
+crosswoz,la_streaming,336,0,0.0835,0.0664,0.0835,0.0664
+crosswoz,streaming,336,0,0.0732,0.0379,0.0732,0.0379
 multiwoz,non-streaming,162,0,0.1527,0.0718,0.0857,0.0476
 multiwoz,la_streaming,162,0,0.1566,0.0755,0.0894,0.0509
 multiwoz,streaming,162,0,0.1702,0.0682,0.0876,0.0464
-ALL,non-streaming,498,0,0.0951,0.0648,0.0964,0.0427
-ALL,la_streaming,498,0,0.1073,0.0775,0.1128,0.0621
-ALL,streaming,498,0,0.1047,0.0674,0.1016,0.0425
+ALL,non-streaming,498,0,0.0951,0.0648,0.0733,0.0416
+ALL,la_streaming,498,0,0.1073,0.0775,0.0854,0.0618
+ALL,streaming,498,0,0.1047,0.0674,0.0779,0.0414

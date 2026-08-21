@@ -1,5 +1,16 @@
 # REVISION_CHANGELOG — CISR 修订补充实验执行记录
 
+## 2026-08-21 中文 CER 接缝空格口径修正（影响 Table VI/VII 的 zh CER 列）
+
+- 发现：结果 JSON 的 `transcribed_text` 为 `" ".join(fragments)` 展示重构，接缝空格被中文 CER
+  计为删除错误（E3 crosswoz 抽查：含空格 0.1040 vs 去空格 0.0692，抬高 ~3.5pt）。
+- 修正：`score_wer_offline.score_pair` 中文分支 CER 前双方去空格（zh WER 经 zh_to_word_seq
+  本就去空格，不受影响；英文不受影响；qa_transcribe 的 hypothesis 无拼接空格，不受影响）。
+- 重出：E3 `wer_la_vs_b.csv`（LA/B/A 的 zh CER 0.0835/0.0732/0.0674，质量差回到真实小幅度）；
+  R4 外部一致性 CER 0.0460→**0.0269**。R2 的 aishell1 各行 CER 待主机重跑任务 1 刷新
+  （`OFFLINE_SCORING_HANDOFF.md` 三次追加，约 1 分钟）。
+- 论文写作注意：Table VI/VII 的 zh CER 以新口径为准；若引旧数（如 streaming 0.1652）系接缝空格虚高。
+
 ## 2026-08-21 审查 r2 处置：P0 二次裁决=方案 (a)（E4 TTFT 口径），Table VIII 定稿
 
 - r2 新证据独立核验成立：E4 TTFT − E5 post-flush 逐样本 50/50 为正（mean 410.5ms、min 139.0、

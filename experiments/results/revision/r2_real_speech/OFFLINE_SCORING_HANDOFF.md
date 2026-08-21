@@ -1,5 +1,12 @@
 # R2 离线评分 + 中文 CER 口径修正执行交接（GPU 主机，纯 CPU，约 2 分钟）
 
+> **2026-08-21 三次追加（任务 1 需再重跑一次，约 1 分钟）**：本机核验又发现一处指标口径——
+> 结果 JSON 的 `transcribed_text` 是 `" ".join(fragments)` 的展示重构，片段接缝空格被中文 CER
+> 计为删除错误（实测抬高 ~3.5pt）。已在 `score_pair` 修正（中文 CER 前双方去空格，
+> self-test 新增断言；E3 两 CSV 已用新口径重出，zh CER 显著回落，外部一致性 CER 0.0460→0.0269）。
+> **请 git pull 后重跑任务 1（命令不变）**，使 aishell1 各行 CER 为最终口径；英文 WER 不受影响。
+> 任务 2（qa_transcribe.corrected）不受影响——其 hypothesis 来自离线整体转写，无拼接空格。
+
 > **2026-08-21 追加（任务 1 需重跑）**：首轮产物经本机核验发现 scope 口径问题——
 > 脚本按 sample_id 前缀分组，把 12 个变体并入干净集，丢失 Table VI 需要的逐条件行。
 > 脚本已修正（`--scope-by dir` 为默认，E3 已用 `--scope-by prefix` 重出并验证不变）。
