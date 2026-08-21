@@ -465,3 +465,13 @@
 - fatal smoke 6 记录（success→fault error+fatal→4×cancelled_after_fatal）QA 0，run.log 完整落盘；
 - 新增 `gate-material-verification-r3-20260822.md`，建议审查方出具正式书面放行
   （r7_main 主实验 → 结果级 QA 通过后 tts_control）。
+
+## 2026-08-22 Gate r3 复核 r2：修正 gate_artifact_commit.txt 自引用时序语义
+
+- 审查判定「条件通过、修正一处后最终复核」：`gate_artifact_commit.txt` 原 porcelain 记录的是
+  该文件自身未跟踪，不能声称「含自身提交后 porcelain 空」——证据自引用/时序问题，非数据/基线错误；
+- 采纳方案 A：文件改为准确历史记录（`porcelain_at_capture` + `note=` 明确「采集时仅本文件待提交，
+  提交后 clean 由当前 checkout 独立验证」），不再自证提交后 clean；
+- r3 核验清单 §5 同步修正提交后 clean 的独立证据表述（`e424eed` 上 `git status --porcelain` 空）；
+  §4 补 manifest 生成时点说明（不含登记文件，因其在 artifact commit 之后才提交）；
+- 代码基线不变（b8893d6）；a1fbb82/6aaf356/e424eed 均非 formal code commit。

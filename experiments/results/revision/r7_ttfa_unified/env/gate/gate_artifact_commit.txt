@@ -1,3 +1,3 @@
 artifact_commit=a1fbb827145eed8a010748e46d7ade6d0e70284d
---- porcelain ---
-?? experiments/results/revision/r7_ttfa_unified/env/gate/gate_artifact_commit.txt
+porcelain_at_capture=?? experiments/results/revision/r7_ttfa_unified/env/gate/gate_artifact_commit.txt
+note=recorded before this file itself was added to git; it proves the artifact commit was the only remaining change at capture time, NOT the cleanliness after this file was committed. Post-commit cleanliness is verified independently by running `git status --porcelain` on the current checkout (empty).

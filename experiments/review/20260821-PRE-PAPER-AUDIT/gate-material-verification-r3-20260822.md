@@ -53,10 +53,20 @@ env/gate/tts_provenance/TTS_PROVENANCE.md
 
 - 本机按 LF-normalized 内容 SHA-256 重算，**12/12 全部一致**（run.log 含进度条 `\r` 字节，无 CRLF，raw 与 LF-normalized 同值）。
 
+> manifest 的生成时点：在 artifact commit `a1fbb82` 形成前生成，故**不包含** `gate_artifact_commit.txt`
+> （该登记文件在随后的 `6aaf356` 才提交）。manifest 覆盖的是放行 Gate 的 12 项材料，登记文件属提交簿记，不在其中。
+
 ## 5. 工作树与 artifact commit（§3.4）
 
-- 材料全部落入 `a1fbb82`，登记提交 `6aaf356` 记录 `artifact_commit=a1fbb82…` + 提交时 porcelain（仅剩待登记的 `gate_artifact_commit.txt`，随后一并提交）；
-- 本机 `git pull --ff-only` 后工作树干净（仅剩审查方输入文档未跟踪），HEAD==origin/main==`6aaf356`。
+- 材料全部落入 `a1fbb82`；登记提交 `6aaf356` 记录 `artifact_commit=a1fbb82…`。
+- **`gate_artifact_commit.txt` 的时序语义（已修正）**：该文件采集 porcelain 时，仅剩它自身未跟踪
+  （`?? …/gate_artifact_commit.txt`），因此它只能证明「采集时除该登记文件外无其它漂移」，
+  **不能**证明「含该文件提交后的 porcelain 为空」。文件现已按此写明
+  `note=… Post-commit cleanliness is verified independently …`，不再声称自证提交后 clean。
+- **提交后 clean 的独立证据**：本机 `git pull --ff-only` 至 `e424eed`（含 `6aaf356`）后
+  `git status --porcelain` 为空（仅剩审查方输入文档未跟踪），此为审查方可在 checkout 上独立复跑的
+  post-artifact verification，与登记文件的自引用记录分离。
+- 代码基线仍为 `b8893d6`；`a1fbb82`（result artifact）与 `e424eed`（登记+核验）均非 formal code commit。
 
 ## 6. GPU clean-tree self-test（§3.5）
 
