@@ -1,0 +1,15 @@
+{
+  "url": "http://127.0.0.1:20401",
+  "endpoint": "http://127.0.0.1:20401/inference_sft",
+  "spk_id": "晓伊",
+  "speed": 0.8,
+  "status": 200,
+  "content_type": null,
+  "content_encoding": null,
+  "allow_content_type": null,
+  "allow_content_encoding": null,
+  "policy_note": "缺失头按 None 原样固定为允许值；正式请求逐项严格相等比对，任何偏离（含头新增/取值变化）记 error，不放宽",
+  "payload_class": "pcm",
+  "magic_hex": "0b001f00c3ff93ff",
+  "ok": true
+}
