@@ -369,3 +369,14 @@
 - 新增 10 项回归（含现场首样本 (-133,-68,-108,-119) 还原与 measure 级 0x7b 首块流）；
   self-test 76 → 86 PASS / 0 FAIL；集成检查复跑 ALL PASS；
 - 交付 R7_GPU_SMOKE_HANDOFF_R4.md（任务 2 期望 86；任务 3 命令不变）+ 现场回复函。
+
+## 2026-08-21 R7 冒烟通过 + 本机结果级核验（GPU 主机 commit b1e1206）
+
+- 冒烟产物：QA 0 问题 / 6 记录（5 成功 + 1 asr_error 注入，fatal 语义正确）；
+  B TTFA zh 2555–2610ms / en 3045ms；A 22.3–23.4s；A−B 差 19.6–20.4s（全文 TTS 策略主导）；
+- 本机独立核验（dev-smoke-verification-20260821.md）：八项验收逐项过——validate 重跑 0
+  违规、闭合残差 0、无 final_drain_empty=True/thread_leak/pair_timeout、配对 seed 一致、
+  双语双模式齐、Silero artifact e1122837… 双侧一致、探活 ok/pcm；
+- 首扫误报登记：核验脚本曾把字段名 final_drain_empty 当命中，修正后 0 问题；
+- -lcuda 链接噪声：ctranslate2 JIT 探测 32 位 libcuda，非门禁，登记沿用；
+- 待审查复核通过后发正式实验 handoff（50×2 + 子集补轮 + 匹配文本控制）。
