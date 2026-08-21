@@ -143,6 +143,24 @@ CSV_FIELDS = ["sample_id", "language", "pass_idx", "fragment_count", "fragments_
               "first_sentence_token_idx", "decode_to_first_sentence_ms",
               "decode_total_ms", "tokens_per_s", "first_sentence_text", "error"]
 
+_IDENTITY_FIELDS = ("sample_id", "language", "pass_idx")
+
+
+def measure_sample(llm, sample: dict, pass_idx: int, max_tokens: int) -> dict:
+    """测量一个样本；异常时返回带 error 的完整行（身份字段必须保留，复审 r2 P1）。"""
+    try:
+        rec = run_one(llm, sample["fragments"], max_tokens)
+    except Exception as e:
+        logger.error(f"样本 {sample['sample_id']} 测量失败: {e}")
+        rec = {k: "" for k in CSV_FIELDS if k not in _IDENTITY_FIELDS}
+        rec.update({
+            "fragment_count": len(sample["fragments"]),
+            "fragments_sha256": _sha256_text(json.dumps(sample["fragments"], ensure_ascii=False)),
+            "error": str(e),
+        })
+    return {"sample_id": sample["sample_id"], "language": sample["language"],
+            "pass_idx": pass_idx, **rec}
+
 
 def load_e4_samples(e4_results_glob: str, expected_llm_model: str, expected_max_tokens: int,
                     expected_llm_device: str, expected_count: int,
@@ -340,6 +358,21 @@ def self_test() -> int:
     check("无句末回退", rec2["sentence_end_found"] == 0
           and abs(rec2["decode_to_first_sentence_ms"] - rec2["decode_total_ms"]) < 1e-6)
 
+    # 3b. 异常行身份保留（复审 r2 P1）：失败行的 sample_id/language/pass_idx 不得被覆盖
+    class _BoomLLM:
+        def cache_prompt(self, text, pre_cache=None, is_end=False, **kw):
+            raise RuntimeError("boom")
+
+    err_row = measure_sample(_BoomLLM(),
+                             {"sample_id": "crosswoz_bad1", "language": "zh",
+                              "fragments": ["片", "段"]},
+                             pass_idx=2, max_tokens=128)
+    check("异常行身份保留", err_row["sample_id"] == "crosswoz_bad1"
+          and err_row["language"] == "zh" and err_row["pass_idx"] == 2,
+          f"sample_id={err_row['sample_id']!r} pass_idx={err_row['pass_idx']!r}")
+    check("异常行 error 与片段审计", err_row["error"] == "boom"
+          and err_row["fragment_count"] == 2 and len(err_row["fragments_sha256"]) == 64)
+
     # 4. 输入校验（审查 P1）：正常 / 缺片段退出 / 数量不符退出 / 重复 ID 退出 / 配置不符退出
     with tempfile.TemporaryDirectory() as td:
         tp = Path(td)
@@ -371,13 +404,13 @@ def self_test() -> int:
         # 5. CSV + 汇总（error 行不进汇总）+ RUNINFO
         rows = [{"sample_id": "crosswoz_s0", "language": "zh", "pass_idx": 0, **rec},
                 {"sample_id": "crosswoz_s1", "language": "zh", "pass_idx": 0, **rec2},
-                {"sample_id": "crosswoz_s2", "language": "zh", "pass_idx": 0,
-                 **{k: (0 if k != "error" else "boom") for k in CSV_FIELDS}}]
-        rows[2]["error"] = "boom"
-        rows[2]["first_sentence_text"] = ""
+                err_row]
         out = tp / "sub" / "decode.csv"
         summary = write_outputs(rows, out)
         check("CSV 写出", out.exists() and len(list(csv.DictReader(open(out, encoding="utf-8")))) == 3)
+        csv_rows = list(csv.DictReader(open(out, encoding="utf-8")))
+        check("CSV 异常行身份保留", csv_rows[2]["sample_id"] == "crosswoz_bad1"
+              and csv_rows[2]["pass_idx"] == "2" and csv_rows[2]["error"] == "boom")
         check("error 行不进汇总", "n=2" in summary and "error=1" in summary)
         args_ns = argparse.Namespace(llm_model_name=None, llm_device="cuda:1", max_tokens=128,
                                      warmup_rounds=3, repeat=1)
@@ -449,21 +482,14 @@ def main():
     rows = []
     for pass_idx in range(args.repeat):
         for i, s in enumerate(samples):
-            try:
-                rec = run_one(llm, s["fragments"], args.max_tokens)
-            except Exception as e:  # 逐样本异常捕获（审查 P1）：记录后继续，不进汇总
-                logger.error(f"样本 {s['sample_id']} 测量失败: {e}")
-                rec = {k: "" for k in CSV_FIELDS}
-                rec.update({"fragment_count": len(s["fragments"]), "error": str(e)})
-            row = {"sample_id": s["sample_id"], "language": s["language"],
-                   "pass_idx": pass_idx, **rec}
+            row = measure_sample(llm, s, pass_idx, args.max_tokens)
             rows.append(row)
             with open(checkpoint_jsonl, "a", encoding="utf-8") as f:
                 f.write(json.dumps(row, ensure_ascii=False) + "\n")
             if not row["error"]:
                 logger.info(f"[pass{pass_idx} {i + 1}/{len(samples)}] {s['sample_id']}: "
-                            f"decode_to_first_sentence={rec['decode_to_first_sentence_ms']:.1f}ms "
-                            f"({rec['first_sentence_token_idx'] + 1}/{rec['n_tokens']} tokens)")
+                            f"decode_to_first_sentence={row['decode_to_first_sentence_ms']:.1f}ms "
+                            f"({row['first_sentence_token_idx'] + 1}/{row['n_tokens']} tokens)")
 
     t1 = datetime.now()
     summary = write_outputs(rows, output_csv)
