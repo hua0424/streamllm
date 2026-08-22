@@ -185,7 +185,9 @@
 ## 三、待论文侧决策清单（汇总自 PAPER_IMPACT_NOTES.md）
 
 > 注：TTFA 预算表的数据缺口（`T_decode_to_first_sentence`）已于 2026-08-21 补测关闭，四组成项数字齐备，
-> 仅剩装配（机械工作，本机侧进行），**不属于**待决项。以下为仍需论文侧拍板的 6 项：
+> **状态更新（2026-08-22，数据锁定后）**：装配已完成（`r7_ttfa_unified/table_viii/`，QA 4/4）；
+> 以下 6 项已**全部裁决完毕**（裁决结果见 `PAPER_WRITING_REFERENCE.md` §九），本清单保留为
+> 历史决策记录，不再是待决项：
 
 1. LA 对比表是否引用 exp2 中间消融臂 `streaming_asr_only`（旧机数字 1171.0ms；引用需脚注或补跑 +4h）；
 2. babble 结果进正文的口径（10 变体 vs 12 变体）与 limitations 措辞；

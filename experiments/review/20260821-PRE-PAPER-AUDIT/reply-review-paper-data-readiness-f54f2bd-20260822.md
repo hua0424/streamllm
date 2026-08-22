@@ -5,6 +5,14 @@
 - **请求事项**：复核 §2.1–2.6 六项整改与 §3 状态表，确认是否可宣布**最终数据锁定**并开始 main.tex 正式修改。
 - **不变边界**：无新增 GPU 实验、无重跑 r7_main / r7_tts_control；所有数字只做装配与文档同步，未做任何缩放或事后修正。
 
+> **更正注（2026-08-22，最终锁定复核 review-final-data-lock-7c93b77 §非阻塞残留 后追加；
+> 原文未改，仅登记更正）**：
+> ① §三复核命令中的脚本路径 `experiments/results/revision/r7_ttfa_unified/table_viii/assemble_table_viii.py`
+> 已迁移，正确命令为 `uv run python experiments/scripts/assemble_table_viii.py`；
+> ② §2.1 中"爆音→LibriSpeech 源音频属性"的归因表述已按复审软化（来源未区分、不作归因断言），
+> 现行表述见 `r2_real_speech/MANUAL_SPOT_CHECK.md` 状态注；
+> ③ 数据锁定已由 `7c93b77` 复核确认，本函"请求事项"已闭环。
+
 ---
 
 ## 一、逐项整改对照（就绪度审查 §2.1–2.6）
