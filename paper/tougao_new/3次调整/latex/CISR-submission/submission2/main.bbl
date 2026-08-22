@@ -153,7 +153,7 @@ Q.~Fang, S.~Guo, Y.~Zhou, Z.~Ma, S.~Zhang, and Y.~Feng, ``{LLaMA-Omni}:
 \bibitem{ref13}
 \BIBentryALTinterwordspacing
 {Silero Team}, ``Silero {VAD}: pre-trained enterprise-grade voice activity
-  detector,'' GitHub repository, 2024, mIT-licensed software; accessed August
+  detector,'' GitHub repository, 2024, {MIT}-licensed software; accessed August
   22, 2026. [Online]. Available: \url{https://github.com/snakers4/silero-vad}
 \BIBentrySTDinterwordspacing
 
