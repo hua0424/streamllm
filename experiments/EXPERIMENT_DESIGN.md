@@ -248,11 +248,16 @@ uv run python -m experiments.datasets.tools.run_pipeline \
 ./experiments/scripts/run_exp_quality.sh full
 ```
 
-### 5.3 执行与分析 (待完成)
+### 5.3 执行与分析（历史章节，已由归档结果覆盖）
 
-- [ ] 在 GPU 环境下运行完整实验
-- [ ] 收集实验数据
-- [ ] 使用 Python (Matplotlib/Seaborn) 绘制论文所需的图表
+> **状态（2026-08-22）**：原计划三项均已完成——完整实验在两平台执行并归档于
+> `experiments/results/exp1_latency|exp2_ablation|exp3_quality/`（只读）；
+> 审稿修订补充实验见 §六（R1–R7）；论文图表由 `results/revision/fig/` 与各 R 目录提供。
+> 本小节保留为原始设计的历史记录，其"待完成"状态不再代表项目现状。
+
+- [x] 在 GPU 环境下运行完整实验（已完成并归档）
+- [x] 收集实验数据（已完成并归档）
+- [x] 使用 Python 绘制论文所需的图表（Fig.6 重绘于 `results/revision/fig/Fig6.pdf`）
 
 ---
 

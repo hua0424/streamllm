@@ -28,13 +28,18 @@
 |---|---|---|
 | r1 / r2 / r3 | 1434.0 / 1482.1 / 1454.9 ms | 4063.3 / 4244.2 / 4118.5 ms |
 
-- **论文可用**：跨轮 mean 极差 3.3%；逐样本 CV mean 4.2% / median 3.3% / p90 8.8%。结论："TTFT 测量可复现（3 轮 CV<5%）"。
+- **论文可用**：跨轮 mean 极差 3.3%；逐样本 CV **（ddof=1 终版口径，`r1_stats/repeat_cv_summary.csv`）**
+  B mean 5.19% / median 4.05% / P90 10.73% / max 18.96%（19/50 条 >5%）；A 5.23% / 4.65% / 9.92% / 14.01%。
+  ⚠️ ~~"逐样本 CV mean 4.2% / median 3.3% / p90 8.8%"~~ 与 ~~"3 轮 CV<5%"~~ 为 **ddof=0 历史作废口径，禁止引用**；
+  结论写法改为全分布表述（median≈4%、P90≈11%）。
 
 ### E2 真实语音 A/B（意见1）— `r2_real_speech/`
 
 - 数据集自建（E2-0）：librispeech/aishell1 各 75 条（long 30/very_long 30/extra_long 15，seed=42 确定性可重建），
   12 个增强变体各 30 条；构建/增强 manifest 与 QA 报告（`qa_static.csv`、`qa_transcribe.csv`）齐全；
-  转写 sanity：librispeech WER 2.98% / aishell1 CER 6.72%（验收线 ≤10%）。
+  转写 sanity：librispeech WER 2.98%；aishell1 CER ~~6.72%~~（**旧口径作废**；修正口径
+  **10.73%**，含中文数字/阿拉伯数字写法失配影响，必加下方 ⚠️ 脚注；当时按 6.72% 判过验收线属历史记录，
+  追溯见 changelog 2026-08-21 口径修正条目）。
 - 干净集（各 75×2，error 0）：
 
   | 数据集 | System B extra_long | System A extra_long | 改善率 |
@@ -122,9 +127,12 @@
 
 - `sentence_end_found` 50/50 = 100%（全部回复在 max_tokens=128 内出现句末标点）；解码速率 mean 26.0 tok/s。
 - 中英文差异来自首句长度（英文首句 token 数更多），非速度差异（分语种 tok/s 相同）。
-- **论文可用**（2026-08-21 审查 P0 两轮裁决，最终=方案 (a)；以此为准）：
+- **⚠️ 历史作废、不得引用（2026-08-22 审查终裁确认）**：以下跨运行装配数字（含
+  **B ALL 14.79s / A ALL 22.67s** 及 `r6_ttfa/ttfa_budget.csv` 全部行）已按 PRE-PAPER-AUDIT
+  P0-1 作废，由 R7 统一实测替代（见下方 R7 小节与 `r7_ttfa_unified/table_viii/` 装配稿）。
+  此处仅保留审计追溯（原两轮 P0 裁决=方案 (a) 的历史口径）：
   `TTFA = T_endpoint(E5: 53.1ms) + TTFT(E4 streaming 同 50 样本: 1422.9ms) + T_decode_to_first_sentence(补测: 389.0ms) + T_TTS_first_chunk(E6: zh 13.99s / en 11.86s)`；
-  Table VIII 装配稿 `r6_ttfa/ttfa_budget.csv` 已按此口径生成：**B ALL 14.79s（zh 15.58 / en 13.99）/ A ALL 22.67s**。
+  装配稿 `r6_ttfa/ttfa_budget.csv`（**B ALL 14.79s / A ALL 22.67s，均作废**）。
   逐项 mean±std 由 `r6_ttfa/decode_to_first_sentence.summary.txt` 与各实验 RUNINFO 取数。
 - ⚠️ 口径要点（审查 P0 两轮）：E5 的 `final_enqueue_wait≈2s` 是实时喂追加静音的测量装置属性，
   不进预算表；但窗内 ~410ms 是端点时积压队列的真实排空（E4 TTFT − E5 post-flush 逐样本 50/50 为正），
@@ -160,6 +168,9 @@
   `review/…/deviation-waiver-r7-tts-control-20260822.md` §3，写进审稿回复或补充材料。
 - **不可变归档**：产物提交 `946b720`，控制侧 blob/内容双哈希已固定于偏差登记 §4；
   两目录只读，不修改不重生成。
+- **Table VIII 装配稿（2026-08-22）**：`r7_ttfa_unified/table_viii/TABLE_VIII_ASSEMBLED.md`
+  （(a) 总量表 + (b) 组件分解+闭合 + (c) 注记 + (d) 控制使用范围；QA：闭合恒等 0 残差、
+  双入口对拍 48 行一致、received 差 0.1ms 仅 QA、checkpoint 4edcd6ec 哈希固定）。
 
 ## 二、环境存档与可追溯
 

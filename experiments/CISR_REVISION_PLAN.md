@@ -283,6 +283,11 @@ LibriSpeech 为 16 kHz FLAC；AISHELL-1 为 16 kHz WAV；MUSAN 采样率不一�
 
 ## 七、R6：TTFA 端到端预算（意见2，1–2 天）
 
+> **状态更新（2026-08-22）**：R6 的跨运行装配口径（E5/E6/补测 → ttfa_budget.csv）已按
+> PRE-PAPER-AUDIT P0-1 **作废**，由 **R7 统一时间轴实测**（`run_ttfa_unified.py`，
+> `results/revision/r7_ttfa_unified/`）替代为新 Table VIII 的唯一数据源。R6 的 E5/E6/
+> 补测单项结果仍有效，但仅作背景/边界证据，不再装配进论文表格。本节保留为历史设计。
+
 目标产出：**语音结束 → 首个可听音频帧** 的分解预算表（System A vs B）。
 
 ### 7.1 端点等待测量（需 GPU 小跑）
@@ -317,7 +322,7 @@ LibriSpeech 为 16 kHz FLAC；AISHELL-1 为 16 kHz WAV；MUSAN 采样率不一�
 | Fig.6（TTFT 趋势图） | 重绘：加 P95 误差带 | R1 重算后的逐样本数据 |
 | 新 Table VI（真实语音） | 新增 | R2 |
 | 新 Table VII（LA 基线对比） | 新增 | R3 |
-| 新 Table VIII（TTFA 预算） | 新增 | R6 |
+| 新 Table VIII（TTFA 预算） | 新增 | **R7 统一 TTFA**（替代原 R6 装配；R6 E5/E6 单项仅背景） |
 | §IV 新增小节（append-only 不变式 + 测量） | 新增文字 + 两个数字 | R4 |
 | §V 新增小节（语义一致性） | 新增文字 + 数字 + 1 个 case | R5 |
 
@@ -327,11 +332,11 @@ LibriSpeech 为 16 kHz FLAC；AISHELL-1 为 16 kHz WAV；MUSAN 采样率不一�
 
 ### 8.3 论文文字修改点（提前列好，改稿时照单打勾）
 
-1. §I / Abstract：补 TTFA 口径一句话（配合 R6 数字），避免"voice latency"与 TTFT 口径错位；
+1. §I / Abstract：补 TTFA 口径一句话（配合 R7 数字），避免"voice latency"与 TTFT 口径错位；
 2. §III-C：指标定义补 TTFA 定义与端点等待说明；
 3. §IV-B/IV-C：显式陈述"committed text immutable → incremental prefill append-only → 无回滚"不变式，补 R4 两个测量段落；
 4. §V-A：实验设置补真实语音集描述（来源、构建、规模、许可）、增强条件、重复测量协议；
-5. §V 新增：R2/R3/R5/R6 各一小节；Table III–V 替换；
+5. §V 新增：R2/R3/R5/R7 各一小节（TTFA 小节数据源为 R7）；Table III–V 替换；
 6. §VI Limitations：删去"TTS 合成音频"一条（已被 R2 覆盖），改为"独占 GPU 环境/单机部署"等仍然成立的限制；Future Work 中"语义一致性指标"一条相应更新（已被 R5 部分覆盖）。
 
 ---

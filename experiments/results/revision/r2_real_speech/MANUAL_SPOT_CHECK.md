@@ -14,6 +14,20 @@
 | 4 | aishell1_S0041_01 | zh | very_long | 30.2 |
 | 5 | aishell1_S0064_01 | zh | extra_long | 60.1 |
 
+**试听准备（GPU 主机定位 5 个文件，可 scp 到本机或直接在 GPU 主机播放）**：
+
+```bash
+cd /dataA/streamllm
+for s in librispeech_121-121726 librispeech_6829-68771 aishell1_S0005_01 aishell1_S0041_01 aishell1_S0064_01; do
+  find experiments/datasets/processed/audio -name "*${s}*" -type f
+done
+# scp 示例（本机执行）：
+# scp <gpu用户>@<gpu主机>:/dataA/streamllm/experiments/datasets/processed/audio/*/<文件> <本地目录>
+```
+
+> 状态（2026-08-22）：**人工字段尚未填写**——试听者/日期、可懂度、截断/错序/爆音、异常静音/音量、
+> 拼接缝感知、逐条结论。填写完成前 W7 视为未完成；本记录只能称 manual spot check，不称 human evaluation。
+
 ### 记录模板（逐条填写）
 
 ```text

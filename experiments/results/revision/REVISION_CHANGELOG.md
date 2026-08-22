@@ -535,3 +535,31 @@
   旧 Table VIII 装配口径作废不得与新数据混用）；
 - **长效规则**：今后任何后置实验须独立书面放行，不得由"前一阶段已完成"推断授权延伸。
 - 下一步：最终数据锁定 → W8 阶段 2（新 Table VIII 装配）→ 论文修订。
+
+## 2026-08-22 数据就绪度复核整改：Table VIII 装配完成 + 文档去歧义（W8 阶段 2）
+
+依据 `review/20260821-PRE-PAPER-AUDIT/review-paper-data-readiness-f54f2bd-20260822.md`：
+
+- **W8 阶段 2 装配完成**：`r7_ttfa_unified/table_viii/`（assemble_table_viii.py + table_viii_r7.csv +
+  TABLE_VIII_ASSEMBLED.md）。固定七项决策：主指标 first_playable_pcm；repeat0 n=50；
+  mean/std(ddof=1)/P50/P90/P95；单位 ms 一位小数；received 仅 QA 补充；
+  tts_control 7076ms 只作归因/回信证据且必带豁免脚注；旧 ttfa_budget.csv 估计项完全排除。
+  装配 QA 四项全过：六分项逐记录闭合残差 0.00e+00（恒等式）、received→playable 差
+  mean 0.1/max 0.2 ms、与运行侧 summary 双入口对拍 48 行一致、输入 checkpoint 哈希 4edcd6ec 固定。
+  主数字：B streaming ALL mean 5481.9 / P50 3113.7；A ALL mean 22425.7 / P50 22269.9；
+  B vs A：mean −75.6%（4.09×）/ P50 −86.0%（7.15×）（zh −85.4%/−88.3%；en −65.5%/−66.2%；
+  mean 与 P50 两种表述二选一勿混用）；
+- **PAPER_HANDOFF 旧口径清理**：E1 CV 4.2%/3.3%/"CV<5%" 标注 ddof=0 历史作废并换 ddof=1
+  终版（B 5.19%/4.05%/10.73%/18.96%；A 5.23%/4.65%/9.92%/14.01%）；E2 aishell1 sanity
+  CER 6.72% 标注旧口径作废、换修正口径 10.73%+失配脚注；TTFA 补测段 B 14.79s/A 22.67s
+  全部改为"历史作废、不得引用"仅留审计追溯；R7 小节补装配稿指针；
+- **PAPER_WRITING_REFERENCE 冲突消除**：铁律 1 Table VIII 来源改 R7（E5/E6/补测→R7）；
+  铁律 7 重写为 R7 优先（旧装配口径标注历史作废）；§七证据表意见 3 行 CV 换 ddof=1
+  完整分布口径（消除总册内 4.2% 与 5.19% 并存）；§二/§十指向装配稿并更新剩余项；
+- **路线图/设计文档同步**：CISR_REVISION_PLAN §七加 R6 装配作废/R7 替代状态注、§8.1
+  Table VIII 映射 R6→R7（R6 单项仅背景）、§8.3 两处 R6 引用改 R7；
+  EXPERIMENT_DESIGN §5.3"执行与分析（待完成）"历史化（三项已完成归档，防误读）；
+- **W7**：MANUAL_SPOT_CHECK.md 补试听准备命令（GPU 定位 5 文件 + scp 示例）并显式标注
+  "人工字段未填写前 W7 未完成"；**试听本身需需求方本人完成，本机不可代做**；
+- 当前边界：论文结构/方法文字可动笔；W7 试听 + 本轮文档同步被复核接受后，方可宣布
+  最终数据锁定并正式修改 main.tex 全部表格数字。
