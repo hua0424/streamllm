@@ -340,8 +340,16 @@ uv run python -m experiments.datasets.tools.run_pipeline \
   分层平衡 25/25）+ 10 子集（每语种 load 序前 5）×2 补轮 = **140 任务**；max_tokens=128、
   chunk 500ms、prefix 1、suffix 0、threshold 2.0s、TTS 晓伊→内置中文女映射（注记入 RUNINFO）。
 - **TTFA 定义**：`first_playable_pcm_ns − physical_speech_end_ns`（首个 ≥1324B 可播 PCM 相对
-  真实语音结束）；组件链（flush/close→first_token→text_ready→tts_req→first_pcm→playable）
-  逐条闭合校验（`validate_record` 因果偏序）。
+  真实语音结束）；组件链（speech_end→feed_end→input_close→first_token→text_ready→tts_req→
+  first_pcm→playable）逐条闭合校验（`validate_record` 因果偏序）。⚠️ 分项标签（2026-08-22
+  复审修正）：第二分项论文标签 **t_feed_to_close_wait**（= pipeline_input_close − feed_end，
+  喂入结束→管线输入关闭）；checkpoint/summary 字段 `t_flush_to_close` 为历史命名，该 ~133ms
+  为完整等待（flush 段自身仅 ~0.33ms），**不得归因为 flush 计算开销**。
+- **Table VIII 装配层决策（W8 阶段 2，`experiments/scripts/assemble_table_viii.py` 唯一实现）**：
+  repeat0、n=50/模式；mean/std(ddof=1)/P50/P90/P95（np.percentile 线性插值）；单位 ms 1 位小数；
+  `ttfa_received` 仅 QA 补充（|received−playable| 入装配 QA 不进主表）；tts_control 7076ms
+  只作归因/回信证据；旧 ttfa_budget.csv 估计项完全排除；装配 QA 四项（逐记录闭合恒等、
+  received 差、与运行侧 summary 双入口对拍、checkpoint 哈希固定）。
 - **匹配文本 TTS 控制（r7_tts_control）**：`--tts-control-only`，输入主 checkpoint；repeat-0
   完整配对中 sorted zh 前 5+en 前 5，每样本 B 首句/A 首句/A 全文 ×1 + 中英校准 2 = 32 调用。
 - **数据状态（2026-08-22 审查终裁）**：r7_main **通过**（140/140、QA 0、结果级复核 47/47）；

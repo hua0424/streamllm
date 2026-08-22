@@ -87,8 +87,11 @@ aishell1_clean：A WER 10.77% / CER 10.77%；B WER 11.80% / CER 11.80%
 | B streaming zh / en | 3303.3 / 7660.5 | 2603.0 / 7577.0 | — | — |
 | A non-streaming ALL | 22425.7 | **22269.9** | 25588.8 | 26887.4 |
 
-子集三轮 CV mean 7.73% / max 20.70%；组件分项（flush/close→first_token→text_ready→
-tts_req→first_pcm→playable）齐全可分解。匹配文本 TTS 控制：tts req→first_pcm
+子集三轮 CV mean 7.73% / max 20.70%；组件分项（feed_end→close 等待/first_token→text_ready→
+tts_req→first_pcm→playable）齐全可分解（⚠️2026-08-22 复审修正：第二分项论文标签为
+`t_feed_to_close_wait`（喂入结束→管线输入关闭），源字段 t_flush_to_close 为历史命名；
+~133ms 为完整等待，不得归因为 flush 计算开销——flush 段自身仅 ~0.33ms）。
+匹配文本 TTS 控制：tts req→first_pcm
 mean 7076ms（32 条复算一致）。**引用控制数据必带流程披露**（偏差豁免，非事后追认；
 原文见 `review/…/deviation-waiver-r7-tts-control-20260822.md` §3）。
 
@@ -240,15 +243,16 @@ mean 7076ms（32 条复算一致）。**引用控制数据必带流程披露**�
 5. append-only → 两层精确表述；6. TTFC → 长度关系式 + 短回复示例。
 （TTFA 口径经两轮 P0 裁决定稿=方案 (a)，见 §二。）
 
-## 十、数据状态：⚠️ P0 整改中（2026-08-21 PRE-PAPER-AUDIT 后降级）
+## 十、P0 整改闭环记录（2026-08-21 发现，2026-08-22 全部闭环）
 
-**本册"全部定稿可直接动笔"状态已撤销。** 撰稿前审计（`experiments/review/20260821-PRE-PAPER-AUDIT/`）
-发现 5 项 P0，整改方案 v3.1 已冻结（Gate 0/1），以下条目在对应整改落地前**不得引用**：
+**历史背景**：撰稿前审计（`experiments/review/20260821-PRE-PAPER-AUDIT/`）曾发现 5 项 P0 并
+冻结整改方案 v3.1；以下为当时的整改清单，现全部闭环（各条后附终态），保留作审计追溯：
 
 1. **Table VIII（§二）**：跨运行装配口径作废（含"B 全实测"标注与 A 行 0.09s/字符 TTFC 估计）；
    ~~以 W1 统一时间轴实测（`run_ttfa_unified.py`，GPU 待跑）替换后方可入论文~~
    **→ 已完成（2026-08-22）**：W1 正式数据 r7_main 140/140 + tts_control 32 审查通过
-   （控制侧为偏差豁免采信），见 §二 R7 主数字；装配（W8 阶段 2）为唯一剩余动作；
+   （控制侧为偏差豁免采信），见 §二 R7 主数字；~~装配（W8 阶段 2）为唯一剩余动作~~
+   （装配已于 2026-08-22 完成，QA 4/4，见 §二）；
 2. **"3 轮 CV<5%"**：作废；新口径（ddof=1）已出：`r1_stats/repeat_cv_summary.csv`
    （B mean 5.19%/median 4.05%/P90 10.73%/max 18.96%，19/50>5%；A 5.23%/4.65%/9.92%/14.01%，23/50>5%）；
 3. **WER/CER 表头**：宏平均口径须标注 mean-utterance；corpus 口径已补
@@ -260,7 +264,7 @@ mean 7076ms（32 条复算一致）。**引用控制数据必带流程披露**�
 已完成的整改产物（本机，无需 GPU）：W3 CV（上）、W4 corpus WER/CER（上）、
 W5 成对统计（21 个比较，含 Holm 校正）、W6 语义元数据（`r5_semantic/REPRO_METADATA.md`）、
 W9 LA 方法说明（`r3_baseline_la/LA_METHOD_AND_EXCLUSION.md`）、W7 抽检模板
-（`r2_real_speech/MANUAL_SPOT_CHECK.md`，试听待人完成）。
+（`r2_real_speech/MANUAL_SPOT_CHECK.md`；试听**已于 2026-08-22 完成**，见下）。
 **W1 统一 TTFA：已完成并过审（2026-08-22 终裁）**——r7_main 140/140（QA 0，结果级 47/47）、
 r7_tts_control 32（数据级通过，流程偏差豁免采信，不构成追认；裁定量与登记见
 `review/…/review-results-qa-r7-main-20260822.md`、`…/deviation-waiver-r7-tts-control-20260822.md`）。

@@ -157,8 +157,11 @@
   | B streaming zh / en | 3303.3 / 7660.5 | 2603.0 / 7577.0 | — | — |
   | A non-streaming ALL | 22425.7 | **22269.9** | 25588.8 | 26887.4 |
 
-  组件分项（t_flush_to_close / t_close_to_first_token / t_first_token_to_text_ready /
-  t_text_ready_to_tts_req / t_tts_to_playable）见 `ttfa_summary_r7_main.csv`；
+  组件分项（t_trailing_feed_wait / **t_feed_to_close_wait** / t_close_to_first_token /
+  t_first_token_to_text_ready / t_text_ready_to_tts_req / t_tts_to_playable）见
+  `ttfa_summary_r7_main.csv`（其字段 `t_flush_to_close` 为历史命名，论文标签已按 2026-08-22
+  复审改为 t_feed_to_close_wait=喂入结束→管线输入关闭；该 ~133ms 为完整等待，
+  **不得归因为 flush 计算开销**，flush 段自身仅 ~0.33ms）；
   子集三轮 CV mean 7.73% / max 20.70%（`ttfa_subset_cv_r7_main.csv`）。
   生成截断：max_tokens 116 条 / eos 24 条；speaker 映射与 Triton fallback 注记入 RUNINFO（论文边界照 review §6 声明）。
 - **r7_tts_control**（`tts_control/`，32 调用，error 0）：tts_request_start→first_pcm

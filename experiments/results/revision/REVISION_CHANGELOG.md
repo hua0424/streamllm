@@ -585,3 +585,27 @@
   附状态表更新、复核操作清单（grep/装配复跑，含预期命中语境说明）、写作期约束汇总、
   两项未决请写稿人裁定（W7 记录可选增强、数据锁定基线建议 6069868）；
 - 请求事项：复核确认后宣布最终数据锁定，进入 main.tex 正式修改。
+
+## 2026-08-22 复审修正：Table VIII 分项标签边界（t_feed_to_close_wait），本提交为数据锁定基线
+
+依据 `review/20260821-PRE-PAPER-AUDIT/review-reply-paper-data-readiness-f54f2bd-20260822.md`：
+
+- **唯一阻塞项修正**：第二分项实际区间 = pipeline_input_close − feed_end（喂入结束→管线输入关闭，
+  streaming ALL mean 133.0ms），论文标签由误标的 `t_flush_to_close`（flush→管线输入关闭）改为
+  **`t_feed_to_close_wait`**；源 checkpoint/summary 字段名保留为历史命名，输出层（CSV/MD）用论文
+  标签并加边界注记。复审独立复算：feed_end→flush_start ≈132.68ms、explicit flush 本身 ≈0.21ms、
+  flush_done→close ≈0.12ms——**论文不得将 133ms 归因为 flush 计算开销**（禁止语句已同步写入
+  装配稿/PAPER_HANDOFF/PAPER_WRITING_REFERENCE/EXPERIMENT_DESIGN 四处）；保持六段闭合链、
+  仅改标签（复审推荐最简处理，未新增 flush 0.33ms 分项）；
+- **装配 QA 复跑 4/4、数字逐位不变**：CSV diff 仅 6 行标签列变化（t_flush_to_close→
+  t_feed_to_close_wait），mean/std/P50/P90/P95 全部不变；闭合残差仍 0.00e+00、双入口对拍 48 行一致；
+- **非阻塞项顺手处理**：① W7 爆音归因软化——删去无证据的"LibriSpeech 源音频属性"断言，
+  改为"来源未进一步区分、不作归因断言，作为拼接真人朗读语音的质量边界披露"（复审建议措辞）；
+  ② 总册 §十改为"P0 整改闭环记录"历史化（"整改中/待 GPU/唯一剩余动作/试听待人"等实时语气
+  全部标历史或更新）；③ 装配脚本移至 `experiments/scripts/assemble_table_viii.py`
+  （AGENTS.md 约定；结果 CSV/MD 留 results；旧路径 git rm）；④ EXPERIMENT_DESIGN §6.6 补装配层
+  决策（repeat0/ddof=1/线性分位数/1 位小数/received 仅 QA）；
+- **数据锁定（按复审 §5 规则：三项完成即可锁定，无需再次全量审查）**：本提交为
+  **最终数据锁定基线**。锁定后 r7_main/、tts_control/、R1–R5 原始结果与统计 CSV 冻结；
+  main.tex 只引用锁定文档与表；任何新增数字/口径/过滤变化走书面变更；
+  纯拼写标签修复（不改边界与数值）记录后直接更正。

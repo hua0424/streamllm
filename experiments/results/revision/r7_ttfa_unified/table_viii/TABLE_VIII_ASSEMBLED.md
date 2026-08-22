@@ -1,9 +1,14 @@
-# Table VIII 装配稿（R7 统一 TTFA，2026-08-22）
+# Table VIII 装配稿（R7 统一 TTFA，2026-08-22；分项标签修正版）
 
 > **数据源（唯一合法）**：`r7_ttfa_unified/r7_main/`（repeat0，n=50/模式，zh/en 各 25）。
 > 主指标 **first_playable_pcm**（speech_end → 首个 ≥1324B 可播 PCM）；单位 ms，1 位小数；
 > std=ddof=1，分位数 np.percentile 线性插值。六分项首尾相接恒等闭合（QA-1）。
 > 旧 `r6_ttfa/ttfa_budget.csv` 全部行作废，未参与本表。
+
+> **分项标签边界（2026-08-22 复审修正）**：第二分项论文标签为 `t_feed_to_close_wait`（**喂入结束→管线输入关闭**，= pipeline_input_close − feed_end）；
+> 源 summary 字段 `t_flush_to_close` 为历史命名。该 ~133ms 是完整等待，**不得归因为 flush 计算开销**——按复审独立复算（review-reply §2）：
+> feed_end→explicit_flush_start ≈132.68ms、explicit flush 本身 ≈0.21ms、flush_done→input_close ≈0.12ms（合计 0.33ms 量级为 flush 段自身）。
+> 本表保持六段闭合链、仅用准确标签（复审推荐的最简处理）。
 
 ## (a) TTFA 总量
 
@@ -25,7 +30,7 @@
 | 组件 | B zh | B en | B ALL | A zh | A en | A ALL |
 |---|---|---|---|---|---|---|
 | t_trailing_feed_wait（语音结束→喂入结束） | 0.1±0.0 | 0.1±0.0 | 0.1±0.0 | 0.1±0.0 | 0.1±0.0 | 0.1±0.0 |
-| t_flush_to_close（flush→管线输入关闭） | 126.5±71.5 | 139.6±121.1 | 133.0±98.7 | 0.0±0.0 | 0.0±0.0 | 0.0±0.0 |
+| t_feed_to_close_wait（喂入结束→管线输入关闭） | 126.5±71.5 | 139.6±121.1 | 133.0±98.7 | 0.0±0.0 | 0.0±0.0 | 0.0±0.0 |
 | t_close_to_first_token（输入关闭→首 token） | 1351.3±222.5 | 1414.8±327.3 | 1383.1±278.8 | 4530.9±860.1 | 3834.9±809.5 | 4182.9±898.3 |
 | t_first_token_to_text_ready（首 token→文本就绪(首句/全文)） | 115.7±274.3 | 658.3±384.2 | 387.0±429.2 | 4774.4±330.3 | 4587.7±754.2 | 4681.1±583.9 |
 | t_text_ready_to_tts_req（文本就绪→TTS 请求） | 0.4±0.1 | 0.5±0.1 | 0.4±0.1 | 0.6±0.1 | 0.6±0.1 | 0.6±0.1 |
