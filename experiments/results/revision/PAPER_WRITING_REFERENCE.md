@@ -21,6 +21,12 @@
 6. **摘要改善率**：统一写 **"70%–74%（两平台复现）"**（原平台 74.3%/65.6%，第二平台 70.4%/64.7%）。
 7. Table VIII 脚注注明各分项来源（端点=E5、post=E4、decode=补测、TTFC=E6，同机同码同 50 样本；
    A 行 decode/TTFC 为估计，表格保留"全实测/估计"标注）。
+   **（2026-08-22 起：Table VIII 数据源已整体切换为 R7 统一实测，本条装配口径随 §二历史稿一并作废。）**
+8. **R7 唯一数据源（2026-08-22 审查终裁）**：TTFA/Table VIII 只可引用 `r7_ttfa_unified/`
+   已过审数字（r7_main 140/140 + tts_control 32 偏差豁免采信）；不得引用作废装配稿
+   （ttfa_budget.csv）或未 QA 估计值，不得新旧混排。引用 tts_control 数字必须附带
+   流程偏差豁免披露（原文见 `review/…/deviation-waiver-r7-tts-control-20260822.md` §3）；
+   不得写"控制实验已获单独放行后执行"或"全部实验严格按预授权顺序执行"。
 
 ---
 
@@ -64,17 +70,32 @@ aishell1_clean：A WER 10.77% / CER 10.77%；B WER 11.80% / CER 11.80%
 
 ## 二、意见2：TTFA 端到端预算 → 新 Table VIII + §I/§III-C 口径句
 
-**回应要点**：给出 speech_end → 首个可听帧的分解预算；端点检测等待很小（~0.05s）；
-TTS 首包是最大项（句段级流式部署 + TTFC-长度近似线性）。
+> **⚠️ 数据源已切换（2026-08-22 审查终裁）**：下表跨运行装配口径（含 ALL 行与 A 行估计）
+> **整表作废**，不得以任何形式入论文；新 Table VIII 唯一合法数据源为 **R7 统一时间轴实测**
+> （`r7_ttfa_unified/`，r7_main 140/140 + r7_tts_control 32，审查通过/偏差豁免采信）。
+> 装配与写作口径在 W8 阶段 2 定稿；在此之前本节仅保留历史装配稿供对照。
 
-**Table VIII 定稿（ms，mean；两轮 P0 裁决最终口径）**：
+**R7 实测主数字（repeat0，n=50，ms；`ttfa_summary_r7_main.csv`）**：
+
+| TTFA = first_playable_pcm − speech_end | mean | p50 | p90 | p95 |
+|---|---|---|---|---|
+| B streaming ALL | 5481.9 | **3113.7** | 10506.6 | 11656.3 |
+| B streaming zh / en | 3303.3 / 7660.5 | 2603.0 / 7577.0 | — | — |
+| A non-streaming ALL | 22425.7 | **22269.9** | 25588.8 | 26887.4 |
+
+子集三轮 CV mean 7.73% / max 20.70%；组件分项（flush/close→first_token→text_ready→
+tts_req→first_pcm→playable）齐全可分解。匹配文本 TTS 控制：tts req→first_pcm
+mean 7076ms（32 条复算一致）。**引用控制数据必带流程披露**（偏差豁免，非事后追认；
+原文见 `review/…/deviation-waiver-r7-tts-control-20260822.md` §3）。
+
+**历史装配稿（⚠️整表作废，仅供对照）**（ms，mean；两轮 P0 裁决最终口径）：
 
 | 系统 | 语种 | T_endpoint | T_post（E4 TTFT） | T_decode首句 | T_TTFC | **TTFA** |
 |---|---|---|---|---|---|---|
-| B（⚠️装配口径作废，待 W1 实测替换） | zh | 52.7 | 1398.9 | 142.3 | 13985.7 | **15579.6** |
-| B（⚠️同上） | en | 53.5 | 1447.0 | 635.7 | 11858.9 | **13995.0** |
-| B | ALL | 53.1 | 1422.9 | 389.0 | 12922.3 | **14787.3** |
-| A（decode/TTFC 估计） | ALL | 53.1 | 3928.9 | 389.0* | 18302.4* | **22673.4** |
+| B（作废） | zh | 52.7 | 1398.9 | 142.3 | 13985.7 | **15579.6** |
+| B（作废） | en | 53.5 | 1447.0 | 635.7 | 11858.9 | **13995.0** |
+| B（作废） | ALL | 53.1 | 1422.9 | 389.0 | 12922.3 | **14787.3** |
+| A（作废，decode/TTFC 估计） | ALL | 53.1 | 3928.9 | 389.0* | 18302.4* | **22673.4** |
 
 （A 分语种行见 CSV；* = 估计项：decode 用 B 同语种均值代理、TTFC=0.09s/字符 × A 回复均长 zh 203.8 字符。）
 
@@ -195,7 +216,7 @@ TTS 首包是最大项（句段级流式部署 + TTFC-长度近似线性）。
 | 意见 | 论文修改位置 | 数据文件 | 关键数字 |
 |---|---|---|---|
 | 1 真实语音 | Table VI + §V 新小节 + limitations | `r2_real_speech/wer_real.csv`、`ttft_real.csv` | extra_long 改善 67.5%/65.7%；10 条件 +22.8~31.6%；babble −47.3% |
-| 2 TTFA | Table VIII + §I/§III-C | `r6_ttfa/ttfa_budget.csv` | B 14.79s（端点 53ms/管线 1423ms/解码 389ms/TTFC 12.9s） |
+| 2 TTFA | Table VIII + §I/§III-C | `r7_ttfa_unified/r7_main/`、`tts_control/`（R7 唯一数据源；旧 `ttfa_budget.csv` 作废） | B streaming p50 3113.7ms vs A 22269.9ms；组件分项齐全；TTS 控制 7076ms（须带偏差豁免披露） |
 | 3 显著性 | Table III/IV/V 加列 + Fig.6 + E1 小节 | `r1_stats/`、`fig/Fig6.pdf` | CV mean 4.2%/median 3.3%；P99 有界 |
 | 4 LA 基线 | Table VII + §V 新小节 | `r3_baseline_la/wer_la_vs_b.csv`、`ttft_la_vs_b.csv` | LA 比 B 慢 34%；质量同量级 |
 | 5 机制+语义 | §IV + §V 新小节 | `r4_commit/commit_divergence.json`、`tokenizer_seams.csv`、`r5_semantic/` | 回滚 0；漂移 224 次 mean 2.3 字符；余弦 0.883；A−B +0.06 |
@@ -221,7 +242,9 @@ TTS 首包是最大项（句段级流式部署 + TTFC-长度近似线性）。
 发现 5 项 P0，整改方案 v3.1 已冻结（Gate 0/1），以下条目在对应整改落地前**不得引用**：
 
 1. **Table VIII（§二）**：跨运行装配口径作废（含"B 全实测"标注与 A 行 0.09s/字符 TTFC 估计）；
-   以 W1 统一时间轴实测（`run_ttfa_unified.py`，GPU 待跑）替换后方可入论文；
+   ~~以 W1 统一时间轴实测（`run_ttfa_unified.py`，GPU 待跑）替换后方可入论文~~
+   **→ 已完成（2026-08-22）**：W1 正式数据 r7_main 140/140 + tts_control 32 审查通过
+   （控制侧为偏差豁免采信），见 §二 R7 主数字；装配（W8 阶段 2）为唯一剩余动作；
 2. **"3 轮 CV<5%"**：作废；新口径（ddof=1）已出：`r1_stats/repeat_cv_summary.csv`
    （B mean 5.19%/median 4.05%/P90 10.73%/max 18.96%，19/50>5%；A 5.23%/4.65%/9.92%/14.01%，23/50>5%）；
 3. **WER/CER 表头**：宏平均口径须标注 mean-utterance；corpus 口径已补
@@ -234,7 +257,11 @@ TTS 首包是最大项（句段级流式部署 + TTFC-长度近似线性）。
 W5 成对统计（21 个比较，含 Holm 校正）、W6 语义元数据（`r5_semantic/REPRO_METADATA.md`）、
 W9 LA 方法说明（`r3_baseline_la/LA_METHOD_AND_EXCLUSION.md`）、W7 抽检模板
 （`r2_real_speech/MANUAL_SPOT_CHECK.md`，试听待人完成）。
-**待 GPU**：W1 统一 TTFA（Gate 1 审查 → 冒烟 → 正式）+ W2 环境记录。
+**W1 统一 TTFA：已完成并过审（2026-08-22 终裁）**——r7_main 140/140（QA 0，结果级 47/47）、
+r7_tts_control 32（数据级通过，流程偏差豁免采信，不构成追认；裁定量与登记见
+`review/…/review-results-qa-r7-main-20260822.md`、`…/deviation-waiver-r7-tts-control-20260822.md`）。
+**W2 环境记录：已完成**（`r7_ttfa_unified/env/platform_conditions.txt`，hash `a4c40057…` 入全量绑定）。
+**剩余**：W8 阶段 2（新 Table VIII 装配，机械工作）→ 论文修订。
 
 历史快照（整改前口径，仅供对照，不得直接入论文）：最后一次口径刷新 2026-08-21
 中文 CER 去接缝空格（主机重跑 4b9587b，12 行 aishell1 CER 回落、英文 WER 与 TTFT 逐字节不变）。

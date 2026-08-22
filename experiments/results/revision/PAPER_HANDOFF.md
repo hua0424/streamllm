@@ -132,6 +132,35 @@
   A 行 ttft 从 audio_end 起算本就不含装置等待，两系统口径对称。
 - ⚠️ CSV 中 `first_token_latency_ms` 是重放口径参考值，**不是** TTFT。
 
+### R7 TTFA 统一时间轴实测 + 匹配文本 TTS 控制（2026-08-22，审查终裁通过）— `r7_ttfa_unified/`
+
+> **状态**：W1 正式数据，**新 Table VIII 的唯一合法数据源**。上方"TTFA 解码至首句补测"小节的
+> 跨运行装配口径（ttfa_budget.csv，B 14.79s/A 22.67s）已按 PRE-PAPER-AUDIT P0-1 作废，
+> **不得与 R7 数字混用**；E5/E6/E4 各自结论仍有效但不再装配进 Table VIII。
+
+- **r7_main**（`r7_main/`，140 任务 = 50×2 + 10 子集×2×2，error 0，QA 0）：
+  单进程统一 `perf_counter_ns` 时间轴，A/B 成对、AB/BA 分层平衡 25/25，全部绑定
+  （platform `a4c40057`/Silero `e1122837`/code `c9437c3`＝Gate 基线 `b8893d6` 零差异/
+  计划/配置/样本清单 hash）。结果级复核 47/47 过（`review/…/results-qa-r7-main-20260822.md`）。
+
+  | TTFA（ms，repeat0，n=50） | mean | p50 | p90 | p95 |
+  |---|---|---|---|---|
+  | B streaming ALL | 5481.9 | **3113.7** | 10506.6 | 11656.3 |
+  | B streaming zh / en | 3303.3 / 7660.5 | 2603.0 / 7577.0 | — | — |
+  | A non-streaming ALL | 22425.7 | **22269.9** | 25588.8 | 26887.4 |
+
+  组件分项（t_flush_to_close / t_close_to_first_token / t_first_token_to_text_ready /
+  t_text_ready_to_tts_req / t_tts_to_playable）见 `ttfa_summary_r7_main.csv`；
+  子集三轮 CV mean 7.73% / max 20.70%（`ttfa_subset_cv_r7_main.csv`）。
+  生成截断：max_tokens 116 条 / eos 24 条；speaker 映射与 Triton fallback 注记入 RUNINFO（论文边界照 review §6 声明）。
+- **r7_tts_control**（`tts_control/`，32 调用，error 0）：tts_request_start→first_pcm
+  **mean 7076ms**（32 条全复算一致）；10 样本（zh/en 各 5，sorted 规则）×B 首句/A 首句/
+  A 全文 + 校准 2。**流程披露（引用控制数据必带）**：该 run 在单独书面放行前提前执行，
+  经审查以"流程偏差豁免后的正式结果"采信、不构成追认——原文见
+  `review/…/deviation-waiver-r7-tts-control-20260822.md` §3，写进审稿回复或补充材料。
+- **不可变归档**：产物提交 `946b720`，控制侧 blob/内容双哈希已固定于偏差登记 §4；
+  两目录只读，不修改不重生成。
+
 ## 二、环境存档与可追溯
 
 - `env_versions.txt`（项目 venv 真实版本 + nvidia-smi）；repo 状态见 git log（结果已随 main 提交）。

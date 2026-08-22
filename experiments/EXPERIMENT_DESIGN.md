@@ -322,3 +322,26 @@ uv run python -m experiments.datasets.tools.run_pipeline \
   （缺 `full_response` 默认报错，preview fallback 需显式开启并在 CSV 标记 `text_source=preview`）；
   请求参数（spk_id/speed/PCM 解释）经 env/CLI 可配并写 RUNINFO。
 - TTFA 预算：`TTFA = endpoint_wait + TTFT + T_decode_to_first_sentence + T_TTS_first_chunk`（T_Net≈0 单机部署）。
+
+### 6.6 R7：TTFA 统一时间轴实测（W1，2026-08-22 定稿）
+
+替代 §6.5 跨运行装配的 TTFA 预算口径（E5/E6/E4+补测装配稿已按 PRE-PAPER-AUDIT P0-1 作废，
+不得与 R7 数据混用）。方法学定义以本节为唯一权威。
+
+- **脚本**：`experiments/scripts/run_ttfa_unified.py`（单进程统一 `perf_counter_ns` 时间轴；
+  PSE 能量+Silero 双仲裁、因果块回放、System A/B 成对执行、append-only checkpoint、
+  fail-closed 守卫：探活/Silero hash/平台文件 hash/样本清单 hash/计划 hash 全绑定后才开跑）。
+- **正式 run（r7_main）**：50 样本（very_long，zh/en 各 25，seed=42 清单）×2 模式（AB/BA
+  分层平衡 25/25）+ 10 子集（每语种 load 序前 5）×2 补轮 = **140 任务**；max_tokens=128、
+  chunk 500ms、prefix 1、suffix 0、threshold 2.0s、TTS 晓伊→内置中文女映射（注记入 RUNINFO）。
+- **TTFA 定义**：`first_playable_pcm_ns − physical_speech_end_ns`（首个 ≥1324B 可播 PCM 相对
+  真实语音结束）；组件链（flush/close→first_token→text_ready→tts_req→first_pcm→playable）
+  逐条闭合校验（`validate_record` 因果偏序）。
+- **匹配文本 TTS 控制（r7_tts_control）**：`--tts-control-only`，输入主 checkpoint；repeat-0
+  完整配对中 sorted zh 前 5+en 前 5，每样本 B 首句/A 首句/A 全文 ×1 + 中英校准 2 = 32 调用。
+- **数据状态（2026-08-22 审查终裁）**：r7_main **通过**（140/140、QA 0、结果级复核 47/47）；
+  r7_tts_control 数据级通过，**流程偏差豁免采信**（提前执行、不构成追认、不重跑），
+  登记见 `experiments/review/20260821-PRE-PAPER-AUDIT/deviation-waiver-r7-tts-control-20260822.md`。
+- **治理铁律（裁定 §4-6）**：今后任何后置实验必须取得**独立书面放行**，不得由
+  "前一阶段已完成"推断授权延伸；`r7_main/`、`tts_control/` 为只读归档，
+  论文表格只可引用已过审的 R7 数字，不得引用作废装配稿或未 QA 估计值。

@@ -507,3 +507,31 @@
   FileNotFoundError，mkdir 后重跑成功）；已补 mkdir（不影响测量逻辑），self-test 90 PASS；
 - 下一步：提交审查复核（r7_main 采信 + tts_control 越界处理裁定）→ 装配新 Table VIII
   → W8 阶段 2。
+
+## 2026-08-22 审查裁定：r7_main 通过；tts_control 认定非实质性流程偏差，豁免采信（不重跑）
+
+- **越界事实**：r7_tts_control 在 r7_main 完成后、审查方结果级 QA 与单独书面放行前执行
+  （放行函明确本次授权不含真实 tts_control）；实际顺序 Gate放行→r7_main→tts_control→QA，
+  要求顺序为 Gate放行→r7_main→QA通过→单独放行→tts_control；
+- **责任认定**：handoff §3 漏写"须单独书面放行"是流程文件缺陷（开发侧责任，22b7854 已补），
+  但不改变放行函已限定的授权边界；执行属未经授权的提前执行，不构成事后追认；
+- **数据级 QA**：32/32 success、control_from/checkpoint/文本/平台/代码哈希精确绑定、
+  均值 7076ms 可复算、时间链单调、无样本选择漂移/代码分叉/平台污染/数据篡改（47/47 项）；
+- **裁定**：非实质性流程偏差，以"流程偏差豁免后的正式结果"身份采信，**不要求重跑**
+  （重跑只修复形式授权顺序，不改变已发生的流程事实，反引入新随机噪声）；
+  r7_main 最终裁决：**通过**；
+- **禁止表述**：不得写"控制实验已在 QA 通过并获单独放行后执行"/"全部实验严格按预授权
+  顺序执行"；不得用裁量掩盖 §3 漏标或顺序错误；
+- **偏差登记与不可变归档**：`review/20260821-PRE-PAPER-AUDIT/deviation-waiver-r7-tts-control-20260822.md`
+  （含运行提交/控制哈希/文本哈希/32 条 CSV 的 blob+内容双哈希固定，只读归档）；
+  采信披露（审稿回复/补充材料引用原文）：
+  > `r7_tts_control` was launched after completion of `r7_main` but before the separately
+  > required written authorization and reviewer QA sign-off. The run was retained under an
+  > explicit procedural-deviation waiver because post-run audit found exact checkpoint/text/hash
+  > binding, 32/32 successful calls, and no code or platform divergence affecting measurement
+  > validity; this waiver is not retroactive authorization of the original execution.
+- **口径同步**：EXPERIMENT_DESIGN.md（§6.6 R7 登记+独立放行铁律）、PAPER_HANDOFF.md
+  （R7 产物与引用口径）、PAPER_WRITING_REFERENCE.md（§二/§十：W1 数据就绪过审，
+  旧 Table VIII 装配口径作废不得与新数据混用）；
+- **长效规则**：今后任何后置实验须独立书面放行，不得由"前一阶段已完成"推断授权延伸。
+- 下一步：最终数据锁定 → W8 阶段 2（新 Table VIII 装配）→ 论文修订。
