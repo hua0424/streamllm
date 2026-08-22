@@ -1,13 +1,13 @@
-# Citation Audit Report — Post-Repair Status
+# Citation Audit Report — Final CPU-Reanalysis Revision
 
 - **Target**: `paper/tougao_new/3次调整/latex/CISR-submission/submission2`
 - **Files**: `main.tex`, `refs.bib`, `main.bbl`
 - **Audit date**: 2026-08-22
-- **Status**: citation repair completed; no manuscript experiment was rerun
+- **Boundary**: citation and claim-scope repair plus CPU-only reanalysis; no ASR/LLM/TTS experiment rerun
 
-## 1. Final verdict
+## 1. Verdict
 
-The citation layer is now mechanically closed and substantively improved with primary sources. The previously reported high-priority citation mismatches have been repaired.
+The citation layer is mechanically closed and the claim-to-source boundaries are consistent with the final systems-paper framing. Three direct primary sources were added after the final pre-submission review.
 
 | Check | Result |
 |---|---|
@@ -17,87 +17,65 @@ The citation layer is now mechanically closed and substantively improved with pr
 | Bibliography compiles with official `IEEEtran.bst` | PASS |
 | Citation numbering and first-use order | PASS |
 | Primary-source attribution | PASS |
-| Named systems have direct references | PASS |
-| Dataset/model/software identity citations | PASS with disclosed revision boundaries |
-| Current citation readiness | **READY; Fig.6 font repair verified, IEEE PDF eXpress still pending** |
+| Dynamic software/service identity | PASS with disclosed revision boundaries |
+| Scientific implementation facts | Bound to source code/run records, not external citations |
 
-## 2. Current bibliography inventory
+## 2. Bibliography inventory
 
-- **28 unique bibliography entries**.
-- **28 unique citation keys used in `main.tex`**.
-- No missing or uncited entries.
-- The reference set exceeds CISR's stricter local minimum of 10 references.
-- 18/28 references are dated 2023–2026; 15/28 are dated 2024–2026.
-- Author/institutional coverage spans substantially more than the required three countries.
+- **31 unique bibliography entries**.
+- **31 unique citation keys used in `main.tex`**.
+- No missing or uncited entry.
+- 21/31 references are dated 2023–2026; 18/31 are dated 2024–2026.
+- The list exceeds the stricter CISR local minimum of ten and covers substantially more than three countries.
 
-## 3. Repairs applied
+## 3. Primary-source repairs retained
 
-### 3.1 Removed mismatched or superseded entries
+The prior revision replaced mismatched sources with direct papers for Conformer, PagedAttention, FlashAttention, StreamingLLM, Mini-Omni, Moshi, LLaMA-Omni, and Whisper large-v3-turbo configuration. It also corrected metadata for ACM article 209, MultiWOZ venue location, and protected `Whisper`, `Mandarin`, and `M3-Embedding` capitalization.
 
-The following entries were removed after their only uses were replaced by primary sources:
+The final review added:
 
-- `ref2` — rVAD, previously attached to a Silero/modular-cascade statement;
-- `ref5` — ASR survey, previously used for Conformer attribution;
-- `ref8` — model-compression survey, previously used for vLLM/TGI/KV-cache claims;
-- `ref9` — efficient-Transformer survey, previously used as the FlashAttention source;
-- `ref12` — self-supervised speech review, previously used for Whisper-specific robustness.
+- `wang2024simulwhisper` — Simul-Whisper, Interspeech 2024, DOI `10.21437/Interspeech.2024-1814`;
+- `gim2024promptcache` — Prompt Cache, MLSys 2024, vol. 6, pp. 325–338;
+- `zheng2024sglang` — SGLang/RadixAttention, NeurIPS 2024, DOI `10.52202/079017-2000`.
 
-### 3.2 Added primary sources
+The manuscript uses them narrowly:
 
-- `gulati2020conformer` — Conformer, Interspeech 2020;
-- `kwon2023pagedattention` — vLLM/PagedAttention, SOSP 2023;
-- `dao2022flashattention` — FlashAttention, NeurIPS 2022;
-- `xiao2024streamingllm` — StreamingLLM, ICLR 2024;
-- `xie2024miniomni` — Mini-Omni;
-- `defossez2024moshi` — Moshi;
-- `fang2025llamaomni` — LLaMA-Omni, ICLR 2025;
-- `openai2024whisperlargev3turbo` — official pinned public model configuration for the checkpoint-family-specific 128-Mel-bin statement.
+- Simul-Whisper supports attention-guided streaming Whisper with truncation detection;
+- Prompt Cache supports reusable prompt-module attention/KV state;
+- SGLang supports automatic shared-prefix KV reuse through RadixAttention.
 
-### 3.3 Corrected existing metadata
+It explicitly distinguishes these mechanisms from the within-request fragment appends evaluated here.
 
-- `ref7`: expanded the full six-author list; replaced the incorrect `pages = {209}` with pages 1–35 and a rendered `note = {Art. no. 209}`.
-- `ref14`: changed the EMNLP 2018 venue address from Stroudsburg to Brussels, Belgium and aligned the title with ACL Anthology metadata.
-- `bu2017aishell1`: protected `{Mandarin}` capitalization and added the official O-COCOSDA acronym.
-- `machacek2023turning`: protected `{Whisper}` capitalization.
-- `chen2024m3embedding`: protected `{M3-Embedding}` capitalization.
-- `commandcode2026deepseekv4flash`: clarified that the source is a Command Code service catalog, not an official DeepSeek technical report.
+## 4. Evidence-scope corrections
 
-## 4. Claim-to-source corrections
+The latest changes are not citation substitutions; they are source-code and archived-record corrections:
 
-- Removed the unsupported claim that most production systems use cascades; the Introduction now scopes the serial architecture to the system evaluated in this paper.
-- Restricted the GPT-4o system-card citation to its reported 232/320-ms latency figures.
-- Removed the rVAD/Silero association; Silero is cited at the implementation description.
-- Replaced the Conformer survey attribution with the original paper.
-- Replaced broad vLLM/FlashAttention/StreamingLLM survey citations with primary papers.
-- Added direct references for Mini-Omni, Moshi, and LLaMA-Omni and changed the collective wording from “open-source systems” to “representative systems.”
-- Replaced the incorrect Whisper review citation with the primary Whisper paper and narrowed the robustness statement to reported benchmarks.
-- Added LocalAgreement/partial-hypothesis citations at the chunk-boundary instability claim.
-- Recast the CosyVoice statement as a CosyVoice-based HTTP endpoint; the paper is cited as the model-family source, while the unavailable deployment revision is disclosed.
-- Clarified that BGE-M3, Qwen2, Whisper, CosyVoice, and judge revisions that were not archived are unavailable rather than retrospectively inferred.
+- the 2.0-s ASR condition is a historical cumulative-seen-duration startup gate that latches because removed segments do not decrement the counter;
+- legacy values are post-feed residual TTFT, not physical-speech-end TTFT;
+- the configured LA comparator matches weights, engine, segmenter, hardware, and subset, but not trigger policy;
+- the 22.27-s versus 3.11-s result is a server-side B-first-sentence versus A-capped-full-response policy comparison;
+- semantic scores do not establish quality, task, or usability equivalence;
+- the locked 498-turn valid set is used after excluding seven run-log-confirmed externally contaminated executions.
 
-## 5. Official IEEEtran bibliography behavior
+These statements are grounded in implementation, Git history, and locked result records; no external citation is used to disguise an internal measurement fact.
 
-The CISR-provided `IEEEtran.bst` is unchanged and byte-identical to the downloaded template. It does not render `doi`, `articleno`, `eprint`, or `archivePrefix`. Therefore:
+## 5. Dynamic artifacts and reproducibility boundaries
 
-- DOI fields remain valid database metadata but do not appear in `main.bbl` or the PDF.
-- CISR's website and local instructions do not require DOI display.
-- The official `.bst` was not replaced or modified.
-- ACM article identifiers that need visible output use the style-supported `note` field.
-
-## 6. Dynamic software/service boundaries
-
-- **Silero VAD**: official repository citation; no experiment-era immutable Git revision was archived.
-- **Whisper large-v3-turbo**: official public configuration is cited for 128 Mel bins, but the experiment-era repository revision is explicitly unavailable.
+- **Historical ASR implementation**: the latching behavior exists from commit `3ee6157` and in the R7 recorded commit `c9437c3`; no corrected-trigger performance is inferred.
+- **Silero VAD**: artifact hash is archived for R7, but experiment-era Git revision is unavailable.
+- **Whisper large-v3-turbo**: public configuration is cited; experiment-era repository revision is unavailable.
 - **Qwen2-7B-Instruct**: exact model identifier is reported; immutable repository revision was not archived.
-- **CosyVoice**: model-family paper is cited; immutable endpoint/checkpoint revision was not archived.
+- **CosyVoice**: model-family paper is cited; endpoint/checkpoint revision was not archived.
 - **BGE-M3**: ACL paper is cited; local artifact was not a versioned Hugging Face snapshot.
-- **Judge**: exact Command Code service identifier and access period are reported; no immutable backend build ID was available.
+- **Judge**: exact Command Code service identifier/access period are reported; no immutable backend build ID exists.
 
-These are disclosed reproducibility boundaries, not fabricated repairs.
+## 6. Official IEEEtran behavior
 
-## 7. Verification commands/results
+The official CISR `IEEEtran.bst` remains byte-identical to the template and does not render `doi`, `articleno`, `eprint`, or `archivePrefix`. DOI fields remain database metadata. CISR does not require visible DOI strings, so the style was not replaced.
 
-The current manuscript successfully completed:
+## 7. Build verification
+
+The final source completes:
 
 ```text
 pdflatex main.tex
@@ -106,26 +84,24 @@ pdflatex main.tex
 pdflatex main.tex
 ```
 
-Post-build checks show:
+Checks:
 
-- 28 cited keys / 28 BibTeX entries;
-- no missing keys;
-- no orphan entries;
+- 31 cited keys / 31 BibTeX entries;
+- no missing or orphan keys;
 - no undefined citations or references;
-- no missing figure/table labels;
-- all figures and Tables I–VIII explicitly referenced;
-- no legacy `\ref{eq:...}` equation references; the manuscript uses `\eqref`.
+- no duplicate key, DOI, or normalized title;
+- all figures and Tables I–VIII referenced;
+- equation references use `\eqref`;
+- no overfull box.
 
-## 8. Figure-font closure and remaining external gate
+## 8. Fig.6 and remaining external gates
 
-The GPU-regenerated Fig.6 has been pulled and verified:
+Fig.6 was relabeled from the unchanged 24-row bins file:
 
-- PDF SHA-256: `a67be51b9670b64c0adfa8f36368d0b033d98d7c4b5a4ca3c2851a11d0535828`;
-- SVG SHA-256: `b9fd3d8383e4c322ed48285f766b32ba7df2ed4aba54fdeb5ff5d7b51dfbc2df`;
-- PDF and SVG dimensions: 446.4 × 259.2 pt;
-- all 24 bin-statistic rows are field-identical to the previous version;
-- PDF contains no raster images and embeds DejaVuSans as CID TrueType with Unicode mapping;
-- PDF and path-based SVG renderings are visually equivalent; mean absolute pixel difference is below 1/255 per channel and reflects renderer anti-aliasing;
-- rebuilt `main.pdf` contains zero Type 3 fonts and all fonts are embedded.
+- PDF SHA-256: `d38927c9b25139268b2fb00003f573184a0250ede1d502638a1f57d25d573cbb`;
+- SVG SHA-256: `ca9d3fd1efcb22a37cd23fc21a78e54bca55b4a752d6ce8edc7631fbcadb91b2`;
+- manuscript copy is byte-identical to the experiment PDF;
+- PDF contains no raster image and embeds CID TrueType;
+- Type 3 count remains zero.
 
-The remaining non-citation gate is IEEE PDF eXpress, plus the separate CISR similarity check.
+External gates remain similarity checking and IEEE PDF eXpress on the final PDF.

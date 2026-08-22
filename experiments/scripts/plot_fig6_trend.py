@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-R7 §8.1：Fig.6 重绘（TTFT 趋势图 + P5–P95 误差带）。
+R7 §8.1：Fig.6 重绘（历史锁存策略的 post-feed residual TTFT + P5–P95 误差带）。
 
-原图：main.tex fig:trend "TTFT trends of System A and System B over input duration"。
+原图：main.tex fig:trend，展示 System A/B 随输入时长的归档残余延迟趋势。
 数据源：R1 重算口径的逐样本数据（exp1_latency 归档结果，只读）。
-重绘内容：每个模式按音频时长等频分箱（默认 12 箱），折线为箱内 mean TTFT，
+重绘内容：每个模式按音频时长等频分箱（默认 12 箱），折线为箱内 mean post-feed residual TTFT，
 阴影带为箱内 P5–P95（回应意见3 的分布披露；原图无分布信息）。
 
 输出：experiments/results/revision/fig/Fig6.pdf + Fig6.png + 分箱数据 CSV。
@@ -15,6 +15,7 @@ R7 §8.1：Fig.6 重绘（TTFT 趋势图 + P5–P95 误差带）。
 """
 
 import argparse
+import datetime
 import glob
 import json
 import sys
@@ -76,6 +77,7 @@ def plot(samples: dict, n_bins: int, out_pdf: Path):
     matplotlib.rcParams["ps.fonttype"] = 42
     # SVG 文字转路径：文件完全自包含，不依赖目标机器上的字体
     matplotlib.rcParams["svg.fonttype"] = "path"
+    matplotlib.rcParams["svg.hashsalt"] = "streamllm-fig6-post-feed-v1"
     import matplotlib.pyplot as plt
 
     fig, ax = plt.subplots(figsize=(6.2, 3.6))
@@ -92,13 +94,23 @@ def plot(samples: dict, n_bins: int, out_pdf: Path):
         ax.fill_between(x, [b["p5"] for b in bins], [b["p95"] for b in bins],
                         color=color, alpha=0.15, linewidth=0)
     ax.set_xlabel("Input audio duration (s)")
-    ax.set_ylabel("TTFT (ms)")
+    ax.set_ylabel("Post-feed residual TTFT (ms)")
     ax.legend(loc="upper left", fontsize=8)
+    ax.text(0.99, 0.03, "Historical latched-trigger policy", transform=ax.transAxes,
+            ha="right", va="bottom", fontsize=7, color="#555555")
     ax.grid(alpha=0.3, linewidth=0.5)
     fig.tight_layout()
     out_pdf.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_pdf)
-    fig.savefig(out_pdf.with_suffix(".svg"))
+    metadata = {"Creator": "StreamLLM deterministic Fig.6 renderer",
+                "CreationDate": datetime.datetime(2026, 8, 22, tzinfo=datetime.timezone.utc),
+                "ModDate": datetime.datetime(2026, 8, 22, tzinfo=datetime.timezone.utc)}
+    fig.savefig(out_pdf, metadata=metadata)
+    svg_path = out_pdf.with_suffix(".svg")
+    fig.savefig(svg_path, metadata={"Creator": metadata["Creator"],
+                                    "Date": "2026-08-22"})
+    svg_text = svg_path.read_text(encoding="utf-8")
+    svg_path.write_text("\n".join(line.rstrip() for line in svg_text.splitlines()) + "\n",
+                        encoding="utf-8", newline="\n")
     fig.savefig(out_pdf.with_suffix(".png"), dpi=200)
     return all_bins
 

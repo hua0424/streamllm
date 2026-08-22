@@ -1,0 +1,6 @@
+cohort,n_samples,n_dialogues,crosswoz_dialogues,multiwoz_dialogues,cluster_size_min,cluster_size_median,cluster_size_mean,cluster_size_max
+ablation_candidate,505,99,50,49,1,5.0,5.101010,9
+ablation_excluded_external_contamination,7,7,6,1,1,1.0,1.000000,1
+ablation_valid_three_arm,498,99,50,49,1,5.0,5.030303,9
+second_platform_paired,498,99,50,49,1,5.0,5.030303,9
+ttfa_repeat0_unique_samples,50,40,21,19,1,1.0,1.250000,2

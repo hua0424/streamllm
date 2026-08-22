@@ -1,0 +1,7 @@
+mode,input_language,tts_text_policy,n_records,n_dialogues,ttfa_mean_ms,ttfa_p50_ms,tts_chars_mean,tts_chars_p50,greeting_only_n,greeting_only_pct,max_token_cap_n,max_token_cap_pct,output_with_latin_n,output_without_latin_n,cluster_size_min,cluster_size_median,cluster_size_max,note
+non-streaming,zh,A capped full response,25,21,22616.831002,22161.372014,201.520000,204.000000,0,0.000000,25,100.000000,3,22,1,1.0,2,output language proxy is presence/absence of ASCII Latin letters
+non-streaming,en,A capped full response,25,19,22234.667825,22439.624847,206.680000,212.000000,0,0.000000,16,64.000000,18,7,1,1.0,2,output language proxy is presence/absence of ASCII Latin letters
+non-streaming,ALL,A capped full response,50,40,22425.749414,22269.877694,204.100000,205.000000,0,0.000000,41,82.000000,21,29,1,1.0,2,output language proxy is presence/absence of ASCII Latin letters
+streaming,zh,B first sentence,25,21,3303.258098,2602.981900,6.240000,3.000000,23,92.000000,24,96.000000,0,25,1,1.0,2,output language proxy is presence/absence of ASCII Latin letters
+streaming,en,B first sentence,25,19,7660.467465,7576.992605,29.240000,27.000000,2,8.000000,19,76.000000,6,19,1,1.0,2,output language proxy is presence/absence of ASCII Latin letters
+streaming,ALL,B first sentence,50,40,5481.862781,3113.730836,17.740000,4.000000,25,50.000000,43,86.000000,6,44,1,1.0,2,output language proxy is presence/absence of ASCII Latin letters

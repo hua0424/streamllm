@@ -57,6 +57,12 @@ D.~Mach{\'a}{\v{c}}ek, R.~Dabre, and O.~Bojar, ``Turning {Whisper} into
   Linguistics: System Demonstrations}.\hskip 1em plus 0.5em minus 0.4em\relax
   Association for Computational Linguistics, 2023, pp. 17--24.
 
+\bibitem{wang2024simulwhisper}
+H.~Wang, G.~Hu, G.~Lin, W.-Q. Zhang, and J.~Li, ``{Simul-Whisper}:
+  attention-guided streaming {Whisper} with truncation detection,'' in
+  \emph{Interspeech 2024}.\hskip 1em plus 0.5em minus 0.4em\relax ISCA, 2024,
+  pp. 4483--4487.
+
 \bibitem{ref6}
 A.~Radford, J.~W. Kim, T.~Xu, G.~Brockman, C.~McLeavey, and I.~Sutskever,
   ``Robust speech recognition via large-scale weak supervision,'' in
@@ -75,6 +81,22 @@ W.~Kwon, Z.~Li, S.~Zhuang, Y.~Sheng, L.~Zheng, C.~H. Yu, J.~E. Gonzalez,
   model serving with {PagedAttention},'' in \emph{Proceedings of the 29th ACM
   Symposium on Operating Systems Principles}.\hskip 1em plus 0.5em minus
   0.4em\relax Koblenz, Germany: ACM, 2023, pp. 611--626.
+
+\bibitem{gim2024promptcache}
+\BIBentryALTinterwordspacing
+I.~Gim, G.~Chen, S.-s. Lee, N.~Sarda, A.~Khandelwal, and L.~Zhong, ``{Prompt
+  Cache}: modular attention reuse for low-latency inference,'' in
+  \emph{Proceedings of Machine Learning and Systems}, vol.~6, 2024, pp.
+  325--338. [Online]. Available:
+  \url{https://proceedings.mlsys.org/paper_files/paper/2024/file/a66caa1703fe34705a4368c3014c1966-Paper-Conference.pdf}
+\BIBentrySTDinterwordspacing
+
+\bibitem{zheng2024sglang}
+L.~Zheng, L.~Yin, Z.~Xie, C.~Sun, J.~Huang, C.~H. Yu, S.~Cao, C.~Kozyrakis,
+  I.~Stoica, J.~E. Gonzalez, C.~Barrett, and Y.~Sheng, ``{SGLang}: efficient
+  execution of structured language model programs,'' in \emph{Advances in
+  Neural Information Processing Systems}, vol.~37.\hskip 1em plus 0.5em minus
+  0.4em\relax Curran Associates, Inc., 2024, pp. 62\,557--62\,583.
 
 \bibitem{dao2022flashattention}
 T.~Dao, D.~Y. Fu, S.~Ermon, A.~Rudra, and C.~R{\'e}, ``{FlashAttention}: fast

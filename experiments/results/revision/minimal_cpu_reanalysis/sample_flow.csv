@@ -1,0 +1,4 @@
+stage,n_samples,n_dialogues,change_from_previous,definition
+candidate,505,99,0,all sample IDs with three archived mode rows
+excluded_external_contamination,7,7,-7,run-log-confirmed concurrent external program contamination
+valid_three_arm,498,99,-7,505 candidates minus seven contaminated executions

@@ -7,96 +7,66 @@
 | Paper | Latency Optimization of Cascaded Voice Dialogue Systems with a Pipeline-Parallel Streaming Architecture |
 | Revision date | 2026-08-22 |
 | Target | CISR conference submission |
-| Data-lock baseline | `7c93b77` |
+| Raw experiment lock | Existing checkpoint/CSV/JSON/JSONL artifacts; no model experiment rerun in the final correction |
+| Derived analysis | `experiments/results/revision/minimal_cpu_reanalysis` |
 | Revised manuscript | `main.tex` / `main.pdf` |
 | Reviewer response | `response_to_reviewers.tex` / `response_to_reviewers.pdf` |
 
 ## Revision tracking table
 
-| ID | Reviewer concern | Resolution | Manuscript location | Locked evidence | Status |
-|---|---|---|---|---|---|
-| R1 | Validate on human recordings and acoustic variation | Added deterministic LibriSpeech/AISHELL-1 concatenated human-read sets, 12 augmentation conditions, real-speech WER/CER, and babble failure boundary | Section IV-E p.8; Section V-D pp.9–10; Table VI p.10; Limitations p.11 | `experiments/results/revision/r2_real_speech/ttft_real.csv`; `wer_real.csv`; build/augmentation manifests; manual spot check | RESOLVED with disclosed boundary |
-| R2 | Report first audible output including endpointing, communication, and TTS | Added timestamp-defined TTFA, unified one-clock experiment, total distribution and six-component closed decomposition | Introduction p.1; Section III-C p.4; Section V-G p.11; Table VIII p.12 | `experiments/results/revision/r7_ttfa_unified/table_viii/TABLE_VIII_ASSEMBLED.md` | RESOLVED |
-| R3 | Add std/P95/P99 and repeated measurements; assess contention/jitter | Expanded Tables III–V, replaced Fig.6, added paired inference and 3-run CV distribution. GPU contention was not run and is acknowledged in Limitations | Fig.6 and repeatability p.9; Tables III–V pp.9–10; statistical protocol p.4; Limitations p.11 | `r1_stats/table3_latency_percentiles.csv`; `table4_ablation_percentiles.csv`; `table5_context_percentiles.csv`; `repeat_cv_summary.csv`; `stats_inference/paired_inference.csv` | RESOLVED except GPU contention, recorded as DELIBERATE_LIMITATION |
-| R4 | Add matched stronger streaming baseline | Added project-internal LocalAgreement-2-style baseline using matched weights, engine, segmenter, hardware, and paired sample subset | Related work/contributions p.2; Section V-E p.10; Table VII p.11 | `r3_baseline_la/ttft_la_vs_b.csv`; `wer_la_vs_b.csv`; `LA_METHOD_AND_EXCLUSION.md` | RESOLVED |
-| R5 | Clarify corrections/tokenizer/KV behavior and evaluate downstream meaning | Defined two-layer commit contract; measured rollback/internal corrections and tokenizer seams; added three-track exploratory response-quality evaluation | Section IV-B p.6; Section V-F pp.10–11; Limitations p.11 | `r4_commit/commit_divergence.json`; `tokenizer_seams.csv`; `r5_semantic/semantic_consistency.csv`; `REPRO_METADATA.md` | RESOLVED with exploratory-evidence limitation |
+| ID | Concern | Final resolution | Evidence | Status |
+|---|---|---|---|---|
+| R1 | Human recordings and acoustic variation | Added LibriSpeech/AISHELL-1 concatenated human-read sets, noise/speed/endpoints, WER/CER, and babble failure boundary; no natural-dialogue or quality-noninferiority claim | Table VI; `r2_real_speech` | RESOLVED with boundary |
+| R2 | First audible output | Added one-clock server-side first-playable-PCM timeline and six-component closure; now explicitly a B-first-sentence versus A-capped-full-response policy comparison, excluding client playback | Table VIII; `r7_ttfa_unified` | RESOLVED as policy-level proxy |
+| R3 | Variability, P95/P99, repeats, contention | Added std/tails, repeated CV, and dialogue-cluster inference on the locked 498-turn valid set; contention not run | Tables III–V; `minimal_cpu_reanalysis` | RESOLVED except deliberate contention limitation |
+| R4 | Stronger streaming baseline | Added configured project-internal LA-2-style comparator with matched weights/engine/segmenter/hardware/subset; trigger policy is not matched and no method-family superiority is claimed | Table VII; `r3_baseline_la`; `la_cluster_inference.csv` | RESOLVED with comparator boundary |
+| R5 | Corrections, tokenizer, KV cache, downstream meaning | Added append-only contract, 224 internal changes, 25/50 seams, and exploratory response analysis; no quality, task, or usability equivalence | State-analysis subsection; `r4_commit`; `r5_semantic` | RESOLVED with exploratory limitation |
+| R6 | ASR trigger implementation mismatch | Documented actual historical policy: cumulative admitted duration is not decremented, so the 2.0-s startup gate latches; no corrected-current-queue performance is claimed | Methods; `src/asr/faster_whisper_streamer.py`; Git history | RESOLVED by accurate historical-policy reporting |
+| R7 | Candidate-run exclusions | Run-log review confirmed seven executions were contaminated by concurrent external programs; they remain in the audit ledger but are excluded from the locked 498-turn/99-dialogue valid set | Table IV; `sample_exclusions.csv`; `sample_flow.csv` | RESOLVED by decontaminated analysis set |
+| R8 | Dependent accumulated turns | Joined 1,133 sample IDs to `(dataset,dialog_id)` and used dialogue-cluster bootstrap/Wilcoxon; reports turn and dialogue counts | Statistical protocol; `cluster_summary.csv` | RESOLVED |
+| R9 | TTFA policy/language/resource ambiguity | Reports 204.10/17.74 mean TTS characters, 0/50 vs 25/50 greetings, 41/50 vs 43/50 caps, 19/25 English-input B strings without Latin letters, and ASR/TTS GPU0 co-residency | Table VIII; `ttfa_policy_descriptives.csv`; platform record | RESOLVED descriptively |
 
-## Commitment ledger
+## Final analysis commitments
 
 ```yaml
-- concern_id: R1
-  commitment_extracted:
-    - commitment_text: "Add human-recorded speech with speaker, accent, noise, speed, and endpoint variation."
-      commitment_type: add_experiment
-      required_evidence_type: new_table
-      fulfillment_status: fulfilled
-    - commitment_text: "Disclose real-speech boundary conditions."
-      commitment_type: add_analysis
-      required_evidence_type: discussion_paragraph
-      fulfillment_status: fulfilled
-
-- concern_id: R2
-  commitment_extracted:
-    - commitment_text: "Define and measure time to first playable audio on a unified timeline."
-      commitment_type: add_experiment
-      required_evidence_type: new_table
-      fulfillment_status: fulfilled
-    - commitment_text: "Account for communication and TTS boundaries."
-      commitment_type: add_clarification
-      required_evidence_type: methods_paragraph
-      fulfillment_status: fulfilled
-
-- concern_id: R3
-  commitment_extracted:
-    - commitment_text: "Add standard deviations and P95/P99 to the main tables."
-      commitment_type: add_analysis
-      required_evidence_type: new_table
-      fulfillment_status: fulfilled
-    - commitment_text: "Add repeated measurements and characterize jitter."
-      commitment_type: add_experiment
-      required_evidence_type: discussion_paragraph
-      fulfillment_status: fulfilled
-    - commitment_text: "Test GPU contention."
-      commitment_type: add_experiment
-      required_evidence_type: discussion_paragraph
-      fulfillment_status: partial
-      unfulfilled_rationale: "The revision did not run a contention workload. Experiments used otherwise exclusive GPUs, and the missing contention condition is explicitly acknowledged in Limitations and Future Work."
-
-- concern_id: R4
-  commitment_extracted:
-    - commitment_text: "Add a stronger streaming baseline with matched models and hardware."
-      commitment_type: add_experiment
-      required_evidence_type: new_table
-      fulfillment_status: fulfilled
-
-- concern_id: R5
-  commitment_extracted:
-    - commitment_text: "Clarify committed text, tokenizer seams, and KV-cache behavior under ASR changes."
-      commitment_type: add_clarification
-      required_evidence_type: methods_paragraph
-      fulfillment_status: fulfilled
-    - commitment_text: "Report rollback/correction frequency."
-      commitment_type: add_analysis
-      required_evidence_type: discussion_paragraph
-      fulfillment_status: fulfilled
-    - commitment_text: "Evaluate downstream response meaning beyond WER/CER."
-      commitment_type: add_experiment
-      required_evidence_type: discussion_paragraph
-      fulfillment_status: fulfilled
+- commitment: report historical latched trigger, not intended corrected trigger
+  status: fulfilled
+- commitment: do not infer corrected-trigger performance
+  status: fulfilled
+- commitment: distinguish physical-speech-end TTFT, legacy post-feed residual TTFT, and server-side first-playable PCM
+  status: fulfilled
+- commitment: document 505 candidates, seven run-log-confirmed externally contaminated executions, and the locked 498-turn valid set
+  status: fulfilled
+- commitment: retain contaminated records in the audit ledger but exclude them from system inference
+  status: fulfilled
+- commitment: use source dialogue as the primary synthetic inference cluster
+  status: fulfilled
+- commitment: treat incremental prefill as an architectural component, not the dominant proven source
+  status: fulfilled
+- commitment: call LA a configured operating point and disclose trigger mismatch
+  status: fulfilled
+- commitment: describe semantic evidence as exploratory and not quality/usability equivalence
+  status: fulfilled
+- commitment: disclose TTFA response policy, text length, cap, language, playback, and GPU boundaries
+  status: fulfilled
+- commitment: run GPU contention
+  status: not_fulfilled
+  rationale: retained as an explicit deployment limitation; no long model experiment was run
 ```
 
-## Integrity constraints retained
+## Integrity constraints
 
 - Tables III–V and Fig.6 use the original platform; repeated measurements and Tables VI–VIII use the second platform.
-- No cross-platform latency scaling is used.
-- Table VIII uses only the R7 unified timeline; the historical cross-run TTFA assembly is excluded.
-- `t_feed_to_close_wait` means feed end to pipeline input close and is not flush-compute time.
-- Append-only applies only to downstream delivery; internal ASR drift is reported.
-- Semantic evidence is described as exploratory, not equivalent, lossless, or statistically indistinguishable.
-- Real speech is described as concatenated human-read speech, not spontaneous dialogue.
-- VAD settings are reported per experiment family: legacy comparisons use 500/300-ms speech/silence thresholds, whereas R7 uses 250/100 ms with 30-ms padding; 2.0 s is the ASR recognition trigger, not VAD minimum speech.
-- All figures and Tables I--VIII are explicitly referenced in the manuscript; equation references use `\eqref`.
-- Primary citations replace mismatched surveys for Conformer, PagedAttention, FlashAttention, StreamingLLM, Mini-Omni, Moshi, LLaMA-Omni, and Whisper.
-- PDF metadata now records title, authors, subject, and keywords.
-- Fig.6 was regenerated on the GPU host with `pdf.fonttype=42`; the PDF now embeds CID TrueType instead of Type 3. Its 24 bin-statistic rows are field-identical to the previous figure, and the self-contained path-based SVG matches the PDF rendering.
-- Remaining external gates: run the CISR-required similarity check and IEEE PDF eXpress on the rebuilt final PDF.
+- No cross-platform scaling or mixing is used within a comparison.
+- All streaming results describe the historical latched startup-duration implementation; no corrected current-queue trigger result exists.
+- Legacy TTFT is post-feed residual TTFT, not a separately detected physical endpoint.
+- Seven candidate executions confirmed as concurrent-external-program contamination are excluded; all reported ablation inference uses the locked 498-turn valid set.
+- Cluster inference uses `(dataset, dialog_id)` and preserves all accumulated turns when a dialogue is sampled.
+- Table VIII uses only the R7 unified timeline; `Language` means input language.
+- System B first sentence versus System A capped full response is stated wherever the TTFA headline appears.
+- `t_feed_to_close_wait` is feed end to input close, not flush-compute time.
+- R7 ASR and TTS share GPU0; Qwen2 uses GPU1; no unrelated GPU job was present.
+- Append-only applies only to downstream delivery; internal drift and tokenizer seams remain visible.
+- No quality noninferiority, task success, user-experience, production-reliability, or general LocalAgreement superiority claim is made.
+- Fig.6 was relabeled from the unchanged 24 bin-statistic rows; the current PDF embeds CID TrueType and contains no raster image.
+- External gates remain similarity checking and IEEE PDF eXpress on the final PDF.

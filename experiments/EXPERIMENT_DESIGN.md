@@ -358,3 +358,18 @@ uv run python -m experiments.datasets.tools.run_pipeline \
 - **治理铁律（裁定 §4-6）**：今后任何后置实验必须取得**独立书面放行**，不得由
   "前一阶段已完成"推断授权延伸；`r7_main/`、`tts_control/` 为只读归档，
   论文表格只可引用已过审的 R7 数字，不得引用作废装配稿或未 QA 估计值。
+
+### 6.7 确定性 CPU 重分析（2026-08-22）
+
+- `experiments/scripts/cpu_revision_analysis.py` 只读锁定的 JSON/CSV/JSONL 与 processed metadata；
+  不运行 ASR/LLM/TTS/CUDA，不读取音频，也不外推修正后触发策略的性能。
+- 通过 `sample_id` 唯一连接 `(dataset, dialog_id)`；主估计保持 turn-weighted 均值差及
+  ratio-of-means 改善率，95% CI 采用 dialogue-cluster percentile bootstrap（10,000 次，
+  base seed=20260821，并按比较名派生稳定 seed）。检验先在每个 dialogue 内取配对差均值，
+  再做双侧 Wilcoxon；预先命名的 comparison family 内使用 Holm 校正。
+- 样本流固定为 505 candidate − 7 个经 run log 复核受并发外部程序污染的 execution =
+  498 个 valid complete three-arm 样本；污染运行只保留在审计 ledger，不作为系统结果分析。
+  R7 描述统计仅使用 repeat-0，且明确区分 System A capped full response 与 System B first
+  sentence 的 TTS 文本策略。
+- 输入哈希、1,133 metadata IDs、498/99 cluster 结构、TTFA 50×2 主记录及历史汇总均
+  fail closed；输出固定排序且不写生成时间，归档于 `results/revision/minimal_cpu_reanalysis/`。

@@ -63,19 +63,24 @@ T_{\mathrm{total}} ={}& T_{\mathrm{VAD}} + T_{\mathrm{ASR}} + T_{\mathrm{Prefill
 \label{eq:total}
 \end{align}
 
-Here $T_{\mathrm{VAD}}$ denotes voice-activity and turn-boundary processing, $T_{\mathrm{ASR}}$ speech recognition, $T_{\mathrm{Prefill}}$ prompt prefilling, $T_{\mathrm{Decode}}$ autoregressive decoding, $T_{\mathrm{TTS}}$ speech synthesis, and $T_{\mathrm{Net}}$ communication and serialization. Component overlap means that \eqref{eq:total} is a conceptual serial budget rather than an identity for the proposed pipeline. We therefore report two timestamp-defined metrics. Time to first token is
+Here $T_{\mathrm{VAD}}$ denotes voice-activity and turn-boundary processing, $T_{\mathrm{ASR}}$ speech recognition, $T_{\mathrm{Prefill}}$ prompt prefilling, $T_{\mathrm{Decode}}$ autoregressive decoding, $T_{\mathrm{TTS}}$ speech synthesis, and $T_{\mathrm{Net}}$ communication and serialization. Component overlap means that \eqref{eq:total} is a conceptual serial budget rather than an identity for the proposed pipeline. We distinguish a conceptual physical-speech-end TTFT,
 \begin{equation}
 \mathrm{TTFT}=t_{\mathrm{first\ token}}-t_{\mathrm{speech\ end}},
 \label{eq:ttft}
 \end{equation}
-and time to first audio is
+from the metric available in the prerecorded legacy archives,
 \begin{equation}
-\mathrm{TTFA}=t_{\mathrm{first\ playable\ PCM}}-t_{\mathrm{speech\ end}}.
+\mathrm{TTFT}_{\mathrm{post\text{-}feed}}=t_{\mathrm{first\ token}}-t_{\mathrm{feed\ end}}.
+\label{eq:ttftfeed}
+\end{equation}
+The latter is called \emph{post-feed residual TTFT} throughout the legacy results. It includes pipeline closure, remaining ASR and prefill work, and first-token selection, but excludes TTS and should not be interpreted as a separately detected physical endpoint. For the unified run, server-side time to first playable PCM is
+\begin{equation}
+\mathrm{TTFA}_{\mathrm{server}}=t_{\mathrm{first\ playable\ PCM}}-t_{\mathrm{speech\ end}}.
 \label{eq:ttfa}
 \end{equation}
-For the prerecorded legacy experiments, speech end is operationalized as completion of feeding the waveform. TTFT includes pipeline closure, remaining ASR and prefill work, and first-token selection, but excludes TTS. TTFA additionally includes response-text readiness, the local TTS request, and initial synthesis until at least 1324 bytes of non-empty playable PCM are available. The prototype uses in-process queues for ASR/LLM communication and a localhost TTS service, so it does not measure a distributed network path.
+Here ``playable'' means at least 1324 bytes, approximately 30~ms of 22.05-kHz mono 16-bit PCM. This timestamp additionally includes response-text readiness, the localhost TTS request, and initial synthesis, but excludes client transport, jitter buffering, audio-device scheduling, and acoustic playback. The prototype uses in-process queues for ASR/LLM communication and a localhost TTS service, so it does not measure a distributed network path or user-perceived audibility.
 
-In conventional serial cascades, several seconds may elapse between speech end and spoken output. For long-form input, full-audio ASR and one-shot LLM prefilling both remain after speech end. As spoken interfaces enter service robots and conversational assistants, reducing this residual critical path is important for usability. The question addressed here is whether a modular cascade can move recognition and prefill work into the user's speaking interval without changing the underlying ASR and LLM weights.
+In conventional serial cascades, several seconds may remain between feed completion and server-side response readiness. For long-form input, full-audio ASR and one-shot LLM prefilling both remain on that residual path. Reducing this server-side residual work is relevant to intelligent voice interfaces, although the present study does not measure user-perceived responsiveness or usability. The question addressed here is whether a modular cascade can move recognition and prefill work into the audio-input interval without changing the underlying ASR and LLM weights.
 
 \section{Related Work}\label{sec:related}
 
@@ -83,11 +88,11 @@ In conventional serial cascades, several seconds may elapse between speech end a
 
 The processing speed of the ASR system determines how quickly user speech becomes text the LLM can consume. Early streaming ASR architectures prominently included the RNN-Transducer (RNN-T)~\cite{ref3}. Its recurrent structure supports incremental audio processing, although sequential dependencies limit parallelism over time. Transformer self-attention instead permits broad contextual interaction~\cite{ref4}; without modifications that restrict the available context or attention pattern, however, the vanilla formulation does not provide bounded-latency streaming inference.
 
-Gulati et al. proposed Conformer, which combines convolutional local feature extraction with Transformer-based global modeling~\cite{gulati2020conformer}. Streaming adaptations commonly constrain recognition to chunks or stabilize outputs across repeated partial hypotheses. For Whisper, the LocalAgreement policy provides one such output-stabilization approach~\cite{liu2020partialhypothesis,machacek2023turning}. Whisper itself is an encoder--decoder model developed primarily for offline transcription~\cite{ref6}, so applying it incrementally requires explicit context and commitment policies.
+Gulati et al. proposed Conformer, which combines convolutional local feature extraction with Transformer-based global modeling~\cite{gulati2020conformer}. Streaming adaptations commonly constrain recognition to chunks or stabilize outputs across repeated partial hypotheses. For Whisper, the LocalAgreement policy provides one such output-stabilization approach~\cite{liu2020partialhypothesis,machacek2023turning}, while Simul-Whisper uses cross-attention guidance and truncation detection for incomplete chunk-boundary words~\cite{wang2024simulwhisper}. Whisper itself is an encoder--decoder model developed primarily for offline transcription~\cite{ref6}, so applying it incrementally requires explicit context and commitment policies. Our fixed-context timestamp policy is an engineering operating point rather than a claim to replace these agreement- or attention-guided methods.
 
 \subsection{LLM Inference Acceleration}
 
-Once ASR transcription completes, LLM inference can become another major latency bottleneck because autoregressive generation repeatedly accesses an expanding context and its cached state~\cite{ref7}. KV caching stores historical Key/Value states so that they need not be recomputed at every decoding step. vLLM applies PagedAttention to manage this cache for serving workloads~\cite{kwon2023pagedattention}. For prompt processing, FlashAttention restructures exact attention around tiled memory access and reports improved throughput in evaluated settings~\cite{dao2022flashattention}. StreamingLLM retains initial attention-sink tokens together with a recent-token window, enabling bounded-cache streaming over long sequences without claiming retention of arbitrary distant content~\cite{xiao2024streamingllm}.
+Once ASR transcription completes, LLM inference can become another major latency bottleneck because autoregressive generation repeatedly accesses an expanding context and its cached state~\cite{ref7}. KV caching stores historical Key/Value states so that they need not be recomputed at every decoding step. vLLM applies PagedAttention to manage this cache for serving workloads~\cite{kwon2023pagedattention}, while Prompt Cache precomputes reusable prompt-module states and SGLang's RadixAttention organizes shared request prefixes for automatic KV reuse~\cite{gim2024promptcache,zheng2024sglang}. These methods target reusable prompt structure or cross-request prefixes; our prototype instead appends newly committed speech fragments within one request and studies when that work is scheduled. For prompt processing, FlashAttention restructures exact attention around tiled memory access and reports improved throughput in evaluated settings~\cite{dao2022flashattention}. StreamingLLM retains initial attention-sink tokens together with a recent-token window, enabling bounded-cache streaming over long sequences~\cite{xiao2024streamingllm}; that bounded-context mechanism is not used here.
 
 \subsection{Full-Pipeline Optimization of Voice Dialogue Systems}
 
@@ -105,13 +110,11 @@ Beyond optimizing ASR or the LLM in isolation, coordinated scheduling across the
 Much prior work focuses on ASR-side streaming or on speech-native multimodal generation. Complementary to those directions, this paper proposes a fine-grained pipeline-parallel design (hereafter System~B) that schedules an existing non-streaming ASR model and text LLM incrementally without changing their weights. Our main contributions are:
 
 \begin{itemize}
-\item \textbf{Streaming ASR context management.} An adaptive Whisper sliding window combines Silero VAD, dynamic buffering, prefix--suffix acoustic context, and timestamp-aligned commitment to produce an append-only downstream text stream.
+\item \textbf{Streaming scheduling and state interface.} A VAD-driven fixed-context Whisper window combines prefix--suffix acoustic context and timestamp-aligned commitment with an append-only downstream text contract. Incremental LLM prefilling reuses historical KV state as a scheduling component; the evaluation does not assume that it is the dominant source of latency reduction.
 
-\item \textbf{Incremental LLM prefilling.} Newly committed fragments are prefetched into the LLM's KV cache during speech. Historical cached states are reused, relocating prompt computation into the input interval rather than claiming a lower asymptotic complexity.
+\item \textbf{Distributional latency evaluation.} In addition to the synthesized MultiWOZ/CrossWOZ stress benchmark, we evaluate concatenated LibriSpeech/AISHELL-1 human-read speech, noise and speed perturbations, repeated measurements, and a project-internal configured LocalAgreement-2-style comparator~\cite{machacek2023turning,liu2020partialhypothesis}. We report dialogue-cluster inference on the locked 498-turn valid analysis set.
 
-\item \textbf{Broader latency and robustness evaluation.} In addition to the synthesized MultiWOZ/CrossWOZ benchmark, we evaluate concatenated LibriSpeech/AISHELL-1 human-read speech, noise and speed perturbations, repeated measurements, a matched LocalAgreement-2-style baseline~\cite{machacek2023turning,liu2020partialhypothesis}, and first-audible-output latency.
-
-\item \textbf{State-correctness and downstream analysis.} We measure internal ASR drift, tokenizer seams, and response-level semantic consistency, distinguishing the append-only downstream contract from stronger and unsupported claims of internal hypothesis or KV-state equivalence.
+\item \textbf{Policy-level first-audio and state analysis.} We measure server-side first-playable-PCM latency under explicitly unequal response policies, together with internal ASR drift, tokenizer seams, and exploratory response-level consistency. These measurements distinguish the append-only downstream contract from unsupported claims of internal hypothesis, KV-state, output-quality, or usability equivalence.
 \end{itemize}
 
 \section{Principles and Methods}\label{sec:methods}
@@ -176,7 +179,7 @@ The KV cache plays two distinct roles here. During autoregressive decoding, both
 
 \subsubsection{Time to First Token and Time to First Audio}
 
-TTFT follows \eqref{eq:ttft}. In legacy prerecorded runs, $t_{\mathrm{speech\ end}}$ is the waveform feed-completion timestamp; in the unified TTFA run, all timestamps share one \texttt{perf\_counter\_ns} clock. TTFA follows \eqref{eq:ttfa}, and ``playable'' means the first non-empty PCM accumulation of at least 1324 bytes. Its closed timeline is speech end $\rightarrow$ feed end $\rightarrow$ pipeline input close $\rightarrow$ first token $\rightarrow$ response text ready $\rightarrow$ TTS request $\rightarrow$ first playable PCM. We define
+Legacy prerecorded results follow \eqref{eq:ttftfeed}; the unified run follows \eqref{eq:ttfa}, with all timestamps on one \texttt{perf\_counter\_ns} clock. Its closed server-side timeline is physical speech end $\rightarrow$ feed end $\rightarrow$ pipeline input close $\rightarrow$ first token $\rightarrow$ policy-defined response text ready $\rightarrow$ TTS request $\rightarrow$ first playable PCM. We define
 \begin{equation}
 t_{\mathrm{feed\_to\_close\_wait}}=t_{\mathrm{input\ close}}-t_{\mathrm{feed\ end}}.
 \label{eq:feedclose}
@@ -191,7 +194,7 @@ Word error rate (WER), the standard metric for ASR accuracy, is computed from th
 \label{eq:wer}
 \end{equation}
 
-where $S$, $D$, and $I$ are substitution, deletion, and insertion counts and $N_{\mathrm{ref}}$ is the reference length. We primarily report WER for English and CER for Chinese. Table labels distinguish mean-utterance error (the arithmetic mean of sample-level rates) from corpus error $\sum(S+D+I)/\sum N_{\mathrm{ref}}$. Latency tables report the sample mean, sample standard deviation (\texttt{ddof}=1), and tail percentiles. Paired comparisons use 10,000 bootstrap resamples with seed 20260821 for percentile 95\% confidence intervals and two-sided Wilcoxon signed-rank tests; Holm correction is applied within the duration-group and augmentation families. Fig.~\ref{fig:trend} shows observed P5--P95 bands, not confidence intervals.
+where $S$, $D$, and $I$ are substitution, deletion, and insertion counts and $N_{\mathrm{ref}}$ is the reference length. We primarily report WER for English and CER for Chinese. Table labels distinguish mean-utterance error (the arithmetic mean of sample-level rates) from corpus error $\sum(S+D+I)/\sum N_{\mathrm{ref}}$. Latency tables report the sample mean, sample standard deviation (\texttt{ddof}=1), and tail percentiles. Because multiple accumulated turns share a source dialogue, primary synthetic-latency uncertainty uses a one-stage paired dialogue-cluster bootstrap: the $(\mathrm{dataset},\mathrm{dialogue})$ clusters are sampled with replacement, all paired turns in each selected cluster are retained, and the ratio-of-pooled-means reduction $1-\bar T_B/\bar T_A$ is recomputed for 10,000 resamples with seed 20260821. Dialogue-level Wilcoxon tests operate on per-dialogue mean paired differences, and Holm correction is applied within each declared duration or ablation family. This keeps the original turn-weighted point estimate while accounting for shared dialogue ancestry in uncertainty. Fig.~\ref{fig:trend} shows observed P5--P95 bands, not confidence intervals.
 
 \section{System Design}\label{sec:design}
 
@@ -199,7 +202,7 @@ where $S$, $D$, and $I$ are substitution, deletion, and insertion counts and $N_
 
 \subsubsection{Objective and Logical Topology}
 
-The core design objective is to shift from the traditional ``receive everything, then process everything'' paradigm to an ``incremental receive, streaming process'' paradigm, driving first-token latency toward its theoretical lower bound. The logical topology is shown in Fig.~\ref{fig:topology}, which depicts the streaming parallel data flow built on multi-threaded producer--consumer queues. Audio enters the segmentation module continuously as fixed-length PCM chunks; Silero VAD performs activity detection on an accumulation buffer and emits speech segments~\cite{ref13}. The ASR module concatenates several speech segments, invokes Whisper for transcription, and emits append-only text fragments according to the prefix/suffix context policy. Text fragments are passed through a thread-safe queue to the LLM module, which keeps updating the KV cache and starts generation when the termination marker arrives, thereby moving as much LLM prefill computation as possible forward to overlap with audio input.
+The core design objective is to shift from the traditional ``receive everything, then process everything'' paradigm to an ``incremental receive, streaming process'' paradigm, reducing the work that remains after waveform feed completion. The logical topology is shown in Fig.~\ref{fig:topology}, which depicts the streaming parallel data flow built on multi-threaded producer--consumer queues. Audio enters the segmentation module continuously as fixed-length PCM chunks; Silero VAD performs activity detection on an accumulation buffer and emits speech segments~\cite{ref13}. The ASR module concatenates several speech segments, invokes Whisper for transcription, and emits append-only text fragments according to the prefix/suffix context policy. Text fragments are passed through a thread-safe queue to the LLM module, which keeps updating the KV cache and starts generation when the termination marker arrives, thereby moving as much LLM prefill computation as possible forward to overlap with audio input.
 
 The overall architecture is a segment--transcribe--prefill--generate pipeline: as soon as an upstream module produces a new audio or text segment, the downstream module can start computing without waiting for the full input. The system comprises three subsystems: a Streaming Audio Segmenter for voice activity detection and segmentation, a Context-Aware ASR Engine for context concatenation and output stability, and an Incremental LLM Inference Service for incremental prefilling and final generation. The KV cache in the LLM part is a general optimization for Transformer decoder inference; we directly reuse the \texttt{past\_key\_values} mechanism built into the inference framework for state reuse.
 
@@ -222,11 +225,11 @@ State management uses a hybrid stateful/stateless design. The segmentation modul
 
 \subsubsection{Strategy}
 
-Streaming ASR exposes a configuration-dependent trade-off between the amount of acoustic context available to the recognizer and the delay before a fragment can be processed. We therefore evaluate fixed segmentation and recognition-trigger settings within each paired comparison and report the observed behavior, rather than claiming a universal optimum.
+Streaming ASR exposes a configuration-dependent trade-off between the amount of acoustic context available to the recognizer and the delay before a fragment can be processed. All reported runs use the historical implementation's latched startup-duration policy. Its \texttt{total\_duration} counter accumulates the durations of speech segments admitted to the ASR cache and is not decremented when processed segments are removed. The 2.0-s condition is therefore a one-time cumulative-seen-duration startup gate: after its first crossing, the gate remains open and later invocations depend mainly on segment-count eligibility or final-input processing. We report measurements of this historical policy and make no performance claim for an unmeasured corrected current-queue-duration policy.
 
 \subsubsection{Dynamic VAD Segmentation}
 
-The system uses Silero VAD to segment the continuous PCM stream online~\cite{ref13}. Define the input audio stream as a time series $\{x_1,x_2,\dots,x_t\}$. The segmenter maintains an accumulation buffer $A_{\mathrm{accum}}$ and, on receiving each new audio chunk $c_t$, performs $A_{\mathrm{accum}}\leftarrow A_{\mathrm{accum}}\oplus c_t$, where $\oplus$ denotes concatenation. Once the accumulated audio exceeds the detection window, Silero VAD is invoked; a closed speech segment is then emitted to the downstream ASR. The legacy TTFT, ablation, context, human-read, and matched-baseline runs use 500-ms chunks, a Silero threshold of 0.5, a 500-ms minimum speech duration, a 300-ms minimum silence duration, and a separate 2.0-s ASR recognition trigger. The R7 unified-TTFA run instead records a Silero threshold of 0.5, a 250-ms minimum speech duration, a 100-ms minimum silence duration, and 30-ms speech padding, while retaining the 500-ms chunk and 2.0-s recognition trigger. These parameters are fixed within each paired comparison. Because no VAD-parameter ablation was performed, we do not claim that the selected values optimize responsiveness or segmentation stability.
+The system uses Silero VAD to segment the continuous PCM stream online~\cite{ref13}. Define the input audio stream as a time series $\{x_1,x_2,\dots,x_t\}$. The segmenter maintains an accumulation buffer $A_{\mathrm{accum}}$ and, on receiving each new audio chunk $c_t$, performs $A_{\mathrm{accum}}\leftarrow A_{\mathrm{accum}}\oplus c_t$, where $\oplus$ denotes concatenation. Once the accumulated audio exceeds the detection window, Silero VAD is invoked; a closed speech segment is then emitted to the downstream ASR. The legacy post-feed TTFT, ablation, context, human-read, and comparator runs use 500-ms chunks, a Silero threshold of 0.5, a 500-ms minimum speech duration, a 300-ms minimum silence duration, and the 2.0-s latched cumulative-seen-duration startup gate described above. The R7 unified run instead records a Silero threshold of 0.5, a 250-ms minimum speech duration, a 100-ms minimum silence duration, and 30-ms speech padding, while retaining the 500-ms chunk and the same latched startup gate. These parameters are fixed within each paired comparison. Because no VAD-parameter ablation was performed, we do not claim that the selected values optimize responsiveness or segmentation stability.
 
 \subsubsection{Sliding-Window Context Awareness}
 
@@ -237,15 +240,14 @@ The system uses Silero VAD to segment the continuous PCM stream online~\cite{ref
 \label{fig:window}
 \end{figure}
 
-To reduce boundary effects in streaming recognition, the ASR engine uses a sliding window with prefix context. Fig.~\ref{fig:window} details the model input at time step $t$. The window contains frozen prefix audio, the target segment, and an optional suffix buffer. This overlap is intended to reduce boundary instability; it does not guarantee that later internal re-recognition will reproduce the same text.
+To reduce boundary effects in streaming recognition, the ASR engine uses a fixed-context sliding window with prefix context. Fig.~\ref{fig:window} details the acoustic window at time step $t$; it does not depict the separate latched startup gate. The window contains frozen prefix audio, the target segment, and an optional suffix buffer. This overlap is intended to reduce boundary instability; it does not guarantee that later internal re-recognition will reproduce the same text.
 
-First, the window is updated. Let $Q_t$ be the audio-segment queue at time $t$. Newly arrived segments first enter a waiting queue and are then merged in batch into the main queue by the transcription thread, yielding $Q_t$. Transcription is triggered when the accumulated queue duration reaches the threshold $\tau_{\mathrm{asr}}$ and the queue length satisfies \eqref{eq:trigger}:
+First, the window is updated. Let $Q_t$ be the audio-segment queue at time $t$. Newly arrived segments first enter a waiting queue and are then merged in batch into the main queue by the transcription thread, yielding $Q_t$. Before its first crossing, the historical startup gate requires cumulative admitted speech duration to reach $\tau_{\mathrm{start}}=2.0$~s. Because the counter is not reduced when old segments leave $Q_t$, this duration condition stays true thereafter. Non-final invocations then require the segment-count eligibility condition
 \begin{equation}
-\left|Q_{\mathrm{temp}}\right|\geq N_{\mathrm{prefix}}+1+N_{\mathrm{suffix}}
+\left|Q_t\right|\geq N_{\mathrm{prefix}}+1+N_{\mathrm{suffix}},
 \label{eq:trigger}
 \end{equation}
-
-where $\left|Q_{\mathrm{temp}}\right|$ is the current temporary queue length and $N_{\mathrm{prefix}}$ and $N_{\mathrm{suffix}}$ are the configured numbers of preceding and following segments. When the condition is met, or when the final speech segment arrives, the ASR model concatenates all segments in the temporary queue and performs one transcription pass to produce the raw transcript. In practice a minimum-recognition threshold is also applied to avoid the frequent calls and unstable output caused by overly short windows.
+where $N_{\mathrm{prefix}}$ and $N_{\mathrm{suffix}}$ are the configured numbers of preceding and following segments. Final-input processing bypasses these gates. When eligible, the ASR model concatenates the current queue and performs one transcription pass to produce the raw transcript. Thus \eqref{eq:trigger} is the current-queue component of the measured policy, whereas the 2.0-s value is a latched startup condition rather than a recurring current-window-duration threshold.
 
 Second, timestamp-aligned text extraction maps Whisper words to segment spans by word end time and emits only segments inside the current commit region. The first and final rounds receive explicit boundary handling so no trailing text is intentionally withheld. After emission, the window retains configured prefix and uncommitted suffix segments. A larger suffix can reduce some boundary errors but also delays commitment and adds decoding work; Table~\ref{tab:context} shows that its effect is metric- and language-dependent.
 
@@ -262,9 +264,9 @@ The cache stores the actual fragment-wise token sequence. Measurements of intern
 
 \subsubsection{Strategy}
 
-In System~A, the LLM obtains the complete prompt only after ASR finishes transcribing the whole utterance, and performs prefill plus first-token generation entirely after the end-of-speech endpoint. TTFT therefore rises markedly as transcript length grows. Applying that serial paradigm unchanged to a setting where computation could proceed during audio input wastes the time window before the endpoint and squanders the available parallelism.
+In System~A, the LLM obtains the complete prompt only after ASR finishes transcribing the whole utterance, and performs prefill plus first-token generation after waveform feed completion in the legacy experiment. Post-feed residual TTFT therefore rises markedly as transcript length grows. Applying that serial paradigm unchanged to a setting where computation could proceed during audio input leaves available overlap unused.
 
-System~B reduces residual computation by retaining the \texttt{past\_key\_values} produced by each committed fragment. A new fragment triggers a forward pass only for its own tokens, after which the updated cache replaces the previous state. When input closes, any remaining fragment and the generation prompt are processed before decoding begins. The amount of work left at closure depends on the final segment and queue state; the design moves most, but not necessarily all, prefill into the speaking interval. Because the cache is append-only, revising an already delivered fragment would require rollback or recomputation, which this prototype does not implement.
+System~B reduces residual computation by retaining the \texttt{past\_key\_values} produced by each committed fragment. A new fragment triggers a forward pass only for its own tokens, after which the updated cache replaces the previous state. When input closes, any remaining fragment and the generation prompt are processed before decoding begins. The amount of work left at closure depends on the final segment and queue state; the design can move prefill into the audio-input interval, but the isolated measured contrast is small and non-monotonic in the present ablation. Because the cache is append-only, revising an already delivered fragment would require rollback or recomputation, which this prototype does not implement.
 
 \subsubsection{Core Algorithm}
 
@@ -310,13 +312,13 @@ The core logic of incremental inference: on the first call, the system performs 
 
 \subsubsection{Complexity Analysis}
 
-To locate the source of the redundancy that incremental prefilling removes, consider one update with historical context length $N$ and new-fragment length $M$. If every incremental arrival triggered a fresh prefill over the whole sequence $x_{1:N+M}$ (no reuse of historical state), the dominant self-attention cost would be about $O\!\left((N+M)^{2}\right)$. With the KV cache, the $K,V$ of historical tokens are already stored; the system only computes queries for the new tokens and lets them interact with Key/Value of length $N+M$, at a dominant cost of $O\!\left(M(N+M)\right)$. When $M\ll N$ this approximates $O(MN)$, i.e., linear scaling in the new fragment. Note that if all incremental fragments accumulate to a final length $L$, the cumulative cost of incremental prefilling is
+To locate the source of the redundancy that incremental prefilling removes, consider one update with historical context length $N$ and new-fragment length $M$. If every incremental arrival triggered a fresh prefill over the whole sequence $x_{1:N+M}$ (no reuse of historical state), the dominant self-attention cost would be about $O\!\left((N+M)^{2}\right)$. With the KV cache, the $K,V$ of historical tokens are already stored; the system only computes queries for the new tokens and lets them interact with Key/Value of length $N+M$, at a dominant cost of $O\!\left(M(N+M)\right)$. When $M\ll N$ this approximates $O(MN)$, i.e., it is approximately bilinear in the new-fragment and history lengths and linear in either one only when the other is treated as fixed. Note that if all incremental fragments accumulate to a final length $L$, the cumulative cost of incremental prefilling is
 \begin{equation}
 \sum_{j}O\!\left(M_j L_j\right)=O\!\left(L^{2}\right)
 \label{eq:cumcost}
 \end{equation}
 
-where $M_j$ and $L_j$ are the length of the $j$-th new text fragment and the accumulated length, and $L$ is the full sequence length---the same order as offline one-shot prefilling. The key benefit of our strategy is not a lower complexity order but the relocation of prefill computation into the user's speaking time, so that the computation remaining after the end-of-speech endpoint consists mainly of the final small increment plus thread-synchronization overhead, effectively lowering TTFT. In addition, our implementation keeps the last-step \texttt{logits} of the prefill phase in the KV cache, so the first token can be decoded without any extra forward pass once the termination marker arrives, further trimming the constant overhead of the first-token phase.
+where $M_j$ and $L_j$ are the length of the $j$-th new text fragment and the accumulated length, and $L$ is the full sequence length---the same order as offline one-shot prefilling. The intended benefit is not a lower complexity order but relocation of prefill computation into the audio-input interval, which can reduce work remaining at closure. The measured isolated effect is reported rather than inferred from this mechanism. The implementation also retains the last-step \texttt{logits} from prefill and samples the first generated token from them after the termination marker; this is standard causal-LM prompt processing and is not treated as an independently established advantage over System~A.
 
 \subsection{Test Data Construction Pipeline}\label{sec:data}
 
@@ -327,7 +329,7 @@ Systematically validating the streaming architecture under controlled conditions
 \subsubsection{Cumulative Dialogue Generation}
 
 \begin{table*}[!t]
-\caption{Dialogue data accumulation strategy (example translated from Chinese)}\label{tab:accum}
+\caption{Cumulative turns from one source dialogue; rows share history and belong to one statistical cluster (example translated from Chinese)}\label{tab:accum}
 \centering
 \begin{tabular}{@{}clll@{}}
 \toprule
@@ -340,7 +342,7 @@ Turn & User & Agent & Accumulated text \\
 \end{tabular}
 \end{table*}
 
-MultiWOZ and CrossWOZ both contain multi-turn dialogues, but individual user turns are usually short and cannot directly cover long-speech input. To simulate a user stating a complex request in one pass or continuously adding information, we construct long input samples with a cumulative dialogue strategy. As illustrated in Table~\ref{tab:accum}, the algorithm walks through the dialogue history turn by turn, concatenating the user-side inputs and system replies of the current and preceding turns into input sequences of increasing length.
+MultiWOZ and CrossWOZ both contain multi-turn dialogues, but individual user turns are usually short and cannot directly cover long-speech input. To construct controlled long-input stress cases from semantically related material, we use a cumulative dialogue strategy; this construction is not intended to reproduce a naturally observed single-speaker turn. As illustrated in Table~\ref{tab:accum}, the algorithm walks through the dialogue history turn by turn, concatenating the user-side inputs and system replies of the current and preceding turns into input sequences of increasing length.
 
 This strategy generates continuous speech samples from 3 seconds to over 60 seconds grounded in real semantic context, covering interaction forms from short commands to extended statements and remedying the lack of long-speech samples in conventional datasets.
 
@@ -348,7 +350,7 @@ This strategy generates continuous speech samples from 3 seconds to over 60 seco
 
 Data construction proceeds in three strictly ordered stages.
 
-The first is history accumulation and filtering. The strategy traverses the source datasets and applies the cumulative generation logic. To focus on long-speech bottlenecks, generated samples are sorted by text length in descending order and the longest $N$ dialogue fragments are selected first, with maximum text-length thresholds (2,050 characters for English, 720 for Chinese) to prevent out-of-memory errors; an upper bound on speech length also avoids needlessly inflating experiment time.
+The first is purposive source-dialogue selection, history accumulation, and filtering. For each corpus, source dialogues are ranked by their total dialogue-text length and the longest selected dialogues are traversed turn by turn. Multiple accumulated-turn samples are then emitted from each selected dialogue, subject to maximum per-sample text lengths of 2,050 characters for English and 720 for Chinese and an upper speech-duration bound. Consequently, accumulated turns from one dialogue share substantial prefixes and are statistically clustered; the 1,132-turn primary set comes from 100 source dialogues (cluster size 6--18, median 11, mean 11.32). This is a controlled long-input stress benchmark rather than a sample from a natural conversational-turn distribution, and aggregate results depend on its duration mix.
 
 The second stage is concurrent TTS synthesis. We use a CosyVoice-based HTTP synthesis endpoint to produce controlled synthetic waveforms from the accumulated text~\cite{ref17}. A batch client issues asynchronous requests to the endpoint; the resulting audio remains synthetic and is not treated as human speech. The archived artifacts do not preserve an immutable CosyVoice checkpoint or service revision, so \cite{ref17} identifies the model family rather than a specific hosted Alibaba service.
 
@@ -357,17 +359,17 @@ The third is duration calibration and metadata synchronization. Because generati
 \subsubsection{Test-Set Groups}
 
 \begin{table*}[!t]
-\caption{Audio duration groups}\label{tab:groups}
+\caption{Controlled audio-duration analysis strata}\label{tab:groups}
 \centering
 \begin{tabular}{@{}clll@{}}
 \toprule
-Group & Duration (s) & Typical scenario & Experimental focus \\
+Group & Duration (s) & Analytical interpretation & Experimental focus \\
 \midrule
-Short & $T<5$ & Short commands & Baseline latency \\
-Medium & $5\leq T<15$ & Multi-intent statements & Everyday dialogue performance \\
-Long & $15\leq T<30$ & Complex long sentences & Core advantage region of streaming \\
-Very Long & $30\leq T<60$ & Extended expositions & Tail-latency growth \\
-Extra Long & $T\geq60$ & Extreme stress test & Stability and OOM boundary \\
+Short & $T<5$ & Controlled short input & Fixed-overhead regime \\
+Medium & $5\leq T<15$ & Controlled medium input & Crossover behavior \\
+Long & $15\leq T<30$ & Controlled long input & Residual-latency scaling \\
+Very Long & $30\leq T<60$ & Controlled extended input & Tail-latency growth \\
+Extra Long & $T\geq60$ & Extreme stress input & Stability and OOM boundary \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -384,7 +386,7 @@ To test acoustic conditions not represented by TTS, we construct long-form sampl
 
 \subsection{Experimental Protocol}
 
-System~A is a serial non-streaming cascade: full-audio Whisper large-v3-turbo transcription is followed by one-shot \texttt{Qwen/Qwen2-7B-Instruct}~\cite{ref20} prompt prefill and generation. System~B uses the same loaded weights but applies the streaming ASR and incremental prefill mechanisms described above. The archived run metadata records the model identifiers as \texttt{turbo} and \texttt{Qwen/Qwen2-7B-Instruct}; immutable model-repository revisions were not preserved and are therefore reported as unavailable rather than inferred retrospectively. Tables~\ref{tab:ttft}--\ref{tab:context} and Fig.~\ref{fig:trend} use the original 2025 dual-RTX~3090 platform. Repeated measurements and Tables~\ref{tab:real}--\ref{tab:ttfa} use a second platform, a KVM virtual machine with an Intel Xeon Gold 6133 at 2.50~GHz and two RTX~3090 GPUs. Absolute latency is platform-dependent, so values from the two platforms are neither scaled nor mixed within a comparison. In both environments, Whisper runs on one GPU and Qwen2-7B-Instruct on the other, batch size is one, and three real-audio warm-up runs precede measurement.
+System~A is a serial non-streaming cascade: full-audio Whisper large-v3-turbo transcription is followed by one-shot \texttt{Qwen/Qwen2-7B-Instruct}~\cite{ref20} prompt prefill and generation. System~B uses the same loaded weights but applies the historical latched-gate streaming ASR policy and incremental prefill mechanisms described above. The archived run metadata records the model identifiers as \texttt{turbo} and \texttt{Qwen/Qwen2-7B-Instruct}; immutable model-repository revisions were not preserved and are therefore reported as unavailable rather than inferred retrospectively. Tables~\ref{tab:ttft}--\ref{tab:context} and Fig.~\ref{fig:trend} use the original 2025 dual-RTX~3090 platform. Repeated measurements and Tables~\ref{tab:real}--\ref{tab:ttfa} use a second platform, a KVM virtual machine with an Intel Xeon Gold 6133 at 2.50~GHz and two RTX~3090 GPUs. Absolute latency is platform-dependent, so values from the two platforms are neither scaled nor mixed within a comparison. In both environments, Whisper runs on one GPU and Qwen2-7B-Instruct on the other, batch size is one, and three real-audio warm-up runs precede measurement. Legacy main runs use the archived fixed B-then-A order, while the three-arm ablation uses Baseline, Streaming-ASR-Only, then Full-Streaming order; this limits causal interpretation of small marginal contrasts. For R7 specifically, ASR and the localhost CosyVoice service share GPU0 and Qwen2 uses GPU1. ``Exclusive'' means that no unrelated GPU workload was present, not that ASR lacked TTS co-residency.
 
 Tables~\ref{tab:ttft}--\ref{tab:context} use a 50-token generation cap. The state, semantic, and unified TTFA experiments use 128 tokens. Effective sampling uses temperature 0.1 and top-$p$ 0.9. Although the historical interface accepted \texttt{repetition\_penalty=1.1}, post-experiment inspection found that the custom decoder did not apply it; all compared arms therefore used no effective repetition penalty. The original-platform mixed synthetic set contains 1,132 samples: 630 from MultiWOZ and 502 from CrossWOZ. Paired exclusions are stated with each experiment.
 
@@ -393,12 +395,12 @@ Tables~\ref{tab:ttft}--\ref{tab:context} use a 50-token generation cap. The stat
 \begin{figure}[!t]
 \centering
 \includegraphics[width=\linewidth]{Fig6.pdf}
-\caption{TTFT over 12 equal-frequency duration bins. Lines show bin means and shaded regions show observed P5--P95 ranges, not confidence intervals.}
+\caption{Legacy post-feed residual TTFT for the historical latched-trigger implementation over 12 equal-frequency duration bins. Lines show bin means and shaded regions show observed P5--P95 ranges, not confidence intervals.}
 \label{fig:trend}
 \end{figure}
 
 \begin{table*}[!t]
-\caption{TTFT by duration on the original platform (ms)}\label{tab:ttft}
+\caption{Post-feed residual TTFT by duration for the historical latched-trigger implementation (ms)}\label{tab:ttft}
 \centering
 \scriptsize
 \begin{tabular}{@{}lrrrrrrr@{}}
@@ -416,35 +418,39 @@ Extra Long & 679 & 1087.70$\pm$383.16 & 1717.10 & 2605.45 & 6745.57$\pm$2108.79 
 \end{tabular}
 \end{table*}
 
-System~B adds fixed overhead for Short and Medium samples, but its mean TTFT changes little over the three longer groups on the original platform. For Long, Very Long, and Extra Long input, mean reductions are 34.6\%, 65.6\%, and 83.9\%; paired bootstrap 95\% confidence intervals for the reduction are [30.6\%, 38.3\%], [63.8\%, 67.3\%], and [83.3\%, 84.4\%], respectively, with Holm-adjusted Wilcoxon $p<2.1\times10^{-19}$. The Extra Long absolute reduction is 5657.9~ms (5.66~s). Tail latency is not constant: System~B P99 rises from 1978.67 to 2605.45~ms between Long and Extra Long. This 1.32$\times$ growth is nevertheless smaller than System~A's 4.96$\times$ growth, and the Extra Long P99 is 0.21$\times$ the baseline value. The empirical crossover depends on platform and speech distribution; the 15-s group boundary is not asserted as a universal routing threshold.
+System~B adds fixed overhead for Short and Medium samples, but its mean post-feed residual TTFT changes little over the three longer groups on the original platform. The Short, Medium, Long, Very Long, and Extra Long rows contain 35/35, 89/83, 121/92, 208/99, and 679/100 accumulated turns/source dialogues, respectively. For Long, Very Long, and Extra Long input, descriptive mean reductions are 34.6\%, 65.6\%, and 83.9\%, respectively. Dialogue-cluster inference is reported on the locked 498-turn three-arm subset in Table~\ref{tab:ablation}; these broader Table~\ref{tab:ttft} rows remain descriptive because their archived filter differs. The Extra Long absolute reduction is 5657.9~ms (5.66~s). Tail latency is not constant: System~B P99 rises from 1978.67 to 2605.45~ms between Long and Extra Long. This 1.32$\times$ growth is smaller than System~A's 4.96$\times$ growth on the locked valid set. The empirical crossover depends on platform, fixed execution order, and speech distribution; the 15-s group boundary is not asserted as a universal routing threshold.
 
 \subsubsection{Repeated Measurements}
 
-On the second platform, 50 fixed Very Long samples were run three times per mode. System~B round means were 1434.0, 1482.1, and 1454.9~ms, a range equal to 3.3\% of the grand mean; System~A means were 4063.3, 4244.2, and 4118.5~ms. With sample standard deviation, System~B per-sample coefficient of variation (CV) had mean 5.19\%, median 4.05\%, P90 10.73\%, and maximum 18.96\%; the corresponding System~A values were 5.23\%, 4.65\%, 9.92\%, and 14.01\%. Central behavior was repeatable, but both modes retained a non-negligible high-variance tail.
+On the second platform, 50 fixed Very Long accumulated turns from 40 source dialogues were run three times per mode under the same historical latched policy. System~B post-feed residual TTFT round means were 1434.0, 1482.1, and 1454.9~ms, a range equal to 3.3\% of the grand mean; System~A means were 4063.3, 4244.2, and 4118.5~ms. With sample standard deviation, System~B per-sample coefficient of variation (CV) had mean 5.19\%, median 4.05\%, P90 10.73\%, and maximum 18.96\%; the corresponding System~A values were 5.23\%, 4.65\%, 9.92\%, and 14.01\%. Central behavior was repeatable, but both modes retained a non-negligible high-variance tail.
 
 \subsection{Ablation and Context Trade-offs}
 
-Table~\ref{tab:ablation} summarizes the ablation results. The analysis starts from 505 Long-or-longer candidates. Pairwise exclusion removes three runtime errors and four cases in which a streaming arm exceeded 10~s, leaving 498 samples (108 Long, 150 Very Long, and 240 Extra Long). The unfiltered failure/hang rate is therefore 7/505 (1.4\%).
+Table~\ref{tab:ablation} summarizes the historical three-arm ablation. The candidate pool contained 505 Long-or-longer turns. Run-log review identified seven executions affected by concurrent external programs rather than the evaluated systems; these contaminated runs were excluded before analysis. The locked valid set therefore contains 498 turns from 99 source dialogues (108 Long, 150 Very Long, and 240 Extra Long; cluster size 1--9, median 5). All reported ablation and cross-platform comparisons use this same 498-turn set.
 
 \begin{table*}[!t]
-\caption{Ablation on the original platform; cells are mean$\pm$std [P95/P99] ms}\label{tab:ablation}
+\caption{Historical-latched-policy ablation on the original platform; latency cells are mean$\pm$std [P95/P99] ms}\label{tab:ablation}
 \centering
 \scriptsize
-\begin{tabular}{@{}lccc rr@{}}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lccc cc@{}}
 \toprule
-Group & Baseline & Streaming ASR only & Full streaming & ASR gain & KV gain \\
+Group & Baseline & Streaming ASR only & Full streaming & Base.$-$ASR & ASR$-$Full \\
 \midrule
 Long & 1690.81$\pm$349.51 [2323.60/2431.03] & 1064.67$\pm$307.62 [1691.03/1873.56] & 1087.69$\pm$312.46 [1748.08/1859.16] & 626.13 & $-23.01$ \\
 Very Long & 3307.96$\pm$872.57 [4891.94/5468.95] & 1155.09$\pm$365.67 [1859.20/2259.80] & 1152.36$\pm$363.23 [1828.80/2228.55] & 2152.87 & 2.73 \\
 Extra Long & 6515.67$\pm$1762.26 [9208.54/9619.23] & 1228.82$\pm$411.10 [1981.51/2858.89] & 1188.00$\pm$411.07 [1946.51/2812.95] & 5286.86 & 40.82 \\
+\midrule
+\multicolumn{6}{l}{\footnotesize Locked valid set: 498 turns/99 dialogues; Baseline 4503.14, Full 1155.51; reduction 74.34\% [72.62\%, 75.76\%].}\\
+\multicolumn{6}{l}{\footnotesize Seven externally contaminated executions from the 505-turn candidate pool were excluded after run-log review.}\\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-Streaming ASR is the dominant source of measured reduction: its gains are 626.13, 2152.87, and 5286.86~ms. Incremental prefill has no monotonic independent effect across the groups: $-23.01$, 2.73, and 40.82~ms relative to Streaming ASR Only. The Extra Long value is 3.3\% of the ASR-only TTFT. Thus incremental prefill remains an architectural mechanism for moving prompt work before speech end, but its isolated marginal TTFT effect is small for Qwen2-7B on this platform.
+Across the filtered 498 turns, the Baseline-minus-Streaming-ASR-Only contrast is 3332.13~ms with dialogue-cluster 95\% CI [3064.38, 3572.61]~ms, while the Streaming-ASR-Only-minus-Full contrast is only 15.50~ms [10.95, 19.66]~ms. These are archived fixed-order arm contrasts, not causal component effects. The duration-stratified point estimates remain non-monotonic for incremental prefill: $-23.01$, 2.73, and 40.82~ms for Long, Very Long, and Extra Long; the Long result favors ASR-only and the Extra Long value is only 3.3\% of ASR-only TTFT. Thus incremental prefill remains a scheduling component, but a stable large independent post-feed TTFT benefit is not established for Qwen2-7B under this historical policy.
 
 \begin{table*}[!t]
-\caption{Context-window accuracy and pooled ASR time on the original platform; cells show mean$\pm$std [P95/P99]}\label{tab:context}
+\caption{Historical-latched-policy context accuracy and pooled ASR time on the original platform; cells show mean$\pm$std [P95/P99]}\label{tab:context}
 \centering
 \scriptsize
 \setlength{\tabcolsep}{3pt}
@@ -459,17 +465,17 @@ Prefix 0 + suffix 0 & .0619$\pm$.0678 [.1756/.3086] & .0226$\pm$.0265 [.0657/.10
 \end{tabular}
 \end{table*}
 
-Each context configuration contains 74 MultiWOZ and 76 CrossWOZ samples. Error cells are mean-utterance metrics; the ASR time column pools the streaming and non-streaming records ($n=300$) and is not interpreted as streaming tail latency alone. Adding one suffix segment reduces CrossWOZ WER/CER from 0.0118/0.0292 to 0.0083/0.0203 while increasing pooled ASR time. Removing all extra context is faster but raises CrossWOZ WER/CER to 0.0210/0.0500. MultiWOZ WER is not monotonic in context size. These data establish a measured trade-off on synthetic speech, not a universal language-specific configuration rule. System~A's near-zero error in this experiment is specific to TTS generated from its reference text.
+Each context configuration contains 150 accumulated turns from 85 source dialogues (74 MultiWOZ and 76 CrossWOZ turns). Error cells are mean-utterance metrics; the ASR time column pools the streaming and non-streaming records ($n=300$) and is not interpreted as streaming tail latency alone. Adding one suffix segment reduces CrossWOZ WER/CER from 0.0118/0.0292 to 0.0083/0.0203 while increasing pooled ASR time. Removing all extra context is faster but raises CrossWOZ WER/CER to 0.0210/0.0500. MultiWOZ WER is not monotonic in context size. These data establish a measured trade-off on synthetic speech, not a universal language-specific configuration rule. System~A's near-zero error in this experiment is specific to TTS generated from its reference text.
 
 \subsection{Concatenated Human-Read Speech}\label{sec:realexp}
 
 \begin{table*}[!t]
-\caption{Concatenated human-read speech and augmentation results on the second platform}\label{tab:real}
+\caption{Historical-policy post-feed residual TTFT and error on concatenated human-read speech (second platform)}\label{tab:real}
 \centering
 \scriptsize
 \begin{tabular}{@{}llrrrr@{}}
 \toprule
-Language & Condition ($n$) & A TTFT & B TTFT & A error & B error \\
+Language & Condition ($n$) & A post-feed TTFT & B post-feed TTFT & A error & B error \\
 \midrule
 English & Clean (75) & 2805.9 & 1672.1 & .0297 [.0290] & .0565 [.0499] \\
 English & SNR 20 dB (30) & 2228.8 & 1633.1 & .0288 [.0270] & .0627 [.0573] \\
@@ -491,21 +497,21 @@ Chinese & Babble (30) & 2227.7 & 2082.2 & .1360 [.1429] & .2863 [.2662] \\
 \end{tabular}
 \end{table*}
 
-On clean LibriSpeech, Extra Long mean TTFT is 4805.1$\pm$420.2~ms for System~A and 1559.0$\pm$490.3~ms for System~B, a 67.5\% reduction. On clean AISHELL-1 the corresponding values are 5139.9$\pm$381.7 and 1762.9$\pm$275.4~ms, a 65.7\% reduction. The clean human-read System~A errors are no longer near zero: mean-utterance WER is 2.97\% on LibriSpeech and CER is 10.77\% on AISHELL-1; System~B obtains 5.65\% and 11.80\%. AISHELL-1 references spell numbers in Chinese while Whisper often emits Arabic numerals; this affects 49/75 clean samples (mean CER 0.1476 when affected versus 0.0313 otherwise).
+On clean LibriSpeech, Extra Long mean post-feed residual TTFT is 4805.1$\pm$420.2~ms for System~A and 1559.0$\pm$490.3~ms for System~B, a 67.5\% reduction. On clean AISHELL-1 the corresponding values are 5139.9$\pm$381.7 and 1762.9$\pm$275.4~ms, a 65.7\% reduction. The clean human-read System~A errors are no longer near zero: mean-utterance WER is 2.97\% on LibriSpeech and CER is 10.77\% on AISHELL-1; System~B obtains 5.65\% and 11.80\%. No recognition-quality noninferiority margin or task-success criterion was prespecified, so these latency results do not establish quality preservation. AISHELL-1 references spell numbers in Chinese while Whisper often emits Arabic numerals; this affects 49/75 clean samples (mean CER 0.1476 when affected versus 0.0313 otherwise).
 
 Across the ten SNR and speed conditions, TTFT reduction ranges from 22.8\% to 31.6\%, with Holm-adjusted paired tests at $p\leq0.0129$. Babble is a boundary rather than a success case. For English, System~B is 47.3\% slower in the unpaired overall summary; paired inference on 29 common samples has a confidence interval reaching zero. Chinese babble yields only a 6.5\% mean reduction and is not significant ($p=0.271$). VAD over-triggering creates segment backlog, while Whisper produces empty streaming outputs for 12/30 English and 5/30 Chinese samples. English-babble System~B has median 2020.4~ms but mean 3425.1~ms, and the slowest sample takes approximately 21~s after audio completion to drain the ASR queue.
 
-\subsection{Matched Streaming Baseline}
+\subsection{Configured LA-2-Style Comparator}
 
-We implement a project-internal LocalAgreement-2-style baseline following the partial-hypothesis policy of Liu et al.~\cite{liu2020partialhypothesis} and its Whisper adaptation~\cite{machacek2023turning}. It uses the same Whisper weights, inference engine, and segmentation as System~B, with absolute-time-axis commitment, punctuation-robust agreement, sentence-boundary-aware trimming, and a 15-s retained-buffer cap. All three systems are rerun on the same second-platform 498-sample paired subset, and only the final validated baseline implementation is included.
+We implement a project-internal LocalAgreement-2-style comparator following the partial-hypothesis policy of Liu et al.~\cite{liu2020partialhypothesis} and its Whisper adaptation~\cite{machacek2023turning}. It uses the same Whisper weights, inference engine, audio segmentation, second platform, and 498-turn/99-dialogue filtered subset as System~B, with absolute-time-axis commitment, punctuation-robust agreement, sentence-boundary-aware trimming, and a 15-s retained-buffer cap. Trigger policies are intentionally not identical: System~B uses the historical latched startup gate, whereas the configured LA-2-style implementation decodes according to its own new-audio/agreement policy. This is one project-internal operating point rather than a claim about the LocalAgreement method family generally.
 
 \begin{table*}[!t]
-\caption{Matched baseline comparison on the second platform}\label{tab:la}
+\caption{Post-feed residual TTFT for our configured LA-2-style implementation on the 498-turn/99-dialogue filtered subset}\label{tab:la}
 \centering
 \scriptsize
 \begin{tabular}{@{}lrrrrrrrr@{}}
 \toprule
-System & Overall TTFT & P50 & P95 & Long & Very Long & Extra Long & zh CER & en WER \\
+System & Overall post-feed TTFT & P50 & P95 & Long & Very Long & Extra Long & zh CER & en WER \\
 \midrule
 System A & 5310.8$\pm$2817.9 & 4780.9 & 10462.1 & 1958.2 & 3905.9 & 7697.5 & .0674 & .1527 \\
 System B & 1573.9$\pm$411.6 & 1484.4 & 2296.5 & 1464.3 & 1551.1 & 1637.5 & .0732 & .1702 \\
@@ -515,27 +521,27 @@ LA-2-style & 2115.0$\pm$693.3 & 1948.5 & 3463.2 & 1741.0 & 2199.7 & 2230.4 & .08
 \end{tabular}
 \end{table*}
 
-As shown in Table~\ref{tab:la}, the LA-style baseline is approximately 34\% slower than System~B (2115.0 versus 1573.9~ms). The paired mean difference is 541.1~ms, with bootstrap 95\% CI [485.3, 599.9] and Wilcoxon $p=1.24\times10^{-70}$. Recognition errors remain of the same order, which supports latency attribution but does not establish statistical quality equivalence. Repeated whole-buffer decoding also degrades more on longer input: LA-style TTFT is 2199.7--2230.4~ms for Very Long and Extra Long samples, compared with 1551.1--1637.5~ms for System~B.
+As shown in Table~\ref{tab:la}, our configured LA-2-style implementation at this operating point has a 34\% larger mean post-feed residual TTFT than System~B (2115.0 versus 1573.9~ms). The paired mean difference is 541.1~ms, with dialogue-cluster bootstrap 95\% CI [485.66, 599.14] and a dialogue-level Wilcoxon $p=6.24\times10^{-18}$. Recognition errors are descriptively similar in scale but differ across languages and systems; no quality equivalence is established. Repeated retained-buffer decoding also has higher latency on longer input at this configured point: 2199.7--2230.4~ms for Very Long and Extra Long samples versus 1551.1--1637.5~ms for System~B. These results do not establish general superiority over the LocalAgreement family.
 
 \subsection{Commitment, Tokenizer Seams, and Semantics}\label{sec:stateeval}
 
-Instrumentation on 50 fixed Very Long synthetic samples records 375 downstream commits and zero rollback deliveries. Internal re-recognition nevertheless changes previously committed-region hypotheses 224 times, affecting 224/425 committed segments (52.7\%) and 49/50 samples. Character edit distance has mean 2.3, P90 6, and maximum 16; normalized edit ratio has mean 5.6\% and maximum 47.1\%. The changes include lexical drift but remain invisible to downstream consumers. Concatenated System~B text differs from System~A full transcription by mean WER 4.93\% and CER 2.69\%.
+Instrumentation on 50 fixed Very Long accumulated turns from 40 source dialogues records 375 downstream commits and zero rollback deliveries. Internal re-recognition nevertheless changes previously committed-region hypotheses 224 times, affecting 224/425 committed segments (52.7\%) and 49/50 samples. Character edit distance has mean 2.3, P90 6, and maximum 16; normalized edit ratio has mean 5.6\% and maximum 47.1\%. The changes include lexical drift but remain invisible to downstream consumers. Concatenated System~B text differs from System~A full transcription by mean WER 4.93\% and CER 2.69\%.
 
 Fragment-wise and one-shot token sequences differ at seams in 25/50 samples, with means of 4.36 differing blocks and 5.60 one-shot-side tokens among affected samples. Decoding both token sequences reconstructs identical text in all 50 cases. This supports text-level reconstruction only; it does not establish token, KV-state, or output-distribution equivalence.
 
-Response quality is explored on the same 25 Chinese and 25 English synthetic samples. Replies are independently sampled with the 128-token cap. CLS embeddings from the locally downloaded \texttt{BAAI/bge-m3} artifact~\cite{chen2024m3embedding}, followed by L2 normalization and cosine similarity, yield mean 0.8832$\pm$0.0755 (minimum 0.6232, P10 0.7951). The archived artifact was not a versioned Hugging Face snapshot, so its source revision is unavailable. A paired-equivalence judge gives 2.96/5 and 40.0\% at or above 4; this measure confounds independent recommendation choices and truncation. A separate blinded intent-satisfaction judge gives System~A 3.10/5 and System~B 3.04/5; the paired B$-$A difference is $-0.06$ with bootstrap 95\% CI [$-0.34$, 0.22]. The judge is the Command Code service identifier \texttt{deepseek/deepseek-v4-flash}~\cite{commandcode2026deepseekv4flash}, accessed in August 2026 with temperature 0 and deterministic A/B order randomization. No immutable backend build identifier was available. This single-judge, 50-sample analysis is exploratory and is not an equivalence claim.
+Response quality is explored on the same 25 Chinese and 25 English synthetic samples. Replies are independently sampled with the 128-token cap. CLS embeddings from the locally downloaded \texttt{BAAI/bge-m3} artifact~\cite{chen2024m3embedding}, followed by L2 normalization and cosine similarity, yield mean 0.8832$\pm$0.0755 (minimum 0.6232, P10 0.7951). The archived artifact was not a versioned Hugging Face snapshot, so its source revision is unavailable. A paired-equivalence judge gives 2.96/5 and 40.0\% at or above 4; this measure confounds independent recommendation choices and truncation. A separate blinded intent-satisfaction judge gives System~A 3.10/5 and System~B 3.04/5; the paired B$-$A difference is $-0.06$ with bootstrap 95\% CI [$-0.34$, 0.22]. The judge is the Command Code service identifier \texttt{deepseek/deepseek-v4-flash}~\cite{commandcode2026deepseekv4flash}, accessed in August 2026 with temperature 0 and deterministic A/B order randomization. No immutable backend build identifier was available. This single-judge, 50-turn analysis is exploratory. It includes no emission-time committed WER/CER, entity/number/negation error classification, task-success test, user study, or prespecified noninferiority margin; consequently, it does not establish quality preservation, tokenizer-seam harmlessness, or usability equivalence.
 
-\subsection{Unified Time to First Audio}
+\subsection{Server-Side Whole-System Time to First Playable PCM}
 
-Table~\ref{tab:ttfa} uses only the R7 unified run on the second platform. Each mode has 25 Chinese and 25 English samples on one monotonic clock. System~B sends the first completed sentence to TTS, whereas System~A follows its non-streaming full-response text path; this is an end-to-end system-policy comparison, not an isolated TTS comparison with identical text. The local ASR/LLM pipeline uses in-process queues and TTS runs on localhost.
+Table~\ref{tab:ttfa} uses only the R7 unified run on the second platform. Each mode has 25 Chinese-input and 25 English-input accumulated turns (50 turns from 40 source dialogues) on one monotonic clock. ``Input language'' denotes the source stratum, not necessarily the generated TTS language. System~B sends its first completed sentence to TTS, whereas System~A sends its capped full response. This whole-system policy comparison jointly changes ASR scheduling, response-readiness rule, generated text, stopping outcome, TTS text length, and TTS workload; it is not an architecture-only, isolated-TTS, or matched-text comparison. The local ASR/LLM pipeline uses in-process queues, TTS runs on localhost, and no client playback timestamp is measured.
 
 \begin{table*}[!t]
-\caption{Unified TTFA and component decomposition on the second platform (ms)}\label{tab:ttfa}
+\caption{Server-side whole-system policy comparison: B first sentence versus A capped full response (ms)}\label{tab:ttfa}
 \centering
 \scriptsize
 \begin{tabular}{@{}llrrrrr@{}}
 \toprule
-System & Language & Mean$\pm$std & P50 & P90 & P95 & $n$ \\
+System & Input language & Mean$\pm$std & P50 & P90 & P95 & $n$ \\
 \midrule
 System B & Chinese & 3303.3$\pm$2681.3 & 2603.0 & 3130.4 & 8299.2 & 25 \\
 System B & English & 7660.5$\pm$2781.2 & 7577.0 & 10940.4 & 11857.2 & 25 \\
@@ -551,33 +557,36 @@ System A & All & 22425.7$\pm$2526.1 & 22269.9 & 25588.8 & 26887.4 & 50 \\
 \multicolumn{2}{l}{Speech end $\rightarrow$ feed end} & \multicolumn{2}{c}{0.1$\pm$0.0} & \multicolumn{2}{c}{0.1$\pm$0.0} & \\
 \multicolumn{2}{l}{Feed end $\rightarrow$ input close} & \multicolumn{2}{c}{133.0$\pm$98.7} & \multicolumn{2}{c}{0.0$\pm$0.0} & \\
 \multicolumn{2}{l}{Input close $\rightarrow$ first token} & \multicolumn{2}{c}{1383.1$\pm$278.8} & \multicolumn{2}{c}{4182.9$\pm$898.3} & \\
-\multicolumn{2}{l}{First token $\rightarrow$ text ready} & \multicolumn{2}{c}{387.0$\pm$429.2} & \multicolumn{2}{c}{4681.1$\pm$583.9} & \\
+\multicolumn{2}{l}{First token $\rightarrow$ policy text ready} & \multicolumn{2}{c}{387.0$\pm$429.2} & \multicolumn{2}{c}{4681.1$\pm$583.9} & \\
 \multicolumn{2}{l}{Text ready $\rightarrow$ TTS request} & \multicolumn{2}{c}{0.4$\pm$0.1} & \multicolumn{2}{c}{0.6$\pm$0.1} & \\
 \multicolumn{2}{l}{TTS request $\rightarrow$ playable PCM} & \multicolumn{2}{c}{3578.3$\pm$3023.6} & \multicolumn{2}{c}{13561.1$\pm$2513.6} & \\
 \multicolumn{2}{l}{Closed sum} & \multicolumn{2}{c}{5481.9} & \multicolumn{2}{c}{22425.7} & \\
+\midrule
+\multicolumn{7}{l}{\footnotesize Policy facts: mean TTS characters A/B=204.10/17.74; exact greetings A/B=0/50 vs. 25/50;}\\
+\multicolumn{7}{l}{\footnotesize max-token stops A/B=41/50 vs. 43/50; 19/25 English-input B texts contain no Latin letters.}\\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-System~B reduces median TTFA by 86.0\%, from 22269.9 to 3113.7~ms. TTS remains the largest mean component and is highly variable, especially for English. The six components close exactly for all 100 records. The 133.0-ms $t_{\mathrm{feed\_to\_close\_wait}}$ is the complete feed-end-to-input-close interval; independent audit attributes approximately 132.68~ms to waiting before explicit flush, 0.21~ms to explicit flush, and 0.12~ms after flush. It is therefore not a flush-computation cost. On a ten-sample three-round subset, TTFA CV has mean 7.73\% and maximum 20.70\%. The 128-token cap affects both arms: 84/100 responses terminate at the cap and 16 by EOS.
+Under these unequal server-side response/TTS policies, median time to first playable PCM is 3113.7~ms for System~B and 22269.9~ms for System~A, an 86.0\% policy-bundle difference. Much of the mean gap occurs after the first token: System~B prepares a first sentence and sends mean 17.74-character text to TTS, whereas System~A prepares a capped full response averaging 204.10 characters. Consequently, the 3578.3 versus 13561.1~ms TTS components do not constitute a matched-text TTS comparison, and no architecture-only attribution is supported. The six components close exactly for all 100 records. The 133.0-ms $t_{\mathrm{feed\_to\_close\_wait}}$ is the complete feed-end-to-input-close interval; independent audit attributes approximately 132.68~ms to waiting before explicit flush, 0.21~ms to explicit flush, and 0.12~ms after flush. It is therefore not a flush-computation cost. On a ten-sample three-round subset, server-side TTFA CV has mean 7.73\% and maximum 20.70\%. Language-stratum P95 values at $n=25$ are descriptive, and no client-side or user-perceived onset was measured.
 
 \section{Conclusion and Outlook}\label{sec:conclusion}
 
 \subsection{Summary}
 
-This paper presents a pipeline-parallel cascade that moves chunked ASR and LLM prompt prefilling into the user's speaking interval. The design preserves the existing Whisper and Qwen2 weights and does not change the asymptotic attention cost; it changes scheduling and state reuse. On the same 498-sample synthetic subset, the overall TTFT reduction is 74.3\% on the original platform and 70.4\% on the second platform. On the original platform, mean System~B TTFT remains near 1.1~s from Long through Extra Long, while P99 grows only 1.32$\times$ compared with 4.96$\times$ for System~A. Concatenated human-read speech reproduces the Extra Long advantage, with reductions of 67.5\% on LibriSpeech and 65.7\% on AISHELL-1. Ablation shows that streaming ASR supplies most of the measured gain; the independent incremental-prefill effect is small under Qwen2-7B. The matched LA-style baseline is approximately 34\% slower than System~B. Unified measurement further reduces median TTFA from 22.27 to 3.11~s.
+This paper measures a scheduling cascade that moves chunked ASR and LLM prompt work into the audio-input interval while preserving the Whisper and Qwen2 weights. All reported streaming results use the historical latched startup-duration policy. On the locked valid 498-turn/99-dialogue synthetic set, original-platform post-feed residual TTFT falls by 74.34\% with dialogue-cluster 95\% CI [72.62\%, 75.76\%]; the same set gives 70.36\% [68.50\%, 71.90\%] on the second platform. Seven executions from the 505-turn candidate pool were excluded after run-log review confirmed contamination by concurrent external programs. On the original platform, mean System~B post-feed residual TTFT remains near 1.1~s from Long through Extra Long, and concatenated human-read Extra Long reductions are 67.5\% on LibriSpeech and 65.7\% on AISHELL-1. Ablation associates most of the valid-set contrast with streaming ASR; incremental-prefill contrasts are $-23.01$, 2.73, and 40.82~ms and do not establish a stable large independent benefit under Qwen2-7B. Our configured LA-2-style implementation has 34\% higher mean latency at one operating point, not a general method-family disadvantage. Under unequal whole-system policies, server-side first-playable-PCM medians are 3.11~s for System~B's first sentence and 22.27~s for System~A's capped full response; this is not an architecture-only comparison.
 
-The implementation provides an append-only downstream text contract rather than immutable internal recognition. Internal hypotheses drift in the instrumented subset, tokenizer seams change token segmentation in half the samples, and the limited semantic experiment does not establish equivalence. These findings bound the claim: the architecture substantially weakens the growth of post-speech latency over the tested range while exposing concrete recognition, scheduling, and synthesis trade-offs.
+The implementation provides an append-only downstream text contract rather than immutable internal recognition. Internal hypotheses drift in the instrumented subset, tokenizer seams change token segmentation in half the samples, and the limited semantic experiment does not establish quality or task equivalence. These findings bound the claim: the measured historical scheduler reduces post-feed residual latency for the locked valid long-input set, while short-input overhead, babble-induced tails, recognition changes, response policy, and synthesis workload remain material trade-offs. No result is reported for a corrected current-queue-duration trigger.
 
 \subsection{Limitations}
 
-The main 1,132-sample benchmark remains TTS-synthesized. The added LibriSpeech/AISHELL-1 data are concatenated human-read utterances, not spontaneous dialogue, and some concatenation seams are audible. Babble noise is a demonstrated failure boundary because VAD over-triggering and empty ASR outputs create backlog and long tails. Experiments use exclusive GPUs, a single-machine ASR/LLM queue topology, and localhost TTS; distributed network latency and GPU contention are not represented, and absolute TTFT is CPU- and platform-sensitive.
+The main 1,132-turn benchmark remains TTS-synthesized, purposively long, duration-mix dependent, and clustered within 100 source dialogues rather than representing 1,132 independent natural interactions. The added LibriSpeech/AISHELL-1 data are concatenated human-read utterances, not spontaneous dialogue, and some concatenation seams are audible. System~B is slower for Short and Medium synthetic input, while babble is a demonstrated failure boundary because VAD over-triggering and empty ASR outputs create backlog and long tails. The locked 498-turn ablation set excludes seven executions whose run logs showed contamination by concurrent external programs. Legacy timing begins at waveform feed completion, uses fixed arm order, and measures the historical latched startup gate; a corrected current-queue trigger has not been evaluated.
 
-The downstream interface never rolls back text, but internal re-recognition frequently changes committed-region hypotheses. Fragment-wise tokenization also differs from one-shot tokenization, so KV-state equivalence is not established. Semantic evidence covers only 50 Very Long synthetic samples, independently sampled replies, a 128-token cap, and one service judge without repeated ratings. The unified TTFA experiment uses sentence-ready System~B output versus the non-streaming System~A response path, and TTS contributes a large language-dependent tail. Finally, the prototype remains half-duplex, a limitation discussed in work on turn-taking systems~\cite{ref22}. Because the modules communicate through text, the prototype also discards non-textual acoustic cues; this latter point is a direct architectural observation rather than a claim attributed to \cite{ref22}.
+Experiments use a single-machine queue topology and no unrelated GPU jobs, but R7 ASR and TTS share GPU0 while the LLM uses GPU1. Distributed networks, client playback, shared-service contention, concurrency, throughput, energy, and multi-user capacity are not represented. The downstream interface never rolls back text, although internal re-recognition frequently changes committed-region hypotheses. Fragment-wise tokenization differs from one-shot tokenization, so KV-state equivalence is not established. Semantic evidence covers only 50 accumulated turns from 40 dialogues, independently sampled replies, a 128-token cap, and one service judge without repeated ratings; no quality noninferiority, task-success, user-experience, or production-reliability conclusion follows. The unified server-side TTFA comparison uses first-sentence System~B output versus capped-full-response System~A output, with markedly different TTS text lengths and output-language behavior. Finally, the prototype remains half-duplex, a limitation discussed in work on turn-taking systems~\cite{ref22}. Because the modules communicate through text, it also discards non-textual acoustic cues; privacy, cache lifecycle, routing fairness, accessibility, and secure multi-tenant deployment remain outside the evaluated scope.
 
 \subsection{Future Work}
 
-Future work should evaluate spontaneous, accented, microphone, and overlapping speech; add VAD back-pressure and adaptive segmentation for babble; and test task completion with repeated human and multi-judge assessment. Rollback-aware cache repair or retokenization could reconcile later ASR corrections and tokenizer seams. Platform-aware routing should replace a fixed duration threshold. Lower-latency incremental TTS, distributed deployment measurements, GPU-contention tests, larger LLMs, and full-duplex interruption handling would clarify how the observed scheduling gains transfer to production systems.
+Future work should compare the historical latched startup gate with a corrected current-queue-duration trigger on the same samples and use counterbalanced arm order. A policy-matched $2\times2$ TTFA design should cross serial/pipeline scheduling with first-sentence/full-response TTS and add client playback timestamps. Further work should evaluate spontaneous, accented, microphone, and overlapping speech; add VAD back-pressure and adaptive segmentation for babble; and test committed-text task outcomes with repeated human and multi-judge assessment. Rollback-aware cache repair or retokenization could reconcile later ASR corrections and tokenizer seams. Platform-aware routing should be evaluated rather than inferred from a fixed duration threshold. Distributed deployment, contention, throughput, resource/energy measurements, larger LLMs, privacy-preserving cache lifecycle, and full-duplex interruption handling would clarify how the measured scheduling behavior transfers beyond the laboratory prototype.
 
 \section*{Acknowledgment}
 

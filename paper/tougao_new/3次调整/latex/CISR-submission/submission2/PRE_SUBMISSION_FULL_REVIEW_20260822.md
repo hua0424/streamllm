@@ -9,6 +9,26 @@
 - **校准状态**：`NOT_CALIBRATED`。
 - **评审独立性说明**：五个审稿席分别提交意见且互不可见，但均继承当前会话模型；这是角色与调用上下文分离，不是统计意义上的独立误差过程。
 
+## Post-review resolution status — 2026-08-22
+
+The Major Revision decision below is preserved as the immutable review record. The approved zero-long-experiment remediation has now been completed through claim correction and deterministic CPU-only reanalysis; no ASR, LLM, TTS, CUDA, audio generation, or corrected-trigger performance run was performed.
+
+| Original blocker | Resolution in revised manuscript | Status |
+|---|---|---|
+| B1 implementation/policy/causal mismatch | The accepted title and abstract are retained unchanged; the Methods and Results now report the historical latched startup-duration gate, legacy post-feed residual TTFT, and policy-level TTFA; no corrected-trigger performance is claimed | CLOSED by body-text clarification |
+| B2 clustering/exclusion/sample ledger | Added deterministic `(dataset,dialog_id)` cluster inference on the locked 498-turn valid set. The author subsequently confirmed from run logs that the other seven executions were contaminated by concurrent external programs; they remain in the audit ledger but are not analyzed as system outcomes | CLOSED by decontaminated 498-turn analysis |
+| B3 contribution/quality validity | Incremental prefill is bounded in the body as a component with a 15.50-ms overall fixed-order contrast; LA is one configured operating point; semantic results do not establish quality/task/usability equivalence | CLOSED by evidence-aligned body framing |
+
+Additional closure:
+
+- Added direct citations for Simul-Whisper, Prompt Cache, and SGLang/RadixAttention.
+- Relabeled Fig.6 from unchanged 24-row bins; deterministic PDF hash `d38927c9...573cbb`, SVG hash `ca9d3fd1...db91b2`.
+- Rebuilt manuscript: 14-page Letter IEEE two-column PDF, 31/31 citation closure, no undefined references, no overfull boxes, all fonts embedded, Type 3 count zero.
+- Rebuilt response letter: 5 pages.
+- External similarity checking and IEEE PDF eXpress remain pending.
+
+The detailed findings below are preserved as the original pre-remediation review record. Its 503-pair sensitivity discussion predates the author's later run-log confirmation of concurrent external-program contamination and is not part of the final manuscript analysis. The revised manuscript and current `minimal_cpu_reanalysis` 498-valid-set outputs are authoritative.
+
 ---
 
 ## 1. 编辑决定
