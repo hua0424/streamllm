@@ -1,0 +1,109 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\newcommand{\comment}[1]{\vspace{0.4em}\noindent\textbf{Reviewer comment.} \emph{#1}}
+\newcommand{\response}{\vspace{0.3em}\noindent\textbf{Response.} }
+\newcommand{\changes}{\vspace{0.3em}\noindent\textbf{Changes in the revised manuscript.} }
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Response to Reviewer}\\[0.6em]
+{\large Latency Optimization of Cascaded Voice Dialogue Systems with a Pipeline-Parallel Streaming Architecture}\\[0.4em]
+Revision date: August 22, 2026
+\end{center}
+
+Dear Editor and Reviewer,
+
+Thank you for the constructive assessment and for identifying the main evidence gaps in the original submission. We have revised the manuscript and added experiments addressing real human speech, first-audible-output latency, distributional and repeated-measurement statistics, a matched streaming baseline, and the correctness and downstream effects of incremental commitment. We also revised several claims that were stronger than the evidence: the manuscript no longer treats TTFT as audible response latency, no longer claims a universal constant plateau, and distinguishes append-only downstream delivery from internal ASR-hypothesis stability.
+
+The principal additions are Tables VI--VIII, the revised Tables III--V, a new Fig.~6, and new subsections on repeated measurements, concatenated human-read speech, a LocalAgreement-2-style baseline, commitment/tokenizer seams/semantics, and unified TTFA. Results from the original and second platforms are explicitly separated; no cross-platform scaling is used.
+
+\section*{Comment 1: Real-recording robustness}
+
+\comment{The main benchmark is synthesized from dialogue text, and the non-streaming ASR consequently has near-zero error. Please validate the system on real recordings with speaker, accent, noise, speaking-rate, and endpoint variation; these conditions directly affect VAD, timestamp stability, and transcript commitment.}
+
+\response We agree. We added long-form samples constructed from public human-read recordings rather than TTS. LibriSpeech test-clean utterances are concatenated within chapter, and AISHELL-1 utterances are concatenated in speaker order. Uniformly sampled pauses of 0.2--1.0~s introduce endpoint variation. Each language contains 75 clean samples (30 Long, 30 Very Long, and 15 Extra Long), with multiple speakers and recording conditions; AISHELL-1 also broadens Mandarin accent coverage. We additionally generated six 30-sample conditions per language: SNR 20/15/10~dB, speed 0.9/1.1, and 15-dB babble. A five-sample manual listening check confirmed intelligibility and alignment while also finding audible concatenation seams in some samples. We therefore describe the material as ``concatenated human-read speech,'' not natural conversation.
+
+On clean Extra Long speech, System~B reduced mean TTFT by 67.5\% on LibriSpeech (4805.1 to 1559.0~ms) and 65.7\% on AISHELL-1 (5139.9 to 1762.9~ms). The non-streaming ASR was no longer near-error-free: mean-utterance WER was 2.97\% on LibriSpeech and CER was 10.77\% on AISHELL-1; System~B obtained 5.65\% and 11.80\%, respectively. The AISHELL-1 CER includes a documented normalization limitation: reference transcripts write many numbers in Chinese while Whisper often emits Arabic numerals, affecting 49/75 samples.
+
+The robustness result is not uniformly favorable. The ten SNR and speed conditions showed TTFT reductions of 22.8\%--31.6\%, but English babble made System~B 47.3\% slower in the overall summary and Chinese babble yielded only a 6.5\% reduction. VAD over-triggering, segment backlog, and empty Whisper outputs (12/30 English and 5/30 Chinese) produced a long tail. We report this as a demonstrated boundary rather than hiding it.
+
+\changes We added the construction and augmentation protocol in Section IV-E (p.~8), added Section V-D and Table~VI (pp.~10--11), and expanded Limitations (p.~12). New citations cover LibriSpeech, AISHELL-1, and MUSAN.
+
+\section*{Comment 2: Time to first audible output}
+
+\comment{TTFT is measured from the end of speech to the first LLM token and excludes network and TTS latency. Since the paper discusses voice-response latency, please also report time to first audible output, including endpointing, communication, and initial TTS generation.}
+
+\response We agree and now distinguish TTFT from time to first audio (TTFA). TTFA is defined as the interval from speech end to the first non-empty playable PCM accumulation of at least 1324 bytes. The new experiment records all events on one monotonic \texttt{perf\_counter\_ns} clock and decomposes the path into six closed intervals: speech end to feed end, feed end to pipeline input close, input close to first LLM token, first token to response text readiness, text readiness to the TTS request, and the TTS request to playable PCM. The six components close exactly for every one of the 100 mode--sample records.
+
+Across 50 samples per mode, median TTFA decreased from 22269.9~ms for System~A to 3113.7~ms for System~B, an 86.0\% reduction. Mean TTFA was 22425.7 versus 5481.9~ms. TTS remained the largest and most variable mean component (13561.1~ms for System~A and 3578.3~ms for System~B), so the revision no longer treats first-token latency as audible-response latency.
+
+The prototype uses in-process queues for ASR/LLM communication and a localhost TTS service. Thus local scheduling and service-call overhead are included, but a distributed network path is not; this is now an explicit limitation. The System~B policy sends its first completed sentence to TTS, whereas System~A follows its non-streaming response-text path. Table~VIII is therefore an end-to-end system-policy comparison rather than an isolated comparison of identical TTS text.
+
+We also clarified the second component. The 133.0-ms mean is \(t_{\mathrm{feed\_to\_close\_wait}}=t_{\mathrm{input\ close}}-t_{\mathrm{feed\ end}}\), not flush computation. Audit timing attributes about 132.68~ms to waiting before explicit flush, 0.21~ms to flush itself, and 0.12~ms after flush.
+
+\changes We added separate TTFT/TTFA definitions in the Introduction and Section III-C (pp.~1 and 4), added Section V-G (p.~11), and added Table~VIII with total and component distributions (p.~12). Limitations now state the localhost and non-distributed boundary.
+
+\section*{Comment 3: Variability, percentiles, and repeated measurements}
+
+\comment{Tables III--V mainly report mean values. Add standard deviations or percentile latency, especially P95/P99, and repeat measurements to show whether the approximately 1.1 s plateau remains stable under GPU contention and segment-trigger jitter.}
+
+\response We expanded Tables III--V with sample standard deviations and P95/P99. Fig.~6 was redrawn using 12 equal-frequency duration bins; the curves show bin means and the shaded regions are observed P5--P95 bands, not confidence intervals. Table~III now shows that System~B tail latency is bounded over the measured range but is not constant: its P99 rises from 1978.67~ms for Long input to 2605.45~ms for Extra Long input (1.32$\times$), while System~A rises 4.96$\times$. We consequently replaced the original universal ``constant upper bound'' language with a measured weaker-growth claim.
+
+We also repeated a fixed 50-sample Very Long subset three times on the second platform. System~B round means were 1434.0, 1482.1, and 1454.9~ms, a range equal to 3.3\% of the grand mean. At sample level, CV (sample standard deviation, \texttt{ddof}=1) had mean 5.19\%, median 4.05\%, P90 10.73\%, and maximum 18.96\%. System~A values were 5.23\%, 4.65\%, 9.92\%, and 14.01\%. These results support repeatable central behavior but also reveal a high-variance tail; we do not claim that every sample has CV below 5\%.
+
+Paired latency comparisons now include 10,000-resample bootstrap 95\% confidence intervals and two-sided Wilcoxon signed-rank tests, with Holm correction within the duration and augmentation families. For Long, Very Long, and Extra Long synthetic input, the mean reductions were 34.6\%, 65.6\%, and 83.9\%, with bootstrap intervals [30.6\%, 38.3\%], [63.8\%, 67.3\%], and [83.3\%, 84.4\%].
+
+We did not add a GPU-contention experiment. The revision instead states that both platforms used otherwise exclusive GPUs and lists GPU contention as an unmeasured deployment condition.
+
+\changes We replaced Fig.~6 and expanded Tables III--V (pp.~9--11), added the repeated-measurement paragraph in Section V-B (p.~9), added the statistical protocol in Section III-C (p.~4), and disclosed the exclusive-GPU boundary in Limitations (p.~12).
+
+\section*{Comment 4: Stronger matched streaming baseline}
+
+\comment{The comparison is limited to the authors' non-streaming System A. Include a stronger streaming baseline or alternative chunked-ASR/prefill implementation, with matched models and hardware, so the gain can be attributed to the proposed scheduling and cache design.}
+
+\response We added a project-internal LocalAgreement-2-style baseline based on the partial-hypothesis policy of Liu et al. and the Whisper-Streaming adaptation of Mach\'a\v{c}ek et al. It uses the same Whisper weights, inference engine, audio segmenter, second platform, and 498-sample paired subset as Systems~A and B. To make the implementation reproducible, the manuscript specifies its absolute-time-axis commitment, punctuation-robust agreement, sentence-boundary-aware trimming, and 15-s retained-buffer cap. We deliberately call it a ``LocalAgreement-2-style baseline'' rather than implying that it is an unmodified upstream implementation.
+
+Mean TTFT was 5310.8~ms for System~A, 1573.9~ms for System~B, and 2115.0~ms for the LA-style baseline. Thus the LA-style baseline was approximately 34\% slower than System~B. The paired System~B advantage was 541.1~ms with bootstrap 95\% CI [485.3, 599.9] and Wilcoxon \(p=1.24\times10^{-70}\). Error rates remained of the same order (overall mean-utterance WER 0.0951, 0.1047, and 0.1073), which supports latency attribution but not a claim of statistical quality equivalence. The baseline's repeated retained-buffer decoding also degraded more with duration: 2199.7--2230.4~ms for Very Long and Extra Long input versus 1551.1--1637.5~ms for System~B.
+
+We also revised the internal ablation conclusion. On the original platform, Streaming ASR Only supplied gains of 626.13, 2152.87, and 5286.86~ms, while incremental prefill changed TTFT by $-23.01$, 2.73, and 40.82~ms. The Extra Long incremental-prefill contribution is only 3.3\% of ASR-only TTFT. We therefore identify streaming ASR as the dominant measured contributor and no longer claim a monotonic KV-prefill gain.
+
+\changes We added the baseline method and citations in Sections II-D and V-E, and Table~VII (pp.~2 and 10--11). Table~IV and the ablation discussion were replaced with the reproducible 498-sample values (p.~10). Platform notes explicitly separate original-platform Table~IV from second-platform Table~VII.
+
+\section*{Comment 5: Corrections, tokenizer boundaries, and downstream meaning}
+
+\comment{Please clarify how committed text, tokenizer boundaries, and the KV cache are handled when a partial ASR hypothesis changes. Report rollback or correction frequency and evaluate downstream response quality, because WER/CER alone does not show whether incremental prefilling preserves dialogue meaning.}
+
+\response We now define two distinct state layers. Internal ASR hypotheses may change when retained audio is recognized again. A committed downstream fragment, however, is delivered once and is never withdrawn. The implementation has no KV-cache rollback path; corrections observed internally after commitment are logged but are not propagated backward. Consequently, ``append-only'' applies to the downstream interface, not to internal hypothesis immutability.
+
+On 50 fixed Very Long synthetic samples, instrumentation recorded 375 commits, zero downstream rollback deliveries, and 224 internal correction events. Corrections affected 224/425 committed segments (52.7\%) and 49/50 samples. Character edit distance had mean 2.3, P90 6, and maximum 16; the changes included lexical drift. This result caused us to soften the original stability language.
+
+We also compared the production fragment-wise tokenization path with one-shot tokenization of the concatenated prompt. Token sequences differed at fragment seams in 25/50 samples. Among affected samples, the mean number of differing blocks was 4.36 and the one-shot side contained a mean of 5.60 differing tokens. Decoding both sequences reconstructed identical text in all 50 cases. This establishes text-level reconstruction, not token-sequence, KV-state, logit, or output-distribution equivalence.
+
+Finally, we added an exploratory response-level evaluation on the same 25 Chinese and 25 English synthetic samples. BGE-M3 response embeddings produced mean cosine 0.8832$\pm$0.0755. A paired-equivalence judge averaged 2.96/5, with 40.0\% at or above 4; this track is affected by independent response sampling and the shared 128-token cap. A separate blinded intent-satisfaction score was 3.10/5 for System~A and 3.04/5 for System~B. The paired B$-$A difference was $-0.06$ with bootstrap 95\% CI [$-0.34$, 0.22]. We report the exact service model (\texttt{deepseek/deepseek-v4-flash}), judge temperature 0, deterministic A/B order randomization, and BGE-M3 embedding method. Because this uses one judge, no repeated ratings, synthetic inputs, and capped independently sampled replies, the manuscript treats it as exploratory evidence and does not claim semantic equivalence or losslessness.
+
+\changes We added the commit contract and tokenizer-seam definition in Section IV-B (p.~6), added Section V-F (pp.~10--11), cited BGE-M3 and the exact judge service documentation, and expanded Limitations and Future Work (p.~12).
+
+\section*{Additional corrections made during revision}
+
+\begin{itemize}[leftmargin=1.5em]
+\item TTFT is now consistently defined from speech end/feed completion to the first LLM token; TTFA is defined separately.
+\item Table~III Extra Long System~A was corrected to 6745.57~ms under paired exclusion, and the absolute reduction was corrected to 5.66~s.
+\item The historical inference interface requested repetition penalty 1.1, but code inspection showed it was not applied. The revised manuscript reports the effective configuration rather than implying otherwise.
+\item Fig.~2 now states that both systems use standard decode-time KV caching; the difference is one-shot versus incremental prompt prefill.
+\item Claims of a universal 15-s routing threshold, a constant upper bound, universal noise robustness, and semantic non-degradation were removed or bounded to the observed data.
+\end{itemize}
+
+We believe these changes directly address the five concerns while making the scope and limitations of the evidence more explicit. Thank you again for helping us strengthen both the evaluation and the precision of the claims.
+
+Sincerely,
+
+Haihua Mo and Zhengyou Liang
+
+\end{document}
