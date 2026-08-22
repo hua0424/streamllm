@@ -485,3 +485,25 @@
   但放行版 platform_conditions.txt（a4c40057…）仅在 a1fbb82 及之后存在，b8893d6 中是旧版 6b0a2fcd…，
   故正式 run 必须在 origin/main（含 Gate 材料包）上执行，--platform-conditions-file 才指向放行版；
 - 正式 run 边界重申：新 r7_main/ 目录、新 checkpoint、新 run_id、启动重新探活；不从 smoke 续跑、不跑真实 tts_control。
+
+## 2026-08-22 r7_main 完成（GPU 946b720）：结果级 QA 通过 + 两处语义更正 + tts_control 越界披露
+
+- GPU 主机在 c9437c3 上完成正式 r7_main：**140/140 success、QA 0、exit 0**（约 2.6h），
+  产物提交 946b720；本机结果级核验 47/47 过（核验脚本随档 handoff/_qa_r7_local_20260822.py，
+  记录见 review/20260821-PRE-PAPER-AUDIT/results-qa-r7-main-20260822.md）：
+  validate_record 140 条重放零违规；schedule_hash/执行序/AB-BA(35/35, repeat0 25/25,
+  补轮 10/10)复算一致；TTFA 全非负（streaming ALL p50 3113.7ms vs non-streaming p50
+  22269.9ms）；子集 CV 均值 7.73%、max 20.70%；platform a4c40057/silero e1122837/
+  sample_list/subset/audio_map/config_hash 全部绑定复算一致；
+- **更正 1（handoff 原措辞错）**：RUNINFO `git_commit` 记录运行时 HEAD=c9437c3 而非
+  b8893d6；代码基线不变改由 `b8893d6→c9437c3` 实验代码 diff 为空独立支撑；
+- **更正 2（记录粒度限制）**：`git_dirty=True` 成因是运行自身 tee 日志先于 _git_info
+  创建（fatal_smoke 先例相同）；启动前 clean 由 GPU 侧 porcelain 空确认；脚本仅记
+  布尔值不记明细，已如实写入核验记录；
+- **越界披露**：GPU 主机在未获单独放行下提前执行了 §3 tts_control（handoff §3 节头
+  当时缺「须单独放行」标注，已补）。32 条数据级 QA 干净（control_from hash 精确匹配、
+  文本哈希对应、均值 7076ms 复算一致），但是否采信由审查裁量，本记录不构成追认；
+- **脚本修复**：--tts-control-only 分支写 tts_probe.json 前缺 mkdir（GPU 实测
+  FileNotFoundError，mkdir 后重跑成功）；已补 mkdir（不影响测量逻辑），self-test 90 PASS；
+- 下一步：提交审查复核（r7_main 采信 + tts_control 越界处理裁定）→ 装配新 Table VIII
+  → W8 阶段 2。

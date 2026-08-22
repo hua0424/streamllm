@@ -100,10 +100,18 @@ cd <CosyVoice 仓库目录> && git rev-parse HEAD && git diff > /tmp/g7_server_d
 
 > **版本操作（书面放行后）**：正式 run 在 **origin/main 的 HEAD**（当前 `b5355ee` 及其后的
 > 放行提交）上执行，`git pull --ff-only` 后工作树须 clean。脚本 `run_ttfa_unified.py`、
-> `src/`、`sample-list` 在 `b8893d6` 与 origin/main 间**逐字节一致**，故 RUNINFO 记录的
-> `code_commit` 仍为 `b8893d6`（正式代码基线不变）；但放行绑定的 `platform_conditions.txt`
-> （hash `a4c40057…`）只在 Gate 材料包 `a1fbb82` 及之后存在，`b8893d6` 中是旧版 `6b0a2fcd…`，
-> 因此**必须在 origin/main 上运行**，`--platform-conditions-file` 才指向放行版。
+> `src/`、`sample-list` 在 `b8893d6` 与 origin/main 间**逐字节一致**；但放行绑定的
+> `platform_conditions.txt`（hash `a4c40057…`）只在 Gate 材料包 `a1fbb82` 及之后存在，
+> `b8893d6` 中是旧版 `6b0a2fcd…`，因此**必须在 origin/main 上运行**，
+> `--platform-conditions-file` 才指向放行版。
+>
+> **RUNINFO git 字段语义（20260822 更正，r7_main 执行后确认）**：脚本 `_git_info()` 记录的是
+> **运行时实际 `git rev-parse HEAD`**，故 RUNINFO `git_commit=c9437c3…`（放行后 origin/main
+> HEAD），**不是** `b8893d6`。代码基线不变性由独立核验支撑：`b8893d6`→`c9437c3` 对
+> `run_ttfa_unified.py`/`src/`/`sample-list` 的 `git diff` 为空（见结果级核验文档）。
+> 另：`git_dirty=True` 为**运行自身 tee 日志**所致——`tee r7_main_run.log` 在进程启动瞬间
+> 创建未跟踪文件，先于脚本内 `_git_info()` 采集（fatal_smoke 先例相同）；启动前工作树
+> clean 由 GPU 侧 pull 后 `git status --porcelain` 为空确认。此为记录粒度限制，非树脏。
 
 ```bash
 cd /dataA/streamllm && git pull --ff-only origin main && git status --porcelain   # 期望：空
@@ -166,9 +174,15 @@ uv run python -m experiments.scripts.run_ttfa_unified --self-test \
 echo "exit=$?" >> experiments/results/revision/r7_ttfa_unified/selftest_archive/selftest_gpu_$(date +%Y%m%d).log
 ```
 
-## 3. 匹配文本 TTS 控制（主实验完成后；`--tts-control-only` 已实现并自测）
+## 3. 匹配文本 TTS 控制（主实验完成后；`--tts-control-only` 已实现并自测；**须 r7_main 通过结果级 QA 后另行书面放行，不随 §2 一并授权**）
+
+> **执行注意（20260822 实测补充）**：`c9437c3` 及之前的脚本在控制模式下写
+> `tts_probe.json` 前不创建输出目录，目录不存在时首次运行报 `FileNotFoundError`。
+> GPU 侧已 `mkdir -p` 后重跑成功；脚本已在后续提交修复（分支入口先
+> `mkdir(parents=True, exist_ok=True)`，不影响任何测量逻辑）。
 
 ```bash
+mkdir -p experiments/results/revision/r7_ttfa_unified/tts_control
 uv run python -m experiments.scripts.run_ttfa_unified \
     --tts-control-only \
     --control-from experiments/results/revision/r7_ttfa_unified/r7_main/checkpoint_r7_main.jsonl \

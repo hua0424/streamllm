@@ -2628,6 +2628,7 @@ def main() -> int:
     if args.tts_control_only:
         if not args.sample_list or not args.run_id or not args.control_from:
             ap.error("--tts-control-only 需要 --sample-list、--run-id 与 --control-from")
+        Path(args.output_dir).mkdir(parents=True, exist_ok=True)
         probe_c = tts_probe(args.tts_url, args.tts_spk, args.tts_speed)
         (Path(args.output_dir) / "tts_probe.json").write_text(
             json.dumps(probe_c, ensure_ascii=False, indent=2), encoding="utf-8")
