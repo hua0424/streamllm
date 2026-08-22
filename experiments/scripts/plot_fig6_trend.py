@@ -71,6 +71,11 @@ def bin_stats(durations, ttfts, n_bins: int) -> list:
 def plot(samples: dict, n_bins: int, out_pdf: Path):
     import matplotlib
     matplotlib.use("Agg")
+    # IEEE PDF eXpress 要求避免 bitmapped/Type 3 字体：以 TrueType 轮廓嵌入
+    matplotlib.rcParams["pdf.fonttype"] = 42
+    matplotlib.rcParams["ps.fonttype"] = 42
+    # SVG 文字转路径：文件完全自包含，不依赖目标机器上的字体
+    matplotlib.rcParams["svg.fonttype"] = "path"
     import matplotlib.pyplot as plt
 
     fig, ax = plt.subplots(figsize=(6.2, 3.6))
@@ -93,6 +98,7 @@ def plot(samples: dict, n_bins: int, out_pdf: Path):
     fig.tight_layout()
     out_pdf.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_pdf)
+    fig.savefig(out_pdf.with_suffix(".svg"))
     fig.savefig(out_pdf.with_suffix(".png"), dpi=200)
     return all_bins
 
