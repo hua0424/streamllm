@@ -34,7 +34,7 @@ On clean Extra Long speech, System~B reduced mean TTFT by 67.5\% on LibriSpeech 
 
 The robustness result is not uniformly favorable. The ten SNR and speed conditions showed TTFT reductions of 22.8\%--31.6\%, but English babble made System~B 47.3\% slower in the overall summary and Chinese babble yielded only a 6.5\% reduction. VAD over-triggering, segment backlog, and empty Whisper outputs (12/30 English and 5/30 Chinese) produced a long tail. We report this as a demonstrated boundary rather than hiding it.
 
-\changes We added the construction and augmentation protocol in Section IV-E (p.~8), added Section V-D and Table~VI (pp.~10--11), and expanded Limitations (p.~12). New citations cover LibriSpeech, AISHELL-1, and MUSAN.
+\changes We added the construction and augmentation protocol in Section IV-E (p.~8), added Section V-D (pp.~9--10) and Table~VI (p.~10), and expanded Limitations (p.~11). New citations cover LibriSpeech, AISHELL-1, and MUSAN.
 
 \section*{Comment 2: Time to first audible output}
 
@@ -48,7 +48,7 @@ The prototype uses in-process queues for ASR/LLM communication and a localhost T
 
 We also clarified the second component. The 133.0-ms mean is \(t_{\mathrm{feed\_to\_close\_wait}}=t_{\mathrm{input\ close}}-t_{\mathrm{feed\ end}}\), not flush computation. Audit timing attributes about 132.68~ms to waiting before explicit flush, 0.21~ms to flush itself, and 0.12~ms after flush.
 
-\changes We added separate TTFT/TTFA definitions in the Introduction and Section III-C (pp.~1 and 4), added Section V-G (p.~11), and added Table~VIII with total and component distributions (p.~12). Limitations now state the localhost and non-distributed boundary.
+\changes We added separate TTFT/TTFA definitions in the Introduction and Section III-C (pp.~1 and 4), added Section V-G (p.~11), and added Table~VIII with total and component distributions (p.~12). Limitations on p.~11 now state the localhost and non-distributed boundary.
 
 \section*{Comment 3: Variability, percentiles, and repeated measurements}
 
@@ -62,7 +62,7 @@ Paired latency comparisons now include 10,000-resample bootstrap 95\% confidence
 
 We did not add a GPU-contention experiment. The revision instead states that both platforms used otherwise exclusive GPUs and lists GPU contention as an unmeasured deployment condition.
 
-\changes We replaced Fig.~6 and expanded Tables III--V (pp.~9--11), added the repeated-measurement paragraph in Section V-B (p.~9), added the statistical protocol in Section III-C (p.~4), and disclosed the exclusive-GPU boundary in Limitations (p.~12).
+\changes We replaced Fig.~6 and expanded Tables III--V (pp.~9--10), added the repeated-measurement paragraph in Section V-B (p.~9), added the statistical protocol in Section III-C (p.~4), and disclosed the exclusive-GPU boundary in Limitations (p.~11).
 
 \section*{Comment 4: Stronger matched streaming baseline}
 
@@ -74,7 +74,7 @@ Mean TTFT was 5310.8~ms for System~A, 1573.9~ms for System~B, and 2115.0~ms for 
 
 We also revised the internal ablation conclusion. On the original platform, Streaming ASR Only supplied gains of 626.13, 2152.87, and 5286.86~ms, while incremental prefill changed TTFT by $-23.01$, 2.73, and 40.82~ms. The Extra Long incremental-prefill contribution is only 3.3\% of ASR-only TTFT. We therefore identify streaming ASR as the dominant measured contributor and no longer claim a monotonic KV-prefill gain.
 
-\changes We added the baseline method and citations in Sections II-D and V-E, and Table~VII (pp.~2 and 10--11). Table~IV and the ablation discussion were replaced with the reproducible 498-sample values (p.~10). Platform notes explicitly separate original-platform Table~IV from second-platform Table~VII.
+\changes We added the baseline method and citations in Sections II-D and V-E (pp.~2 and 10) and Table~VII (p.~11). Table~IV and the ablation discussion use the reproducible 498-sample values (p.~10). Platform notes explicitly separate original-platform Table~IV from second-platform Table~VII.
 
 \section*{Comment 5: Corrections, tokenizer boundaries, and downstream meaning}
 
@@ -88,7 +88,7 @@ We also compared the production fragment-wise tokenization path with one-shot to
 
 Finally, we added an exploratory response-level evaluation on the same 25 Chinese and 25 English synthetic samples. BGE-M3 response embeddings produced mean cosine 0.8832$\pm$0.0755. A paired-equivalence judge averaged 2.96/5, with 40.0\% at or above 4; this track is affected by independent response sampling and the shared 128-token cap. A separate blinded intent-satisfaction score was 3.10/5 for System~A and 3.04/5 for System~B. The paired B$-$A difference was $-0.06$ with bootstrap 95\% CI [$-0.34$, 0.22]. We report the exact service model (\texttt{deepseek/deepseek-v4-flash}), judge temperature 0, deterministic A/B order randomization, and BGE-M3 embedding method. Because this uses one judge, no repeated ratings, synthetic inputs, and capped independently sampled replies, the manuscript treats it as exploratory evidence and does not claim semantic equivalence or losslessness.
 
-\changes We added the commit contract and tokenizer-seam definition in Section IV-B (p.~6), added Section V-F (pp.~10--11), cited BGE-M3 and the exact judge service documentation, and expanded Limitations and Future Work (p.~12).
+\changes We added the commit contract and tokenizer-seam definition in Section IV-B (p.~6), added Section V-F (pp.~10--11), cited BGE-M3 and the exact judge service documentation, and expanded Limitations and Future Work (p.~11).
 
 \section*{Additional corrections made during revision}
 
@@ -98,6 +98,8 @@ Finally, we added an exploratory response-level evaluation on the same 25 Chines
 \item The historical inference interface requested repetition penalty 1.1, but code inspection showed it was not applied. The revised manuscript reports the effective configuration rather than implying otherwise.
 \item Fig.~2 now states that both systems use standard decode-time KV caching; the difference is one-shot versus incremental prompt prefill.
 \item Claims of a universal 15-s routing threshold, a constant upper bound, universal noise robustness, and semantic non-degradation were removed or bounded to the observed data.
+\item We corrected the methods description to distinguish the 2.0-s ASR recognition trigger from the Silero minimum-speech setting and to report the legacy and unified-TTFA VAD configurations separately; no experiment or result was changed.
+\item We replaced secondary or mismatched citations with primary sources for Conformer, PagedAttention, FlashAttention, StreamingLLM, Mini-Omni, Moshi, LLaMA-Omni, and Whisper, and corrected the associated BibTeX metadata.
 \end{itemize}
 
 We believe these changes directly address the five concerns while making the scope and limitations of the evidence more explicit. Thank you again for helping us strengthen both the evaluation and the precision of the claims.

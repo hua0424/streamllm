@@ -25,11 +25,6 @@
 {OpenAI}, ``{GPT-4o} system card,'' \emph{arXiv preprint arXiv:2410.21276},
   2024.
 
-\bibitem{ref2}
-Z.-H. Tan, A.~K. Sarkar, and N.~Dehak, ``{rVAD}: an unsupervised segment-based
-  robust voice activity detection method,'' \emph{Computer Speech \& Language},
-  vol.~59, pp. 1--21, 2020.
-
 \bibitem{ref3}
 R.~Prabhavalkar, T.~Hori, T.~N. Sainath, R.~Schl{\"u}ter, and S.~Watanabe,
   ``End-to-end speech recognition: a survey,'' \emph{IEEE/ACM Transactions on
@@ -39,13 +34,28 @@ R.~Prabhavalkar, T.~Hori, T.~N. Sainath, R.~Schl{\"u}ter, and S.~Watanabe,
 A.~Vaswani, N.~Shazeer, N.~Parmar, J.~Uszkoreit, L.~Jones, A.~N. Gomez,
   L.~Kaiser, and I.~Polosukhin, ``Attention is all you need,'' in
   \emph{Advances in Neural Information Processing Systems}, vol.~30.\hskip 1em
-  plus 0.5em minus 0.4em\relax Red Hook: Curran Associates, 2017, pp.
+  plus 0.5em minus 0.4em\relax Red Hook, NY, USA: Curran Associates, 2017, pp.
   5998--6008.
 
-\bibitem{ref5}
-J.~Li, ``Recent advances in end-to-end automatic speech recognition,''
-  \emph{APSIPA Transactions on Signal and Information Processing}, vol.~11,
-  no.~1, 2022.
+\bibitem{gulati2020conformer}
+A.~Gulati, J.~Qin, C.-C. Chiu, N.~Parmar, Y.~Zhang, J.~Yu, W.~Han, S.~Wang,
+  Z.~Zhang, Y.~Wu, and R.~Pang, ``{Conformer}: convolution-augmented
+  {Transformer} for speech recognition,'' in \emph{Interspeech 2020}.\hskip 1em
+  plus 0.5em minus 0.4em\relax ISCA, 2020, pp. 5036--5040.
+
+\bibitem{liu2020partialhypothesis}
+D.~Liu, G.~Spanakis, and J.~Niehues, ``Low-latency sequence-to-sequence speech
+  recognition and translation by partial hypothesis selection,'' in
+  \emph{Interspeech 2020}.\hskip 1em plus 0.5em minus 0.4em\relax ISCA, 2020,
+  pp. 3620--3624.
+
+\bibitem{machacek2023turning}
+D.~Mach{\'a}{\v{c}}ek, R.~Dabre, and O.~Bojar, ``Turning {Whisper} into
+  real-time transcription system,'' in \emph{Proceedings of the 13th
+  International Joint Conference on Natural Language Processing and the 3rd
+  Conference of the Asia-Pacific Chapter of the Association for Computational
+  Linguistics: System Demonstrations}.\hskip 1em plus 0.5em minus 0.4em\relax
+  Association for Computational Linguistics, 2023, pp. 17--24.
 
 \bibitem{ref6}
 A.~Radford, J.~W. Kim, T.~Xu, G.~Brockman, C.~McLeavey, and I.~Sutskever,
@@ -55,18 +65,32 @@ A.~Radford, J.~W. Kim, T.~Xu, G.~Brockman, C.~McLeavey, and I.~Sutskever,
   28\,492--28\,518.
 
 \bibitem{ref7}
-Y.~Zheng, Y.~Chen, B.~Qian \emph{et~al.}, ``A review on edge large language
-  models: design, execution, and applications,'' \emph{ACM Computing Surveys},
-  vol.~57, no.~8, p. 209, 2025.
+Y.~Zheng, Y.~Chen, B.~Qian, X.~Shi, Y.~Shu, and J.~Chen, ``A review on edge
+  large language models: design, execution, and applications,'' \emph{ACM
+  Computing Surveys}, vol.~57, no.~8, pp. 1--35, 2025, art. no. 209.
 
-\bibitem{ref8}
-X.~Zhu, J.~Li, Y.~Liu, C.~Ma, and W.~Wang, ``A survey on model compression for
-  large language models,'' \emph{Transactions of the Association for
-  Computational Linguistics}, vol.~12, pp. 1556--1577, 2024.
+\bibitem{kwon2023pagedattention}
+W.~Kwon, Z.~Li, S.~Zhuang, Y.~Sheng, L.~Zheng, C.~H. Yu, J.~E. Gonzalez,
+  H.~Zhang, and I.~Stoica, ``Efficient memory management for large language
+  model serving with {PagedAttention},'' in \emph{Proceedings of the 29th ACM
+  Symposium on Operating Systems Principles}.\hskip 1em plus 0.5em minus
+  0.4em\relax Koblenz, Germany: ACM, 2023, pp. 611--626.
 
-\bibitem{ref9}
-Y.~Tay, M.~Dehghani, D.~Bahri, and D.~Metzler, ``Efficient transformers: a
-  survey,'' \emph{ACM Computing Surveys}, vol.~55, no.~6, p. 109, 2022.
+\bibitem{dao2022flashattention}
+T.~Dao, D.~Y. Fu, S.~Ermon, A.~Rudra, and C.~R{\'e}, ``{FlashAttention}: fast
+  and memory-efficient exact attention with {IO}-awareness,'' in \emph{Advances
+  in Neural Information Processing Systems}, vol.~35.\hskip 1em plus 0.5em
+  minus 0.4em\relax Neural Information Processing Systems Foundation, Inc.,
+  2022, pp. 16\,344--16\,359.
+
+\bibitem{xiao2024streamingllm}
+\BIBentryALTinterwordspacing
+G.~Xiao, Y.~Tian, B.~Chen, S.~Han, and M.~Lewis, ``Efficient streaming language
+  models with attention sinks,'' in \emph{The Twelfth International Conference
+  on Learning Representations}.\hskip 1em plus 0.5em minus 0.4em\relax Vienna,
+  Austria: OpenReview.net, 2024. [Online]. Available:
+  \url{https://openreview.net/forum?id=NG7sS51zVF}
+\BIBentrySTDinterwordspacing
 
 \bibitem{ref10}
 N.~Sethiya and C.~K. Maurya, ``End-to-end speech-to-text translation: a
@@ -77,37 +101,47 @@ S.~Yin, C.~Fu, S.~Zhao, K.~Li, X.~Sun, T.~Xu, and E.~Chen, ``A survey on
   multimodal large language models,'' \emph{National Science Review}, vol.~11,
   no.~12, p. nwae403, 2024.
 
-\bibitem{machacek2023turning}
-D.~Mach{\'a}{\v c}ek, R.~Dabre, and O.~Bojar, ``Turning whisper into real-time
-  transcription system,'' in \emph{Proceedings of the 13th International Joint
-  Conference on Natural Language Processing and the 3rd Conference of the
-  Asia-Pacific Chapter of the Association for Computational Linguistics: System
-  Demonstrations}.\hskip 1em plus 0.5em minus 0.4em\relax Association for
-  Computational Linguistics, 2023, pp. 17--24.
+\bibitem{xie2024miniomni}
+Z.~Xie and C.~Wu, ``{Mini-Omni}: language models can hear, talk while thinking
+  in streaming,'' \emph{arXiv preprint arXiv:2408.16725}, 2024.
 
-\bibitem{liu2020partialhypothesis}
-D.~Liu, G.~Spanakis, and J.~Niehues, ``Low-latency sequence-to-sequence speech
-  recognition and translation by partial hypothesis selection,'' in
-  \emph{Interspeech 2020}, 2020, pp. 3620--3624.
+\bibitem{defossez2024moshi}
+A.~D{\'e}fossez, L.~Mazar{\'e}, M.~Orsini, A.~Royer, P.~P{\'e}rez,
+  H.~J{\'e}gou, E.~Grave, and N.~Zeghidour, ``{Moshi}: a speech-text foundation
+  model for real-time dialogue,'' \emph{arXiv preprint arXiv:2410.00037}, 2024.
 
-\bibitem{ref12}
-A.~Mohamed, H.-y. Lee, L.~Borgholt, J.~D. Havtorn, J.~Edin, C.~Igel,
-  K.~Kirchhoff, S.-W. Li, K.~Livescu, L.~Maal{\o}e, T.~N. Sainath, and
-  S.~Watanabe, ``Self-supervised speech representation learning: a review,''
-  \emph{IEEE Journal of Selected Topics in Signal Processing}, vol.~16, no.~6,
-  pp. 1179--1210, 2022.
+\bibitem{fang2025llamaomni}
+\BIBentryALTinterwordspacing
+Q.~Fang, S.~Guo, Y.~Zhou, Z.~Ma, S.~Zhang, and Y.~Feng, ``{LLaMA-Omni}:
+  seamless speech interaction with large language models,'' in \emph{The
+  Thirteenth International Conference on Learning Representations}.\hskip 1em
+  plus 0.5em minus 0.4em\relax Singapore: OpenReview.net, 2025. [Online].
+  Available: \url{https://openreview.net/forum?id=PYmrUQmMEw}
+\BIBentrySTDinterwordspacing
+
+\bibitem{openai2024whisperlargev3turbo}
+\BIBentryALTinterwordspacing
+{OpenAI}, ``{Whisper large-v3-turbo} model card and configuration,'' Hugging
+  Face model repository, 2024, public configuration revision
+  41f01f3fe87f28c78e2fbf8b568835947dd65ed9; accessed August 22, 2026. [Online].
+  Available:
+  \url{https://huggingface.co/openai/whisper-large-v3-turbo/tree/41f01f3fe87f28c78e2fbf8b568835947dd65ed9}
+\BIBentrySTDinterwordspacing
 
 \bibitem{ref13}
+\BIBentryALTinterwordspacing
 {Silero Team}, ``Silero {VAD}: pre-trained enterprise-grade voice activity
-  detector,'' \url{https://github.com/snakers4/silero-vad}, 2024.
+  detector,'' GitHub repository, 2024, mIT-licensed software; accessed August
+  22, 2026. [Online]. Available: \url{https://github.com/snakers4/silero-vad}
+\BIBentrySTDinterwordspacing
 
 \bibitem{ref14}
 P.~Budzianowski, T.-H. Wen, B.-H. Tseng, I.~Casanueva, S.~Ultes, O.~Ramadan,
-  and M.~Ga{\v s}i{\'c}, ``{MultiWOZ}: a large-scale multi-domain
+  and M.~Ga{\v{s}}i{\'c}, ``{MultiWOZ} - a large-scale multi-domain
   {Wizard-of-Oz} dataset for task-oriented dialogue modelling,'' in
   \emph{Proceedings of the 2018 Conference on Empirical Methods in Natural
-  Language Processing}.\hskip 1em plus 0.5em minus 0.4em\relax Stroudsburg:
-  Association for Computational Linguistics, 2018, pp. 5016--5026.
+  Language Processing}.\hskip 1em plus 0.5em minus 0.4em\relax Brussels,
+  Belgium: Association for Computational Linguistics, 2018, pp. 5016--5026.
 
 \bibitem{ref15}
 Q.~Zhu, K.~Huang, Z.~Zhang, X.~Zhu, and M.~Huang, ``{CrossWOZ}: a large-scale
@@ -122,20 +156,20 @@ Z.~Du, Q.~Chen, S.~Zhang, K.~Hu, H.~Lu, Y.~Yang, H.~Hu, S.~Zheng, Y.~Gu, Z.~Ma,
   preprint arXiv:2407.05407}, 2024.
 
 \bibitem{panayotov2015librispeech}
-V.~Panayotov, G.~Chen, D.~Povey, and S.~Khudanpur, ``{LibriSpeech}: An {ASR}
+V.~Panayotov, G.~Chen, D.~Povey, and S.~Khudanpur, ``{LibriSpeech}: an {ASR}
   corpus based on public domain audio books,'' in \emph{2015 IEEE International
   Conference on Acoustics, Speech and Signal Processing (ICASSP)}.\hskip 1em
   plus 0.5em minus 0.4em\relax IEEE, 2015, pp. 5206--5210.
 
 \bibitem{bu2017aishell1}
-H.~Bu, J.~Du, X.~Na, B.~Wu, and H.~Zheng, ``{AISHELL-1}: An open-source
-  mandarin speech corpus and a speech recognition baseline,'' in \emph{2017
+H.~Bu, J.~Du, X.~Na, B.~Wu, and H.~Zheng, ``{AISHELL-1}: an open-source
+  {Mandarin} speech corpus and a speech recognition baseline,'' in \emph{2017
   20th Conference of the Oriental Chapter of the International Coordinating
-  Committee on Speech Databases and Speech I/O Systems and Assessment}.\hskip
-  1em plus 0.5em minus 0.4em\relax IEEE, 2017, pp. 1--5.
+  Committee on Speech Databases and Speech I/O Systems and Assessment
+  (O-COCOSDA)}.\hskip 1em plus 0.5em minus 0.4em\relax IEEE, 2017, pp. 1--5.
 
 \bibitem{snyder2015musan}
-D.~Snyder, G.~Chen, and D.~Povey, ``{MUSAN}: A music, speech, and noise
+D.~Snyder, G.~Chen, and D.~Povey, ``{MUSAN}: a music, speech, and noise
   corpus,'' \emph{arXiv preprint arXiv:1510.08484}, 2015.
 
 \bibitem{ref20}
@@ -143,18 +177,18 @@ A.~Yang, B.~Yang, B.~Hui, B.~Zheng, B.~Yu, C.~Zhou \emph{et~al.}, ``{Qwen2}
   technical report,'' \emph{arXiv preprint arXiv:2407.10671}, 2024.
 
 \bibitem{chen2024m3embedding}
-J.~Chen, S.~Xiao, P.~Zhang, K.~Luo, D.~Lian, and Z.~Liu, ``{M}3-embedding:
-  Multi-linguality, multi-functionality, multi-granularity text embeddings
+J.~Chen, S.~Xiao, P.~Zhang, K.~Luo, D.~Lian, and Z.~Liu, ``{M3-Embedding}:
+  multi-linguality, multi-functionality, multi-granularity text embeddings
   through self-knowledge distillation,'' in \emph{Findings of the Association
   for Computational Linguistics: ACL 2024}.\hskip 1em plus 0.5em minus
   0.4em\relax Association for Computational Linguistics, 2024, pp. 2318--2335.
 
 \bibitem{commandcode2026deepseekv4flash}
 \BIBentryALTinterwordspacing
-{Command Code}, ``{DeepSeek V4 Flash (latest)}: Pricing, benchmarks and
-  speed,'' Online model catalog and service documentation, Jul. 2026, service
-  model identifier: \texttt{deepseek/deepseek-v4-flash}; accessed August 22,
-  2026. [Online]. Available:
+{Command Code}, ``{DeepSeek V4 Flash (latest)}: pricing, benchmarks, and
+  speed,'' Command Code online model catalog and service documentation, Jul.
+  2026, service model identifier: \texttt{deepseek/deepseek-v4-flash}; page
+  release date July 31, 2026; accessed August 22, 2026. [Online]. Available:
   \url{https://commandcode.ai/models/deepseek-v4-flash}
 \BIBentrySTDinterwordspacing
 

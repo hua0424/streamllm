@@ -15,6 +15,13 @@
 \usepackage{algpseudocode}
 \usepackage{url}
 
+\pdfinfo{
+  /Title (Latency Optimization of Cascaded Voice Dialogue Systems with a Pipeline-Parallel Streaming Architecture)
+  /Author (Haihua Mo; Zhengyou Liang)
+  /Subject (Pipeline-parallel latency optimization for cascaded voice dialogue systems)
+  /Keywords (voice dialogue system; streaming ASR; pipeline parallelism; KV cache; end-to-end latency)
+}
+
 \begin{document}
 
 \title{Latency Optimization of Cascaded Voice Dialogue Systems with a Pipeline-Parallel Streaming Architecture\thanks{Corresponding author: Zhengyou Liang (zhyliang@gxu.edu.cn).}}
@@ -45,18 +52,18 @@ intelligent systems, human--computer interaction, voice dialogue system, streami
 
 \section{Introduction}\label{sec:intro}
 
-Spoken language interfaces have become a core modality of intelligent systems and human--computer interaction, spanning service robots, intelligent transportation, and smart assistants. Within this trend, human--computer interaction is evolving from command-style input toward natural spoken dialogue. Although multimodal large models such as GPT-4o and Gemini 1.5 have advanced voice interaction capabilities, constraints on deployment cost and engineering maturity mean that most production systems still adopt a cascaded architecture composed of automatic speech recognition (ASR), a large language model (LLM), and text-to-speech (TTS). For long-form speech, this architecture typically waits for endpoint detection to complete before starting downstream understanding and generation, which introduces post-endpoint waiting latency and degrades the responsiveness and fluency of the interaction.
+Spoken interfaces are used in service robots, intelligent transportation, and smart assistants. This work considers a conventional modular cascade composed of automatic speech recognition (ASR), a large language model (LLM), and text-to-speech (TTS). In the serial configuration studied here, downstream understanding and generation begin only after endpoint detection and full-utterance recognition, leaving recognition and prompt processing on the post-speech critical path. The resulting waiting time motivates the pipeline-parallel schedule evaluated in this paper.
 
-At the same time, voice dialogue systems built on large language models understand user intent better, handle complex reasoning, and support emotionally expressive multi-turn interaction. This higher level of intelligence, however, comes with substantial computational overhead and latency challenges. Published system reports indicate that GPT-4o achieves an end-to-end voice response latency as low as 232~ms, with an average of 320~ms~\cite{ref1}, already approaching human conversational reaction speed. Low latency has therefore become, alongside accuracy, a key competitive metric for the next generation of voice interaction.
+Large-model voice interfaces improve the range of dialogue tasks that can be addressed but also introduce substantial inference cost. OpenAI reports that GPT-4o can respond to audio input in as little as 232~ms, with an average of 320~ms~\cite{ref1}. These vendor-reported latency figures motivate treating response latency, alongside recognition and response quality, as an explicit evaluation dimension.
 
-Although end-to-end multimodal models perform impressively in papers and experiments, they are expensive to train, complicate data-privacy governance, and require deep customization for vertical scenarios. A cascaded system instead decomposes the pipeline into independent, replaceable modules---voice activity detection (VAD)~\cite{ref2}, ASR, an LLM, and TTS---connected in sequence, and can thus reuse existing high-quality ASR, text LLM, and TTS capabilities. In scenarios that require rapid LLM iteration, controlled deployment cost, and low upgrade risk, the cascaded architecture retains substantial engineering value. In such a serial architecture, the total system latency ($T_{\mathrm{total}}$) depends not only on the processing time of each module but also, to a significant degree, on how data flows between modules. For analysis, we express the total latency of a serial cascaded system as a simple linear sum of the component latencies:
+End-to-end multimodal models and modular cascades present different engineering trade-offs. The system studied here decomposes processing into independently configured VAD, ASR, LLM, and TTS modules connected in sequence, allowing the scheduling contribution to be evaluated without changing the underlying Whisper or Qwen2 weights. In the serial baseline, total system latency depends on both component processing times and the order in which data become available. For analysis, we express this serial latency budget as a simple sum:
 \begin{align}
 T_{\mathrm{total}} ={}& T_{\mathrm{VAD}} + T_{\mathrm{ASR}} + T_{\mathrm{Prefill}} + T_{\mathrm{Decode}} \nonumber\\
 & + T_{\mathrm{TTS}} + T_{\mathrm{Net}}
 \label{eq:total}
 \end{align}
 
-Here $T_{\mathrm{VAD}}$ denotes voice-activity and turn-boundary processing, $T_{\mathrm{ASR}}$ speech recognition, $T_{\mathrm{Prefill}}$ prompt prefilling, $T_{\mathrm{Decode}}$ autoregressive decoding, $T_{\mathrm{TTS}}$ speech synthesis, and $T_{\mathrm{Net}}$ communication and serialization. Component overlap means that Eq.~(\ref{eq:total}) is a conceptual serial budget rather than an identity for the proposed pipeline. We therefore report two timestamp-defined metrics. Time to first token is
+Here $T_{\mathrm{VAD}}$ denotes voice-activity and turn-boundary processing, $T_{\mathrm{ASR}}$ speech recognition, $T_{\mathrm{Prefill}}$ prompt prefilling, $T_{\mathrm{Decode}}$ autoregressive decoding, $T_{\mathrm{TTS}}$ speech synthesis, and $T_{\mathrm{Net}}$ communication and serialization. Component overlap means that \eqref{eq:total} is a conceptual serial budget rather than an identity for the proposed pipeline. We therefore report two timestamp-defined metrics. Time to first token is
 \begin{equation}
 \mathrm{TTFT}=t_{\mathrm{first\ token}}-t_{\mathrm{speech\ end}},
 \label{eq:ttft}
@@ -74,17 +81,17 @@ In conventional serial cascades, several seconds may elapse between speech end a
 
 \subsection{Streaming Progress in Automatic Speech Recognition}
 
-The processing speed of the ASR system determines how quickly user speech becomes text the LLM can consume. Early streaming ASR architectures were dominated by the RNN-Transducer (RNN-T)~\cite{ref3}. The recurrent nature of RNNs suits streaming audio well, but the step-by-step recurrent dependency limits parallelism over the time dimension during training and makes long-range semantic modeling difficult. With the advent of the Transformer, attention-based models pushed recognition accuracy to new levels~\cite{ref4}. However, the Transformer's global attention requires the entire input before computation can begin, so the vanilla Transformer cannot operate in a streaming fashion.
+The processing speed of the ASR system determines how quickly user speech becomes text the LLM can consume. Early streaming ASR architectures prominently included the RNN-Transducer (RNN-T)~\cite{ref3}. Its recurrent structure supports incremental audio processing, although sequential dependencies limit parallelism over time. Transformer self-attention instead permits broad contextual interaction~\cite{ref4}; without modifications that restrict the available context or attention pattern, however, the vanilla formulation does not provide bounded-latency streaming inference.
 
-To address this, Google proposed the Conformer architecture, which combines the local feature extraction of convolutional neural networks (CNNs) with the global modeling of the Transformer and quickly became mainstream in industry~\cite{ref5}. In practice, streaming ASR often uses chunked processing with overlapped stitching: audio is segmented and recognized with a sliding window, and outputs are made consistent across overlap regions, balancing accuracy against latency. Whisper, for example, is an encoder--decoder model aimed primarily at offline transcription~\cite{ref6}; efforts to make such offline models streamable either modify the architecture---converting the non-causal encoder into a causal one so that smaller chunks can be transcribed online at lower latency---or modify the training objective, using sequence-level regularization to encourage earlier token emission and shorten the output lag of streaming recognition.
+Gulati et al. proposed Conformer, which combines convolutional local feature extraction with Transformer-based global modeling~\cite{gulati2020conformer}. Streaming adaptations commonly constrain recognition to chunks or stabilize outputs across repeated partial hypotheses. For Whisper, the LocalAgreement policy provides one such output-stabilization approach~\cite{liu2020partialhypothesis,machacek2023turning}. Whisper itself is an encoder--decoder model developed primarily for offline transcription~\cite{ref6}, so applying it incrementally requires explicit context and commitment policies.
 
 \subsection{LLM Inference Acceleration}
 
-Once ASR transcription completes, LLM inference speed becomes the second major latency bottleneck, constrained mainly by the autoregressive generation of the Transformer decoder and by GPU memory bandwidth~\cite{ref7}. The key--value cache (KV cache) was introduced precisely to eliminate repeated computation during inference. By caching the Key/Value vectors of historical tokens, the model no longer recomputes intermediate results over the full context when generating a new token, reducing per-step decoding complexity from quadratic to linear in sequence length. The KV cache is now standard in modern inference engines such as vLLM and TGI~\cite{ref8}. For the prefill stage over long inputs, FlashAttention restructures GPU memory access with a tiled computation strategy, raising long-sequence throughput substantially and partially addressing the rapid growth of attention computation with sequence length~\cite{ref9}. For long conversations, StreamingLLM introduces an ``attention sink'' mechanism that anchors early tokens as fixed reference points, mitigating the degradation caused by context-window overflow and allowing the LLM to keep streaming stably within a bounded KV cache.
+Once ASR transcription completes, LLM inference can become another major latency bottleneck because autoregressive generation repeatedly accesses an expanding context and its cached state~\cite{ref7}. KV caching stores historical Key/Value states so that they need not be recomputed at every decoding step. vLLM applies PagedAttention to manage this cache for serving workloads~\cite{kwon2023pagedattention}. For prompt processing, FlashAttention restructures exact attention around tiled memory access and reports improved throughput in evaluated settings~\cite{dao2022flashattention}. StreamingLLM retains initial attention-sink tokens together with a recent-token window, enabling bounded-cache streaming over long sequences without claiming retention of arbitrary distant content~\cite{xiao2024streamingllm}.
 
 \subsection{Full-Pipeline Optimization of Voice Dialogue Systems}
 
-Beyond optimizing ASR or the LLM in isolation, coordinated scheduling across the whole pipeline also matters for overall latency. In speech processing tasks such as speech translation, cascaded designs have long been a standard system paradigm: they reuse mature components and allow flexible module replacement, but they also incur intermediate-representation loss, error propagation, and accumulated inter-module latency~\cite{ref10}. Recent end-to-end streaming spoken dialogue models attempt to bypass the traditional ASR--LLM--TTS serial chain, pursuing lower interaction latency through speech-native modeling and streaming generation~\cite{ref11}. Open-source systems such as Mini-Omni, Moshi, and LLaMA-Omni fall into this line of exploration.
+Beyond optimizing ASR or the LLM in isolation, coordinated scheduling across the whole pipeline also matters for overall latency. In speech processing tasks such as speech translation, cascaded designs reuse separate components but may incur intermediate-representation loss, error propagation, and accumulated inter-module latency~\cite{ref10}. Recent speech-native dialogue systems instead model or generate speech within an integrated architecture~\cite{ref11}. Representative systems include Mini-Omni~\cite{xie2024miniomni}, Moshi~\cite{defossez2024moshi}, and LLaMA-Omni~\cite{fang2025llamaomni}.
 
 \subsection{Contributions of This Work}
 
@@ -95,7 +102,7 @@ Beyond optimizing ASR or the LLM in isolation, coordinated scheduling across the
 \label{fig:whisper}
 \end{figure*}
 
-When a traditional cascaded voice dialogue system processes long speech, per-module latencies accumulate stage by stage while computing resources sit idle. Existing work either optimizes the ASR model alone or extends the LLM into a multimodal architecture that generates speech directly; neither can reuse existing state-of-the-art text models. This paper proposes a fine-grained pipeline-parallel design (hereafter System~B) that is directly compatible with existing non-streaming ASR models and text LLMs. Our main contributions are:
+Much prior work focuses on ASR-side streaming or on speech-native multimodal generation. Complementary to those directions, this paper proposes a fine-grained pipeline-parallel design (hereafter System~B) that schedules an existing non-streaming ASR model and text LLM incrementally without changing their weights. Our main contributions are:
 
 \begin{itemize}
 \item \textbf{Streaming ASR context management.} An adaptive Whisper sliding window combines Silero VAD, dynamic buffering, prefix--suffix acoustic context, and timestamp-aligned commitment to produce an append-only downstream text stream.
@@ -113,13 +120,13 @@ When a traditional cascaded voice dialogue system processes long speech, per-mod
 
 \subsubsection{Whisper Architecture and Its Offline Nature}
 
-We adopt OpenAI's Whisper as the speech-to-text module. Whisper is an end-to-end Transformer encoder--decoder model that outputs text tokens directly from speech features. Pretrained on large-scale weakly supervised speech--text data, it is robust across languages, accents, and noise conditions~\cite{ref12}.
+We adopt OpenAI's Whisper as the speech-to-text module. Whisper is an end-to-end Transformer encoder--decoder model trained on large-scale weakly supervised speech--text data. Its primary report describes strong zero-shot performance across multiple languages and evaluated distribution-shift and noise benchmarks~\cite{ref6}.
 
-As shown in Fig.~\ref{fig:whisper}, Whisper converts 16~kHz audio into 128-dimensional log-Mel spectrogram features (consistent with the Whisper-Turbo, i.e., large-v3-turbo, model used in our experiments; earlier Whisper models use 80 dimensions), downsamples them through a convolutional front end, and feeds them to a Transformer encoder; the decoder reads the encoder representations through cross-attention and autoregressively emits text tokens. Its vocabulary includes timestamp tokens that provide segment- or word-level alignment, which underpins our strategy of committing timestamp-aligned partial outputs through an append-only interface. Note, however, that Whisper's default interface still favors offline processing of fixed-length segments, which is exactly what makes streaming adaptation challenging.
+As shown in Fig.~\ref{fig:whisper}, the Whisper large-v3-turbo configuration uses 128-dimensional log-Mel features; this value is checkpoint-specific, whereas the original Whisper models used 80 Mel bins~\cite{openai2024whisperlargev3turbo}. A convolutional front end downsamples these features before the Transformer encoder, and the decoder attends to the encoded representation while emitting text and timestamp tokens. These timestamps support the alignment policy used by our append-only interface. The archived run metadata identifies the model as \texttt{turbo} but does not preserve an immutable repository revision, so the cited public configuration documents the model family rather than the exact artifact downloaded during the experiments.
 
 \subsubsection{Streaming Challenges and Our Approach}
 
-Whisper's encoder self-attention can exploit both past and future frames, which helps accuracy offline but creates two difficulties in real-time dialogue: first, when short chunks are recognized independently, words near chunk boundaries are prone to omission, repetition, or rewriting; second, the trailing hypothesis keeps changing as subsequent audio arrives, so a downstream LLM cannot consume it stably.
+Whisper's encoder can use both past and future frames within an input window. When it is repeatedly applied to overlapping partial audio, words near chunk boundaries may be omitted, repeated, or revised, and the trailing hypothesis can change as more audio arrives~\cite{liu2020partialhypothesis,machacek2023turning}. A downstream LLM therefore requires an explicit policy that decides which partial text is stable enough to commit.
 
 We address both problems with segmented input, overlapped context, and controlled commitment. The front end uses VAD to split PCM into speech segments; the ASR side retains acoustic context around the target; and the output side uses word-level timestamps to commit only the current output region. Once delivered, a fragment is not withdrawn, even if later internal recognition changes that region.
 
@@ -127,7 +134,7 @@ We address both problems with segmented input, overlapped context, and controlle
 
 \subsubsection{Transformer Attention}
 
-Large language models typically adopt a decoder-only Transformer architecture. Within the LLM alone, first-token computation consists mainly of prompt prefill and the first decoding step. The system-level TTFT in Eq.~(\ref{eq:ttft}) additionally includes pipeline closure and the ASR tail. The core of the Transformer is scaled dot-product attention:
+Large language models typically adopt a decoder-only Transformer architecture. Within the LLM alone, first-token computation consists mainly of prompt prefill and the first decoding step. The system-level TTFT in \eqref{eq:ttft} additionally includes pipeline closure and the ASR tail. The core of the Transformer is scaled dot-product attention:
 \begin{equation}
 \mathrm{Attention}(Q,K,V)=\mathrm{softmax}\!\left(\frac{QK^{\top}}{\sqrt{d_k}}\right)V
 \label{eq:attention}
@@ -137,14 +144,14 @@ Here $Q$ (Query), $K$ (Key), and $V$ (Value) are obtained from the input vectors
 
 \subsubsection{KV Cache: Mathematical Principle and Complexity}
 
-Text generation in an LLM is inherently autoregressive: to generate the $N$-th token, the model uses the context of the preceding $N-1$ tokens. In the self-attention module, a single forward pass over a sequence of length $N$ costs $O(N^{2})$. The total computation to generate a sequence of length $N$ is therefore
+Text generation in an LLM is autoregressive: to generate the $N$-th token, the model uses the preceding context. Under dense self-attention, a full uncached forward pass over a sequence of length $N$ has an $O(N^{2})$ attention cost~\cite{ref4}. If such a full pass were naively repeated at every generation step, the illustrative cumulative cost would be
 \begin{align}
 T_{\mathrm{total}}^{\mathrm{naive}}=\sum_{t=1}^{N}O(t^{2})&=O\!\left(\frac{N(N+1)(2N+1)}{6}\right) \nonumber\\
 &\approx O(N^{3})
 \label{eq:naive}
 \end{align}
 
-Modern inference frameworks do not literally repeat full forward passes, but the expression makes the source of redundant computation in autoregressive generation clear: every step recomputes the Key/Value of historical tokens and their attention interactions. The KV cache simply stores these historical values for reuse in later decoding. Because model parameters are fixed at inference time, the $K_i$ and $V_i$ of a historical token $x_i\ (i<t)$ never change once computed and can be stored in GPU memory. At generation step $t$, the system only computes $k_t$ and $v_t$ for the current token $x_t$ and appends them to the cache:
+Modern inference frameworks avoid literally repeating those full forward passes by caching historical Key/Value states~\cite{kwon2023pagedattention}. The preceding cubic expression is therefore an intentionally naive reference model, not the complexity of the implementation evaluated here. With cached causal decoding, the model computes new Key/Value states for the current token and appends them to the stored history:
 \begin{equation}
 K_{\mathrm{cache}}^{(t)}=\mathrm{Concat}\left(K_{\mathrm{cache}}^{(t-1)},\,k_t\right)
 \label{eq:kcache}
@@ -169,7 +176,7 @@ The KV cache plays two distinct roles here. During autoregressive decoding, both
 
 \subsubsection{Time to First Token and Time to First Audio}
 
-TTFT follows Eq.~(\ref{eq:ttft}). In legacy prerecorded runs, $t_{\mathrm{speech\ end}}$ is the waveform feed-completion timestamp; in the unified TTFA run, all timestamps share one \texttt{perf\_counter\_ns} clock. TTFA follows Eq.~(\ref{eq:ttfa}), and ``playable'' means the first non-empty PCM accumulation of at least 1324 bytes. Its closed timeline is speech end $\rightarrow$ feed end $\rightarrow$ pipeline input close $\rightarrow$ first token $\rightarrow$ response text ready $\rightarrow$ TTS request $\rightarrow$ first playable PCM. We define
+TTFT follows \eqref{eq:ttft}. In legacy prerecorded runs, $t_{\mathrm{speech\ end}}$ is the waveform feed-completion timestamp; in the unified TTFA run, all timestamps share one \texttt{perf\_counter\_ns} clock. TTFA follows \eqref{eq:ttfa}, and ``playable'' means the first non-empty PCM accumulation of at least 1324 bytes. Its closed timeline is speech end $\rightarrow$ feed end $\rightarrow$ pipeline input close $\rightarrow$ first token $\rightarrow$ response text ready $\rightarrow$ TTS request $\rightarrow$ first playable PCM. We define
 \begin{equation}
 t_{\mathrm{feed\_to\_close\_wait}}=t_{\mathrm{input\ close}}-t_{\mathrm{feed\ end}}.
 \label{eq:feedclose}
@@ -215,11 +222,11 @@ State management uses a hybrid stateful/stateless design. The segmentation modul
 
 \subsubsection{Strategy}
 
-The central challenge of streaming ASR is balancing recognition accuracy against latency: slices that are too short deprive the model of necessary acoustic context and sharply increase the word error rate, while waiting for slices that are too long introduces significant buffering and processing delay, eroding the advantage of streaming. This section presents an adaptive context-management strategy based on a dynamic sliding window.
+Streaming ASR exposes a configuration-dependent trade-off between the amount of acoustic context available to the recognizer and the delay before a fragment can be processed. We therefore evaluate fixed segmentation and recognition-trigger settings within each paired comparison and report the observed behavior, rather than claiming a universal optimum.
 
 \subsubsection{Dynamic VAD Segmentation}
 
-The system uses the Silero VAD model to segment the continuous PCM stream online. Define the input audio stream as a time series $\{x_1,x_2,\dots,x_t\}$. The segmenter maintains an accumulation buffer $A_{\mathrm{accum}}$ and, on receiving each new audio chunk $c_t$, performs $A_{\mathrm{accum}}\leftarrow A_{\mathrm{accum}}\oplus c_t$, where $\oplus$ denotes concatenation. Once the accumulated audio exceeds the minimum detection window, Silero VAD is invoked; if sufficiently long silence is detected and the speech segment exceeds the minimum speech threshold, the segment is considered closed and emitted to the downstream ASR. The prototype uses a 500~ms chunk length, a 2~s minimum speech length, and a 300~ms minimum silence duration. These values trade off responsiveness against segmentation stability: the 500~ms chunk gives fine online detection granularity while avoiding the frequent VAD calls and thread-scheduling overhead of shorter chunks; the 2~s minimum speech length ensures each fragment submitted to Whisper has enough context, reducing the instability of very short fragments; and the 300~ms silence threshold distinguishes intra-sentence pauses from true end of speech, preventing premature truncation. In terms of sensitivity, smaller chunks or silence thresholds shorten endpoint-detection waiting but may increase spurious segmentation and boundary jitter; larger chunks, minimum speech lengths, or silence thresholds improve stability but increase post-endpoint waiting. We therefore fix these VAD parameters in all comparison experiments to keep configurations comparable.
+The system uses Silero VAD to segment the continuous PCM stream online~\cite{ref13}. Define the input audio stream as a time series $\{x_1,x_2,\dots,x_t\}$. The segmenter maintains an accumulation buffer $A_{\mathrm{accum}}$ and, on receiving each new audio chunk $c_t$, performs $A_{\mathrm{accum}}\leftarrow A_{\mathrm{accum}}\oplus c_t$, where $\oplus$ denotes concatenation. Once the accumulated audio exceeds the detection window, Silero VAD is invoked; a closed speech segment is then emitted to the downstream ASR. The legacy TTFT, ablation, context, human-read, and matched-baseline runs use 500-ms chunks, a Silero threshold of 0.5, a 500-ms minimum speech duration, a 300-ms minimum silence duration, and a separate 2.0-s ASR recognition trigger. The R7 unified-TTFA run instead records a Silero threshold of 0.5, a 250-ms minimum speech duration, a 100-ms minimum silence duration, and 30-ms speech padding, while retaining the 500-ms chunk and 2.0-s recognition trigger. These parameters are fixed within each paired comparison. Because no VAD-parameter ablation was performed, we do not claim that the selected values optimize responsiveness or segmentation stability.
 
 \subsubsection{Sliding-Window Context Awareness}
 
@@ -232,7 +239,7 @@ The system uses the Silero VAD model to segment the continuous PCM stream online
 
 To reduce boundary effects in streaming recognition, the ASR engine uses a sliding window with prefix context. Fig.~\ref{fig:window} details the model input at time step $t$. The window contains frozen prefix audio, the target segment, and an optional suffix buffer. This overlap is intended to reduce boundary instability; it does not guarantee that later internal re-recognition will reproduce the same text.
 
-First, the window is updated. Let $Q_t$ be the audio-segment queue at time $t$. Newly arrived segments first enter a waiting queue and are then merged in batch into the main queue by the transcription thread, yielding $Q_t$. Transcription is triggered when the accumulated queue duration reaches the threshold $\tau_{\mathrm{asr}}$ and the queue length satisfies (\ref{eq:trigger}):
+First, the window is updated. Let $Q_t$ be the audio-segment queue at time $t$. Newly arrived segments first enter a waiting queue and are then merged in batch into the main queue by the transcription thread, yielding $Q_t$. Transcription is triggered when the accumulated queue duration reaches the threshold $\tau_{\mathrm{asr}}$ and the queue length satisfies \eqref{eq:trigger}:
 \begin{equation}
 \left|Q_{\mathrm{temp}}\right|\geq N_{\mathrm{prefix}}+1+N_{\mathrm{suffix}}
 \label{eq:trigger}
@@ -343,7 +350,7 @@ Data construction proceeds in three strictly ordered stages.
 
 The first is history accumulation and filtering. The strategy traverses the source datasets and applies the cumulative generation logic. To focus on long-speech bottlenecks, generated samples are sorted by text length in descending order and the longest $N$ dialogue fragments are selected first, with maximum text-length thresholds (2,050 characters for English, 720 for Chinese) to prevent out-of-memory errors; an upper bound on speech length also avoids needlessly inflating experiment time.
 
-The second is concurrent TTS synthesis. We use Alibaba's CosyVoice service~\cite{ref17} to produce controlled synthetic waveforms from the accumulated text. A batch module issues asynchronous requests; the resulting audio remains synthetic and is not treated as human speech.
+The second stage is concurrent TTS synthesis. We use a CosyVoice-based HTTP synthesis endpoint to produce controlled synthetic waveforms from the accumulated text~\cite{ref17}. A batch client issues asynchronous requests to the endpoint; the resulting audio remains synthetic and is not treated as human speech. The archived artifacts do not preserve an immutable CosyVoice checkpoint or service revision, so \cite{ref17} identifies the model family rather than a specific hosted Alibaba service.
 
 The third is duration calibration and metadata synchronization. Because generative TTS speaking rate is nondeterministic, estimating duration from character counts is error-prone. The pipeline parses the generated WAV file headers to obtain physical durations in seconds (accurate to milliseconds), which are written back to the test-metadata JSON as ground truth for the X-axis (input duration) of subsequent experiments.
 
@@ -365,7 +372,7 @@ Extra Long & $T\geq60$ & Extreme stress test & Stability and OOM boundary \\
 \end{tabular}
 \end{table*}
 
-For fine-grained analysis of latency across durations, the generated samples are divided into five standard groups by audio duration (Table~\ref{tab:groups}).
+For fine-grained analysis of latency across durations, the generated samples are divided into five predefined analysis groups by audio duration (Table~\ref{tab:groups}).
 
 This grouping is used throughout the experimental analysis in Section~\ref{sec:experiments} to compare how the architectures handle speech of different lengths.
 
@@ -377,7 +384,7 @@ To test acoustic conditions not represented by TTS, we construct long-form sampl
 
 \subsection{Experimental Protocol}
 
-System~A is a serial non-streaming cascade: full-audio Whisper transcription is followed by one-shot Qwen2-7B-Instruct~\cite{ref20} prompt prefill and generation. System~B uses the same weights but applies the streaming ASR and incremental prefill mechanisms described above. Tables~\ref{tab:ttft}--\ref{tab:context} and Fig.~\ref{fig:trend} use the original 2025 dual-RTX~3090 platform. Repeated measurements and Tables~\ref{tab:real}--\ref{tab:ttfa} use a second platform, a KVM virtual machine with an Intel Xeon Gold 6133 at 2.50~GHz and two RTX~3090 GPUs. Absolute latency is platform-dependent, so values from the two platforms are neither scaled nor mixed within a comparison. In both environments, Whisper-Turbo runs on one GPU and Qwen2-7B-Instruct on the other, batch size is one, and three real-audio warm-up runs precede measurement.
+System~A is a serial non-streaming cascade: full-audio Whisper large-v3-turbo transcription is followed by one-shot \texttt{Qwen/Qwen2-7B-Instruct}~\cite{ref20} prompt prefill and generation. System~B uses the same loaded weights but applies the streaming ASR and incremental prefill mechanisms described above. The archived run metadata records the model identifiers as \texttt{turbo} and \texttt{Qwen/Qwen2-7B-Instruct}; immutable model-repository revisions were not preserved and are therefore reported as unavailable rather than inferred retrospectively. Tables~\ref{tab:ttft}--\ref{tab:context} and Fig.~\ref{fig:trend} use the original 2025 dual-RTX~3090 platform. Repeated measurements and Tables~\ref{tab:real}--\ref{tab:ttfa} use a second platform, a KVM virtual machine with an Intel Xeon Gold 6133 at 2.50~GHz and two RTX~3090 GPUs. Absolute latency is platform-dependent, so values from the two platforms are neither scaled nor mixed within a comparison. In both environments, Whisper runs on one GPU and Qwen2-7B-Instruct on the other, batch size is one, and three real-audio warm-up runs precede measurement.
 
 Tables~\ref{tab:ttft}--\ref{tab:context} use a 50-token generation cap. The state, semantic, and unified TTFA experiments use 128 tokens. Effective sampling uses temperature 0.1 and top-$p$ 0.9. Although the historical interface accepted \texttt{repetition\_penalty=1.1}, post-experiment inspection found that the custom decoder did not apply it; all compared arms therefore used no effective repetition penalty. The original-platform mixed synthetic set contains 1,132 samples: 630 from MultiWOZ and 502 from CrossWOZ. Paired exclusions are stated with each experiment.
 
@@ -417,7 +424,7 @@ On the second platform, 50 fixed Very Long samples were run three times per mode
 
 \subsection{Ablation and Context Trade-offs}
 
-The ablation starts from 505 Long-or-longer candidates. Pairwise exclusion removes three runtime errors and four cases in which a streaming arm exceeded 10~s, leaving 498 samples (108 Long, 150 Very Long, and 240 Extra Long). The unfiltered failure/hang rate is therefore 7/505 (1.4\%).
+Table~\ref{tab:ablation} summarizes the ablation results. The analysis starts from 505 Long-or-longer candidates. Pairwise exclusion removes three runtime errors and four cases in which a streaming arm exceeded 10~s, leaving 498 samples (108 Long, 150 Very Long, and 240 Extra Long). The unfiltered failure/hang rate is therefore 7/505 (1.4\%).
 
 \begin{table*}[!t]
 \caption{Ablation on the original platform; cells are mean$\pm$std [P95/P99] ms}\label{tab:ablation}
@@ -508,7 +515,7 @@ LA-2-style & 2115.0$\pm$693.3 & 1948.5 & 3463.2 & 1741.0 & 2199.7 & 2230.4 & .08
 \end{tabular}
 \end{table*}
 
-The LA-style baseline is approximately 34\% slower than System~B (2115.0 versus 1573.9~ms). The paired mean difference is 541.1~ms, with bootstrap 95\% CI [485.3, 599.9] and Wilcoxon $p=1.24\times10^{-70}$. Recognition errors remain of the same order, which supports latency attribution but does not establish statistical quality equivalence. Repeated whole-buffer decoding also degrades more on longer input: LA-style TTFT is 2199.7--2230.4~ms for Very Long and Extra Long samples, compared with 1551.1--1637.5~ms for System~B.
+As shown in Table~\ref{tab:la}, the LA-style baseline is approximately 34\% slower than System~B (2115.0 versus 1573.9~ms). The paired mean difference is 541.1~ms, with bootstrap 95\% CI [485.3, 599.9] and Wilcoxon $p=1.24\times10^{-70}$. Recognition errors remain of the same order, which supports latency attribution but does not establish statistical quality equivalence. Repeated whole-buffer decoding also degrades more on longer input: LA-style TTFT is 2199.7--2230.4~ms for Very Long and Extra Long samples, compared with 1551.1--1637.5~ms for System~B.
 
 \subsection{Commitment, Tokenizer Seams, and Semantics}\label{sec:stateeval}
 
@@ -516,7 +523,7 @@ Instrumentation on 50 fixed Very Long synthetic samples records 375 downstream c
 
 Fragment-wise and one-shot token sequences differ at seams in 25/50 samples, with means of 4.36 differing blocks and 5.60 one-shot-side tokens among affected samples. Decoding both token sequences reconstructs identical text in all 50 cases. This supports text-level reconstruction only; it does not establish token, KV-state, or output-distribution equivalence.
 
-Response quality is explored on the same 25 Chinese and 25 English synthetic samples. Replies are independently sampled with the 128-token cap. BGE-M3~\cite{chen2024m3embedding} CLS embeddings with L2-normalized cosine yield mean 0.8832$\pm$0.0755 (minimum 0.6232, P10 0.7951). A paired-equivalence judge gives 2.96/5 and 40.0\% at or above 4; this measure confounds independent recommendation choices and truncation. A separate blinded intent-satisfaction judge gives System~A 3.10/5 and System~B 3.04/5; the paired B$-$A difference is $-0.06$ with bootstrap 95\% CI [$-0.34$, 0.22]. The judge is the Command Code service model \texttt{deepseek/deepseek-v4-flash}~\cite{commandcode2026deepseekv4flash}, temperature 0, with deterministic A/B order randomization. This single-judge, 50-sample analysis is exploratory and is not an equivalence claim.
+Response quality is explored on the same 25 Chinese and 25 English synthetic samples. Replies are independently sampled with the 128-token cap. CLS embeddings from the locally downloaded \texttt{BAAI/bge-m3} artifact~\cite{chen2024m3embedding}, followed by L2 normalization and cosine similarity, yield mean 0.8832$\pm$0.0755 (minimum 0.6232, P10 0.7951). The archived artifact was not a versioned Hugging Face snapshot, so its source revision is unavailable. A paired-equivalence judge gives 2.96/5 and 40.0\% at or above 4; this measure confounds independent recommendation choices and truncation. A separate blinded intent-satisfaction judge gives System~A 3.10/5 and System~B 3.04/5; the paired B$-$A difference is $-0.06$ with bootstrap 95\% CI [$-0.34$, 0.22]. The judge is the Command Code service identifier \texttt{deepseek/deepseek-v4-flash}~\cite{commandcode2026deepseekv4flash}, accessed in August 2026 with temperature 0 and deterministic A/B order randomization. No immutable backend build identifier was available. This single-judge, 50-sample analysis is exploratory and is not an equivalence claim.
 
 \subsection{Unified Time to First Audio}
 
@@ -566,7 +573,7 @@ The implementation provides an append-only downstream text contract rather than 
 
 The main 1,132-sample benchmark remains TTS-synthesized. The added LibriSpeech/AISHELL-1 data are concatenated human-read utterances, not spontaneous dialogue, and some concatenation seams are audible. Babble noise is a demonstrated failure boundary because VAD over-triggering and empty ASR outputs create backlog and long tails. Experiments use exclusive GPUs, a single-machine ASR/LLM queue topology, and localhost TTS; distributed network latency and GPU contention are not represented, and absolute TTFT is CPU- and platform-sensitive.
 
-The downstream interface never rolls back text, but internal re-recognition frequently changes committed-region hypotheses. Fragment-wise tokenization also differs from one-shot tokenization, so KV-state equivalence is not established. Semantic evidence covers only 50 Very Long synthetic samples, independently sampled replies, a 128-token cap, and one service judge without repeated ratings. The unified TTFA experiment uses sentence-ready System~B output versus the non-streaming System~A response path, and TTS contributes a large language-dependent tail. Finally, the prototype remains half-duplex and loses paralinguistic information at the text interface~\cite{ref22}.
+The downstream interface never rolls back text, but internal re-recognition frequently changes committed-region hypotheses. Fragment-wise tokenization also differs from one-shot tokenization, so KV-state equivalence is not established. Semantic evidence covers only 50 Very Long synthetic samples, independently sampled replies, a 128-token cap, and one service judge without repeated ratings. The unified TTFA experiment uses sentence-ready System~B output versus the non-streaming System~A response path, and TTS contributes a large language-dependent tail. Finally, the prototype remains half-duplex, a limitation discussed in work on turn-taking systems~\cite{ref22}. Because the modules communicate through text, the prototype also discards non-textual acoustic cues; this latter point is a direct architectural observation rather than a claim attributed to \cite{ref22}.
 
 \subsection{Future Work}
 
