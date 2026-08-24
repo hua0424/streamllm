@@ -29,7 +29,7 @@ Dear Editor and Reviewer,
 
 Thank you for the constructive assessment and for identifying the main evidentiary gaps in the original submission. We revised the manuscript to add human-recorded speech tests, perturbation and repeatability analyses, a configured streaming comparator, state-correction instrumentation, exploratory response-level evaluation, and a unified server-side first-playable-PCM measurement. We also narrowed claims that were stronger than the evidence.
 
-The targeted experiments described below were completed during the revision. A subsequent final audit and deterministic CPU-only reanalysis corrected the interpretation and statistical treatment of the locked records. No new ASR, LLM, TTS, CUDA, audio-generation, corrected-trigger, controlled-contention, or injected-jitter experiments were run during this audit and reanalysis. We therefore distinguish explicitly between requests addressed experimentally and conditions that remain outside the present systems evaluation. All locations below refer to physical pages in the current 14-page compiled revised manuscript.
+The targeted experiments described below were completed during the revision. A subsequent final audit and deterministic CPU-only reanalysis corrected the interpretation and statistical treatment of the locked records. No new ASR, LLM, TTS, CUDA, audio-generation, corrected-trigger, controlled-contention, or injected-jitter experiments were run during this audit and reanalysis. We therefore distinguish explicitly between requests addressed experimentally and conditions that remain outside the present systems evaluation. All locations below refer to physical pages in the current 15-page compiled revised manuscript.
 
 \section*{Comment 1: Human-recorded speech and robustness}
 
@@ -77,7 +77,7 @@ The targeted experiments described below were completed during the revision. A s
 
 \scope We did not sweep multiple LocalAgreement operating points, construct a latency--quality frontier, match the two trigger policies, evaluate a corrected-trigger System~B, add another streaming-ASR family benchmark, or rerun the historical three arms in counterbalanced order. Those additions require substantial new model experiments. A single stronger comparator, evaluated at one configured matched-model and matched-hardware operating point, addresses the request in part, and the manuscript responds to the remaining uncertainty by narrowing the claim rather than generalizing beyond the evidence.
 
-\changes The expanded discussion of streaming ASR and cache-related research appears in Section~II (p.~2). The fixed-order arm contrasts appear in Section~V-C and Table~IV (pp.~10--11). The comparator configuration and results appear in Section~V-E (pp.~11--12), with Table~VII on p.~12. The bounded interpretation appears in Sections~VI-A--C (pp.~12--13), and the additional references are listed on p.~14.
+\changes The expanded discussion of streaming ASR and cache-related research appears in Section~II (p.~2). The fixed-order arm contrasts appear in Section~V-C and Table~IV (pp.~10--11). The comparator configuration and results appear in Section~V-E (pp.~11--12), with Table~VII on p.~12. The bounded interpretation appears in Sections~VI-A--C (pp.~12--13), and the additional references are listed on pp.~14--15.
 
 \section*{Comment 5: Commitment, tokenizer boundaries, KV state, and response quality}
 
@@ -89,7 +89,7 @@ The targeted experiments described below were completed during the revision. A s
 
 \scope We did not implement rollback-aware cache repair or retokenization and replay after correction. We also did not measure emission-time committed WER/CER, classify corrections involving entities, numbers, dates, negation, or intent, use deterministic paired response generation, evaluate task success, obtain human ratings, conduct repeated or multi-judge assessments, or prespecify a noninferiority margin for response quality. These would require further implementation work and a task-level evaluation program. The present revision directly reports how the implemented state contract behaves and quantifies its correction and seam boundaries, and the response-level analysis remains exploratory rather than evidence of meaning preservation.
 
-\changes The general cache distinction is described in Section~III-B2 (pp.~3--4), the commitment and seam contract in Section~IV-B4 (p.~7), and incremental cache behavior in Section~IV-C (pp.~7--8). The correction, seam, and exploratory response measurements appear in Section~V-F (p.~12), and their evidentiary limits are reiterated in Sections~VI-A--C (pp.~12--13).
+\changes The general cache distinction is described in Section~III-B2 (p.~4), the commitment and seam contract in Section~IV-B4 (p.~7), and incremental cache behavior in Section~IV-C (pp.~7--8). The correction, seam, and exploratory response measurements appear in Section~V-F (p.~12), and their evidentiary limits are reiterated in Sections~VI-A--C (pp.~12--13).
 
 \section*{Closing statement}
 

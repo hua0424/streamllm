@@ -205,18 +205,4 @@ J.~Chen, S.~Xiao, P.~Zhang, K.~Luo, D.~Lian, and Z.~Liu, ``{M3-Embedding}:
   for Computational Linguistics: ACL 2024}.\hskip 1em plus 0.5em minus
   0.4em\relax Association for Computational Linguistics, 2024, pp. 2318--2335.
 
-\bibitem{commandcode2026deepseekv4flash}
-\BIBentryALTinterwordspacing
-{Command Code}, ``{DeepSeek V4 Flash (latest)}: pricing, benchmarks, and
-  speed,'' Command Code online model catalog and service documentation, Jul.
-  2026, service model identifier: \texttt{deepseek/deepseek-v4-flash}; page
-  release date July 31, 2026; accessed August 22, 2026. [Online]. Available:
-  \url{https://commandcode.ai/models/deepseek-v4-flash}
-\BIBentrySTDinterwordspacing
-
-\bibitem{ref22}
-G.~Skantze, ``Turn-taking in conversational systems and human-robot
-  interaction: a review,'' \emph{Computer Speech \& Language}, vol.~67, p.
-  101178, 2021.
-
 \end{thebibliography}
