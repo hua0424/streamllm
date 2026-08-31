@@ -1,0 +1,18 @@
+[
+  {
+    "id": "smoke_hotel",
+    "turns": [
+      "Tell me several details about a hotel in the north of town.",
+      "Please continue with the details you retained.",
+      "What was the last specific thing you mentioned?"
+    ]
+  },
+  {
+    "id": "smoke_train",
+    "turns": [
+      "Explain a train journey and include several concrete facts.",
+      "Continue from the previous response.",
+      "Repeat the final concrete detail in your history."
+    ]
+  }
+]
