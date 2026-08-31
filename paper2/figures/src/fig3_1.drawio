@@ -2,59 +2,21 @@
   <root>
     <mxCell id="0"/>
     <mxCell id="1" parent="0"/>
-    <mxCell id="lg" value="生成指针 g(t)&#10;（token 级）" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;" vertex="1" parent="1">
-      <mxGeometry x="20" y="60" width="150" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="ls" value="合成指针 s(t)&#10;（片段级）" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;" vertex="1" parent="1">
-      <mxGeometry x="20" y="140" width="150" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="lp" value="播放指针 p(t)&#10;（采样级）" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;" vertex="1" parent="1">
-      <mxGeometry x="20" y="220" width="150" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="gbar" value="已生成 token　y₁ … y_G" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#666666;fontSize=12;align=left;spacingLeft=8;" vertex="1" parent="1">
-      <mxGeometry x="190" y="60" width="680" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="gunheard" value="未听内容（B-gen 计入历史 → 引用风险）" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F9DFD0;strokeColor=#D55E00;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="580" y="60" width="290" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="f1" value="f₁" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="190" y="140" width="130" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="f2" value="f₂" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="320" y="140" width="130" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="f3" value="f₃" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="450" y="140" width="130" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="f4" value="f₄" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="580" y="140" width="130" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="eps" value="ε(p)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDEBD0;strokeColor=#E69F00;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="520" y="140" width="60" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="pbar" value="用户已听到　[0, p)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5F0E6;strokeColor=#009E73;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="190" y="220" width="330" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="vline_p" style="endArrow=none;dashed=1;strokeColor=#D55E00;strokeWidth=2;" edge="1" parent="1">
-      <mxGeometry relative="1" as="geometry">
-        <mxPoint x="520" y="45" as="sourcePoint"/>
-        <mxPoint x="520" y="285" as="targetPoint"/>
-      </mxGeometry>
-    </mxCell>
-    <mxCell id="vlabel_p" value="打断时刻的播放指针 p&#10;（落于 f₃ 内 → 半截片段）" style="text;html=1;align=center;verticalAlign=top;fontSize=12;fontColor=#D55E00;" vertex="1" parent="1">
-      <mxGeometry x="380" y="288" width="280" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="vline_h" style="endArrow=none;dashed=1;strokeColor=#0072B2;strokeWidth=2;" edge="1" parent="1">
-      <mxGeometry relative="1" as="geometry">
-        <mxPoint x="580" y="45" as="sourcePoint"/>
-        <mxPoint x="580" y="285" as="targetPoint"/>
-      </mxGeometry>
-    </mxCell>
-    <mxCell id="vlabel_h" value="听到边界 H(p) = te(f₃)&#10;（片段级向上取整，定义 3.1）" style="text;html=1;align=left;verticalAlign=top;fontSize=12;fontColor=#0072B2;" vertex="1" parent="1">
-      <mxGeometry x="595" y="10" width="270" height="34" as="geometry"/>
-    </mxCell>
-    <mxCell id="inv" value="单向滞后不变式：p(t) ≤ s(t) ≤ g(t)（式 3-1）。B-ours 仅将 [0, H(p)) 保留入史，ε(p) 为片段粒度量化误差（定义 3.3，有界于单片段长度）" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="190" y="330" width="690" height="40" as="geometry"/>
-    </mxCell>
+    <mxCell id="lg" value="生成端点 G(t)&#10;（token 域）" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;" vertex="1" parent="1"><mxGeometry x="20" y="60" width="150" height="36" as="geometry"/></mxCell>
+    <mxCell id="ls" value="已登记端点 S(t)&#10;（token 域）" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;" vertex="1" parent="1"><mxGeometry x="20" y="140" width="150" height="36" as="geometry"/></mxCell>
+    <mxCell id="lp" value="播放位置 p(t)&#10;（采样域）" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;" vertex="1" parent="1"><mxGeometry x="20" y="220" width="150" height="36" as="geometry"/></mxCell>
+    <mxCell id="gbar" value="已生成 token　y₀ … yG₋₁" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#666666;fontSize=12;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="190" y="60" width="680" height="36" as="geometry"/></mxCell>
+    <mxCell id="gunheard" value="完整未播放片段（B-gen 保留后产生复现风险）" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F9DFD0;strokeColor=#D55E00;fontSize=12;" vertex="1" parent="1"><mxGeometry x="580" y="60" width="290" height="36" as="geometry"/></mxCell>
+    <mxCell id="f1" value="f₁" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1"><mxGeometry x="190" y="140" width="130" height="36" as="geometry"/></mxCell>
+    <mxCell id="f2" value="f₂" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1"><mxGeometry x="320" y="140" width="130" height="36" as="geometry"/></mxCell>
+    <mxCell id="f3" value="f₃（命中片段）" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1"><mxGeometry x="450" y="140" width="130" height="36" as="geometry"/></mxCell>
+    <mxCell id="f4" value="f₄" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F9DFD0;strokeColor=#D55E00;fontSize=12;" vertex="1" parent="1"><mxGeometry x="580" y="140" width="130" height="36" as="geometry"/></mxCell>
+    <mxCell id="proxy" value="字符比例 +&#10;空白边界 proxy" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDEBD0;strokeColor=#E69F00;fontSize=10;" vertex="1" parent="1"><mxGeometry x="520" y="140" width="60" height="36" as="geometry"/></mxCell>
+    <mxCell id="pbar" value="已播放采样　[0, p)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5F0E6;strokeColor=#009E73;fontSize=12;" vertex="1" parent="1"><mxGeometry x="190" y="220" width="330" height="36" as="geometry"/></mxCell>
+    <mxCell id="vline_p" style="endArrow=none;dashed=1;strokeColor=#D55E00;strokeWidth=2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="520" y="45" as="sourcePoint"/><mxPoint x="520" y="285" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="vlabel_p" value="打断时播放位置 p&#10;（采样域，命中 f₃）" style="text;html=1;align=center;verticalAlign=top;fontSize=12;fontColor=#D55E00;" vertex="1" parent="1"><mxGeometry x="390" y="288" width="260" height="36" as="geometry"/></mxCell>
+    <mxCell id="vline_h" style="endArrow=none;dashed=1;strokeColor=#0072B2;strokeWidth=2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="580" y="45" as="sourcePoint"/><mxPoint x="580" y="285" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="vlabel_h" value="片段级保留边界 Ĥ(p)=te(f₃)&#10;（token 域）" style="text;html=1;align=left;verticalAlign=top;fontSize=12;fontColor=#0072B2;" vertex="1" parent="1"><mxGeometry x="595" y="10" width="270" height="34" as="geometry"/></mxCell>
+    <mxCell id="inv" value="先以 p 定位命中片段，再比较 token 端点：Ĥ(p) ≤ S(t) ≤ G(t)。B-ours 保留 [0, Ĥ(p))；命中片段内尚未播放的文本尾部只用字符比例—空白边界代理评估。" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;" vertex="1" parent="1"><mxGeometry x="190" y="330" width="690" height="48" as="geometry"/></mxCell>
   </root>
 </mxGraphModel>

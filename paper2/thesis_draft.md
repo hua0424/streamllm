@@ -1,632 +1,737 @@
 # 播放感知的级联式流式语音对话上下文管理
 
-> 全文合并草稿（自动生成，勿直接编辑——改各章源文件后重新合并）。
-> 学校模板格式转换（DOCX/LaTeX）待定。
+> 全文合并草稿（自动生成，勿直接编辑；请修改分章 Markdown 后重新合并）。
+> 本文件已于 2026-08-31 依据离线数据完整性审计更新。
 
 ---
 
 
+---
 
 # 摘要
 
-> 初稿（2026-07-21）。数字与第六章正式数值对齐；主张表述遵守 D-006 prior-art 护栏。
-
 ## 中文摘要
 
-级联式架构（流式语音识别 → 大语言模型 → 流式语音合成）是当前语音对话系统的主流方案，但在用户打断（barge-in）场景下存在一个结构性的一致性缺陷：大语言模型的生成进度、语音合成进度与音频实际播放进度三者不同步，若系统将"已生成的全部内容"记入对话历史，模型便会在后续轮次引用用户从未听到的信息，造成对话错乱。本文实验表明，在朴素的生成位置截断策略下，此类未听内容引用在表面重叠口径下可达被打断轮次的 51%，在最保守的"特定信息引用"裁判口径下仍有 2.7%。"对话历史应等于用户实际听到的内容"这一原则已见于闭源商用系统，但学术界与开源社区尚无在大语言模型推理内部以显式 KV 缓存操作实现播放感知上下文管理的工作。
+级联式语音对话系统通过串联流式语音识别、大语言模型和流式语音合成，兼顾模块可控性与语言模型的推理能力。然而，在用户打断场景下，模型生成、语音合成和音频播放并不同步：若系统将已生成但尚未播放的回复写入对话历史，后续回复可能复现用户未曾听到的信息。已有商用服务和开源框架已经采用播放进度更新会话历史，因此本文不主张“历史应反映用户所听内容”这一原则的原创性，而是研究该原则如何在开源级联流水线中落实为可检视的推理状态操作。
 
-针对上述问题，本文在形式化"生成—合成—播放"三进度指针与听到边界语义的基础上，设计并实现了三项机制：（1）**推测生成调度**：以现成话轮检测模型输出的连续置信度配推测阈值，驱动可作废、可回滚的推测生成过程，以可控的冗余计算换取响应速度（本工作的确定性模拟评测中，推测的提交由用户说完的真值端点触发；真实部署中可增设更高的提交阈值以门控 TTS 播放）；（2）**播放感知的 KV 缓存管理**：建立"播放采样—音频块—文本片段—token 区间"的反向映射时间轴，打断时经显式 KV 截断（注意力掩码与位置编码同步修正）与对话模板角色边界重建，使对话历史与用户所听内容严格一致；（3）**被打断历史的处理策略**：朴素截断、打断标记与轻量模型重写三种策略的实现与消融。上述机制整合为首个开源、可复现的级联式参考实现。
+本文首先区分生成边界、已登记片段边界、实际播放位置及其片段级保留边界，进而设计三项机制：（1）以话轮检测置信度和单一推测阈值驱动可作废的提前生成，并以作废 token 数量刻画计算代价；实验驱动程序使用用户话轮真值终点作为推测结果的接受事件，面向真实部署的播出门控不在本文实证范围内。（2）建立播放采样、音频块、语音合成文本片段和 token 区间之间的关联时间轴；打断时依据播放位置裁剪 KV 缓存，并同步修正注意力掩码、token 账本和位置编码，随后重建对话角色边界。（3）实现朴素保留、打断标记和轻量模型重写三种被打断历史处理策略。本文方法保证的是 TTS 文本片段粒度下的历史对齐；片段内尚未播放的文本尾部由字符比例—空白边界代理单独评估。
 
-在 7B 主模型与 MultiWOZ 派生数据上的实验表明：播放感知截断使未听内容引用率在片段口径下由机制构造保证为零，且片段级截断粒度的量化误差在人工判定下未产生任何可感知的特定引用（0/24）；打断响应关键路径（反查+截断）恒为亚毫秒级且与上下文长度无关，KV 复用相对重新预填充在 8k 上下文处加速 39.7 倍；推测调度给出浪费率—延迟的连续可调权衡前沿，拐点处以约 4.5% 的 token 浪费将说完后首 token 延迟从 48.5 ms 降至 12.1 ms。本文同时提出"上界检测器—下界裁判—人工仲裁"三层一致性评测协议（人机一致性 κ=0.649），对同类语音对话系统评测具有独立参考价值。
+在 Qwen2-7B-Instruct 主模型和 MultiWOZ 派生数据上的受控实验表明：清除开发样例后，在同步全生成、回复上限为 40 token 的一致性模拟中，按生成位置保留历史的对照方法在 400 个场景中有 50.3% 出现词面线索复现，2.3% 被异构 LLM 裁判判定为特定信息引用；本文方法在片段口径下的引用率按定义为零。字符比例—空白边界近似口径下，两方法的裁判判定率分别为 1.8% 和 2.3%；当前按场景匹配但受独立生成混杂的比较未检出差异，该结果既不构成等价性证明，也不隔离边界策略效应。推测阈值的九点扫描显示总体的计算浪费—有效首 token 延迟权衡：阈值为 0.92 时，以约 4.5% 的 token 浪费将平均延迟由不推测时的 48.3 ms 降至 12.1 ms。孤立 GPU 微基准中，KV 裁剪操作在 275–8192 token 范围内的中位延迟为 0.308–0.339 ms；8k 上下文中，裁剪中位数与角色恢复中位数之和为 46.88 ms，以该组件和为分母，相对 1863.42 ms 的重新预填充比值为 39.7 倍。受独立生成混杂的历史策略运行中，重写策略未获得高于朴素策略的平均连贯性分数；现有数据不支持策略因果比较。
 
-**关键词**：语音对话系统；打断；KV 缓存；推测生成；上下文一致性；低延迟
+**关键词**：语音对话系统；用户打断；KV 缓存；推测生成；上下文一致性；低延迟
 
 ## Abstract
 
-Cascaded pipelines (streaming ASR → LLM → streaming TTS) remain the mainstream architecture for spoken dialogue systems, yet they suffer from a structural consistency flaw under user barge-in: the LLM's generation progress, the TTS synthesis progress, and the actual audio playback progress advance at different paces. If the system commits everything it has generated to the dialogue history, the model will later refer to content the user never heard, derailing the conversation. Our experiments show that under naive generation-point truncation, such unheard-content references occur in up to 51% of interrupted turns by a surface-overlap criterion, and still 2.7% under the most conservative LLM-judge criterion of specific-information reference. The principle that "dialogue history should equal what the user actually heard" has been practiced in closed-source commercial systems, but no academic or open-source work has realized playback-aware context management inside LLM inference via explicit KV-cache operations.
+Cascaded spoken-dialogue systems combine streaming automatic speech recognition, a large language model, and streaming text-to-speech synthesis, thereby retaining modular control and strong language reasoning. Under user barge-in, however, language-model generation, speech synthesis, and audio playback progress asynchronously. If generated but unplayed content is committed to the dialogue history, later responses may reproduce information that the user never heard. Commercial services and open-source frameworks have already used playback progress to update conversation history. This thesis therefore does not claim the principle itself as novel; instead, it investigates how to realize the principle as inspectable inference-state operations in an open cascaded pipeline.
 
-Building on a formalization of the generation–synthesis–playback progress pointers and the heard-boundary semantics, this thesis designs and implements three mechanisms: (1) **speculative generation scheduling**, which softens endpoint detection into an abortable, roll-backable speculative process driven by the continuous confidence of an off-the-shelf turn-detection model with a speculation threshold, trading controlled redundant computation for responsiveness (in our deterministic-simulation evaluation, speculation is committed by the ground-truth end-of-utterance; a higher commit threshold may gate TTS playback in real deployment); (2) **playback-aware KV-cache management**, which maintains a reverse-mapping timeline across playback samples, audio chunks, text segments, and token spans, and upon barge-in performs explicit KV truncation (with synchronized attention-mask and position-encoding correction) and chat-template role-boundary rebuilding, so that the dialogue history strictly matches what the user heard; (3) **strategies for interrupted history**, implementing and ablating naive truncation, interruption marking, and lightweight-model rewriting. These mechanisms are integrated into the first open-source, reproducible cascaded reference implementation.
+The thesis first distinguishes the generation boundary, the registered-fragment boundary, the physical playback position, and a TTS-text-fragment-level retention boundary. It then develops three mechanisms. First, an abortable early-generation process is controlled by turn-detection confidence and a single speculation threshold, with discarded tokens measuring its computational cost. The experimental harness accepts speculation at the ground-truth end of the user turn; a deployment-time output gate is outside the empirical scope. Second, an association timeline links playback samples, audio chunks, TTS text fragments, and token spans. At barge-in, the system crops the KV cache, synchronizes the attention mask, token ledger, and position indices, and then rebuilds the chat-role boundary. Third, the system implements naive retention, interruption marking, and lightweight rewriting for interrupted history. The method guarantees history alignment at TTS-text-fragment granularity; the unplayed in-fragment text suffix is evaluated separately using a character-proportional, whitespace-snapped proxy.
 
-Experiments with a 7B backbone on MultiWOZ-derived data show that playback-aware truncation reduces the unheard-reference rate to zero by construction at segment granularity, and the quantization error of segment-level truncation causes no human-perceivable specific reference (0/24); the barge-in critical path (reverse lookup + truncation) is constantly sub-millisecond and independent of context length, while KV reuse achieves a 39.7× speedup over re-prefilling at 8k context; speculative scheduling yields a continuously tunable waste–latency frontier, cutting post-utterance first-token latency from 48.5 ms to 12.1 ms at the knee point for about 4.5% token waste. The thesis further contributes a three-layer consistency evaluation protocol — upper-bound rule detector, lower-bound LLM judge, and human arbitration (human–judge agreement κ=0.649) — of independent reference value for evaluating similar systems.
+Controlled experiments with a Qwen2-7B-Instruct backbone and MultiWOZ-derived data show the following. After development fixtures are excluded, under a synchronous full-generation simulation with a 40-token response cap, the generation-boundary baseline exhibits lexical-cue recurrence in 50.3% of 400 scenarios and specific-information references in 2.3% according to a cross-family LLM judge. The proposed method has a zero reference rate by construction under the TTS-text-fragment-level definition. Under the character-proportional, whitespace-snapped proxy, judge-positive rates are 1.8% and 2.3%, respectively. A scenario-matched comparison confounded by independently sampled generations detects no difference; it neither establishes equivalence nor isolates the boundary-policy effect. A nine-point threshold scan shows an overall waste–effective-TTFT trade-off: at a threshold of 0.92, approximately 4.5% token waste reduces mean latency from 48.3 ms without speculation to 12.1 ms. In an isolated GPU microbenchmark, KV cropping takes a median of 0.308–0.339 ms over contexts of 275–8192 tokens. At 8k, the sum of the separate median crop and role-recovery times is 46.88 ms; using this component sum as the denominator gives a 39.7-fold ratio relative to the 1863.42 ms re-prefill median. In the confounded history-policy runs, rewriting did not yield a higher mean coherence score than naive retention; no causal policy comparison is supported.
 
 **Keywords**: spoken dialogue system; barge-in; KV cache; speculative generation; context consistency; low latency
 
 
 ---
 
-
-
 # 第一章 绪论
-
-> 初稿（2026-07-17）。贡献表述遵守 D-006 prior-art 护栏；实验结论引用第六章正式数值。
 
 ## 1.1 研究背景与动机
 
-大语言模型（LLM）赋予语音助手前所未有的语义理解与生成能力，语音交互正从"指令式"走向"自然对话式"。在工程实践中，级联式架构（流式 ASR → LLM → 流式 TTS）因其模块可控、推理能力强，至今仍是语音对话系统的主流方案。
+随着大语言模型（Large Language Model，LLM）的发展，语音交互正由传统的单轮“指令—响应”模式向允许停顿、插话和重叠发言的自然对话模式演进。当前工程系统通常采用两类技术路线：一类直接对语音离散单元进行建模，另一类以流式语音识别（Automatic Speech Recognition，ASR）、LLM 和流式语音合成（Text-to-Speech，TTS）组成级联流水线。级联架构能够分别选择和调优各模块，仍具有较高的工程可控性和部署灵活性。
 
-本文作者的前期工作（一期）针对级联架构的首字延迟问题，提出流式 ASR 与 LLM KV 缓存增量预填充的联合优化，使 TTFT 摆脱了随语音长度线性增长的约束。然而，延迟只是自然对话体验的一半；另一半是**打断（barge-in）**：人类对话中插话随时发生，系统被打断后能否"若无其事地"继续对话，取决于一个更隐蔽的问题——**系统认为自己说了什么，与用户实际听到了什么，是否一致**。
+前期工作针对级联架构的首 token 延迟（Time to First Token，TTFT），利用流式 ASR 稳定转写段和 LLM KV 缓存增量预填充减少用户话轮结束后的上下文编码开销。低生成延迟并不能单独保证自然交互：当用户在系统播报期间打断时，系统还必须正确回答“上一轮哪些内容真正进入了共享对话状态”。这取决于模型已生成的文本、TTS 已合成的音频和用户已实际听到的音频是否被区分管理。
 
-级联架构中这一问题是结构性的：LLM 的生成进度（token 级）快于 TTS 的合成进度（句子级），后者又快于音频的实际播放进度（受实时率约束）。当用户在播放中途打断时，若系统将"已生成的全部内容"记入对话历史，LLM 便会在后续轮次中引用用户从未听到的信息（"正如我刚才提到的……"），造成对话错乱。本文实验显示，在朴素截断策略下，此类"未听内容引用"在表面重叠口径下可达被打断轮次的 51%（第六章 E3）。
+这种状态错位是级联架构的结构性风险。LLM 可以在音频尚未播放完毕前生成较长回复，TTS 也可能在播放器之前积累音频缓冲。若打断后直接将全部已生成内容写入历史，后续回复便可能复现未向用户传达的信息，产生难以由用户已知上下文解释的指代或事实承接。本文的受控实验进一步量化了这一风险：在同步全生成、回复上限为 40 token 的对照设置中，按生成位置保留历史的方法在 400 个场景中有 50.3% 出现词面线索复现，并有 2.3% 被异构 LLM 裁判判定为特定信息引用。上述比例描述的是本文学术对照和实验条件，而不是商业系统或自然在线打断的总体发生率。
 
-"对话历史应等于用户实际听到的内容"这一原则已见于 OpenAI Realtime API[1]、Azure Voice Live[2]、LiveKit Agents[3] 等商用系统（第二章详述）——本文**不主张该原则的原创性**。但这些实现均为闭源黑盒，且截断停留在受管理的转写文本层面；学术界与开源社区中，尚无工作在 LLM 推理内部以显式的 KV 缓存操作实现播放感知的上下文管理。本文旨在填补这一空白。
+依据播放进度更新对话历史并非本文首次提出。OpenAI Realtime API[1]、Azure Voice Live[2] 等商用服务，以及 LiveKit Agents[3] 等开源工程框架，均提供了相应的播放感知历史管理能力。本文不以“已有系统未实现该功能”作为立论依据，而关注公开资料中仍缺少的机制层问题：如何在开源级联栈中维护从播放位置到 LLM token 的可检视关联，如何在不丢弃全部历史计算的前提下修正 KV 缓存，以及如何以可复算的实验记录评估该机制。
 
-## 1.2 问题与挑战
+## 1.2 研究问题与挑战
 
-实现播放感知的上下文一致性，需在级联流水线内解决四个相互耦合的问题（第三章形式化）：
+围绕播放感知的上下文管理，本文区分两个核心问题和两个扩展问题。
 
-1. **跨模块反向映射**：打断时系统只知播放到第几毫秒，而 KV 截断需要 token 级位置——需建立"播放采样 ↔ 音频块 ↔ 文本片段 ↔ token 区间"的四向映射并支持低延迟反查；
-2. **KV 截断合法性**：截断后注意力掩码、位置编码须严格一致，且需重建对话模板的角色边界，多轮结构才合法；
-3. **响应时机的软化**：传统硬端点检测与"提前生成"矛盾——需以连续置信度的软触发驱动**可作废的推测生成**，以冗余计算换响应速度，并管理作废时的 KV 回滚；
-4. **被截断历史的语义完整性**：截断落在句中时，历史里留下半句话，可能影响后续生成的连贯性。
+1. **跨模块边界关联与反向查询。** 打断事件直接提供的是音频播放采样位置，而 LLM 状态修正需要 token 截断点。系统需要关联播放采样、音频块、TTS 文本片段和 token 区间，并在打断到达时快速查询片段级保留边界。该关联并非四个层次之间的严格双射：它由以 TTS 文本片段为中心的记录结构维护。
+2. **KV 缓存修正与对话结构恢复。** 裁剪缓存时必须同步维护 KV 张量、注意力掩码、assistant token 账本和后续位置编码。裁剪完成后，还要注入对话模板要求的 assistant 关闭与 user 开启标记，才能继续多轮生成。
+3. **响应时机与冗余计算的权衡。** 本文在用户话轮尚未确认结束时提前生成回复前缀。这里的“推测生成”指交互时序上的提前生成，不同于以草稿模型加速解码的 speculative decoding。误触发的推测可以回滚，但会产生作废 token；系统需要用单一推测阈值调节计算浪费和有效 TTFT。
+4. **被打断历史的自然化。** 片段级保留可能纳入当前片段尚未播放的尾部，保留的 assistant 前缀本身也可能语义不完整。标记或轻量重写可能改善后续连贯性，但也可能引入新信息或额外计算，因此应作为探索性扩展独立评估。
 
-## 1.3 本文贡献
+## 1.3 本文工作与贡献
 
-- **C1（辅助）推测生成调度机制**：以现成 turn-detection 模型输出的连续置信度配推测阈值，驱动可作废、可回滚的推测过程；在本工作的确定性模拟评测中，推测的提交（采用）由用户说完的真值端点触发，真实部署中可增设更高的提交阈值以门控 TTS 播放。在真实数据上给出推测浪费率与有效 TTFT 的九点权衡前沿，拐点处以约 4.5% 的 token 浪费将说完后延迟从 48.5 ms 压至 12.1 ms（第四章 §4.1，第六章 E2/A3）。
-- **C2（核心）播放感知的 KV 缓存管理**：反向映射时间轴 + 基于 `DynamicCache.crop` 的显式截断（掩码/位置编码同步）+ ChatML 角色边界重建 + 推测作废回滚的完整机制。打断响应关键路径（反查+截断）实测恒为亚毫秒级且与上下文长度无关；相对重新预填充，KV 复用在 8k 上下文处加速 39.7 倍（第四章 §4.2，第六章 E3/A1）。
-- **C3（扩展）被打断历史的处理策略**：朴素截断/打断标记/轻量模型重写三种策略的实现与消融（第四章 §4.3，第六章 A2）。
-- **贯穿性贡献**：上述机制的**首个开源、可复现的级联式参考实现**，以及一套含双口径一致性判定与人工仲裁协议的系统评测。
+本文是一项面向开源级联语音对话栈的系统与工程研究。主要工作如下。
 
-需要明确的边界：贡献 2 的高层理念（历史=听到内容）为商用系统先行实践，本文的创新在于开源可复现的机制级实现与可量化对比；软触发与重写模块均使用现成模型，不构成模型层贡献。
+- **C1：可作废的推测生成调度。** 使用现成话轮检测模型的连续置信度和单一推测阈值启动提前生成，以推测预算限制单次作废成本。确定性实验以用户话轮真值终点作为推测结果的接受事件；真实部署可增加独立的播出门控，但本文未对其进行实证评测。九个离散阈值在当前同步实验驱动程序中形成总体的计算浪费—有效 TTFT 权衡，其中阈值 0.92 对应约 4.5% token 浪费和 12.1 ms 平均有效 TTFT。
+- **C2：播放感知的 KV 缓存管理。** 建立跨播放采样、音频块、TTS 文本片段和 token 区间的关联时间轴；依据片段级保留边界执行 `DynamicCache.crop`，同步裁剪掩码和 token 账本，并重建 ChatML 类角色边界。在 275–8192 token 的孤立 GPU 微基准中，KV 裁剪本身为 0.308–0.339 ms；8k 上下文的裁剪中位数与角色恢复中位数之和为 46.88 ms，以该组件和为分母，相对重新预填充的耗时比值为 39.7 倍。
+- **C3：被打断历史处理策略的探索。** 实现朴素保留、打断标记和轻量模型重写，并报告连贯性与重写耗时。现有运行未观察到重写相对朴素策略的收益，而且三策略的首轮回复由独立采样产生，因而该结果不构成严格的策略因果比较。
+- **可检视实现与评测。** 论文给出上述机制在开源级联栈中的完整实现，并保存主要实验 JSON、绘图脚本和离线重分析程序。由于部分处理后输入、模型 revision、随机种子和原始重复计时尚未随结果完整归档，本文将其表述为可检视、部分可复现的研究工件，而不作无条件的“完全可复现”主张。
+
+本文不主张“历史应反映用户所听内容”这一高层原则的原创性，也不将话轮检测模型或重写模型作为模型层贡献。本文的贡献边界是：在公开级联实现中把播放信号与显式 KV 状态修正、角色恢复和量化评测连接起来。
 
 ## 1.4 论文组织结构
 
-第二章梳理商用实践、学术研究与 KV 缓存技术三条脉络并定位本文；第三章形式化三进度指针、听到边界、截断合法性与全部评测指标；第四章给出三项机制的设计；第五章描述开源实现与部署；第六章报告延迟、权衡、一致性与消融实验；第七章讨论与商用系统的关系、局限与可推广性；第八章总结全文。
+第二章梳理商用实践、学术研究和 KV 缓存技术并界定本文位置；第三章形式化生成、合成、播放与片段级保留边界，定义状态修正和评测指标；第四章介绍推测生成、播放感知 KV 管理和历史处理策略；第五章说明系统模块、关键实现、部署及验证方法；第六章报告一致性、浪费—延迟权衡、响应延迟组合评估和消融结果；第七章讨论与已有系统的关系以及构念、内部、外部和结论效度威胁；第八章总结全文并给出后续研究方向。
 
 
 ---
-
-
 
 # 第二章 相关工作
 
-> 初稿（2026-05-21）。写作策略遵循 `docs/decisions.md` D-006：先诚实陈述商用系统已实现的 prior art，再指出学术界与开源级联实现的空白，最后以差异对比表明确本文定位。**本章不主张"对话历史=用户实际听到内容"这一原则为本文首创。**
-> 引用编号与全文统一文献表（`paper2/references.md`）一致；带 † 的 arXiv 预印本编号需在投稿/送审前复核（见 `docs/research_novelty_check.md` §七）。
+围绕低延迟语音交互和用户打断，相关工作可分为三类：商用与工程系统中的播放感知历史管理，学术界的流式语音对话与打断处理，以及 LLM 推理层的 KV 缓存操作。本章首先承认已经建立的工程实践，再说明本文在公开级联实现中的具体位置。
 
----
+## 2.1 商用与工程系统中的打断—上下文管理
 
-近年来，随着大语言模型（LLM）赋予语音对话系统强大的语义理解与生成能力，级联式架构（流式 ASR → LLM → 流式 TTS）在工业界与学术界仍是主流方案。围绕"低延迟"与"自然打断（barge-in）"这两个核心诉求，相关研究可归纳为三条脉络：商用与工程系统中的打断-上下文管理实践、学术界的流式语音对话与打断处理方法、以及 LLM 推理层的 KV 缓存操作技术。本章依次梳理这三条脉络，并在此基础上界定本文工作的确切位置。
+当用户在系统播报期间开始说话时，已生成但尚未完整播放的 assistant 回复应如何进入历史，是多轮语音交互中的基础状态管理问题。如果全部生成文本均被视为已传达内容，后续 LLM 可能依据用户未知的信息继续推理。
 
-## 2.1 商用与工程系统中的打断-上下文管理
+“对话历史应反映用户实际听到的内容”并非本文首次提出。OpenAI Realtime API 提供 `conversation.item.truncate` 事件，客户端可上报 `audio_end_ms`，服务端据此删除未播放音频及其对应文本[1]。Azure Voice Live 提供 `auto_truncate` 能力，在播放期间检测到用户说话时更新上一轮回复和会话上下文[2]。开源框架 LiveKit Agents 则仅将实际播出的转写提交到历史，并以 `interrupted=True` 标记被打断消息[3]。这些系统均实现了播放感知的历史管理。
 
-在语音对话系统被用户打断时，一个根本性的问题是：**已经生成、但用户并未完整听到的助手回复，应当以何种形式进入对话历史？** 若系统将"自己生成的全部内容"当作已说出的话记入上下文，则在后续轮次中 LLM 会误以为它表达了实际上并未传达给用户的信息，从而破坏多轮对话的一致性。
+本文与上述实践的差异不在“是否实现播放感知历史”，而在公开机制和研究对象。OpenAI 与 Azure 的服务端实现未公开；LiveKit 已公开框架层的消息处理，但不直接暴露 LLM 推理内部的 KV 状态。本文研究如何在开源级联栈中建立播放采样到 token 区间的显式关联，并在保留历史 KV 计算的同时完成缓存裁剪和角色边界恢复。由于商业系统的内部架构和截断实现不可见，本文只依据公开文档比较接口语义，不推断其内部是否采用级联模型或何种缓存机制。
 
-值得强调的是，"对话历史应当等于用户实际听到的内容"这一原则**并非本文首次提出，已在多个商用系统中得到实现**。OpenAI 的 Realtime API 提供 `conversation.item.truncate` 事件，客户端在检测到打断时传入 `audio_end_ms`（即音频实际播放到的位置），服务端据此删除未播放的音频及其对应的文本转写，其文档明确指出此举是"为确保上下文中不包含用户尚未听到的文本"[1]。微软 Azure 的 Voice Live 服务提供 `auto_truncate` 能力，在用户于播放期间开始说话时截断上一轮回复，并将会话上下文更新为已播放的部分；其官方文档几乎逐字表述了与上述相同的原则——"会话上下文应当被更新为反映用户实际听到的内容，否则 LLM 会假设它说了从未真正传达给用户的话"[2]。在开源工程框架层面，LiveKit Agents 在打断发生时仅将实际播放的转写文本提交进对话历史，并以 `interrupted=True` 标记该条被打断的消息，其文档说明转写会"被截断以匹配实际说出的输出"[3]。
+## 2.2 流式语音对话与打断处理
 
-因此，从"概念"层面看，播放感知的上下文截断已是成熟工程实践。然而，这些系统存在若干共同局限，恰为学术研究留下空间：其一，它们均为**闭源黑盒**（Realtime API、Voice Live）或仅在**框架转发层**做截断（LiveKit），未公开可复现的、面向 LLM 推理内部状态的实现；其二，截断的粒度停留在**受管理的转写文本层面**（删除 transcript 条目），而非对 LLM 的 KV 缓存做显式操作；其三，对"用户听到位置"的确定依赖**近似估计**——Azure 文档承认其"假设回复以实时速度播放"，OpenAI 则依赖客户端上报 `audio_end_ms`。需要审慎指出的是，这些差异是**开源与闭源、显式 KV 操作与转写删除、测量与估计**之别，而非"是否实现了该功能"之别：上述系统确实完成了播放感知的历史管理，本文不以"商用系统未做此事"作为立论依据。
+级联式低延迟研究主要通过提前触发、增量推理和流式输出减少等待。LTS-VoiceAgent[4]采用动态语义触发与增量推理降低响应延迟，其 Pause-and-Repair 评测针对用户输入端的自我修正，而非依据 TTS 播放位置修正 LLM 历史。RelayS2S[5]采用双路系统，以快速语音到语音路径生成候选前缀，并由较慢的级联路径续写和验证；它与本文均利用“提前计算换响应时间”的思想，但不处理由播放位置驱动的 KV 回滚。Schwarz 等提出 Personalized Predictive ASR[18]，从部分语音对应的 ASR 假设预测完整话语，并提前执行和缓存下游响应生成；最终识别结果确认预测后再采用缓存回复。该工作的研究对象是输入触发时机和预取成本，而非被打断回复的上下文状态。
 
-## 2.2 流式语音对话与打断处理的学术研究
+在端到端全双工方向，Moshi[6]以并行音频与文本流建模重叠发言，避免了独立 TTS 阶段造成的一部分生成—合成错位。不过，网络传输、播放缓冲和设备输出仍可能使模型产出进度与用户实际听到的位置不同，因此端到端帧同步是显著减弱而非无条件消除播放差异。
 
-学术界围绕级联式与端到端两类架构，从不同角度逼近低延迟自然交互，但**均未涉及基于实际播放位置的 KV 缓存截断**。
-
-在级联式流式延迟优化方向，LTS-VoiceAgent[4]† 提出 Listen-Think-Speak 框架，通过动态语义触发（Dynamic Semantic Trigger）与增量推理降低"边想边说"的延迟，是与本文最接近的级联流水线工作；然而其全文未涉及打断、播放位置、KV 截断或对话角色边界重建，其"Pause-and-Repair"评测针对的是用户输入端的自我修正，而非 TTS 播放被打断的场景。RelayS2S[5]† 采用双路架构，由快速的全双工语音到语音模型推测性地起草回复前缀并立即送入 TTS 以降低音频起始延迟，同时由慢速级联路径续写完整回复，并以一个轻量学习型验证器决定何时提交推测前缀；其"推测换延迟"的框架与本文的推测生成调度部分有重叠，但其目标是延迟起始而非打断作废，不处理 KV 缓存管理。此外，Amazon 的 Predictive ASR 等工作利用部分语音预测完整句子以提前触发 LLM 调用，同样聚焦触发时机而非上下文截断。
-
-在端到端全双工方向，Moshi[6] 将用户与模型语音建模为并行的多流结构，取消显式的说话人轮次，使打断与重叠在架构层面自然涌现。由于其生成与真实时间帧同步、且不存在独立的 TTS 阶段，"生成即播放"隐式成立，因而**从架构上回避了本文所针对的"生成进度、合成进度、播放进度三者不一致"问题**——这从反面印证了级联式场景具有端到端模型所不具备的独特挑战。
-
-在打断检测方向，FireRedChat[7] 通过流式个性化 VAD 抑制误触发的打断，对主说话人语音段打时间戳并在确认打断后立即暂停 TTS 播放；但其贡献停留在**检测与时序控制层**，并未处理已说出一半的助手回复如何进入历史，也不涉及 LLM 的 KV 状态。
+打断检测研究关注何时停止系统输出。FireRedChat[7]利用个性化流式 VAD 减少误触发，并在确认打断后暂停 TTS。该类工作主要位于检测和时序控制层；本文则假定打断事件已经到达，进一步研究停播后应保留哪些历史状态。二者在完整系统中是互补关系。
 
 ## 2.3 LLM 推理与 KV 缓存操作
 
-KV 缓存通过缓存历史 token 的键值状态、避免自回归生成中的重复计算，是 LLM 低延迟推理的基础技术。HuggingFace transformers 库提供 `DynamicCache` 等缓存抽象，其中 `crop` 方法支持将缓存截断到指定长度[8]；vLLM、SGLang 等推理框架则围绕前缀缓存（prefix caching）与缓存复用做了系统级优化。这些机制主要面向上下文窗口溢出、滑动窗口限制与吞吐优化，**并未面向"由外部信号（如音频播放进度）驱动的动态截断与对话角色边界重建"这一场景**。
+KV 缓存保存历史 token 的键值状态，以避免自回归生成中的重复计算。Hugging Face Transformers 提供 `DynamicCache` 等抽象，其 `crop` 操作能够缩短缓存序列[8]。vLLM 的 PagedAttention 将 KV 缓存组织为可非连续存储的固定大小块，以按需分配和 copy-on-write 改善服务吞吐与显存利用[19]；SGLang 的 RadixAttention 使用 radix tree 管理并复用跨调用的公共 token 前缀[20]。这些机制主要服务于内存管理、吞吐和前缀共享，而不是直接由外部播放信号确定对话历史裁剪点。
 
-与本文相关但正交的是若干文本 Agent 场景下的 KV 操作工作：IntentKV[9]† 面向文本 LLM Agent 做跨轮意图感知的 KV 剪枝，Speculative Interaction Agents[10]† 在工具调用被判定失效时丢弃推测性的工具观测结果。两者的截断均由文本/工具逻辑触发，与"用户在音频播放期间听到了多少"无关，也不涉及语音级联流水线。综上，在 transformers/vLLM 生态中，将 KV 缓存按播放进度显式 crop 并重建 ChatML 角色边界，作为一项系统/工程贡献，尚无已公开记录的开源先例。
+IntentKV[9]面向文本 Agent 的跨轮 KV 剪枝，Speculative Interaction Agents[10]处理异步工具调用中的推测结果作废。它们说明 KV 状态可以随外部控制逻辑调整，但其触发信号来自文本意图或工具状态，不涉及音频播放采样、TTS 文本片段和对话角色恢复。
+
+依据截至本文检索日期的公开资料，尚未发现同时满足“开源级联语音栈、播放位置驱动、显式 KV 裁剪、对话角色边界恢复和可复算评测”这些条件的系统。该结论受检索范围限制，不等同于对所有未公开系统的否定。
 
 ## 2.4 差异对比与本文定位
 
-综合上述三条脉络，本文与最接近工作的差异如表 2-1 所示。
+表 2-1 按公开资料区分架构可见性、截断依据、上下文处理层次和实现开放程度，避免把闭源状态误写为某种已知架构。
 
-**表 2-1 本文与相关工作在打断-上下文管理上的差异对比**
+**表 2-1　本文与相关系统在打断—上下文管理上的差异**
 
-| 系统/工作 | 截断依据 | 是否播放感知 | 上下文处理粒度 | 是否级联 | 是否开源 |
+| 系统或工作 | 公开的截断依据 | 播放感知 | 公开的上下文处理层次 | 公开架构类型 | 实现可见性 |
 |---|---|---|---|---|---|
-| OpenAI Realtime API[1] | 客户端上报 `audio_end_ms` | 是 | 删除受管理的转写文本 | 闭源黑盒 | 否 |
-| Azure Voice Live[2] | 假设实时播放速度估算 | 是（估计） | 更新会话上下文文本 | 闭源 | 否 |
-| LiveKit Agents[3] | 实际转发的转写 | 是 | 词/句级转写，标记 interrupted | 框架级联 | 框架层开源（非 KV） |
-| RelayS2S[5]† | 不做打断截断 | 否 | — | 否（双路） | 是 |
-| LTS-VoiceAgent[4]† | 不涉及 | 否 | — | 是 | — |
-| FireRedChat[7] | 仅检测层暂停 | 否 | 不管理 LLM 上下文 | 是 | 部分 |
-| Moshi[6] | 架构隐式 | 隐式 | 无独立 TTS 阶段 | 否（端到端） | 是 |
-| **本文** | **实际播放位置→反向映射→token** | **是** | **显式 KV crop + ChatML 角色重建，片段级** | **是** | **是** |
+| OpenAI Realtime API[1] | 客户端上报 `audio_end_ms` | 是 | 受管理的音频与文本条目 | 未公开 | 接口公开、服务端闭源 |
+| Azure Voice Live[2] | 服务端自动截断，公开文档采用播放时序假设 | 是 | 会话上下文条目 | 未公开 | 接口公开、服务端闭源 |
+| LiveKit Agents[3] | 实际播出的转写 | 是 | 消息与转写层 | 框架级 | 框架开源，非 KV 操作 |
+| RelayS2S[5] | 不以打断位置裁剪历史 | 否 | — | 混合双路 | 公开论文 |
+| LTS-VoiceAgent[4] | 不涉及播放期历史裁剪 | 否 | — | 级联 | 公开论文 |
+| FireRedChat[7] | 检测后暂停 TTS | 检测层 | 未公开 LLM 历史修正 | 级联 | 部分公开 |
+| Moshi[6] | 帧同步交互 | 架构内隐式 | 无独立 TTS 文本历史裁剪 | 端到端 | 开源 |
+| **本文** | **播放采样经片段记录反查到 token** | **是** | **显式 KV 裁剪与角色恢复** | **级联** | **研究代码与结果公开保存** |
 
-由表可见，播放感知的上下文截断在商用系统中已有实现，但均为闭源且停留在转写文本层面；而学术界与开源级联实现中，尚无工作在 LLM 推理内部以显式的 KV 缓存操作实现这一机制。**本文的定位由此明确**：面向开源、可复现的级联式 ASR→LLM→TTS 流水线，提供播放感知上下文一致性管理的完整实现，其技术核心是基于实际播放位置反向映射的显式 KV 缓存截断（`DynamicCache.crop` 配合 attention mask 与 position id 的同步重算）与 ChatML 角色边界重建。这一定位填补了表 2-1 中"开源、显式 KV 操作、级联"这一空白格，与商用系统形成"可复现的学术参考实现"与"闭源产品"的互补关系。
+本文的定位由此限定为：实现并分析公开级联栈中的播放感知 KV 状态管理。与商业服务相比，本文提供可检视的数据结构、缓存不变式和实验记录；与流式语音研究相比，本文把关注点从“何时开始或停止说话”扩展到“停止后如何修正多轮推理状态”；与通用 KV 优化相比，本文以播放位置作为外部状态信号。
 
-## 本章小结
+## 2.5 本章小结
 
-本章从商用工程实践、学术研究与 LLM 推理技术三个层面梳理了相关工作。核心结论是：播放感知的打断-上下文管理作为一种理念已被 OpenAI、微软、LiveKit 等系统实现，本文不主张其原创性；但在开源、可复现、面向 LLM KV 缓存内部状态的显式实现层面存在明确空白，这正是本文工作的立足点。下一章将对级联流水线中"生成—合成—播放"三进度不一致问题及相关评测指标进行形式化定义。
-
----
-
-*（本章引用编号 [1]–[10] 已并入全文统一文献表 `paper2/references.md`，编号不变。）*
+本章说明，播放感知历史管理已是既有工程实践，本文不主张其高层原则的原创性。公开文献中与本文最接近的工作分别覆盖提前触发、打断检测、端到端全双工或通用 KV 操作，但未公开把播放采样、TTS 文本片段和 LLM KV 裁剪连成一体的级联机制。下一章将区分物理播放位置和片段级保留边界，并据此形式化状态修正与评测指标。
 
 
 ---
-
-
 
 # 第三章 问题形式化
 
-> 初稿（2026-07-17）。本章将级联式流式语音对话中"生成—合成—播放"三进度不一致问题及全部评测指标形式化，为第四章方法与第六章实验提供统一符号体系。符号与代码实现严格对应（对应关系见各定义后的实现注记；定稿时可移至第五章或脚注）。
-
----
-
-## 3.1 系统模型与符号定义
+## 3.1 系统模型与符号
 
 ### 3.1.1 级联流水线
 
-考虑级联式流式语音对话系统 $\mathcal{S} = \langle \mathrm{ASR}, \mathrm{LLM}, \mathrm{CHK}, \mathrm{TTS}, \mathrm{PLY} \rangle$，各阶段以流水线方式衔接：
+考虑级联式流式语音对话系统
 
-- **流式 ASR**：将用户语音流转写为**确定性文本片段**（final segment）序列 $U = \langle u_1, u_2, \dots \rangle$。片段一经产出即不再修正（区别于可撤销的 partial transcript），这是下游增量预填充可行的前提。
-- **LLM**：维护对话上下文的 KV 缓存 $\mathcal{K}$。用户片段 $u_i$ 到达即增量预填充（prefill）；回复以自回归方式逐 token 生成，产出 assistant token 序列 $Y = \langle y_1, \dots, y_G \rangle$，其中 $G$ 为本轮生成总数。
-- **断句器 CHK**：将 token 流切分为句子片段（fragment）序列 $F = \langle f_1, \dots, f_m \rangle$。每个片段对应一个 token 区间：
+$$
+\mathcal{S}=\langle \mathrm{ASR},\mathrm{LLM},\mathrm{CHK},\mathrm{TTS},\mathrm{PLY}\rangle,
+$$
 
-$$f_j \mapsto [\mathrm{ts}(f_j),\ \mathrm{te}(f_j)) \subseteq [0, G),\qquad \mathrm{ts}(f_1)=0,\quad \mathrm{ts}(f_{j+1})=\mathrm{te}(f_j)$$
+其中各模块按流水线衔接。
 
-  即片段区间无缝衔接、共同覆盖 $[0, \mathrm{te}(f_m))$。片段是本文**截断操作的原子单位**。
-- **流式 TTS**：以完整句子片段为输入、流式输出音频块（chunk）。片段 $f_j$ 的音频占据累积播放时间轴上的采样区间 $[\mathrm{ss}(f_j), \mathrm{se}(f_j))$（单位：采样点，采样率 $r$）。
-- **播放器 PLY**：顺序播放音频块，并持续回报**已播放采样数** $p \in \mathbb{N}$（计数语义：$p$ 表示采样区间 $[0, p)$ 已被用户听到）。
+- **流式 ASR** 将用户语音转写为稳定文本段序列 $U=\langle u_1,u_2,\ldots\rangle$。本文下游仅接收不再修正的 final segment，而不直接消费可撤销的 partial transcript。
+- **LLM** 维护对话上下文的 KV 缓存 $\mathcal{K}$。用户文本段到达后增量预填充，assistant 回复以零起始的 token 序列 $Y=\langle y_0,\ldots,y_{G-1}\rangle$ 逐步生成。
+- **断句器 CHK** 将 assistant token 流切分为 TTS 文本片段 $F=\langle f_1,\ldots,f_m\rangle$。每个片段关联一个左闭右开的 token 区间：
 
-**实现注记**：ASR final 片段机制沿用一期工作（前缀/后缀滑窗）；片段-token 区间由非空白字符计数对齐算法维护（`sentence_chunker.py`），切分经验证严格无损。
+$$
+f_j\mapsto[\operatorname{ts}(f_j),\operatorname{te}(f_j)),\qquad
+\operatorname{ts}(f_1)=0,\quad
+\operatorname{ts}(f_{j+1})=\operatorname{te}(f_j).
+$$
 
-### 3.1.2 三个进度指针及其不一致性
+  本文以 TTS 文本片段作为历史裁剪的原子单位。
+- **流式 TTS** 接收完整文本片段并输出一个或多个音频块。片段 $f_j$ 在累计音频轴上占据采样区间 $[\operatorname{ss}(f_j),\operatorname{se}(f_j))$，采样率记为 $r$。
+- **播放器 PLY** 顺序消费音频块并维护已播放采样计数 $p\in\mathbb{N}$。$p$ 采用计数语义，即采样区间 $[0,p)$ 已被播放。
 
-在任一时刻 $t$，系统中并存三个对同一回复的进度度量：
+本文固定使用“ASR 稳定文本段”表示 $u_i$，使用“TTS 文本片段”表示 $f_j$，以避免两类片段混淆。
 
-| 指针 | 含义 | 粒度 |
-|---|---|---|
-| 生成指针 $g(t)$ | LLM 已生成的 token 数 | token |
-| 合成指针 $s(t)$ | TTS 已完成合成的最后片段的区间端点 $\mathrm{te}(\cdot)$ | 片段 |
-| 播放指针 $p(t)$ | 已播放采样数（经 3.3 节反向映射可解析为 token 位置） | 采样点 |
+### 3.1.2 异构进度及其关联
 
-由于生成快于合成、合成快于实时播放，且播放器存在缓冲，三者满足**单向滞后不变式**：
+在时刻 $t$，系统同时维护三种原始进度：生成 token 端点 $G(t)$、已登记到 TTS/播放时间轴的最大文本片段 token 端点 $S(t)$，以及播放采样计数 $p(t)$。三者分别处于 token 域和采样域，不能直接写成 $p(t)\leq S(t)\leq G(t)$。
 
-$$p(t) \;\le\; s(t) \;\le\; g(t)\qquad \forall t. \tag{3-1}$$
+系统只把播放位置映射到**命中的 TTS 文本片段**，并以该片段的 token 末端作为保留边界 $\widehat H(p)$。在“播放器只消费已登记片段、片段按生成顺序入队”的假设下，比较对象均转换为 token 端点后有
 
-**问题根源**：当用户在播放中途打断（barge-in）时，若系统以 $g$（已生成）或 $s$（已合成）为界决定"哪些内容进入对话历史"，历史中将包含用户从未听到的内容——后续轮次中模型可能引用它们（"正如我刚才提到的……"），造成**用户感知不一致**。式 (3-1) 表明该差距结构性存在于级联架构：端到端帧同步模型（如 Moshi）因"生成即播放"使三指针合一而回避此问题，级联架构则必须显式管理。三指针与听到边界的关系如图 3-1 所示。
+$$
+\widehat H(p(t))\leq S(t)\leq G(t). \tag{3-1}
+$$
+
+式（3-1）描述的是本文系统中的顺序约束，而不是对所有 TTS 实现和流控状态无条件成立的物理定律。只要打断时 $\widehat H(p)<G$，按生成边界保留历史就可能纳入尚未播放的内容。
+
+端到端帧同步模型可以减少独立 TTS 引入的错位，但网络和播放缓冲仍可能使模型产出与实际听到位置不同；因此本文不将“端到端”简单等同于三种进度完全一致。
 
 ![图 3-1](figures/fig3_1.png)
 
-**图 3-1　三进度指针与听到边界示意**（打断时刻播放指针 p 落于片段 f₃ 内：听到边界 H(p)=te(f₃) 按片段级向上取整；ε(p) 为片段粒度量化误差（定义 3.3）；p 与 g 之间为用户未听到的已生成内容，若计入历史即构成引用风险）
+**图 3-1　三种异构进度与片段级保留边界。** 播放采样位置 $p$ 落在片段 $f_3$ 内，片段级保留边界吸附到 $\widehat H(p)=\operatorname{te}(f_3)$。片段中尚未播放的文本尾部由定义 3.3 的字符比例—空白边界代理估计。
 
-## 3.2 用户感知一致性
+## 3.2 播放位置与片段级历史对齐
 
-**定义 3.1（听到边界）**　设打断发生时播放指针为 $p$，且 $p$ 落于片段 $f_k$ 的采样区间内（$\mathrm{ss}(f_k) < p \le \mathrm{se}(f_k)$）。**听到边界**定义为
+**定义 3.1（片段级保留边界）**　若 $p$ 落在片段 $f_k$ 的采样区间内，即
 
-$$H(p) \;=\; \mathrm{te}(f_k),$$
+$$
+\operatorname{ss}(f_k)<p\leq\operatorname{se}(f_k),
+$$
 
-即被打断的片段整体计入"已听到"（片段级向上取整）。当 $p = \mathrm{se}(f_k)$ 时称**干净边界**（clean boundary），否则称**半截片段**（partial，$p < \mathrm{se}(f_k)$）。
+则定义
 
-**定义 3.2（用户感知一致性）**　对话历史（及其 KV 表示）满足用户感知一致性，当且仅当被打断轮的 assistant 内容在历史中的保留范围恰为 $[0, H(p))$：
+$$
+\widehat H(p)=\operatorname{te}(f_k). \tag{3-2}
+$$
 
-$$\mathcal{H}_{\text{ours}} \;=\; \langle y_1, \dots, y_{H(p)} \rangle. \tag{3-2}$$
+若 $p=\operatorname{se}(f_k)$，打断发生在干净片段边界；若 $p<\operatorname{se}(f_k)$，则当前片段只播放了一部分。式（3-2）选择把命中片段整体保留在历史中，从而避免在缺少片段内文本—音频对齐时裁剪到任意 token。
 
-作为对照，朴素做法保留全部已生成内容 $\mathcal{H}_{\text{gen}} = \langle y_1, \dots, y_G \rangle$，其中 $y_{H(p)+1}, \dots, y_G$ 为用户未听到却进入历史的部分（第六章 E3 量化其危害）。
+当 $p=0$ 时，表示推测内容尚未播出，定义 $\widehat H(0)=0$。若播放位置越过全部已登记音频，则边界钳制到最后一个具有音频记录的片段末端；仅当本轮全部 assistant 内容均已登记时，该端点才等于本轮 assistant 结束位置。
 
-**定义 3.3（片段粒度量化误差）**　半截片段场景下，记 $p^\ast$ 为 $p$ 在片段 $f_k$ 内按播放比例对应的 token 位置。选取片段级向上取整（定义 3.1）意味着未播出的片段尾部 $y_{p^\ast+1}, \dots, y_{H(p)}$ 计入历史但未被完整听到，称
+**定义 3.2（片段级历史对齐）**　设本轮 assistant 内容相对起点的保留范围为 $[0,\widehat H(p))$。若打断后对话历史及其 KV 表示只保留该范围，则称其满足片段级历史对齐：
 
-$$\varepsilon(p) \;=\; H(p) - p^\ast$$
+$$
+\mathcal{H}_{\mathrm{frag}}=
+\langle y_0,\ldots,y_{\widehat H(p)-1}\rangle. \tag{3-3}
+$$
 
-为**片段粒度量化误差**，有界于单个片段长度：$\varepsilon(p) < \mathrm{te}(f_k)-\mathrm{ts}(f_k)$。它是"以片段为截断原子"这一工程取舍（换取截断实现的简洁与 TTS 韵律完整）的代价；本文不隐藏该误差，而在第六章以 strict 口径（定义 3.8）显式量化。干净边界处 $\varepsilon = 0$——实验中边界注入组 103/103 样本的 strict 残余全为零，验证该语义在真实数据上精确成立。
+作为对照，按生成位置保留的历史为 $\mathcal{H}_{\mathrm{gen}}=\langle y_0,\ldots,y_{G-1}\rangle$。当 $G>\widehat H(p)$ 时，区间 $[\widehat H(p),G)$ 对应完整未播放片段或其后续内容。
 
-**两类截断事件**：
+需要强调，式（3-3）保证的是**片段操作语义下的对齐**，而非与连续物理播放内容逐 token 严格相等。本文实现没有 TTS 词级 duration 或强制对齐，因而不能从播放采样数得到真实 token 播放位置。
 
-1. **播放期打断**（barge-in）：$p > 0$，按式 (3-2) 截断到 $H(p)$；
-2. **推测作废**（speculation invalidation）：推测生成尚未播出任何音频（$p = 0$）时用户继续说话，整段推测输出作废，历史回滚到本轮 assistant 起点（等价于 $H = 0$）。
+**定义 3.3（字符比例—空白边界代理）**　当 $p$ 命中片段 $f_k$ 且只播放了该片段的一部分时，定义片段内播放比例
 
-## 3.3 反向映射与截断合法性
+$$
+\alpha(p)=\frac{p-\operatorname{ss}(f_k)}{
+\operatorname{se}(f_k)-\operatorname{ss}(f_k)}.
+$$
 
-**定义 3.4（反向映射）**　给定播放采样数 $p$，反向映射
+设片段文本长度为 $L_k$ 个字符，先计算原始字符切点
 
-$$\Phi:\; p \;\xrightarrow{\ \text{音频块}\ }\; f_k \;\xrightarrow{\ \text{片段}\ }\; [\mathrm{ts}(f_k), \mathrm{te}(f_k)) \;\xrightarrow{\ \text{token}\ }\; H(p)$$
+$$
+c_{\mathrm{raw}}=\operatorname{round}\bigl(\alpha(p)L_k\bigr),
+$$
 
-将播放位置解析为 KV 截断点。$\Phi$ 须在打断到达时以近常数开销完成——它位于"打断即停"的关键路径上（第六章 A1 实测 $\Phi$ 与截断合计 0.31–0.34 ms，与上下文长度无关）。支撑 $\Phi$ 的四向映射数据结构（token ↔ 片段 ↔ 音频块 ↔ 播放进度）为第四章 4.2.1 节内容。
+再将其向前移动到最近的空白边界，得到 $c_{\mathrm{ws}}$。文本后缀
 
-**定义 3.5（截断合法性）**　设本轮 assistant 内容在 KV 中的起始位置为 $a_0$，截断至绝对位置 $N = a_0 + H(p)$。截断操作合法，当且仅当操作完成后：
+$$
+W_{\mathrm{tail}}(p)=f_k[c_{\mathrm{ws}}:L_k] \tag{3-4}
+$$
 
-1. **长度一致**：KV 张量、注意力掩码与记录的序列长度三者相等（$|\mathcal{K}| = |\mathrm{mask}| = N$）；
-2. **位置连续**：后续追加内容的位置编码自 $N$ 起连续；
-3. **角色合法**：在截断点重建对话角色边界（注入 assistant 关闭、user 开启的模板标记），使后续轮次的 prompt 结构与 chat template 一致。
+作为命中片段尚未播放部分的代理。该口径是**字符比例—空白边界近似**，既不是音素/词级对齐真值，也不是 token 域线性插值。它只用于第六章分析片段级向上吸附可能带来的文本尾部风险。
 
-条件 2、3 是工程实现的主要陷阱所在（第四章 4.2.2–4.2.3 详述）；三项不变式的运行时检查贯穿本文全部实验。
+本文包含两类状态修正事件：播放期用户打断按 $\widehat H(p)$ 保留历史；未播出的推测结果作废时，缓存回滚到本轮 assistant 起点，对应 $p=0$ 和 $\widehat H=0$。
+
+## 3.3 反向查询与 KV 状态合法性
+
+**定义 3.4（播放位置反向查询）**　给定播放采样数 $p$，关联时间轴执行
+
+$$
+\Phi:p\longrightarrow
+f_k\ \text{s.t.}\ \operatorname{ss}(f_k)<p\leq\operatorname{se}(f_k)
+\longrightarrow[\operatorname{ts}(f_k),\operatorname{te}(f_k))
+\longrightarrow\widehat H(p). \tag{3-5}
+$$
+
+时间轴记录片段关联的 `chunk_ids`，但当前反查按片段聚合采样区间定位，并不从采样位置解析到某个具体音频块。$\Phi$ 也不是四层之间的可逆双射，而是由片段记录维护的关联与反向索引。
+
+设当前 assistant 内容在整段 KV 序列中的绝对起点为 $a_0$，裁剪位置为
+
+$$
+N=a_0+\widehat H(p).
+$$
+
+状态恢复分为两个阶段。
+
+**定义 3.5（裁剪阶段合法性）**　裁剪至 $N$ 后，应满足：
+
+1. KV 序列长度与注意力掩码长度均为绝对端点 $N$；本轮 assistant token 账本长度为 $N-a_0=\widehat H(p)$；
+2. 被移除的 assistant token 不再出现在 KV、掩码所覆盖的序列和 assistant token 账本中；
+3. 下一次预填充使用裁剪后的 past length 构造连续位置编码。
+
+**定义 3.6（角色恢复阶段合法性）**　设 assistant 关闭和下一轮 user 开启所需的模板串包含 $q$ 个 token。该串预填充后，KV 与注意力掩码的绝对端点均为 $N+q$；角色串不计入本轮 assistant token 账本，账本仍保存 $\widehat H(p)$ 个 assistant token。下一轮 user 文本从位置 $N+q$ 开始。
 
 ## 3.4 评测指标
 
-以下指标均在**确定性打断注入协议**下测量：打断以程序注入于受控播放比例 $\{25\%, 50\%, 75\%\}$ 及干净边界（对照组），"用户听到的内容"以注入时刻的播放指针为真值，实验完全可复现。
-
 ### 3.4.1 延迟指标
 
-**定义 3.6（TTFT 双口径）**
+**推测触发到首 token 延迟 $\mathrm{TTFT}_{\mathrm{spec}}$**：推测阈值被触发到推测生成产生首 token 的墙钟时间。该指标描述触发—生成链路，不表示内容已经获准播出。
 
-- $\mathrm{TTFT}_{\text{text}}$：软触发提交时刻 → LLM 首 token，度量触发-生成链路本身；
-- $\mathrm{TTFT}_{\text{eff}}$：**用户真实说完时刻** → 首个可用 token。推测生成存活时已就绪 token 使 $\mathrm{TTFT}_{\text{eff}} \approx 0$。这是用户体感口径，为本文主报口径。
+**有效首 token 延迟 $\mathrm{TTFT}_{\mathrm{eff}}$**：用户话轮真值终点到首个可继续使用的 assistant token 的时间。当提前生成结果在真值终点被接受时，已有 token 可使该值接近零。本文实验中的接受由真值终点触发，因而该指标属于受控模拟口径。
 
-**mouth-to-ear 延迟**：用户说完 → 听到首块音频，建模为"首个句子片段就绪时刻 + TTS 首块合成延迟"，其中 TTS 时序画像取实测值（报告时注明建模属性与硬件条件）。
+**mouth-to-ear 延迟**：用户话轮结束到首块音频可播放的时间。第六章将 LLM 计算墙钟时间与 TTS 真机画像组合建模；该数值不是实际音频闭环的端到端实测。
 
-**定义 3.7（barge-in 响应延迟）**　打断信号到达 → 播放停止且 KV 截断完成，即 $\Phi$ 与截断的关键路径耗时。角色重建（条件 3）不在关键路径上：它可延迟至下一轮用户输入到达前执行，不影响"打断即停"的体感。
+**KV 裁剪操作延迟 $L_{\mathrm{crop}}$**：孤立执行缓存裁剪的墙钟时间。A1 另将 crop 中位数与角色恢复中位数相加，作为两个组件耗时之和与重新预填充比较；该和不是联合路径逐次计时所得的中位数。实际打断响应还应包含播放器停播、队列清理、$\Phi$ 查询、服务通信和线程调度，本文没有在真实异步播放链路上联合测得这一总延迟。
 
 ### 3.4.2 一致性指标
 
-**定义 3.8（未听内容引用率，loose/strict 双口径）**　设打断轮"未听但入史"的文本为 $W$，其后各轮回复为 $R$。未听内容引用率为后续回复引用 $W$ 中特有信息的样本比例。$W$ 按两种口径：
+设按某种边界进入历史但未向用户完整播放的文本为 $W$，其后两轮回复集合为 $R$。本文记录后续回复是否复现 $W$ 中的信息，并采用两种边界口径。
 
-- **loose（片段级）**：$W_{\text{loose}}$ 为完整未听片段中进入历史的部分。按定义 3.2，本文方法下 $W_{\text{loose}} = \varnothing$，loose 引用率**恒为零——这是机制的构造性保证，而非实验发现**；该口径下实验量化的是对照方法的失败率。
-- **strict（严格播放真值）**：$W_{\text{strict}}$ 另含半截片段的未播尾部（定义 3.3 的 $\varepsilon$ 所对应文本），量化片段粒度量化误差的实际后果。
+- **片段口径（loose）**：$W_{\mathrm{frag}}$ 只包含进入历史的完整未播放片段。按定义 3.2，本文方法下 $W_{\mathrm{frag}}=\varnothing$，因此相应引用率为构造性零；实验主要估计按生成位置保留历史的对照失败率。
+- **字符比例—空白边界近似口径（proxy）**：$W_{\mathrm{proxy}}$ 还包含式（3-4）的命中片段文本尾部。该口径比片段口径纳入更多候选文本，但不是真实播放边界。
 
-引用判定采用**双检测器**并报告其一致性（Cohen's $\kappa$）：规则检测器基于词面线索匹配，系统性偏高（上界）；LLM 裁判判定特有信息引用，相对保守（下界）；真值介于两者之间，另以人工小样本校验（第六章方法学讨论）。
+引用判定使用两种代理：词面检测器用于高敏感度筛查，异构 LLM 裁判用于较保守的特定信息判断。二者均可能产生误报或漏报，不能预设为数学上的上界和下界；人工分层样本仅用于描述其差异，不能无条件外推到总体。
+
+同时，本文区分“未播放内容进入历史”这一结构合规问题和“后续回复复现特定信息”这一语义后果。前者可由缓存边界和 $W$ 的长度直接检查，后者只能由规则、模型或人工代理估计。
 
 ### 3.4.3 效率指标
 
-**定义 3.9（推测浪费率）**
+推测浪费率定义为
 
-$$\rho \;=\; \frac{\sum \text{被作废的推测 token 数}}{\sum \text{被作废的推测 token 数} + \sum \text{最终生成 token 数}}.$$
+$$
+\rho=\frac{\sum\text{作废的推测 token 数}}
+{\sum\text{作废的推测 token 数}+\sum\text{最终生成 token 数}}. \tag{3-6}
+$$
 
-**KV 复用率**：截断事件中保留（复用）的 KV token 数占"复用 + 重算"之比；朴素截断与标记法下为 1，重写法下小于 1（被打断 assistant 段以重写文本重算）。
+不同推测阈值 $\theta$ 对应离散工作点
 
-**核心权衡曲线**：软触发推测阈值 $\theta$ 扫描下的 $(\rho(\theta),\ \mathrm{TTFT}_{\text{eff}}(\theta))$ 前沿——$\theta$ 越低（激进）浪费越高而延迟趋零，越高（保守）反之。该曲线刻画"以冗余计算换交互流畅度"的可调空间，是推测生成调度机制（贡献 1）的核心产出（第六章 E2）。
+$$
+\bigl(\rho(\theta),\mathrm{TTFT}_{\mathrm{eff}}(\theta)\bigr).
+$$
 
-### 3.4.4 指标—实验对应
+阈值降低通常提高提前生成覆盖率，也可能增加作废计算。有限个测试点只能支持总体权衡趋势，不自动构成连续或严格单调的 Pareto 前沿。
 
-| 指标 | 定义 | 实验 |
+KV 复用收益通过“重新预填充耗时与 crop、角色恢复两个组件中位数之和的比值”描述。为避免口径混淆，本文分别报告 crop-only、角色恢复、二者中位数之和及重新预填充耗时。
+
+### 3.4.4 指标与实验对应关系
+
+| 研究问题 | 主要指标 | 实验 |
 |---|---|---|
-| $\mathrm{TTFT}_{\text{eff}}$、mouth-to-ear | 3.6 | E1 |
-| $(\rho, \mathrm{TTFT}_{\text{eff}})$ 权衡曲线 | 3.9 | E2（阈值扫描兼消融 A3） |
-| 未听内容引用率（loose/strict） | 3.8 | E3（主结果） |
-| barge-in 响应延迟、KV 复用收益 | 3.7 | A1 |
-| 历史处理策略连贯性 | 3.8 辅 | A2 |
+| 播放感知历史是否减少未播放信息复现 | 片段口径、字符比例—空白边界近似口径 | E3 |
+| 推测阈值如何影响计算与响应 | $\rho$、$\mathrm{TTFT}_{\mathrm{eff}}$ | E2（同时作为 A3） |
+| 组合系统在受控文本输入下的响应差异 | TTFT、建模 mouth-to-ear | E1 |
+| KV 状态复用是否降低恢复计算 | crop、角色恢复组件耗时及重新预填充耗时 | A1 |
+| 三种历史处理策略的描述性表现 | 连贯性评分、重写耗时 | A2 |
 
-## 本章小结
+## 3.5 本章小结
 
-本章将级联流水线中"生成—合成—播放"三进度指针的单向滞后不变式 (3-1) 确立为用户感知不一致的结构性根源；以"听到边界"（定义 3.1）给出用户感知一致性的操作性定义 (3-2)，并显式定义片段粒度量化误差（定义 3.3）而非将其隐藏；将打断处理归约为反向映射（定义 3.4）与合法截断（定义 3.5）两个子问题；最后给出延迟、一致性（loose/strict 双口径 + 双检测器）与效率三类指标的可复现定义。第四章据此给出系统设计与方法，第六章按 3.4.4 节的对应关系报告结果。
+本章首先避免在不同量纲之间直接比较进度，使用片段级保留边界 $\widehat H(p)$ 将播放采样位置解析为 token 端点；随后将本文保证限定为片段操作语义下的历史对齐，并按代码真实实现定义字符比例—空白边界代理。KV 修正被拆为裁剪和角色恢复两个阶段，assistant token 账本保持本轮相对长度语义。最后，本章区分墙钟实测、孤立微基准、组件中位数之和、TTS 画像建模和构造性结果，为第六章限制结论强度提供统一口径。
 
 
 ---
-
-
 
 # 第四章 方法设计
 
-> 初稿（2026-07-17）。符号沿用第三章；与实现的对应关系集中在第五章，本章只在必要处给实现注记。
-> 结构对齐 `paper2/outline.md`：4.1 推测生成调度（贡献1，辅助）、4.2 播放感知 KV 缓存管理（贡献2，核心）、4.3 历史处理策略（贡献3，探索）。
+## 4.1 总体设计
 
----
-
-## 4.0 总体设计
-
-本文系统在一期"流式 ASR + LLM 增量 KV 预填充"流水线之上，新增输出侧三级流水（断句 → 流式 TTS → 播放）与两个控制机制，构成完整闭环，总体架构如图 4-1 所示。
+本文在一期“流式 ASR 稳定文本段—LLM 增量 KV 预填充”流水线之上，增加输出断句、流式 TTS、播放时间轴和打断状态修正，形成图 4-1 所示闭环。
 
 ![图 4-1](figures/fig4_1.png)
 
-**图 4-1　系统总体架构**（上：输入流水线与软触发驱动的推测生成【4.1，贡献 1】；中：输出三级流水与四向映射时间轴【4.2.1】；下：打断链路——反查 Φ(p) → KV 截断＋角色重建【4.2，贡献 2】→ 历史策略【4.3，贡献 3】）
+**图 4-1　系统总体架构。** 输入侧以稳定 ASR 文本段驱动增量预填充和提前生成；输出侧将 token 流切分为 TTS 文本片段并登记音频块；打断侧依据播放采样位置查询片段级保留边界，执行 KV 裁剪和角色恢复，并可选用历史自然化策略。
 
-设计遵循两条原则：**(P1) 对话历史 = 用户实际听到的内容**（该原则本身已见于商用系统，见第二章；本文给出其在开源级联栈上的显式 KV 机制实现）；**(P2) 以冗余计算换交互流畅度**，且冗余可测、可调（3.4.3 节浪费率与权衡曲线）。
+系统遵循两项设计原则。第一，打断后的历史只保留到片段级播放边界；该高层原则已有工程先例，本文实现其显式 KV 状态路径。第二，提前生成的冗余必须可回滚、可计量和可由阈值调节。
 
-## 4.1 推测生成调度（贡献 1）
+## 4.2 可作废的推测生成调度
 
-### 4.1.1 软触发的两阈值机制
+### 4.2.1 单一推测阈值与接受语义
 
-传统端点检测输出二值决策，误判即造成"抢答"或"迟钝"。本文以现成的 turn 检测模型（TEN Turn Detection）输出连续置信度 $c_i = \mathrm{conf}(u_1 \dots u_i) \in [0,1]$，配两个阈值：
+传统端点检测给出二元结果，误判会表现为抢答或迟延。本文使用 TEN Turn Detection 输出连续置信度
 
-- **推测阈值 $\theta$**（激进）：$c_i \ge \theta$ 即启动**推测生成**——注入 assistant 角色标记并预生成至多 $B$ 个 token（$B$ 为推测预算，限制单次作废成本；不用 $\kappa$ 以免与 Cohen's $\kappa$ 混淆）；
-- **提交语义**：确定性协议下以用户真实说完为提交事件；实际部署中可另设保守阈值控制 TTS 播出时机（播出前的推测对用户不可见，作废零感知）。
+$$
+c_i=\operatorname{conf}(u_1\cdots u_i)\in[0,1],
+$$
 
-软触发为文本侧模型，其推理与该片段的 KV prefill **并行执行**（prefill 是既有开销），故触发判断不增加端到端延迟。
+并以单一推测阈值 $\theta$ 控制提前生成。当 $c_i\geq\theta$ 时，系统记录当前缓存端点，注入 assistant 开始标记，并预生成不超过预算 $B$ 的 token。$B$ 限制单次误触发的计算成本。
 
-### 4.1.2 推测-作废状态机
+本文实验驱动程序在用户话轮真值终点接受仍然存活的推测结果。真值终点是实验事件，不是第二个学习阈值。面向在线部署时，可以另设更保守的播出门控，决定候选回复何时进入 TTS；本文未对这一门控进行实验，因此不把它作为已验证机制。
 
-对每个到达的用户片段 $u_i$：
+话轮置信度计算与当前文本段的增量预填充在目标架构中可以并发，但“可以并发”并不等于无条件零开销。实际能否掩蔽触发模型延迟取决于资源隔离、调度和两条计算链的完成时序。
 
-1. **作废**（若存在活跃推测）：新片段到达意味着用户仍在说话、早前触发是误判 → 将 KV 截断回推测起点 $b$（user 内容末尾、assistant 标记之前），推测产出计入浪费；
-2. **prefill** $u_i$（user 角色保持打开，增量累积）；
-3. **评估** $c_i$；$c_i \ge \theta$ → 记录推测起点 $b := |\mathcal{K}|$，注入 assistant 标记，预生成 $\le B$ token 并缓存。
+### 4.2.2 推测—作废状态机
 
-用户真实说完时：若有存活推测，缓存 token 立即可用（$\mathrm{TTFT}_{\text{eff}} \approx 0$），继续生成余量；否则现场触发生成（支付全额 TTFT）。存活的推测正是"最后一个片段触发、其后再无语音"的那次——其计算被端点静默窗掩盖。作废的正确性依赖 4.2.2 节的合法截断：推测回滚是"播放期打断"的退化情形（$p=0$，历史回滚到 $H=0$）。
+对每个到达的 ASR 稳定文本段 $u_i$，系统执行以下步骤。
 
-推测-作废状态机如图 4-2 所示。该机制把端点判断从硬决策转化为可调旋钮：$\theta$ 扫描给出 $(\rho, \mathrm{TTFT}_{\text{eff}})$ 权衡前沿（6.3 节），系统按算力预算选择工作点。
+1. 若存在活跃推测，则新文本段表明用户仍在说话。系统把 KV、掩码和 token 账本裁剪回推测起点，记录作废 token 数。
+2. 在保持 user 角色打开的状态下增量预填充 $u_i$。
+3. 计算 $c_i$；若达到阈值，则记录新的推测起点，切换到 assistant 角色并生成至多 $B$ 个候选 token。
+4. 用户话轮真值终点到达时，若候选仍有效，则从缓存 token 继续生成；否则现场开始生成。
 
 ![图 4-2](figures/fig4_2.png)
 
-**图 4-2　推测-作废状态机**（新片段到达即作废活跃推测并将 KV 截断回推测起点 b；用户真实说完且推测存活时，缓存 token 立即输出，TTFT$_{eff}$ ≈ 0）
+**图 4-2　推测—作废状态机。** 新文本段到达会使先前候选作废并回滚至推测起点；真值话轮终点接受仍然存活的候选。该过程属于交互时序推测，不是 speculative decoding。
 
-## 4.2 播放感知的 KV 缓存管理（贡献 2，核心）
+阈值扫描得到有限个 $\bigl(\rho,\mathrm{TTFT}_{\mathrm{eff}}\bigr)$ 工作点。它用于描述当前实验驱动程序中的总体计算—响应权衡，而不预设曲线严格单调或能够直接外推到异步在线系统。
 
-### 4.2.1 四向映射时间轴
+## 4.3 播放感知的 KV 缓存管理
 
-反向映射 $\Phi$（定义 3.4）由**播放时间轴**（PlaybackTimeline）支撑：以片段记录为主轴的追加式结构，每条记录维护
+### 4.3.1 片段关联时间轴
 
-$$\langle \text{片段 } f_j,\ \text{token 区间 } [\mathrm{ts}, \mathrm{te}),\ \text{音频块列表},\ \text{采样区间 } [\mathrm{ss}, \mathrm{se}),\ \text{状态} \rangle,$$
+反向查询 $\Phi$ 由 `PlaybackTimeline` 支撑。每条片段记录包含
 
-状态机为 推测 → 合成中 → 已入队 → 播放中 → 已播完 / 已作废。三个生产者分别写入自己的映射维度（生成线程写 token↔片段、TTS 线程写片段↔音频块并推进采样轴、播放线程原子更新已播采样数 $p$），打断到达时反查按采样区间定位片段（计数语义 $\mathrm{ss} < p \le \mathrm{se}$，边界处恰好判为"完整听完"）。片段数为轮级小量，全表单锁 + 播放游标无锁即满足亚毫秒反查（6.5 节）。时间轴结构与反查过程如图 4-3 所示。
+$$
+\langle f_j,[\operatorname{ts},\operatorname{te}),
+\text{音频块列表},[\operatorname{ss},\operatorname{se}),\text{状态}\rangle.
+$$
+
+生成侧写入 token 区间，TTS 侧附加音频块并推进累计采样轴，播放器维护已播放采样计数。打断到达时，时间轴依据采样区间定位当前片段，并返回 $\widehat H(p)=\operatorname{te}(f_k)$。这种结构更准确地说是“四层关联与反向索引”，不是四个层次之间的严格双向映射。
 
 ![图 4-3](figures/fig4_3.png)
 
-**图 4-3　四向映射时间轴与反查 Φ**（以片段记录为主轴：三个生产者线程分别写入 token 区间、音频块与采样区间维度；打断到达时按采样区间定位片段、取其 te 即得听到边界 H(p)，为纯索引操作）
+**图 4-3　片段关联时间轴与反向查询。** TTS 文本片段是 token 区间、音频块和累计采样区间的共同主键；播放位置通过片段记录解析为 KV 裁剪点。
 
-**token 区间的来源**：断句器不感知 token。本文以**非空白字符计数对齐**建立句子片段与 token 区间的映射——向断句器供给 token 文本时累计非空白字符前缀和，片段产出时按其非空白字符数在前缀和上二分定位末 token。该映射对断句器的空白归一化免疫，且可验证无损（片段拼接与解码文本的非空白字符严格守恒）。
+断句器只接收解码文本，不直接感知 token。系统为每个生成 token 累计非空白字符数；断句器产出片段后，再按片段的非空白字符长度在前缀和中定位片段末 token。该方法能够容忍空白归一化，并通过“片段拼接后的非空白字符序列等于原始解码序列”检查守恒性。
 
-### 4.2.2 合法的 KV 截断
+部署目标中，生成、TTS 和播放可以由独立执行单元并发推进。第六章多数一致性实验则使用由真机画像参数化的 Mock TTS 和模拟播放指针；两者共享接口和边界语义，但模拟不能代表真实队列、网络缓冲或停播调度。
 
-打断时刻，$\Phi(p)$ 给出听到边界 $H(p)$，KV 截断至绝对位置 $N = a_0 + H(p)$。满足定义 3.5 的三个条件需要同步维护三份状态：
+### 4.3.2 KV 裁剪
 
-1. KV 张量截断（DynamicCache 的序列维切片）；
-2. **注意力掩码同步截短至 $N$**——掩码长度是后续 past length 的事实来源，仅截 KV 不截掩码会使位置编码整体错位（一期审查确认的首要陷阱）；
-3. 序列长度与本轮 assistant token 账本同步更新，后续 prefill 的位置编码自 $N$ 起显式重算。
+时间轴返回相对边界 $\widehat H(p)$ 后，系统将其转换为绝对缓存端点 $N=a_0+\widehat H(p)$，并同步执行：
 
-截断本身是张量切片（亚毫秒），构成"打断即停"的全部关键路径开销。
+1. 调用 `DynamicCache.crop(N)` 缩短 KV；
+2. 将注意力掩码裁剪至同一端点；
+3. 裁剪本轮 assistant token 账本；
+4. 以后续缓存实际长度重算位置编码。
 
-### 4.2.3 角色边界重建
+只裁剪 KV 而不更新掩码会使后续 past length 与真实缓存长度不一致；只更新文本历史而保留旧 KV 则会使模型仍能访问被删除状态。因此三份状态必须作为一个逻辑操作维护。
 
-KV 是连续序列，角色信息仅存在于 chat template 的特殊标记中；截断落点在 assistant 内容中间，直接续写会破坏 prompt 结构。本文从 tokenizer 的 chat template 推导出**角色切换串**（如 ChatML 的 `<|im_end|>\n<|im_start|>user\n`），截断后将其作为普通文本增量 prefill 进 KV——复用与流式 prefill 完全相同的显式掩码/位置编码机制，无需特殊算子。角色重建（一次数 token 的小 prefill，数十毫秒）**不在打断响应关键路径上**：打断只需"停播 + 截断"，重建可延迟到下一轮用户输入到达前执行。
+A1 测量的 0.308–0.339 ms 仅对应孤立的 `DynamicCache.crop` 操作，不包含时间轴查询、播放器停止、线程调度或服务通信。本文不把该微基准扩展为完整打断响应延迟。
 
-截断与角色重建的完整过程如图 4-4 所示。
+### 4.3.3 角色边界恢复与多轮累积
+
+KV 是连续 token 状态，角色信息由 chat template 特殊标记表达。裁剪发生在 assistant 内容之后，下一轮 user 文本不能直接接在该位置。系统从 tokenizer 的 chat template 推导 assistant 关闭和 user 开启所需的角色切换串，并使用与普通增量预填充相同的掩码和位置编码路径写入缓存。
+
+裁剪瞬间，缓存端点为 $N$；若角色切换串长度为 $q$，预填充后端点为 $N+q$，下一轮 user 文本从 $N+q$ 开始。这一两阶段语义保证了第三章中裁剪合法性和角色合法性不相互矛盾。
 
 ![图 4-4](figures/fig4_4.png)
 
-**图 4-4　KV 截断与角色边界重建**（①打断时刻沿听到边界 crop 至 N=a₀+H(p)，未听内容随之从 KV 与历史中移除——关键路径仅此一步、亚毫秒；②角色切换串以普通文本增量 prefill 注入，不在关键路径；③下一轮 user 内容位置编码自 N 起连续）
+**图 4-4　KV 裁剪与角色边界恢复。** 第一步将 KV 和掩码裁剪至绝对端点 $N$，并将本轮 assistant token 账本裁剪至相对长度 $\widehat H(p)$；第二步预填充长度为 $q$ 的角色切换串，该串不写入 assistant token 账本；第三步从 $N+q$ 开始累积下一轮 user 内容。
 
-由此，多轮对话在单一 KV 上持续累积：user 增量 prefill → assistant 边生成边累积（生成循环将每个新 token 的 KV、掩码与 token id 写回同一缓存对象，使 assistant 侧 KV 成为可截断的一等状态——这是对一期"生成不回写"设计的关键扩展）→ 打断或说完 → 截断/收尾 → 角色重建 → 下一轮。
+一期生成循环没有把 assistant 侧新 KV 完整回写到调用方。本文使生成循环逐 token 更新 KV、注意力掩码和 assistant token 账本，从而支持多轮累积、播放期裁剪和推测作废回滚。
 
-### 4.2.4 与三条基线的对比语义
+### 4.3.4 对照条件的语义
 
-- **generation 截断**（B-gen）：保留全部已生成内容，历史含 $y_{H(p)+1..G}$ 的未听部分——6.2 节证明其半数场景引发未听内容复现；
-- **重新 prefill**（B-noKV）：放弃 KV、以文本重建历史——成本随上下文线性增长（6.5 节，8k 时 1.86 s vs 亚毫秒）；
-- **synthesis 截断**：以合成指针 $s$ 为界，在同步合成下与 generation 等价，异步流式合成下介于两者之间（本文不主张已验证）。
+- **按生成位置保留（B-gen）**：保留完整已生成回复。若 $G>\widehat H(p)$，则完整未播放片段可能进入历史。
+- **重新预填充（B-noKV）**：丢弃 KV，根据裁剪后的文本重新执行模型前向计算。该条件用于衡量缓存复用的计算收益。
+- **按合成位置保留（B-syn）**：以合成边界修正历史。在本文同步 Mock TTS 条件下，它无法与 B-gen 形成可区分时序，故不作为已验证条件。
 
-## 4.3 被打断历史的处理策略（贡献 3，探索性）
+## 4.4 被打断历史的处理策略
 
-播放感知截断使历史精确等于所听内容，但半截片段场景下历史以语义不完整的半句结尾。本文比较三种策略（均在 playback 截断之上）：
+片段级保留会把当前片段完整写入历史，其中可能包含尚未播放的尾部；此外，某些断句片段本身可能在语义上不完整。本文在同一播放感知边界之上实现三种策略。
 
-- **朴素截断**：不作处理；
-- **标记法**：在被截断内容尾部追加打断标记（如省略号），零延迟零模型成本，向模型显式提示"此处被打断"；
-- **重写法**：仅当截断落于语义不完整处（partial）时，调用轻量模型（Qwen3-0.6B）将半句改写为自然收尾版本，**约束不得新增信息**（否则历史将包含"没说过的话"，比 B-gen 更糟）；KV 层面以重写文本替换被打断的 assistant 段（截断回 $a_0$ + prefill 重写文本），复用率相应下降但重算段很短。重写与用户打断后的说话期并行，P90 延迟 <1 s 可被完全隐藏（6.6 节）。
+- **朴素策略**：直接保留片段级 assistant 前缀，不增加处理。
+- **标记策略**：在保留前缀后追加省略号等打断标记。它不调用额外模型，但仍会产生少量 tokenization 和预填充开销。
+- **重写策略**：使用 Qwen3-0.6B 将保留的 assistant 前缀自然收束，并在提示词中要求不新增事实。该要求是设计约束而非形式保证；若使用该策略，应另行检查语义保真。KV 需要回退到本轮 assistant 起点，再预填充重写文本。
 
-实验结果（6.6 节）如实报告：在 7B 主模型下三策略连贯性无显著差异，重写未表现出收益；本文将其定位为机制可行性的探索性验证。
+重写可以在用户下一轮说话期间异步执行，因此具有隐藏部分延迟的潜力；当前实现和实验并未测量真实重叠比例，不能据 P90 小于 1 s 推出延迟能够“完全隐藏”。此外，现有 A2 为三种策略分别重新采样首轮和下一轮回复，未严格隔离策略效应，故该模块只作为探索性机制报告。
 
-## 本章小结
+## 4.5 本章小结
 
-本章给出三个机制：以连续置信度与推测预算实现的**推测-作废调度**（4.1），把端点判断变为可调的浪费-延迟权衡；以四向映射时间轴、同步截断与角色重建实现的**播放感知 KV 管理**（4.2），使"历史=所听"在 KV 层面以亚毫秒关键路径成立；以及三种**被打断历史处理策略**（4.3）。三者共同实现第三章定义的用户感知一致性，其实现细节与工程验证见第五章，实验验证见第六章。
+本章给出三类方法：以单一阈值控制、可回滚的提前生成；以片段记录关联播放采样和 token 区间，并同步裁剪 KV、掩码与账本；在裁剪后恢复对话角色并可选地处理被打断历史。方法章同时区分部署目标和实验实例化，区分 crop-only 微基准与真实打断链路，并把历史重写限定为尚未获得正向实证支持的扩展。
 
 
 ---
-
-
 
 # 第五章 系统实现
 
-> 初稿（2026-07-17）。本章体现工程贡献与可复现性：模块结构、关键实现点、埋点体系、部署与验证方法学。全部代码开源于项目仓库（`paper2` 分支）。
+## 5.1 模块架构
 
----
+系统复用一期基于 Whisper[17] 的流式 ASR 和 LLM 增量预填充能力，并新增对话编排、输出断句、流式 TTS、播放状态和实验驱动程序。表 5-1 给出主要模块及其验证对象。
 
-## 5.1 总体结构与代码地图
+**表 5-1　主要模块、接口与验证对象**
 
-系统在一期代码基（`src/asr/`、`src/llm/`）上新增四个模块组，总计约 2500 行：
-
-| 模块 | 职责 | 对应方法节 |
+| 模块 | 主要职责 | 关键验证对象 |
 |---|---|---|
-| `src/dialogue/timeline.py` | 四向映射时间轴（PlaybackTimeline），反查 $\Phi$ | 4.2.1 |
-| `src/llm/stream_llm_inference.py`（扩展） | 可截断 KV 容器（AccumKVCache）、边生成边累积、合法截断、角色重建 | 4.2.2–4.2.3 |
-| `src/tts/` | 断句 + token 区间对齐（sentence_chunker）；StreamingTTS 接口、时序画像、CosyVoice2 适配 | 4.2.1 |
-| `src/dialogue/trigger.py` / `rewriter.py` | 软触发（连续置信度）；历史重写 | 4.1 / 4.3 |
-| `src/dialogue/orchestrator.py` | 编排闭环：增量输入、推测状态机、打断链路、指标埋点、截断/历史策略开关 | 全部 |
-| `experiments/scripts/` | 6 个实验 harness + 数据派生 + 阈值标定 + LLM 裁判 + TTS 画像 benchmark | 第六章 |
+| `src/dialogue/timeline.py` | 保存 TTS 文本片段、token 区间、音频块和累计采样区间；按播放位置反查 | 边界计数语义、片段状态更新、裁剪端点 |
+| `src/llm/stream_llm_inference.py` | 增量预填充、assistant 侧 KV 累积、缓存裁剪和角色恢复 | KV/掩码/账本长度一致、位置连续 |
+| `src/tts/sentence_chunker.py` | 基于 stream2sentence[21] 将 token 解码流切分为 TTS 文本片段并关联 token 区间 | 非空白字符守恒、空片段和末端钳制 |
+| `src/tts/streaming_tts.py` | 定义流式 TTS 接口、Mock TTS 与真实后端适配 | 片段—音频块归属、画像参数读取 |
+| `src/player/player.py` | 维护播放采样位置和停止接口 | 采样计数、查询与 seek 语义 |
+| `src/dialogue/trigger.py` | 计算话轮完成置信度 | 类别 token 配置、阈值触发记录 |
+| `src/dialogue/rewriter.py` | 重写被打断轮的保留前缀 | 调用耗时、输出非空和替换路径 |
+| `src/dialogue/orchestrator.py` | 串联用户输入、推测、生成、断句、TTS、打断和状态修正 | 状态机、条件开关、逐轮指标 |
+| `experiments/scripts/` | 五个二期实验驱动程序及 A3 共享扫描、裁判、画像、绘图和重分析 | 结果落盘、样本完整性和统计复算 |
 
-## 5.2 关键实现点
+上述结构把机制实现和实验实例化分开：编排器面向统一接口，实验脚本决定使用真实后端还是画像驱动的模拟后端。
 
-**可截断的 assistant 侧 KV**　一期的生成循环不将新 token 的 KV 回写调用方，无法支持截断与多轮。本文扩展为：生成循环每步将 KV、注意力掩码、token id 同步写回统一容器（AccumKVCache，显式断言 DynamicCache 类型），并记录本轮 assistant 起点 $a_0$ 与 token 账本——账本即时间轴 token 维的数据源。截断实现为 `DynamicCache.crop(N)` + 掩码切片 + 账本裁剪三者的原子组合；三份长度的一致性（定义 3.5 条件 1）以运行时不变式检查覆盖全部实验路径。
+## 5.2 片段时间轴与断句对齐
 
-**角色切换串的推导**　不硬编码模板标记：初始化时以哑消息套用 chat template，差分提取"生成提示符"（user→assistant）并变换得到 assistant→user 切换串，兼容 ChatML 系模板；注入走与流式 prefill 相同的显式掩码/位置编码路径（4.2.3）。
+`PlaybackTimeline` 以 TTS 文本片段记录为主轴。片段生成后首先登记文本和 token 区间；TTS 每产生一个音频块，就将其附加到对应片段并更新累计采样区间；播放器只维护当前已播放采样计数。打断查询读取这一计数，在片段采样区间中定位命中记录，并返回片段末 token 作为保留边界。
 
-**断句对齐的鲁棒性**　非空白字符前缀和对齐（4.2.1）之外的两个边界处理：纯空白句直接跳过（否则兜底推进会挪用下一片段首 token、使截断点偏移）；区间末端钳制到实际生成数（防越界截断）。半截片段的严格口径切分（strict）按播放采样比例切文本并吸附词边界，避免半词污染引用检测。
+计数边界采用 $[0,p)$ 已播放语义。当 $p=\operatorname{se}(f_k)$ 时，片段 $f_k$ 恰好播放完成，应保留该片段而不是落到下一片段。实现对片段中部、片段末端、首采样、空时间轴和越过末端等情况分别处理，避免大于/大于等于选择导致一个片段的偏移。
 
-**确定性实验协议**　打断由 harness 程序注入（受控播放比例/片段边界），播放器为确定性时钟：TTS 时序画像（每字符采样数、首块延迟、RTF）取真机 benchmark 值驱动模拟——所有一致性/效率结论与真机时序等价且完全可复现；mouth-to-ear 为画像建模值并如实标注（6.4 节）。
+断句器产出的是文本字符串，LLM 状态使用 token 端点。系统在逐 token 解码时累计非空白字符前缀和；文本片段产出后，用其非空白字符长度定位最后一个被覆盖的 token。该方法不假设 tokenizer 的 token 边界与标点或词边界一致，但要求片段拼接后的非空白字符序列与原始生成文本守恒。实现还跳过纯空白片段并把区间末端钳制到实际 token 数，以防空片段错误消费下一片段 token 或发生越界裁剪。
 
-**指标埋点**　每轮落盘：8 个关键时间戳（说完/触发/首 token/首块/首播/打断注入/停播/截断完成）、双口径 TTFT、推测计数与浪费、KV 复用计数、时间轴快照（token↔片段↔音频块↔采样区间全表）——第三章每个指标都能从落盘数据复算。
+并发部署时，生成侧、TTS 侧和播放侧可以分别更新记录。当前实现使用轮级小规模片段表和集中同步保证一致性；由于单轮片段数通常较小，未引入复杂的无锁索引。第六章没有在高并发负载下测量该结构的尾延迟，因此本文只将其描述为功能实现，不声称其在任意并发规模下保持常数性能。
 
-## 5.3 部署
+## 5.3 KV 状态操作
 
-| 角色 | 型号 | 规模 | 部署 |
-|---|---|---|---|
-| 主 LLM | Qwen2-7B-Instruct | 7B | 卡 0（~14 GB + KV） |
-| 软触发 | TEN Turn Detection | **7.6B** | 卡 1（~15 GB） |
-| 历史重写 | Qwen3-0.6B | 0.6B | 卡 1 |
-| LLM 裁判（仅评测） | Mistral-7B-Instruct-v0.3 | 7B | 卡 1（分时） |
-| 流式 TTS | CosyVoice2 | 0.5B | 卡 1（独立环境，torch 版本与主环境隔离） |
+一期生成循环的调用方只持有用户侧预填充得到的缓存，assistant 生成 token 的 KV 未持续写回，因而无法支持播放期裁剪。本文增加可累积的缓存容器：每次生成后同步更新 `DynamicCache`、注意力掩码和本轮 assistant token 账本，并记录 assistant 内容的绝对起点 $a_0$。
 
-三个 LLM 实例独立部署、不复用权重，模拟真实多服务工程。全部模型配置经环境变量集中管理，验证环境（0.5B 开发替身）与实验环境（上表）切换零改码。
+裁剪操作由三步组成：调用 `DynamicCache.crop(N)`，裁剪注意力掩码，并将 assistant token 账本缩短至同一端点。每次操作后检查三者长度；后续预填充直接读取新的 past length 构造位置编码。该实现把缓存视为受约束的状态组合，而不是只操作 KV 张量。
 
-## 5.4 验证方法学
+角色恢复不硬编码固定字符串。系统以 tokenizer 的 chat template 对哑消息进行格式化，通过差分提取 user 到 assistant 的生成提示和 assistant 到 user 的角色切换片段。裁剪完成后，角色切换串作为普通 token 序列走增量预填充路径。由于不同模型模板并非都与 ChatML 同构，当前适配范围应限定为能够可靠提取相应边界串的模板；“适用于任意因果语言模型”的表述并不成立。
 
-代码可信度依三道防线建立：(i) **组件级 smoke 测试**九套（时间轴边界语义、KV 三长度不变式、断句守恒、推测状态机、端到端打断链路等），全部随实验环境回归；(ii) **两轮对抗式代码审查**——第一轮发现三个将污染实验数字的缺陷（E3 指标口径、E1 对照公平性、断句越界）并修复，第二轮验证修复并清理五个次要项，全程记录于决策日志；(iii) **数据级验证**——干净边界注入组 103/103 样本 strict 残余为零（6.2 节），从实验数据侧印证截断语义实现正确。
+推测作废复用同一裁剪接口，只是目标点为推测开始前的缓存端点。播放期打断和未播推测作废因而共享长度不变式，但两者的保留边界来源不同：前者由时间轴反查，后者由推测状态机直接记录。
 
-## 本章小结
+## 5.4 编排与实验记录
 
-本章给出系统的模块结构与四个关键实现点（可截断 KV、角色串推导、断句鲁棒性、确定性协议），以及部署配置与三道验证防线。实现总量约 2500 行、全部开源，支撑第六章全部实验的可复现性。
+`DialogueOrchestrator` 提供两条主要路径：一次性用户文本路径用于非流式对照；增量文本段路径用于推测阈值扫描。输出侧逐 token 生成，断句器产出 TTS 文本片段，TTS 后端登记音频块和采样区间，随后按实验条件注入打断并选择 playback 或 generation 历史策略。
+
+实验中的 Mock TTS 由 CosyVoice2 六句真机画像参数化，使用每非空白字符采样数、首块延迟和实时率构造确定性时长近似。它能够统一控制播放比例，并保留平均时长尺度，但不等价于真实异步合成、网络传输、音频缓冲、停播延迟和线程唤醒。mouth-to-ear 结果因此属于“计算时间与 TTS 画像组合建模”，而不是完整音频闭环的墙钟实测。
+
+编排器定义用户话轮结束、触发、首 token、首 TTS 块、首播、打断注入、停播和 KV 裁剪完成等时间戳，并维护推测计数、作废 token、KV 保留量和时间轴快照。E3 保存了较完整的逐场景时间轴和时间戳；E1、E2、A1 和 A2 只保存各自主指标子集。因此，不能概括为“所有实验均保存全部埋点、所有指标均可从原始记录复算”。
+
+为保护原始 GPU 输出，本研究新增 `experiments/scripts/reanalyze_paper2_results.py`，在不修改原始 JSON 的前提下排除开发 fixture，重算 E1 描述统计、E2 正式工作点、E3 配对检验与按对话聚类置信区间、A1 两种加速口径和 A2 输入一致性诊断。派生结果独立保存为 `experiments/results/paper2_reanalysis.json`。
+
+## 5.5 部署、验证与可复现性
+
+正式实验使用两张 NVIDIA RTX 3090。主模型 Qwen2-7B-Instruct 部署在一张卡；TEN Turn Detection、Qwen3-0.6B 重写模型和 Mistral-7B-Instruct-v0.3 裁判模型在另一张卡上分时运行；CosyVoice2 使用独立环境采集 TTS 画像。不同模型实例不共享权重。
+
+实现验证包括时间轴边界语义、KV 长度不变式、断句字符守恒、推测状态机和多轮打断链路等组件级检查。干净边界样本在字符比例—空白边界近似口径下的零残余字符数可作为边界实现的一致性检查，但它不能替代对真实播放系统或语义效果的验证。代码审查同样属于质量控制过程，不应被视为实验有效性的独立证据。
+
+仓库保存了代码、主要结果 JSON、绘图脚本和数据派生逻辑，支持读者检查实验口径和复算大部分汇总值。不过，当前结果未统一归档处理后输入文件、数据哈希、模型精确 revision、全部环境版本、随机 seed 和 A1 的原始重复计时；主模型生成采用温度采样，部分实验也没有多随机种子重复。因此，本文工件具有较高可检视性，但当前只能称为部分可复现。后续正式归档应为每次运行增加 commit、配置哈希、数据清单和随机状态清单。
+
+## 5.6 本章小结
+
+本章从模块、时间轴、KV 操作、编排和实验记录五个方面说明系统实现。实现的关键是把 TTS 文本片段同时关联到 token 和采样坐标，并把 KV、掩码和 token 账本作为受统一不变式约束的状态组合。与此同时，本章明确了 Mock TTS、指标落盘和复现元数据的边界，避免将模拟时序或局部记录表述为真实全链路测量和完全复现。
 
 
 ---
-
-
 
 # 第六章 实验与结果分析
 
-> 初稿（2026-07-17）。数据源：`experiments/results/*.json`（实验机 RTX 3090×2 正式数值）；
-> 设置事实与红线依据 `docs/exp_handoff.md`。图 6-1 ~ 6-4 由 `experiments/scripts/plot_figures.py` 生成（数据直读 JSON，见 `paper2/figures/`）。
-> 指标符号沿用第三章定义；实验代号 E1/E2/E3/A1/A2/A3 与 3.4.4 节对应表一致。
+## 6.1 研究问题与实验设置
 
----
+本章围绕以下研究问题展开。
 
-## 6.1 实验设置
+- **RQ1：** 播放感知历史裁剪能否减少后续回复对未播放信息的复现？
+- **RQ2：** 推测阈值如何影响作废计算和有效首 token 延迟？
+- **RQ3：** 在受控文本输入和 TTS 画像条件下，组合系统的响应延迟与非流式对照有何差异？
+- **RQ4：** KV 裁剪与角色恢复相对重新预填充能够节省多少计算？
+- **RQ5：** 标记或轻量重写是否改善被打断历史的后续连贯性？
 
-**硬件与部署**　实验机为 2× NVIDIA RTX 3090（24 GB）：卡 0 部署主 LLM；卡 1 部署软触发、重写与裁判模型。全部延迟数字在该配置下测得。
+### 6.1.1 硬件、模型与数据
 
-**模型**　主 LLM 为 Qwen2-7B-Instruct[11]（与一期实验对齐）；软触发为 TEN Turn Detection[12]（7.6B，文本侧，输出 finished/unfinished/wait 类别词概率作为连续置信度，实测标定成对正确率 AUC=1.00）；历史重写模型为 Qwen3-0.6B[16]；LLM 裁判为 Mistral-7B-Instruct-v0.3[13]（**与主 LLM 不同家族**，避免同族偏袒）；流式 TTS 为 CosyVoice2-0.5B[14]。TTS 时序画像取真机实测：3175 采样/非空白字符（24 kHz，约 7.5 字符/秒语速）、首块合成延迟 2433.6 ms、合成实时率 RTF=0.513。需要说明，首块延迟为 3090 无 TensorRT 加速的实测值，官方报告 A100+TensorRT+fp16 下可至约 45 ms，6.4 节据此做部署条件敏感性讨论。
+实验机使用两张 NVIDIA RTX 3090（24 GB）。主模型为 Qwen2-7B-Instruct[11]；话轮检测器为 TEN Turn Detection[12]（7.6B）；历史重写模型为 Qwen3-0.6B[16]；LLM 裁判为 Mistral-7B-Instruct-v0.3[13]；TTS 画像由 CosyVoice2-0.5B[14]采集。裁判与主模型来自不同模型家族，这减少了同族偏差的一种来源，但不能消除单裁判和单提示词偏差。
 
-**数据**　自 MultiWOZ 2.1[15] 派生（固定随机种子）：103 条多轮对话（每条 ≥3 个 user 轮，用于 E3/A2）与 100 条子句切分话语（切分严格无损，段边界即停顿点，用于 E1/E2）。语种为英文。
+数据由 MultiWOZ 2.1[15]派生。E1、E2 使用 100 条子句切分文本话语；E3 使用 100 条至少包含三个 user 轮的多轮对话，并在 25%、50%、75% 和干净片段边界四个位置分别构造场景。原始 E2/E3 结果文件因断点续传混入内置开发 fixture；本文不修改 GPU 原始输出，而通过 `reanalyze_paper2_results.py` 排除 `fx*` 记录并保存独立重分析结果。清洗后 E2 为 9×100 条记录，E3 为 100 条对话、每条件 400 个场景。
 
-**打断注入协议**　确定性程序注入（第 3.4 节）：对每条被打断轮，分别在播放比例 25%、50%、75%（多落于片段中间，构成半截片段）与片段干净边界（对照）注入打断，"用户听到的内容"以注入时刻播放指针为真值，全部实验可复现。
+TEN 的标定成对正确率 1.00 来自 8 条手工完整句和 8 条手工不完整句的 64 个跨类对，并非独立 MultiWOZ 测试集上的稳定 AUC。该结果只用于确定阈值扫描范围。
 
-**被测条件**　System A（非流式基线：说完→全量 prefill→生成完→整段合成）；B-ours（本文方法：playback 截断）；B-gen（对照：generation 截断，历史保留全部已生成内容）。合成位置截断（B-syn）在同步合成模拟下与 B-gen 等价，本文不将其作为已验证条件。
+### 6.1.2 时序实例化与测量口径
 
-## 6.2 E3：多轮一致性（主结果）
+E1/E2 使用确定性文本段驱动程序，不包含真实音频输入和 ASR 墙钟过程。推测生成在处理下一文本段前同步生成至多 12 个候选 token，用户话轮真值终点负责接受仍存活的候选。因此接近零的 $\mathrm{TTFT}_{\mathrm{eff}}$ 反映受控上限条件，而不是异步在线输入竞争。
 
-每条件 n=412（103 对话 × 4 注入位置）。表 6-1 给出未听内容引用率的双口径、双检测器结果。
+E3 在注入打断前完成最多 40 个 assistant token 的生成并登记全部 Mock TTS 音频，再移动模拟播放指针。该设置近似生成积压较大的条件，可能高估实际在线系统中早期打断时 B-gen 的未播放历史量。E3 每个场景生成两条后续探测回复，只要任一回复命中便计为一次复现。
 
-**表 6-1　未听内容引用率（E3 主结果）**
+TTS 画像基于 6 条 CosyVoice2 样本：首块延迟中位数为 2433.6 ms，实时率中位数为 0.513，每非空白字符采样数中位数为 3175。首块延迟和实时率在该小样本中较稳定，但每字符采样数范围较宽，因而 System A 的完整音频时长建模具有较大不确定性。表 6-1 区分本章的证据类型。
 
-| 口径 / 检测器 | B-ours (playback) | B-gen (generation) | Fisher 精确检验 | 效应量 (Cohen's h) |
-|---|---|---|---|---|
-| loose / 规则检测器 | **0.0% (0/412)**（构造性） | **51.0% (210/412)** | p = 1.8×10⁻⁷⁹ | 1.59（极大） |
-| strict / 规则检测器 | 51.0% (210/412) | 73.3% (302/412) | p = 5.0×10⁻¹¹ | 0.47（中） |
-| loose / LLM 裁判 | **0.0% (0/412)** | 2.7% (11/412) | p = 9.1×10⁻⁴ | — |
-| strict / LLM 裁判 | 2.4% (10/412) | 2.9% (12/412) | p = 0.83（不显著） | — |
+**表 6-1　指标的测量属性**
 
-**主结论**（写作红线：loose 口径下 B-ours 的 0% 是**机制的构造性保证而非实验发现**——历史中不存在未听片段，引用无从发生；实验量化的是对照方法的失败率）：
+| 指标 | 属性 | 主要限制 |
+|---|---|---|
+| LLM TTFT | GPU/墙钟测量 | 文本段驱动，无真实 ASR；单次随机生成 |
+| mouth-to-ear | LLM 墙钟时间 + TTS 画像建模 | 非真实音频闭环；画像仅 6 句 |
+| KV crop-only | 孤立 GPU 微基准 | 不含反查、停播、通信和并发负载 |
+| 片段口径 B-ours 零引用 | 构造性结果 | 由指标与保留边界共同定义，不是概率估计 |
+| E3/A2 语义结果 | 规则、单一 LLM 裁判及小规模人工样本 | 代理误差、随机生成和抽样偏差 |
 
-1. **朴素的 generation 截断在半数场景下引发未听内容复现**：规则口径 51.0% 的后续回复复用了用户从未听到的词面内容；即使按最保守的裁判口径（仅特定信息引用），仍有 2.7% 的轮次让模型"引用了自己从未说出口的话"，两把尺子下差异均显著（p<10⁻³）。
-2. **打断越早，危害越大**：B-gen 的 loose 引用率随注入位置单调递减——25% 处 85.4%（88/103）、50% 处 48.5%、75% 处 20.4%；干净边界处 49.5%。未听内容越多，被复现的概率越高，与直觉一致，如图 6-1 所示。
-3. **片段粒度量化误差的后果可忽略**：strict 口径下 B-ours 存在半截片段尾部残余（定义 3.3），规则检测器报 51.0%——但这是词面重叠上界；裁判口径下 B-ours strict 仅 2.4%，且与 B-gen（2.9%）无显著差异（p=0.83）。即：以片段为截断原子的工程取舍，在"特定信息被错误引用"的意义上没有可测量的额外代价。
-4. **截断语义精确成立**：干净边界注入组 103/103 样本的 strict 残余为零，与定义 3.1 的边界语义一致，可视为机制实现正确性的数据级验证。
+## 6.2 RQ1：播放感知历史的一致性（E3）
+
+清洗后每条件包含 400 个场景。表 6-2 报告两种边界口径和两种检测器的结果。本文按 `(对话，注入位置)` 匹配记录并报告 exact McNemar 描述性比较，同时以对话为重采样单元进行 10,000 次聚类 bootstrap，以缓解四个注入位置共享同一对话造成的相关性。由于 playback 与 generation 条件未共享同一 assistant 生成轨迹，这些比较同时包含截断边界和随机生成差异，不能隔离边界策略的因果效应。
+
+**表 6-2　未播放内容复现率（E3，纯 MultiWOZ）**
+
+| 口径 / 检测器 | B-ours (playback) | B-gen (generation) | 配对 McNemar p | 按对话聚类的差值 95% CI |
+|---|---:|---:|---:|---:|
+| 片段口径 / 词面检测 | **0.0% (0/400)**，构造性 | **50.3% (201/400)** | $6.2\times10^{-61}$ | [44.5%, 56.0%] |
+| 字符比例—空白边界近似 / 词面检测 | 50.8% (203/400) | 72.5% (290/400) | $2.4\times10^{-14}$ | [16.0%, 27.8%] |
+| 片段口径 / LLM 裁判 | **0.0% (0/400)**，构造性 | **2.3% (9/400)** | 0.0039 | [0.8%, 4.3%] |
+| 字符比例—空白边界近似 / LLM 裁判 | 1.8% (7/400) | 2.3% (9/400) | 0.79 | [−1.3%, 2.3%] |
+
+第一，片段口径下 B-ours 的零值来自机制定义：其历史中没有完整未播放片段，因而不存在相应引用对象。实验估计的主要对象是 B-gen 在当前同步全生成、40-token 上限下的失败率。词面检测显示 50.3% 的场景出现表面线索复现；较保守的 Mistral 裁判将 2.3% 判为特定信息引用。后者的 Wilson 95% 区间约为 1.2%–4.2%，说明事件稀少但估计仍有明显不确定性。
+
+第二，字符比例—空白边界近似口径把命中片段经字符比例切分并向前吸附到空白边界后的文本尾部纳入 $W$。B-ours 的词面命中率达到 50.8%，反映任务域词汇会在后续回复中自然复现；LLM 裁判率为 1.8%，B-gen 为 2.3%。当前按场景匹配但受独立生成混杂的比较未检出差异；这既不能证明两策略等价，也不能隔离片段边界策略的效应。
+
+第三，B-gen 的片段口径词面命中随注入位置分别为 85%、47%、21% 和 48%。前三个比例总体随打断变晚而下降；干净边界不是时间顺序上的第四个比例点，而是单独的边界语义对照，不应参与“单调递减”表述。B-ours 的片段口径在两种检测器下均为零。图 6-1 只展示该片段口径，不能解读为 B-ours 在字符比例—空白边界近似口径下也为零。
 
 ![图 6-1](figures/fig6_1.png)
 
-**图 6-1　分注入位置的未听内容引用率**（B-gen 双口径 vs B-ours。B-ours 两口径恒为 0：此为机制的构造性保证——播放截断使历史中不存在未听片段——而非统计结果）
+**图 6-1　按注入位置分解的片段口径未播放内容复现率。** 图中 B-ours 仅表示片段口径下词面检测和 LLM 裁判均为构造性零；字符比例—空白边界近似口径见表 6-2。
 
-**检测器方法学**（单列一段，兼作 7.x 节 threats 的依据）　规则检测器与 LLM 裁判在真实数据上一致性很低（Cohen's κ≈0.05；开发用小样本上为 0.71）。原因是 MultiWOZ 任务域高频词（hotel、book、train 等）使词面线索在域内自然复现，规则检测器系统性过触发。因此本文将规则口径解释为**表面重叠上界**、裁判口径为**特定引用下界**，真值介于其间；关键在于**两把尺子下 B-ours 均不劣于 B-gen，且 loose 口径双双为零**，主结论对检测器选择鲁棒。
+干净边界的 playback 条件中，100/100 个场景在字符比例—空白边界近似口径下的片段内残余字符数为零，支持时间轴边界计数实现与定义相符。它是实现一致性检查，不是语义效果的独立证据。
 
-为仲裁两把尺子，按判定组合分层抽取 37 条样本进行人工标注（判定标准与裁判一致：仅特定事实/数字/措辞的引用计为"是"）。结果（表 6-2）：人工与**裁判**在 loose 口径中等偏强一致（一致率 84.6%，κ=0.649），而与**规则检测器**的一致性不优于随机（一致率 30.8%，κ=−0.073）——支持以裁判口径为正文主数字、规则口径仅作上界呈现。尤为重要的是，**strict 口径的 24 条样本中人工判定无一构成特定引用（0/24）**：片段级截断粒度引入的量化误差尾部（定义 3.3）在人类判定下不产生可感知的一致性损害，为第四章"以片段为截断单位"的设计取舍提供了实证辩护。
+### 6.2.1 检测器与人工样本
 
-**表 6-2　人工仲裁（n=37，分层覆盖判定组合）**
+纯 MultiWOZ 记录中，词面检测器与 LLM 裁判的一致性较低：片段口径 Cohen's $\kappa=0.056$，字符比例—空白边界近似口径为 0.025。人工样本原按检测器判定组合分层并过采分歧项，标注时还能看到两种检测器输出；清除 2 条 fixture 后剩余 35 条。因此，人工结果适合用于案例仲裁，不适合作为总体裁判准确率或无偏 $\kappa$ 估计。
 
-| 对比 | 口径 | 一致率 | Cohen's κ |
-|---|---|---|---|
-| 人工 vs LLM 裁判 | loose (n=13) | 84.6% | **0.649** |
-| 人工 vs 规则检测器 | loose (n=13) | 30.8% | −0.073 |
-| 人工判"特定引用" | strict (n=24) | — | 0/24 条 |
+在 12 条纯 MultiWOZ 片段口径 generation 样本中，人工与裁判一致率为 83.3%，$\kappa=0.571$；在与 B-ours 片段内文本尾部代理直接相关的 11 条字符比例—空白边界近似 playback 样本中，人工判定为特定引用的数量为 0。后一个 0/11 的 Wilson 95% 区间上界约为 25.9%，样本不足以支持“风险接近零”的强结论。后续应采用随机抽样、盲标和至少两名独立标注员。
 
-## 6.3 E2：推测浪费率–TTFT 权衡曲线（核心图）
+## 6.3 RQ2：推测浪费—有效 TTFT 工作点（E2/A3）
 
-TEN 软触发阈值按实测置信度分布标定后扫描九点（含"永不推测"哨兵）。结果见表 6-3 与图 6-2。
+表 6-3 报告清除 12 条 fixture 后的九个正式阈值点。每点均为 100 条 MultiWOZ 派生文本话语。
 
-**表 6-3　软触发阈值扫描（n=100/点）**
+**表 6-3　推测阈值扫描（n=100/点）**
 
-| 阈值 θ | 0.005 | 0.198 | 0.391 | 0.583 | 0.776 | 0.85 | 0.92 | 0.969 | 1.1(不推测) |
-|---|---|---|---|---|---|---|---|---|---|
-| 推测浪费率 ρ | 29.2% | 16.2% | 14.4% | 13.6% | 11.5% | 10.7% | 4.5% | 0.8% | 0% |
-| TTFT_eff (ms) | 0.5 | 0.1 | 0.6 | 1.1 | 3.9 | 5.8 | 12.1 | 29.3 | 48.5 |
+| 阈值 $\theta$ | 0.005 | 0.198 | 0.391 | 0.583 | 0.776 | 0.85 | 0.92 | 0.969 | 1.1（不推测） |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 推测浪费率 $\rho$ | 29.2% | 16.2% | 14.4% | 13.6% | 11.5% | 10.7% | 4.5% | 0.8% | 0% |
+| $\mathrm{TTFT}_{\mathrm{eff}}$ (ms) | 0.5 | 0.1 | 0.6 | 1.1 | 3.9 | 5.8 | 12.1 | 29.3 | 48.3 |
 | 推测存活率 | 100% | 100% | 99% | 98% | 92% | 88% | 75% | 39% | 0% |
 
-**分析**　曲线呈单调权衡且存在明显拐点区（θ∈[0.85, 0.97]）：θ=0.92 时以 4.5% 的冗余计算换取 TTFT_eff 从 48.5 ms 降至 12.1 ms（-75%）；θ=0.969 时浪费率仅 0.8% 仍获 40% 的延迟收益。这验证了第 3.4.3 节的设计命题——**端点判断从硬决策变为可调的连续旋钮**，系统可按算力预算选择工作点。激进端（θ≤0.4）浪费率 14–29% 而 TTFT_eff≈0：推测几乎总在用户说完前就绪。注意 7B 模型下"不推测"的 TTFT 全额仅 48.5 ms（得益于一期流式 prefill 已消除上下文编码开销），故本实验的收益比例（-75% ~ -99%）比绝对毫秒数更具外推意义；对更大模型或更长回复前缀，绝对收益将同步放大。本表 records 级数据同时构成消融 A3（激进度扫描）。
+浪费率随阈值提高而下降，TTFT 总体上升，但低阈值端并非严格单调：$\theta=0.0052$ 的平均 TTFT 为 0.537 ms，而 $\theta=0.1979$ 为 0.100 ms，后者同时具有更低浪费和更低 TTFT。该差异处于亚毫秒量级，并可能受单次运行计时噪声影响；因此图 6-2 应解释为离散工作点而不是严格 Pareto 前沿。
+
+$\theta=0.92$ 是一个可供部署者参考的候选点：4.5% token 浪费对应 12.1 ms TTFT，相对不推测的 48.3 ms 下降约 75%。$\theta=0.9688$ 的浪费率为 0.8%，TTFT 为 29.3 ms。工作点选择仍应由算力预算和在线时序决定；本文没有预设效用函数，也没有证明区间 $[0.85,0.97]$ 存在统计意义上的“拐点”。
 
 ![图 6-2](figures/fig6_2.png)
 
-**图 6-2　推测浪费率–TTFT$_{eff}$ 权衡前沿**（九个阈值工作点构成连续可调前沿；空心方块为"永不推测"保守极限基线；灰色区为拐点区 θ∈[0.85, 0.97]，浪费率 10.7%→0.8% 而 TTFT$_{eff}$ 5.8→29.3 ms）
+**图 6-2　推测浪费率与有效 TTFT 的九个离散工作点。** 低阈值端存在非严格单调点；灰色区域表示候选工作区间，而不是经曲率分析确定的拐点。
 
-## 6.4 E1：端到端延迟
+这些数据验证了阈值能够改变浪费和延迟的定性关系，但数值依赖同步生成 12 个候选 token、真值话轮终点接受以及当前 MultiWOZ 文本段。对更大模型、不同生成预算和真实异步语音输入的外推仍是待验证假设。
 
-n=100，B-ours 取 θ=0.391 工作点。TTFT 口径（真实测量）：System A 平均 27.4 ms，B-ours TTFT_eff 平均 **0.6 ms**（改善 97.9%）——推测存活使 token 在用户说完时几乎总已就绪。
+## 6.4 RQ3：文本驱动模拟下的响应延迟（E1）
 
-mouth-to-ear 口径（**建模值**：首片段就绪时刻 + TTS 首块延迟，画像为 3090 实测）：A 为 9080 ms（须等全部生成 + 整段合成），B-ours 为 2482 ms，其中 2434 ms 由 TTS 首块合成延迟主导。**部署条件敏感性**：该首块延迟强依赖推理加速条件——按官方 A100+TensorRT 报告值（≈45 ms）外推，B-ours 的 mouth-to-ear 可至约 100 ms 量级，而 System A 的"等全部生成+整段合成"是结构性成本、随回复长度线性增长，不随 TTS 加速消失。如图 6-3 所示，建模量与实测量分别标注。
+E1 使用 100 条文本话语，B-ours 取 $\theta=0.3906$。System A 的 TTFT 均值为 27.407 ms，中位数为 27.4 ms；B-ours 的 $\mathrm{TTFT}_{\mathrm{eff}}$ 均值为 0.581 ms，中位数为 0.1 ms。配对改善均值为 26.826 ms，按样本 bootstrap 的 95% 区间为 [25.790, 27.398] ms。99 条记录的 $\mathrm{TTFT}_{\mathrm{eff}}$ 均为 0.1 ms，另 1 条为 48.2 ms，且该条记录中 B-ours 慢于 System A；因此仅报告 0.581 ms 的均值会掩盖这一高度偏斜的两点分布。
+
+mouth-to-ear 建模值为 System A 9080 ms、B-ours 2482 ms。前者组合了完整生成和按输出字符估计的整段合成时间；后者组合首片段就绪时间和 2433.6 ms 的 TTS 首块画像。两者表达“整段完成后播放”与“首片段即可播放”的架构语义差异，但不是实际 ASR—LLM—TTS—播放器闭环的端到端测量。
 
 ![图 6-3](figures/fig6_3.png)
 
-**图 6-3　端到端延迟对比**（上：TTFT，实测；下：mouth-to-ear，建模值——首片段就绪时刻 + TTS 首块延迟，TTS 画像为 3090 实测。B-ours 的 2482 ms 中 2434 ms 为 TTS 首块合成延迟；按官方 A100+TensorRT 报告值 ≈45 ms 外推，B-ours 可至约 100 ms 量级，而 System A 的"等全部生成+整段合成"是结构性成本）
+**图 6-3　TTFT 墙钟测量与 mouth-to-ear 画像建模。** 上图为文本驱动程序中的 LLM 延迟；下图把 LLM 时间与六句 CosyVoice2 画像组合。两种属性不能合并表述为“全部端到端实测”。
 
-## 6.5 A1：KV 复用收益与打断响应延迟（7B）
+外部 TTS 延迟不能在缺少一致硬件、精度、并发、预热和计时边界的情况下直接代入本文模型。CosyVoice2 官方项目公开的“低至 150 ms”宣称也未完整给出上述条件，因此本章不使用外部首块数字重算两系统的加速比。现有落盘记录还不含输入音频时长，无法完成原设计中的“延迟随输入长度斜率”检验。
 
-**表 6-4　截断路径 vs 重新 prefill（median，ms）**
+## 6.5 RQ4：KV 复用微基准（A1）
 
-| 上下文长度 (token) | 275 | 1k | 2k | 4k | 8k |
-|---|---|---|---|---|---|
-| 反查+截断（关键路径） | 0.31–0.34（近常数） | ← | ← | ← | ← |
-| 角色重建（非关键路径） | 25–47 | | | | |
-| 重新 prefill | 72 | 235 | 459 | 891 | 1863 |
-| 加速比 | 2.8× | 8.6× | 15.3× | 25.2× | **39.7×** |
+A1 在 275、527、1031、2060、4097 和 8192 token 的上下文上分别执行 5 次计时并保存中位数。原始五次计时未落盘，因而无法离线补充 IQR 或置信区间。
 
-**barge-in 响应延迟恒为亚毫秒级且与上下文长度无关**——反查（定义 3.4 的 Φ）为纯索引操作、截断为张量切片；角色重建可延迟到下一轮输入前执行，不在"打断即停"的关键路径上。作为对照，放弃 KV 复用而对听到边界前的完整上下文重新 prefill 的成本随长度线性增长，8k 上下文时达 1.86 s——多轮语音对话的上下文天然持续增长，KV 复用收益随对话进行单调扩大（图 6-4）。
+**表 6-4　KV 裁剪、角色恢复及组件中位数之和与重新预填充（ms）**
+
+| 上下文长度 | 275 | 527 | 1031 | 2060 | 4097 | 8192 |
+|---|---:|---:|---:|---:|---:|---:|
+| KV crop-only | 0.308 | 0.321 | 0.308 | 0.322 | 0.320 | 0.339 |
+| crop 中位数 + 角色恢复中位数 | 25.17 | 26.69 | 27.20 | 29.91 | 35.36 | 46.88 |
+| 重新预填充中位数 | 71.65 | 130.09 | 234.84 | 458.50 | 890.50 | 1863.42 |
+| 重新预填充中位数 / 组件中位数之和 | 2.8× | 4.9× | 8.6× | 15.3× | 25.2× | **39.7×** |
+
+`DynamicCache.crop` 本身在受测范围内保持 0.308–0.339 ms；8k 处重新预填充中位数与 crop-only 中位数的比值约为 5497×。39.7× 则以“crop 中位数 + 角色恢复中位数”为分母。由于脚本分别统计两个组件再相加，46.88 ms 不是联合路径五次总耗时的中位数，两种口径均需按其计算方式解释。
 
 ![图 6-4](figures/fig6_4.png)
 
-**图 6-4　打断响应路径 vs 重新 prefill 的延迟随上下文长度变化**（双对数轴。反查+截断恒为亚毫秒且与长度无关；角色重建不在关键路径、可延迟执行；重新 prefill 随长度近线性增长，8k 处加速比 39.7×）
+**图 6-4　KV crop-only、两个组件中位数之和与重新预填充的微基准。** 图中加速标注以“重新预填充中位数 /（crop 中位数 + 角色恢复中位数）”计算；crop-only 另作为局部操作曲线展示。
 
-## 6.6 A2：被打断历史的三种处理策略
+A1 没有计入时间轴查询、真实播放器停播、服务通信、线程调度和 GPU 并发负载。因此该孤立微基准支持在受测模型、硬件和六个上下文长度上，KV 复用所需的模型侧组件耗时低于重新预填充；它不支持“完整 barge-in 响应恒为亚毫秒”。
 
-n=100/策略，裁判连贯性评分（1–5）：朴素截断 3.76、重写法 3.62、标记法 3.29；重写延迟 mean 639 ms / P90 937 ms / max 1165 ms。
+## 6.6 RQ5：被打断历史处理策略（A2）
 
-**诚实报告**：重写法未优于朴素截断（Wilcoxon 配对检验 p=0.32，无显著差异），标记法反而更低。可能原因：(i) 7B 主模型对半句历史已有较强鲁棒性，重写收益空间小；(ii) 0.6B 重写模型的改写质量有限；(iii) 单裁判单点评分的敏感度不足。工程侧结论仍成立——重写延迟 P90<1 s，可隐藏于用户打断后的说话期内（架构上并行执行），且 KV 复用率按重算段比例可控。据此，本文将历史自然化重写定位为**探索性结果**：机制可行、延迟可隐藏，但在本实验设置下未观察到一致性收益，留待更强重写模型与更细评价方式（如成对偏好）检验。
+当前 A2 每策略包含 100 条记录。单一 Mistral 裁判的连贯性均值为：朴素策略 3.76、重写策略 3.62、标记策略 3.29；分数分布明显两极化，例如朴素策略中 64 条为 5 分、26 条为 1 分。重写调用耗时均值为 639 ms，中位数 670 ms，线性插值 P90 约 935 ms，最大值 1165 ms。
 
-## 6.7 结果小结
+实验脚本为三种策略分别重新生成首轮回复和下一轮回复：只有 33/100 个对话的三策略 `heard_text` 完全相同，朴素与重写成对相同的仅 49/100。因而评分差异同时受到首轮内容、断句边界和下一轮采样的混杂，不能作为策略因果效应；在这种条件下，按对话执行的显著性检验也不具有清晰的处理效应解释。
 
-- **一致性（主张核心）**：playback 截断使历史与用户所听严格一致（loose 恒 0，构造性），对照方法在 51%（词面）/2.7%（特定引用）的场景引入未听内容复现；片段粒度量化误差在特定引用意义上无可测量代价（p=0.83）。
-- **延迟**：推测生成把 TTFT_eff 压至亚毫秒–数毫秒并可按 (ρ, TTFT) 曲线调节（拐点 θ≈0.92：4.5% 浪费换 75% 延迟削减）；打断响应亚毫秒且与上下文无关；KV 复用相对重 prefill 最高 39.7×。
-- **方法学**：双检测器夹逼 + 干净边界 103/103 零残余的实现验证，构成结果可信度的两道防线；重写策略如实报告为无显著收益的探索性结果。
+本实验最多支持两点描述性结论：当前运行没有观察到重写优于朴素策略；重写模型单次调用约需 0.64 s，具备与用户下一轮发言重叠执行的可能。由于未记录真实用户发言时长，也未实测异步重叠，不能声称该延迟已经“完全隐藏”。严格的 A2 需要缓存同一首轮生成、同一片段时间轴和同一打断点，再从固定历史派生三种策略，并为下一轮生成固定解码或使用成对随机种子。
+
+## 6.7 本章结论
+
+本章对五个研究问题给出以下限定性回答。
+
+1. **RQ1：** 在片段操作语义下，B-ours 不保留完整未播放片段，因此片段口径引用率按构造为零；在当前最大生成积压模拟中，B-gen 的词面复现率为 50.3%，单一 LLM 裁判的特定信息引用率为 2.3%。字符比例—空白边界近似口径下，受独立生成混杂的描述性比较未检出裁判率差异，不能据此证明等价或隔离策略效应。
+2. **RQ2：** 九个离散阈值显示总体的计算浪费—有效 TTFT 权衡，$\theta=0.92$ 是当前数据上的候选工作点；曲线在低阈值端不是严格单调，也尚未在异步在线系统中验证。
+3. **RQ3：** 文本驱动程序中 B-ours 的平均有效 TTFT 低于一次性预填充对照，mouth-to-ear 建模也反映流式首片段播放的结构差异；该实验不包含真实音频闭环，也未完成输入长度斜率分析。
+4. **RQ4：** 孤立 GPU 微基准支持 KV 复用的模型侧计算收益：8k 时，重新预填充中位数与 crop、角色恢复两个组件中位数之和的比值为 39.7；crop-only 亚毫秒不等于完整打断响应亚毫秒。
+5. **RQ5：** 受混杂的三策略运行中，历史重写未获得高于朴素策略的平均分；现有数据只支持描述性观察，不支持策略因果比较。
 
 
 ---
-
-
 
 # 第七章 讨论
 
-> 初稿（2026-07-17）。诚实对比 + 局限（threats to validity）+ 可推广性。
+## 7.1 与已有系统的关系
 
-## 7.1 与商用系统的关系
+本文与 OpenAI Realtime API、Azure Voice Live 和 LiveKit Agents 的关系是公开研究实现与既有工程实践的互补，而不是功能有无的对立。已有系统已经根据播放进度更新会话历史；本文的主要差异在于把播放器采样位置、TTS 文本片段和 LLM token 区间保存为可检视记录，并在推理内部显式裁剪 KV、同步掩码和恢复角色边界。
 
-本文与 OpenAI Realtime、Azure Voice Live、LiveKit 的关系是**开源参考实现与闭源产品的互补**，而非能力有无之别（第二章表 2-1）。差异集中在三处：其一，操作层次——商用系统删除受管理的转写条目，本文在 LLM 推理内部对 KV 缓存做显式截断，保留了跨轮 KV 复用带来的延迟收益（A1：8k 上下文处 39.7×）；其二，位置来源——Azure 以"实时速度假设"估算、OpenAI 依赖客户端上报，本文由播放器回报采样计数并经反向映射精确到片段边界；其三，可检视性——本文的映射表、时间戳与截断决策全部落盘，实验可复现。需要强调的是，这些差异不支持"商用系统未实现该功能"的论断——它们实现了，且其转写级方案在其产品约束下是合理的工程选择。
+这种差异具有两方面研究价值。其一，缓存状态保留使裁剪后的多轮对话无需重新预填充全部历史，A1 在受测硬件上量化了相应计算收益。其二，显式时间轴使每次保留边界能够离线检查。另一方面，商业系统的内部实现没有公开，本文不能据公开接口断言它们只进行粗粒度处理或不使用缓存优化；本文也没有完成“实测播放位置”与“实时速度假设”的直接 E4 对比。因此，比较应限于公开可观察的接口和工件。
 
-## 7.2 局限与效度威胁
+## 7.2 效度威胁
 
-**一致性度量的仪器差异。** 规则检测器在任务域（MultiWOZ 高频词）上系统性过触发，与人工仲裁一致性不优于随机（κ=−0.073）；LLM 裁判获得中等偏强的人工一致（κ=0.649）但样本量有限（37 条）。本文以"上界—下界—仲裁"三层协议缓解，但更大规模的人工标注将进一步收紧区间。
+### 7.2.1 构念效度
 
-**重写策略未显收益。** A2 中 0.6B 重写模型的裁判连贯性（3.62）未超过朴素截断（3.76）。可能原因：7B 主模型对半句历史本就鲁棒；0.6B 重写引入的措辞变化反而稀释了上下文线索。这提示贡献 3 的价值依赖于主模型与重写模型的能力配比，作为扩展贡献如实报告。
+本文使用“未播放信息复现率”作为上下文一致性的代理。词面检测器在 MultiWOZ 的高频领域词上容易误报；LLM 裁判也可能遗漏隐式引用或把自然领域重叠误判为特定引用。清洗后的两者 Cohen's $\kappa$ 仅为 0.056 和 0.025，说明它们测量的并非同一稳定构念。人工样本按检测器输出分层、标注时可见预测、规模仅 35 条且未记录独立双标流程，因此只能作案例仲裁。后续需要随机盲抽样、明确标注指南、至少两名标注员以及置信区间。
 
-**时序建模的等价性假设。** 开发与部分实验以实测时长画像驱动的 Mock TTS 进行（D-010），其与真机的等价性仅限时序维度；mouth-to-ear 的正式数值来自真机画像（3090 无 TRT 首块 2434 ms），与官方 A100+TRT 指标（45 ms）相差两个数量级——硬件与推理栈对该指标影响极大，跨系统比较需谨慎。
+字符比例—空白边界近似口径先用片段内音频播放比例计算文本字符切点，再向前吸附到最近空白边界。语音时长与字符位置并非线性关系，因此该口径只提供文本尾部代理，不是真实词级或 token 级播放真值。要评估精确物理边界，需要 TTS duration 信息或强制对齐。
 
-**数据与语种范围。** 实验限于英文任务型对话（MultiWOZ 派生）与程序注入的确定性打断（P1）；开放域对话、真实用户打断行为与中文场景（stream2sentence 的 stanza 路径、CosyVoice2 中文合成）留待扩展。打断时机的固定比例注入覆盖受控但非自然分布。
+A2 使用单一裁判的 1–5 分衡量连贯性，分数分布高度两极化；解析失败还可能被默认记为中值，而结果未保存可追溯的原始裁判输出。该指标的敏感度和可解释性有限。
 
-**软触发的域适配。** TEN 在本文句式上可分性极强（标定 AUC=1.00），E2 的浪费主要来自派生数据中"句法近似完整"的假停顿；口语更强的犹豫、修正现象下阈值前沿的形状可能不同。
+### 7.2.2 内部效度
 
-## 7.3 可推广性
+E1/E2 的推测过程同步生成固定预算 token 后才处理下一文本段，并在真值话轮终点接受候选。这排除了真实 ASR 段到达与推测解码之间的时间竞争，使接近零的有效 TTFT 偏向理想条件。E3 在打断前完成 40 token 的全部生成和 TTS 登记，接近最大生成积压条件；B-gen 在自然在线打断中的风险可能更低。
 
-机制层面的三个组件均不绑定具体模型栈：反向映射表只要求下游产出"片段→音频块"的归属关系，任何句子级输入的流式 TTS 均可接入（`StreamingTTS` 接口）；KV 截断与角色重建依赖 transformers 的 `DynamicCache` 与 ChatML 类模板，适用于该生态的任意因果 LM；软触发仅需一个输出连续置信度的文本判断器。三进度指针的不变式（3.1）与听到边界语义（3.3）对任何"生成快于播放"的级联系统成立，包括未来接入更低延迟 TTS 或更大主模型的配置。
+主模型采用温度采样，多个实验没有固定随机种子或进行多随机种子重复。E3 的 playback 与 generation 条件没有共享同一 assistant 生成轨迹；A2 的三策略也分别重新生成首轮和下一轮回复。这些差异会把生成随机性混入截断或策略效应。A2 尤其不能作严格因果比较。
+
+E3 同一对话产生四个注入位置和两个条件，观测并不独立。本文改用配对 McNemar 并按对话聚类 bootstrap，但 100 个对话的规模仍限制稀有裁判事件估计。B-ours 片段口径的零是构造性结果，对其进行普通显著性检验并无必要。
+
+### 7.2.3 外部效度
+
+实验限于英文任务型对话、单一 7B 主模型、单一硬件配置和受控打断比例。所有 E3 回复均达到 40-token 上限，E1 的多数回复也受 32-token 上限影响；更长开放域回答可能形成不同的片段数、生成积压和未播放历史。中文、多人对话、真实犹豫修正、网络拥塞和不同播放速度均未覆盖。
+
+TEN 的 1.00 成对可分性只来自 16 条手工标定句，不能代表真实口语端点性能。Mistral 与 Qwen 属不同家族有助于减少一种偏差，但单裁判仍不足以支持跨模型泛化。A1 的缓存行为依赖 Transformers `DynamicCache`、具体注意力实现和 ChatML 类模板；迁移到其他推理引擎需要重新实现并验证状态契约。
+
+### 7.2.4 结论效度
+
+E1、E2 和 A1 多数只保存单次或中位汇总，缺少完整重复计时和误差分布。A1 每点的 5 次原始计时未落盘，无法补 IQR；E1 没有保存输入时长，无法验证预定的长度斜率；TTS 每字符采样数画像仅 6 句且变异较大。本文因此不把建模 mouth-to-ear 当作精确系统基准。
+
+“未检出显著差异”不等同于“策略等价”或“没有代价”。E3 字符比例—空白边界近似口径的描述性 $p=0.79$ 和人工 0/11 均应结合样本规模、独立生成混杂与标注设计解释；A2 由于三策略输入不一致，其显著性检验本身也缺乏清晰的处理效应含义。这些数字不能用作零风险或非劣证明。
+
+## 7.3 可推广性与适用条件
+
+片段关联时间轴只要求 TTS 后端能够报告文本片段与音频块的归属关系，因而可以迁移到多种流式 TTS。若后端提供词级 duration 或对齐信息，可以把 $\widehat H(p)$ 从片段边界扩展到更细粒度。若后端只返回不透明音频流，则仍需额外建立关联。
+
+KV 裁剪要求推理引擎允许缩短历史缓存，并能同步维护掩码、位置编码和 chat template 边界。本文实现适用于满足这些条件的 Transformers `DynamicCache` 与 ChatML 类模板，不应无条件推广到任意因果语言模型或服务端推理 API。
+
+推测调度只要求一个可产生连续置信度的判别器，但阈值分布、候选预算和在线竞争会随语言、领域和硬件变化。第六章的工作点不能直接复用到其他系统；可迁移的是“把误触发转化为可回滚计算并显式报告浪费”的方法框架。
+
+## 7.4 本章小结
+
+本文的主要系统结论在受控条件下成立：片段口径历史对齐具有构造性保证；在受测模型、硬件和上下文长度上，KV 状态复用的模型侧组件耗时低于重新预填充；阈值能够调节推测浪费和有效 TTFT。其边界同样明确：物理播放真值仍由文本代理近似，在线并发和真实停播未测，语义评测依赖代理，随机生成未被完全控制，A2 不能作因果推断。这些限制决定了下一步应优先补充真实音频闭环、固定生成轨迹的对照和独立人工评测。
 
 
 ---
-
-
 
 # 第八章 总结与展望
 
-> 初稿（2026-07-17）。
-
 ## 8.1 全文总结
 
-本文面向级联式流式语音对话系统的打断场景，研究"系统所记的对话历史"与"用户实际听到内容"的一致性问题。在形式化"生成—合成—播放"三进度指针与听到边界语义的基础上，本文实现并验证了三项机制：以连续置信度推测阈值驱动的**推测生成调度**（C1）、基于反向映射与显式 KV 截断的**播放感知上下文管理**（C2）、以及被打断历史的**三种处理策略**（C3），并将其整合为首个开源、可复现的级联式参考实现。
+本文研究级联式流式语音对话系统在用户打断后的上下文状态管理。已有商业服务和开源框架已经实践“历史反映用户所听内容”的原则；本文的工作重点，是在公开级联栈中把播放位置与显式 KV 状态操作连接起来，并说明这一机制的测量边界。
 
-实验（7B 主模型、MultiWOZ 派生数据、专用 turn-detection 模型）表明：打断响应关键路径恒为亚毫秒级且与上下文长度无关，KV 复用相对重新预填充在 8k 上下文处加速 39.7 倍（A1）；推测调度以约 4.5% 的 token 浪费将说完后的首 token 延迟从 48.5 ms 降至 12.1 ms，权衡前沿连续可调（E2）；在一致性上，播放感知截断将片段口径的未听内容引用率由构造保证为零，LLM 裁判口径下对照组仍有 2.7% 的特定引用与 51% 的表面重叠上界，人工仲裁（κ=0.649）支持裁判口径的可信度，且片段级截断粒度的量化误差在人工判定下未产生任何可感知引用（E3）。
+围绕该目标，本文完成三项工作。C1 使用话轮检测置信度和单一推测阈值启动可作废的提前生成，使系统能够以作废 token 为代价降低受控实验中的有效 TTFT。该结果依赖同步候选生成和真值话轮终点接受，尚未证明在线异步部署中的绝对收益。C2 建立以 TTS 文本片段为主轴的采样—音频块—token 关联时间轴，并实现 KV、注意力掩码和 assistant token 账本的同步裁剪，以及裁剪后的角色边界恢复。它是本文的核心机制。C3 实现朴素保留、打断标记和轻量重写三种历史策略；现有结果未显示重写收益，且受到独立生成差异的混杂，因此被保留为探索性负结果。
 
-方法学上，本文提出的"上界检测器—下界裁判—人工仲裁"三层一致性判定协议，以及对规则检测器在任务域过触发现象的定量揭示，对同类语音对话评测具有独立参考价值。
+离线清除开发 fixture 后，E3 在 100 条 MultiWOZ 对话、每条件 400 个受控场景上显示：片段口径下，本文方法不保留完整未播放片段，故相应引用率按构造为零；按生成位置保留的对照在词面检测下有 50.3% 的表面线索复现，在单一异构 LLM 裁判下有 2.3% 的特定信息引用。字符比例—空白边界近似口径下，两方法的裁判率为 1.8% 和 2.3%；当前按场景匹配但受独立生成混杂的比较未检出差异，既不构成等价证明，也不能隔离边界策略效应。
 
-## 8.2 展望
+E2 的九个离散阈值点显示总体的计算浪费—有效 TTFT 权衡。阈值 0.92 在当前同步实验驱动程序中以约 4.5% token 浪费把平均延迟由 48.3 ms 降至 12.1 ms；低阈值端存在非严格单调点，因此本文不再将其称为连续 Pareto 前沿。E1 进一步显示，在 100 条文本话语上，B-ours 的平均有效 TTFT 为 0.581 ms，而一次性预填充对照为 27.407 ms；mouth-to-ear 只由计算时间和六句 TTS 画像组合建模，不是实际音频闭环测量。
 
-- **更细截断粒度**：在片段级机制之上探索词级甚至 token 级听到边界（需 TTS 提供词级时间戳），并量化其相对片段粒度的边际收益——本文 strict 口径 0/24 的人工判定提示该收益可能有限；
-- **位置估计方式对比**：量化"实测播放缓冲"与商用系统"实时速度假设"在拥塞、变速等非理想播放条件下的一致性差异（E4 设计已备）；
-- **真实音频闭环与中文场景**：接入真实用户语音与流式 ASR 的全链路、扩展 CrossWOZ/中文合成路径；
-- **端到端与级联的融合**：在保留级联可控性的前提下，借鉴帧同步思想进一步压缩三指针间隙。
+A1 的孤立 GPU 微基准表明，`DynamicCache.crop` 在 275–8192 token 范围内的中位耗时为 0.308–0.339 ms；8k 上下文的 crop 中位数与角色恢复中位数之和为 46.88 ms，以该组件和为分母，相对 1863.42 ms 的重新预填充中位数比值为 39.7。该孤立微基准支持在受测模型、硬件和六个上下文长度上，KV 复用所需的模型侧组件耗时低于重新预填充；它不包含真实播放器停播、时间轴查询、通信和并发调度，不能解释为完整打断响应亚毫秒。
 
-一期工作打破了"延迟随语音长度线性增长"的约束，本文进一步回答了"被打断之后如何保持对话一致"的问题。两者共同表明：在可预见的将来，级联架构仍可通过细粒度的流式状态管理，不断逼近端到端系统的交互自然度，同时保有其模块化与推理能力优势。
+综上，本文最稳健的结论是：在本文片段口径下，播放位置驱动的 KV 状态管理按构造排除完整未播放片段进入历史；在孤立微基准中，其 crop 与角色恢复组件中位数之和低于重新预填充。该机制对真实交互自然度、在线尾延迟和更细物理播放边界的影响仍需进一步验证。
+
+## 8.2 后续工作
+
+1. **真实异步音频闭环。** 接入真实流式 ASR、异步 TTS、音频队列和播放器，联合测量打断检测、停播、时间轴查询、KV 裁剪和角色恢复；同时让下一 ASR 文本段与推测解码真实竞争。
+2. **固定生成轨迹的因果对照。** 对 E3 和 A2 缓存同一 assistant token 流、断句结果和音频时间轴，仅改变历史边界或处理策略；使用固定解码或成对随机种子，避免生成随机性混入处理效应。
+3. **更细播放边界。** 利用 TTS 的词级 duration、音素对齐或强制对齐建立更接近物理真值的 $\widetilde H(p)$，比较片段、词和 token 粒度的边际收益与实现成本。
+4. **独立人工评测。** 在随机盲抽样上使用至少两名标注员，分别测量未播放信息引用、语义保真、连贯性和真实音频感知；报告标注员一致性和置信区间。
+5. **跨语种、跨模型和跨引擎复验。** 扩展到中文任务型与开放域对话，测试不同主模型、TTS、话轮检测器和服务端推理引擎，并为每次运行归档数据哈希、模型 revision、随机状态和原始重复计时。
+6. **播放位置估计对比。** 在拥塞、变速和缓冲变化条件下，比较播放器实测采样位置与实时速度假设的边界误差，完成尚未实施的 E4。
+
+一期工作关注用户话轮结束前的增量预填充，本文进一步研究系统播报被打断后的状态修正。两项工作共同说明，级联架构可以通过细粒度状态管理改善特定延迟和上下文一致性指标；但能否达到端到端系统的整体交互自然度，仍需真实用户和音频闭环实验，而不是由本文现有代理指标直接推出。
 
 
 ---
 
-
-
 # 参考文献（全文统一）
 
-> 由 ch2 章内局部文献表（[1]–[10]，编号不变）与实验所用模型/数据引用（[11]–[17]）合并而成。
-> † 标记的 4 条 arXiv 预印本编号已于 2026-07-21 逐条复核：编号与题目一致，发表状态均仍为 arXiv 预印本（未见正式发表版本）；条目已更新为核实后的完整题名与作者。
-> 格式暂为条目式，按学校模板要求（GB/T 7714 等）转换时统一处理。
+> [1]–[17] 为原稿已有文献；[18]–[21] 于 2026-08-31 的引文审计中补入 Predictive ASR、vLLM、SGLang 和 stream2sentence。
+> 带 † 的 4 条 2026 年 arXiv 预印本已于 2026-08-31 复核编号、题名和发表状态，尚未检出正式发表版本。
+> 当前仍为条目式工作文献表，提交前需按学校要求统一转换为 GB/T 7714 等正式格式，并补在线资源访问日期。
 
-[1] OpenAI. Realtime API — Conversations. https://developers.openai.com/api/docs/guides/realtime-conversations
+[1] OpenAI. Realtime conversations [EB/OL]. https://developers.openai.com/api/docs/guides/realtime-conversations
 
-[2] Microsoft Azure. Voice Live auto-truncation. https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-voice-live-auto-truncation
+[2] Microsoft. Handle voice interruptions in chat history [EB/OL]. 2026. https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-voice-live-auto-truncation
 
-[3] LiveKit. Agents — Events & interruption handling. https://docs.livekit.io/agents/build/events/ ; https://github.com/livekit/agents/issues/5038
+[3] LiveKit. Events and error handling [EB/OL]. https://docs.livekit.io/reference/agents/events/ ; LiveKit Agents Issue #5038. https://github.com/livekit/agents/issues/5038
 
 [4]† Zou W, Miao Y, Ma Z, Xu J, et al. LTS-VoiceAgent: A Listen-Think-Speak Framework for Efficient Streaming Voice Interaction via Semantic Triggering and Incremental Reasoning. arXiv:2601.19952
 
@@ -634,9 +739,9 @@ n=100/策略，裁判连贯性评分（1–5）：朴素截断 3.76、重写法 
 
 [6] Défossez A, et al. Moshi: a speech-text foundation model for real-time dialogue. arXiv:2410.00037
 
-[7] FireRedChat: streaming personalized VAD for barge-in. arXiv:2509.06502
+[7] Chen J, Hu Y, Li J, et al. FireRedChat: A Pluggable, Full-Duplex Voice Interaction System with Cascaded and Semi-Cascaded Implementations. arXiv:2509.06502, 2025.
 
-[8] HuggingFace. Transformers — KV cache strategies (DynamicCache). https://huggingface.co/docs/transformers/en/kv_cache
+[8] Hugging Face. Transformers — Cache strategies [EB/OL]. https://huggingface.co/docs/transformers/kv_cache
 
 [9]† Li J, Lou J, Li J. IntentKV: Cross-Turn Intent-Aware KV Cache Pruning for Agent Inference. arXiv:2606.09916
 
@@ -644,7 +749,7 @@ n=100/策略，裁判连贯性评分（1–5）：朴素截断 3.76、重写法 
 
 [11] Yang A, et al. Qwen2 Technical Report. arXiv:2407.10671
 
-[12] TEN Framework. TEN Turn Detection: turn detection for full-duplex dialogue communication. https://github.com/TEN-framework/ten-turn-detection
+[12] TEN Team. TEN Turn Detection: Turn detection for full-duplex dialogue communication [CP/OL]. 2025. https://github.com/TEN-framework/ten-turn-detection
 
 [13] Jiang A Q, et al. Mistral 7B. arXiv:2310.06825
 
@@ -654,8 +759,12 @@ n=100/策略，裁判连贯性评分（1–5）：朴素截断 3.76、重写法 
 
 [16] Yang A, et al. Qwen3 Technical Report. arXiv:2505.09388
 
-[17] Radford A, et al. Robust Speech Recognition via Large-Scale Weak Supervision. ICML 2023. arXiv:2212.04356
+[17] Radford A, Kim J W, Xu T, et al. Robust Speech Recognition via Large-Scale Weak Supervision. Proceedings of the 40th International Conference on Machine Learning, PMLR 202, 2023: 28492–28518. https://proceedings.mlr.press/v202/radford23a.html
 
+[18] Schwarz A, He D, Van Segbroeck M, Hethnawi M, Rastrow A. Personalized Predictive ASR for Latency Reduction in Voice Assistants. Interspeech 2023: 745–749. DOI: 10.21437/Interspeech.2023-211.
 
----
+[19] Kwon W, Li Z, Zhuang S, et al. Efficient Memory Management for Large Language Model Serving with PagedAttention. Proceedings of the 29th Symposium on Operating Systems Principles, 2023: 611–626. DOI: 10.1145/3600006.3613165.
 
+[20] Zheng L, Yin L, Xie Z, et al. SGLang: Efficient Execution of Structured Language Model Programs. Advances in Neural Information Processing Systems 37, 2024: 62557–62583. DOI: 10.52202/079017-2000.
+
+[21] Beigel K. stream2sentence: Real-time processing and delivery of sentences from a continuous stream of characters or text chunks, version 1.0.4 [CP/OL]. 2026-08-25. https://github.com/KoljaB/stream2sentence

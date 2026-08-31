@@ -1,14 +1,13 @@
 # 实验设计文档（Code Experiment Plan）
 
-## Material Passport
+## 文档状态
 
-- Origin Skill: experiment-agent
+> 本文件是 2026-05-21 的历史实验预案，不再代表正式结果或最终统计口径。GPU 原始结果见 `experiments/results/exp*.json`；排除开发 fixture 后的离线完整性审计见 `experiments/results/paper2_reanalysis.json`；最终结论与限制以 `paper2/chapter6_experiments.md` 和决策 D-013 为准。下文中“单调前沿、完全隐藏、完整 barge-in 亚毫秒”等均是当时的预期或旧口径，不得作为已验证结论引用。
+
 - Origin Mode: plan
 - Origin Date: 2026-05-21
-- Verification Status: UNVERIFIED
+- Historical Status: superseded for reporting by D-013 (2026-08-31)
 - Version Label: code_plan_v1
-
-> 本文档由 `/experiment-agent` plan 模式产出，整合 `paper2/outline.md` 第三/六章与 plan 模式四项基础决策。定位：工程/系统贡献（D-005），实验目标=**本系统上可测量改善 + 消融证各组件有用**，不追求全球首创。**§6 的 instrumentation 清单是编码验收标准。**
 
 ---
 

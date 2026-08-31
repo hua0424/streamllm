@@ -2,59 +2,21 @@
   <root>
     <mxCell id="0"/>
     <mxCell id="1" parent="0"/>
-    <mxCell id="lg" value="Generation g(t)&#10;(token-level)" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;" vertex="1" parent="1">
-      <mxGeometry x="20" y="60" width="150" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="ls" value="Synthesis s(t)&#10;(segment-level)" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;" vertex="1" parent="1">
-      <mxGeometry x="20" y="140" width="150" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="lp" value="Playback p(t)&#10;(sample-level)" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;" vertex="1" parent="1">
-      <mxGeometry x="20" y="220" width="150" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="gbar" value="generated tokens  y₁ … y_G" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#666666;fontSize=12;align=left;spacingLeft=8;" vertex="1" parent="1">
-      <mxGeometry x="190" y="60" width="680" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="gunheard" value="unheard content (kept in history by B-gen → reference risk)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F9DFD0;strokeColor=#D55E00;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="580" y="60" width="290" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="f1" value="f₁" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="190" y="140" width="130" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="f2" value="f₂" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="320" y="140" width="130" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="f3" value="f₃" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="450" y="140" width="130" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="f4" value="f₄" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="580" y="140" width="130" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="eps" value="ε(p)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDEBD0;strokeColor=#E69F00;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="520" y="140" width="60" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="pbar" value="heard by the user  [0, p)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5F0E6;strokeColor=#009E73;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="190" y="220" width="330" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="vline_p" style="endArrow=none;dashed=1;strokeColor=#D55E00;strokeWidth=2;" edge="1" parent="1">
-      <mxGeometry relative="1" as="geometry">
-        <mxPoint x="520" y="45" as="sourcePoint"/>
-        <mxPoint x="520" y="285" as="targetPoint"/>
-      </mxGeometry>
-    </mxCell>
-    <mxCell id="vlabel_p" value="playback pointer p at barge-in&#10;(inside f₃ → partial segment)" style="text;html=1;align=center;verticalAlign=top;fontSize=12;fontColor=#D55E00;" vertex="1" parent="1">
-      <mxGeometry x="380" y="288" width="280" height="36" as="geometry"/>
-    </mxCell>
-    <mxCell id="vline_h" style="endArrow=none;dashed=1;strokeColor=#0072B2;strokeWidth=2;" edge="1" parent="1">
-      <mxGeometry relative="1" as="geometry">
-        <mxPoint x="580" y="45" as="sourcePoint"/>
-        <mxPoint x="580" y="285" as="targetPoint"/>
-      </mxGeometry>
-    </mxCell>
-    <mxCell id="vlabel_h" value="heard boundary H(p) = te(f₃)&#10;(segment-level round-up)" style="text;html=1;align=left;verticalAlign=top;fontSize=12;fontColor=#0072B2;" vertex="1" parent="1">
-      <mxGeometry x="595" y="10" width="270" height="34" as="geometry"/>
-    </mxCell>
-    <mxCell id="inv" value="Monotone-lag invariant: p(t) ≤ s(t) ≤ g(t).  B-ours keeps only [0, H(p)) in history; ε(p) is the segment-granularity quantization error, bounded by one segment." style="text;html=1;align=left;verticalAlign=middle;fontSize=12;" vertex="1" parent="1">
-      <mxGeometry x="190" y="330" width="690" height="40" as="geometry"/>
-    </mxCell>
+    <mxCell id="lg" value="Generation G(t)&#10;(token domain)" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;" vertex="1" parent="1"><mxGeometry x="20" y="60" width="150" height="36" as="geometry"/></mxCell>
+    <mxCell id="ls" value="Registered S(t)&#10;(token domain)" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;" vertex="1" parent="1"><mxGeometry x="20" y="140" width="150" height="36" as="geometry"/></mxCell>
+    <mxCell id="lp" value="Playback p(t)&#10;(sample domain)" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;" vertex="1" parent="1"><mxGeometry x="20" y="220" width="150" height="36" as="geometry"/></mxCell>
+    <mxCell id="gbar" value="generated tokens  y₀ … yG₋₁" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#666666;fontSize=12;align=left;spacingLeft=8;" vertex="1" parent="1"><mxGeometry x="190" y="60" width="680" height="36" as="geometry"/></mxCell>
+    <mxCell id="gunheard" value="whole unplayed fragments (recurrence risk under B-gen)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F9DFD0;strokeColor=#D55E00;fontSize=12;" vertex="1" parent="1"><mxGeometry x="580" y="60" width="290" height="36" as="geometry"/></mxCell>
+    <mxCell id="f1" value="f₁" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1"><mxGeometry x="190" y="140" width="130" height="36" as="geometry"/></mxCell>
+    <mxCell id="f2" value="f₂" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1"><mxGeometry x="320" y="140" width="130" height="36" as="geometry"/></mxCell>
+    <mxCell id="f3" value="f₃ (hit fragment)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;fontSize=12;" vertex="1" parent="1"><mxGeometry x="450" y="140" width="130" height="36" as="geometry"/></mxCell>
+    <mxCell id="f4" value="f₄" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F9DFD0;strokeColor=#D55E00;fontSize=12;" vertex="1" parent="1"><mxGeometry x="580" y="140" width="130" height="36" as="geometry"/></mxCell>
+    <mxCell id="proxy" value="character ratio +&#10;whitespace proxy" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDEBD0;strokeColor=#E69F00;fontSize=10;" vertex="1" parent="1"><mxGeometry x="520" y="140" width="60" height="36" as="geometry"/></mxCell>
+    <mxCell id="pbar" value="played samples  [0, p)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5F0E6;strokeColor=#009E73;fontSize=12;" vertex="1" parent="1"><mxGeometry x="190" y="220" width="330" height="36" as="geometry"/></mxCell>
+    <mxCell id="vline_p" style="endArrow=none;dashed=1;strokeColor=#D55E00;strokeWidth=2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="520" y="45" as="sourcePoint"/><mxPoint x="520" y="285" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="vlabel_p" value="playback position p at barge-in&#10;(sample domain; hits f₃)" style="text;html=1;align=center;verticalAlign=top;fontSize=12;fontColor=#D55E00;" vertex="1" parent="1"><mxGeometry x="380" y="288" width="280" height="36" as="geometry"/></mxCell>
+    <mxCell id="vline_h" style="endArrow=none;dashed=1;strokeColor=#0072B2;strokeWidth=2;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="580" y="45" as="sourcePoint"/><mxPoint x="580" y="285" as="targetPoint"/></mxGeometry></mxCell>
+    <mxCell id="vlabel_h" value="fragment retention boundary Ĥ(p)=te(f₃)&#10;(token domain)" style="text;html=1;align=left;verticalAlign=top;fontSize=12;fontColor=#0072B2;" vertex="1" parent="1"><mxGeometry x="595" y="10" width="270" height="34" as="geometry"/></mxCell>
+    <mxCell id="inv" value="Locate the hit fragment using p, then compare token endpoints: Ĥ(p) ≤ S(t) ≤ G(t). B-ours keeps [0, Ĥ(p)); the unplayed in-fragment text suffix is evaluated only by a character-ratio, whitespace-snapped proxy." style="text;html=1;align=left;verticalAlign=middle;fontSize=12;" vertex="1" parent="1"><mxGeometry x="190" y="330" width="690" height="48" as="geometry"/></mxCell>
   </root>
 </mxGraphModel>

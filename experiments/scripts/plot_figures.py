@@ -32,10 +32,10 @@ _ZH = {
     "f1_xlabel": "打断注入位置（播放比例）",
     "f1_ylabel": "未听内容引用率（%）",
     "f1_xticks": ["25%", "50%", "75%", "干净边界"],
-    "f1_leg_rule": "B-gen（规则口径）",
-    "f1_leg_judge": "B-gen（裁判口径）",
-    "f1_leg_ours": "B-ours（两口径）",
-    "f2_knee": "拐点区\nθ∈[0.85, 0.97]",
+    "f1_leg_rule": "B-gen（词面检测）",
+    "f1_leg_judge": "B-gen（LLM 裁判）",
+    "f1_leg_ours": "B-ours（片段口径，构造性零）",
+    "f2_knee": "候选工作区间\nθ∈[0.85, 0.97]",
     "f2_leg_pts": "推测工作点",
     "f2_leg_sent": "永不推测（保守极限）",
     "f2_sent": "永不推测",
@@ -46,10 +46,10 @@ _ZH = {
     "f3_x2": "mouth-to-ear（ms，建模值：首片段就绪 + TTS 首块，3090 实测画像）",
     "f3_leg_tts": "其中：TTS 首块合成延迟",
     "f3_note": "（TTS 首块 {tts:.0f} ms）",
-    "f4_leg_pre": "重新 prefill（放弃 KV 复用）",
-    "f4_leg_reb": "角色重建（非关键路径，可延迟执行）",
-    "f4_leg_crop": "反查 + 截断（关键路径）",
-    "f4_note": "亚毫秒、与上下文长度无关",
+    "f4_leg_pre": "重新预填充（放弃 KV 复用）",
+    "f4_leg_recover": "crop 中位数 + 角色恢复中位数",
+    "f4_leg_crop": "KV 裁剪操作（crop-only）",
+    "f4_note": "0.31–0.34 ms（仅 KV 裁剪）",
     "f4_xlabel": "上下文长度（token）",
     "f4_ylabel": "延迟（ms，median）",
 }
@@ -57,10 +57,10 @@ _EN = {
     "f1_xlabel": "Barge-in injection position (playback fraction)",
     "f1_ylabel": "Unheard-content reference rate (%)",
     "f1_xticks": ["25%", "50%", "75%", "clean boundary"],
-    "f1_leg_rule": "B-gen (rule detector)",
+    "f1_leg_rule": "B-gen (lexical detector)",
     "f1_leg_judge": "B-gen (LLM judge)",
-    "f1_leg_ours": "B-ours (both)",
-    "f2_knee": "knee region\nθ∈[0.85, 0.97]",
+    "f1_leg_ours": "B-ours (fragment scope; by construction)",
+    "f2_knee": "candidate region\nθ∈[0.85, 0.97]",
     "f2_leg_pts": "speculative operating points",
     "f2_leg_sent": "never speculate (conservative limit)",
     "f2_sent": "never speculate",
@@ -72,9 +72,9 @@ _EN = {
     "f3_leg_tts": "TTS first-chunk synthesis latency",
     "f3_note": "(TTS first chunk {tts:.0f} ms)",
     "f4_leg_pre": "re-prefill (no KV reuse)",
-    "f4_leg_reb": "role rebuild (off critical path, deferrable)",
-    "f4_leg_crop": "lookup + crop (critical path)",
-    "f4_note": "sub-ms, independent of context length",
+    "f4_leg_recover": "median crop + median role recovery",
+    "f4_leg_crop": "KV crop operation only",
+    "f4_note": "0.31–0.34 ms (KV crop only)",
     "f4_xlabel": "Context length (tokens)",
     "f4_ylabel": "Latency (ms, median)",
 }
@@ -125,7 +125,11 @@ def _save(fig, stem):
     FIGDIR.mkdir(parents=True, exist_ok=True)
     stem = stem + SUFFIX
     for ext, kw in (("svg", {}), ("pdf", {}), ("png", {"dpi": 200})):
-        fig.savefig(FIGDIR / f"{stem}.{ext}", bbox_inches="tight", **kw)
+        path = FIGDIR / f"{stem}.{ext}"
+        fig.savefig(path, bbox_inches="tight", **kw)
+        if ext == "svg":
+            lines = path.read_text(encoding="utf-8").splitlines()
+            path.write_text("\n".join(line.rstrip() for line in lines) + "\n", encoding="utf-8")
     plt.close(fig)
     print(f"[saved] {FIGDIR / stem}.svg/.pdf/.png")
 
@@ -139,9 +143,11 @@ def fig6_1():
         rec = [
             r
             for r in data["records"]
-            if r["condition"] == cond and str(r["fraction"]) == frac
+            if not str(r["id"]).lower().startswith("fx")
+            and r["condition"] == cond
+            and str(r["fraction"]) == frac
         ]
-        assert rec, f"no records for {cond}/{frac}"
+        assert len(rec) == 100, f"expected 100 formal records for {cond}/{frac}, got {len(rec)}"
         return 100.0 * sum(bool(r[field]) for r in rec) / len(rec)
 
     gen_rule = [rate("generation", f, "referenced_unheard") for f in fractions]
@@ -149,12 +155,12 @@ def fig6_1():
     ours_rule = [rate("playback", f, "referenced_unheard") for f in fractions]
     ours_judge = [rate("playback", f, "judge_referenced_unheard") for f in fractions]
 
-    expect = {"gen_rule": [85.4, 48.5, 20.4, 49.5], "gen_judge": [4.9, 1.0, 1.9, 2.9]}
+    expect = {"gen_rule": [85.0, 47.0, 21.0, 48.0], "gen_judge": [4.0, 1.0, 2.0, 2.0]}
     for key, got in (("gen_rule", gen_rule), ("gen_judge", gen_judge)):
         for e, g in zip(expect[key], got):
-            assert abs(e - g) < 0.15, f"self-check fail {key}: expect {e} got {g:.2f}"
-    assert max(ours_rule + ours_judge) == 0.0, "B-ours 应为构造性零"
-    print(f"[fig6-1] B-gen rule {gen_rule} judge {gen_judge}  B-ours all-zero ✓")
+            assert abs(e - g) < 0.01, f"self-check fail {key}: expect {e} got {g:.2f}"
+    assert max(ours_rule + ours_judge) == 0.0, "B-ours 片段口径应为构造性零"
+    print(f"[fig6-1] formal MultiWOZ: B-gen rule {gen_rule} judge {gen_judge}; B-ours fragment-scope zero ✓")
 
     x = range(len(fractions))
     w = 0.26
@@ -191,13 +197,14 @@ def fig6_1():
 
 # ---------------------------------------------------------------- 图 6-2
 def fig6_2():
-    curve = _load("exp2_tradeoff.json")["curve"]
+    curve = _load("paper2_reanalysis.json")["e2"]["curve"]
     curve = sorted(curve, key=lambda p: p["threshold"])
+    assert len(curve) == 9 and all(p["n"] == 100 for p in curve)
     waste = [100 * p["spec_waste_rate"] for p in curve]
     ttft = [p["ttft_eff_ms"] for p in curve]
     surv = [100 * p["survived_rate"] for p in curve]
     thr = [p["threshold"] for p in curve]
-    print(f"[fig6-2] {len(curve)} pts, waste {waste[0]:.1f}%→{waste[-1]:.1f}%")
+    print(f"[fig6-2] {len(curve)} formal pts, waste {waste[0]:.1f}%→{waste[-1]:.1f}%")
 
     fig, ax = plt.subplots(figsize=(6.6, 4.2))
     knee = [w for w, t in zip(waste, thr) if 0.85 <= t <= 0.97]
@@ -318,24 +325,24 @@ def fig6_4():
     rows = _load("exp_a1_kvreuse.json")["results"]
     ctx = [r["ctx_len"] for r in rows]
     crop = [r["crop_only_ms"] for r in rows]
-    rebuild = [r["role_rebuild_ms"] for r in rows]
+    recovery = [r["crop_role_ms"] for r in rows]
     reprefill = [r["reprefill_ms"] for r in rows]
     speedup = [r["speedup"] for r in rows]
-    print(f"[fig6-4] ctx {ctx}  speedup {speedup}")
+    print(f"[fig6-4] ctx {ctx}  component-sum ratio {speedup}")
 
     fig, ax = plt.subplots(figsize=(6.4, 4.2))
     ax.plot(
         ctx, reprefill, "o-", color=C_VERMI, lw=1.8, ms=6, label=L["f4_leg_pre"],
     )
     ax.plot(
-        ctx, rebuild, "s--", color=C_ORANGE, lw=1.5, ms=6, mfc="white",
-        label=L["f4_leg_reb"],
+        ctx, recovery, "s--", color=C_ORANGE, lw=1.5, ms=6, mfc="white",
+        label=L["f4_leg_recover"],
     )
     ax.plot(
         ctx, crop, "^-", color=C_BLUE, lw=2.2, ms=7, mfc="white",
         label=L["f4_leg_crop"],
     )
-    for x, y, sp in zip(ctx, reprefill, speedup):
+    for x, y, sp in zip(ctx, recovery, speedup):
         ax.annotate(
             f"{sp:g}×", (x, y), textcoords="offset points", xytext=(0, 7),
             ha="center", fontsize=8.5,
@@ -347,7 +354,7 @@ def fig6_4():
     )
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_ylim(top=max(reprefill) * 2.5)
+    ax.set_ylim(top=max(reprefill) * 1.8)
     ax.set_xticks(ctx)
     ax.set_xticklabels([str(c) for c in ctx])
     ax.set_xlabel(L["f4_xlabel"])

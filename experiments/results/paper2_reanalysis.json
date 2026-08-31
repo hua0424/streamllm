@@ -1,0 +1,524 @@
+{
+  "analysis": {
+    "kind": "offline_reanalysis_without_gpu",
+    "bootstrap_repeats": 10000,
+    "seed": 20260831,
+    "source_results_directory": "D:\\project\\my\\research\\streamllm_p2\\experiments\\results",
+    "original_gpu_result_files_modified": false
+  },
+  "e1": {
+    "n": 100,
+    "system_a_ttft_ms": {
+      "mean": 27.407,
+      "median": 27.4,
+      "sd_population": 0.563,
+      "min": 26.5,
+      "max": 31.2
+    },
+    "system_b_ttft_eff_ms": {
+      "mean": 0.581,
+      "median": 0.1,
+      "sd_population": 4.786,
+      "min": 0.1,
+      "max": 48.2
+    },
+    "paired_improvement_ms": {
+      "mean": 26.826,
+      "bootstrap_95_ci": [
+        25.78995,
+        27.398
+      ],
+      "system_b_slower_count": 1
+    },
+    "speculation_survived": {
+      "count": 99,
+      "rate": 0.99
+    },
+    "scope_note": "Text-segment-driven harness; the saved records do not contain input duration, so an input-length slope cannot be reconstructed."
+  },
+  "e2": {
+    "raw_record_count": 912,
+    "clean_record_count": 900,
+    "excluded_fixture_records": 12,
+    "excluded_nonformal_threshold_records": 0,
+    "curve": [
+      {
+        "threshold": 0.0052,
+        "n": 100,
+        "spec_waste_rate": 0.291946,
+        "ttft_eff_ms": 0.537,
+        "survived_rate": 1,
+        "avg_ready_tokens": 12
+      },
+      {
+        "threshold": 0.1979,
+        "n": 100,
+        "spec_waste_rate": 0.161811,
+        "ttft_eff_ms": 0.1,
+        "survived_rate": 1,
+        "avg_ready_tokens": 12
+      },
+      {
+        "threshold": 0.3906,
+        "n": 100,
+        "spec_waste_rate": 0.143669,
+        "ttft_eff_ms": 0.572,
+        "survived_rate": 0.99,
+        "avg_ready_tokens": 11.88
+      },
+      {
+        "threshold": 0.5833,
+        "n": 100,
+        "spec_waste_rate": 0.135644,
+        "ttft_eff_ms": 1.066,
+        "survived_rate": 0.98,
+        "avg_ready_tokens": 11.76
+      },
+      {
+        "threshold": 0.776,
+        "n": 100,
+        "spec_waste_rate": 0.115331,
+        "ttft_eff_ms": 3.915,
+        "survived_rate": 0.92,
+        "avg_ready_tokens": 11.04
+      },
+      {
+        "threshold": 0.85,
+        "n": 100,
+        "spec_waste_rate": 0.106618,
+        "ttft_eff_ms": 5.838,
+        "survived_rate": 0.88,
+        "avg_ready_tokens": 10.56
+      },
+      {
+        "threshold": 0.92,
+        "n": 100,
+        "spec_waste_rate": 0.044632,
+        "ttft_eff_ms": 12.07,
+        "survived_rate": 0.75,
+        "avg_ready_tokens": 9
+      },
+      {
+        "threshold": 0.9688,
+        "n": 100,
+        "spec_waste_rate": 0.007521,
+        "ttft_eff_ms": 29.322,
+        "survived_rate": 0.39,
+        "avg_ready_tokens": 4.68
+      },
+      {
+        "threshold": 1.1,
+        "n": 100,
+        "spec_waste_rate": 0.0,
+        "ttft_eff_ms": 48.345,
+        "survived_rate": 0,
+        "avg_ready_tokens": 0
+      }
+    ],
+    "dominated_points": [
+      {
+        "threshold": 0.0052,
+        "dominated_by": 0.1979
+      }
+    ],
+    "scope_note": "Nine discrete points from a synchronous speculation harness; the curve is not strictly monotonic at the aggressive end."
+  },
+  "e3": {
+    "raw_record_count": 824,
+    "clean_record_count": 800,
+    "dialogue_count": 100,
+    "excluded_fixture_records": 24,
+    "metrics": {
+      "loose_rule": {
+        "conditions": {
+          "playback": {
+            "count": 0,
+            "n": 400,
+            "rate": 0.0,
+            "wilson_95_ci": [
+              0.0,
+              0.009512
+            ]
+          },
+          "generation": {
+            "count": 201,
+            "n": 400,
+            "rate": 0.5025,
+            "wilson_95_ci": [
+              0.453711,
+              0.551241
+            ]
+          }
+        },
+        "paired_mcnemar": {
+          "paired_records": 400,
+          "playback_only": 0,
+          "generation_only": 201,
+          "exact_p": 6.223015277861142e-61
+        },
+        "dialogue_cluster_bootstrap": {
+          "playback_rate": 0.0,
+          "playback_cluster_bootstrap_95_ci": [
+            0.0,
+            0.0
+          ],
+          "generation_rate": 0.5025,
+          "generation_cluster_bootstrap_95_ci": [
+            0.445,
+            0.56
+          ],
+          "generation_minus_playback": 0.5025,
+          "difference_cluster_bootstrap_95_ci": [
+            0.445,
+            0.56
+          ]
+        }
+      },
+      "strict_rule": {
+        "conditions": {
+          "playback": {
+            "count": 203,
+            "n": 400,
+            "rate": 0.5075,
+            "wilson_95_ci": [
+              0.458669,
+              0.556189
+            ]
+          },
+          "generation": {
+            "count": 290,
+            "n": 400,
+            "rate": 0.725,
+            "wilson_95_ci": [
+              0.679258,
+              0.766461
+            ]
+          }
+        },
+        "paired_mcnemar": {
+          "paired_records": 400,
+          "playback_only": 25,
+          "generation_only": 112,
+          "exact_p": 2.403640054084458e-14
+        },
+        "dialogue_cluster_bootstrap": {
+          "playback_rate": 0.5075,
+          "playback_cluster_bootstrap_95_ci": [
+            0.46,
+            0.555
+          ],
+          "generation_rate": 0.725,
+          "generation_cluster_bootstrap_95_ci": [
+            0.6725,
+            0.7775
+          ],
+          "generation_minus_playback": 0.2175,
+          "difference_cluster_bootstrap_95_ci": [
+            0.16,
+            0.2775
+          ]
+        }
+      },
+      "loose_judge": {
+        "conditions": {
+          "playback": {
+            "count": 0,
+            "n": 400,
+            "rate": 0.0,
+            "wilson_95_ci": [
+              0.0,
+              0.009512
+            ]
+          },
+          "generation": {
+            "count": 9,
+            "n": 400,
+            "rate": 0.0225,
+            "wilson_95_ci": [
+              0.011882,
+              0.042203
+            ]
+          }
+        },
+        "paired_mcnemar": {
+          "paired_records": 400,
+          "playback_only": 0,
+          "generation_only": 9,
+          "exact_p": 0.00390625
+        },
+        "dialogue_cluster_bootstrap": {
+          "playback_rate": 0.0,
+          "playback_cluster_bootstrap_95_ci": [
+            0.0,
+            0.0
+          ],
+          "generation_rate": 0.0225,
+          "generation_cluster_bootstrap_95_ci": [
+            0.0075,
+            0.0425
+          ],
+          "generation_minus_playback": 0.0225,
+          "difference_cluster_bootstrap_95_ci": [
+            0.0075,
+            0.0425
+          ]
+        }
+      },
+      "strict_judge": {
+        "conditions": {
+          "playback": {
+            "count": 7,
+            "n": 400,
+            "rate": 0.0175,
+            "wilson_95_ci": [
+              0.008502,
+              0.035677
+            ]
+          },
+          "generation": {
+            "count": 9,
+            "n": 400,
+            "rate": 0.0225,
+            "wilson_95_ci": [
+              0.011882,
+              0.042203
+            ]
+          }
+        },
+        "paired_mcnemar": {
+          "paired_records": 400,
+          "playback_only": 6,
+          "generation_only": 8,
+          "exact_p": 0.79052734375
+        },
+        "dialogue_cluster_bootstrap": {
+          "playback_rate": 0.0175,
+          "playback_cluster_bootstrap_95_ci": [
+            0.005,
+            0.0325
+          ],
+          "generation_rate": 0.0225,
+          "generation_cluster_bootstrap_95_ci": [
+            0.0075,
+            0.04
+          ],
+          "generation_minus_playback": 0.005,
+          "difference_cluster_bootstrap_95_ci": [
+            -0.0125,
+            0.0225
+          ]
+        }
+      }
+    },
+    "generation_loose_by_fraction": {
+      "0.25": {
+        "n": 100,
+        "rule_count": 85,
+        "rule_rate": 0.85,
+        "judge_count": 4,
+        "judge_rate": 0.04
+      },
+      "0.5": {
+        "n": 100,
+        "rule_count": 47,
+        "rule_rate": 0.47,
+        "judge_count": 1,
+        "judge_rate": 0.01
+      },
+      "0.75": {
+        "n": 100,
+        "rule_count": 21,
+        "rule_rate": 0.21,
+        "judge_count": 2,
+        "judge_rate": 0.02
+      },
+      "boundary": {
+        "n": 100,
+        "rule_count": 48,
+        "rule_rate": 0.48,
+        "judge_count": 2,
+        "judge_rate": 0.02
+      }
+    },
+    "playback_clean_boundary_zero_strict_residual": {
+      "count": 100,
+      "n": 100
+    },
+    "detector_kappa": {
+      "loose": 0.055858,
+      "strict": 0.025098
+    },
+    "scope_note": "Results come from a synchronous full-generation simulation with a 40-token cap; loose playback zero is guaranteed by the metric construction."
+  },
+  "e3_human_sample": {
+    "raw_sample_count": 37,
+    "clean_sample_count": 35,
+    "excluded_fixture_samples": 2,
+    "groups": {
+      "all": {
+        "n": 35,
+        "human_positive": 2,
+        "human_rule_agreement": 0.2,
+        "human_rule_kappa": -0.044776,
+        "human_judge_agreement": 0.742857,
+        "human_judge_kappa": 0.233577
+      },
+      "loose_generation": {
+        "n": 12,
+        "human_positive": 2,
+        "human_rule_agreement": 0.25,
+        "human_rule_kappa": -0.125,
+        "human_judge_agreement": 0.833333,
+        "human_judge_kappa": 0.571429
+      },
+      "strict_playback": {
+        "n": 11,
+        "human_positive": 0,
+        "human_rule_agreement": 0.181818,
+        "human_rule_kappa": 0.0,
+        "human_judge_agreement": 0.727273,
+        "human_judge_kappa": 0.0,
+        "human_positive_wilson_95_ci": [
+          0.0,
+          0.258833
+        ]
+      },
+      "strict_generation": {
+        "n": 12,
+        "human_positive": 0,
+        "human_rule_agreement": 0.166667,
+        "human_rule_kappa": 0.0,
+        "human_judge_agreement": 0.666667,
+        "human_judge_kappa": -0.0
+      }
+    },
+    "scope_note": "The sample was stratified on detector outputs and the labels were visible during annotation; its kappa values are descriptive, not population estimates."
+  },
+  "a1": {
+    "results": [
+      {
+        "ctx_len": 275,
+        "keep_len": 243,
+        "crop_only_ms": 0.308,
+        "role_rebuild_ms": 24.87,
+        "crop_role_ms": 25.17,
+        "reprefill_ms": 71.65,
+        "speedup": 2.8,
+        "reprefill_over_crop_only": 232.6,
+        "reprefill_over_full_recovery": 2.8
+      },
+      {
+        "ctx_len": 527,
+        "keep_len": 495,
+        "crop_only_ms": 0.321,
+        "role_rebuild_ms": 26.37,
+        "crop_role_ms": 26.69,
+        "reprefill_ms": 130.09,
+        "speedup": 4.9,
+        "reprefill_over_crop_only": 405.3,
+        "reprefill_over_full_recovery": 4.9
+      },
+      {
+        "ctx_len": 1031,
+        "keep_len": 999,
+        "crop_only_ms": 0.308,
+        "role_rebuild_ms": 26.89,
+        "crop_role_ms": 27.2,
+        "reprefill_ms": 234.84,
+        "speedup": 8.6,
+        "reprefill_over_crop_only": 762.5,
+        "reprefill_over_full_recovery": 8.6
+      },
+      {
+        "ctx_len": 2060,
+        "keep_len": 2028,
+        "crop_only_ms": 0.322,
+        "role_rebuild_ms": 29.59,
+        "crop_role_ms": 29.91,
+        "reprefill_ms": 458.5,
+        "speedup": 15.3,
+        "reprefill_over_crop_only": 1423.9,
+        "reprefill_over_full_recovery": 15.3
+      },
+      {
+        "ctx_len": 4097,
+        "keep_len": 4065,
+        "crop_only_ms": 0.32,
+        "role_rebuild_ms": 35.04,
+        "crop_role_ms": 35.36,
+        "reprefill_ms": 890.5,
+        "speedup": 25.2,
+        "reprefill_over_crop_only": 2782.8,
+        "reprefill_over_full_recovery": 25.2
+      },
+      {
+        "ctx_len": 8192,
+        "keep_len": 8160,
+        "crop_only_ms": 0.339,
+        "role_rebuild_ms": 46.54,
+        "crop_role_ms": 46.88,
+        "reprefill_ms": 1863.42,
+        "speedup": 39.7,
+        "reprefill_over_crop_only": 5496.8,
+        "reprefill_over_full_recovery": 39.7
+      }
+    ],
+    "scope_note": "crop_only_ms times DynamicCache.crop only; timeline lookup, playback stopping, thread scheduling, and concurrent load are outside this microbenchmark."
+  },
+  "a2": {
+    "dialogues_with_all_policies": 100,
+    "all_three_heard_text_equal": 33,
+    "pairwise_heard_text_equal": {
+      "naive_mark": 46,
+      "naive_rewrite": 49,
+      "mark_rewrite": 50
+    },
+    "rewrite_changed_retained_history": 53,
+    "rewrite_latency_ms": {
+      "mean": 639.09,
+      "median": 670.0,
+      "p90_linear": 935.37,
+      "max": 1165.2
+    },
+    "score_descriptives": {
+      "naive": {
+        "n": 100,
+        "mean": 3.76,
+        "median": 5.0,
+        "sd_population": 1.739,
+        "counts": {
+          "1": 26,
+          "3": 10,
+          "5": 64
+        }
+      },
+      "mark": {
+        "n": 100,
+        "mean": 3.29,
+        "median": 3.0,
+        "sd_population": 1.768,
+        "counts": {
+          "1": 32,
+          "2": 3,
+          "3": 16,
+          "4": 2,
+          "5": 47
+        }
+      },
+      "rewrite": {
+        "n": 100,
+        "mean": 3.62,
+        "median": 5.0,
+        "sd_population": 1.765,
+        "counts": {
+          "1": 28,
+          "2": 1,
+          "3": 11,
+          "4": 1,
+          "5": 59
+        }
+      }
+    },
+    "scope_note": "Policies independently regenerated the interrupted reply and the next reply; the reported score differences do not isolate a causal history-policy effect."
+  }
+}

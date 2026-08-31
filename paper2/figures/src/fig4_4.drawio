@@ -14,10 +14,10 @@
     <mxCell id="a3" value="assistant 开" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
       <mxGeometry x="400" y="55" width="90" height="40" as="geometry"/>
     </mxCell>
-    <mxCell id="a4" value="已听内容 y₁ … y_H(p)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5F0E6;strokeColor=#009E73;fontSize=12;" vertex="1" parent="1">
+    <mxCell id="a4" value="片段级保留 y₀ … y_Ĥ(p)−1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5F0E6;strokeColor=#009E73;fontSize=12;" vertex="1" parent="1">
       <mxGeometry x="490" y="55" width="180" height="40" as="geometry"/>
     </mxCell>
-    <mxCell id="a5" value="未听内容 y_H(p)+1 … y_G" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F9DFD0;strokeColor=#D55E00;fontSize=12;" vertex="1" parent="1">
+    <mxCell id="a5" value="完整未播放 y_Ĥ(p) … yG−1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F9DFD0;strokeColor=#D55E00;fontSize=12;" vertex="1" parent="1">
       <mxGeometry x="670" y="55" width="190" height="40" as="geometry"/>
     </mxCell>
     <mxCell id="cropline" style="endArrow=none;dashed=1;strokeColor=#D55E00;strokeWidth=3;" edge="1" parent="1">
@@ -26,7 +26,7 @@
         <mxPoint x="670" y="115" as="targetPoint"/>
       </mxGeometry>
     </mxCell>
-    <mxCell id="croplabel" value="① crop(N)，N = a₀ + H(p)：KV 张量切片 ＋ 掩码同步截短至 N（关键路径，亚毫秒）" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#D55E00;" vertex="1" parent="1">
+    <mxCell id="croplabel" value="① crop(N)，N = a₀ + Ĥ(p)：KV 与掩码裁至 N；assistant 账本裁至相对长度 Ĥ(p)（crop-only 微基准）" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#D55E00;" vertex="1" parent="1">
       <mxGeometry x="150" y="120" width="700" height="28" as="geometry"/>
     </mxCell>
     <mxCell id="lb" value="截断＋角色重建后" style="text;html=1;align=right;verticalAlign=middle;fontSize=13;fontStyle=1;" vertex="1" parent="1">
@@ -41,7 +41,7 @@
     <mxCell id="b3" value="assistant 开" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F2F2F2;strokeColor=#666666;fontSize=12;" vertex="1" parent="1">
       <mxGeometry x="400" y="195" width="90" height="40" as="geometry"/>
     </mxCell>
-    <mxCell id="b4" value="已听内容 y₁ … y_H(p)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5F0E6;strokeColor=#009E73;fontSize=12;" vertex="1" parent="1">
+    <mxCell id="b4" value="片段级保留 y₀ … y_Ĥ(p)−1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D5F0E6;strokeColor=#009E73;fontSize=12;" vertex="1" parent="1">
       <mxGeometry x="490" y="195" width="180" height="40" as="geometry"/>
     </mxCell>
     <mxCell id="b5" value="角色切换串&#10;⟨assistant 闭⟩⟨user 开⟩" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDEBD0;strokeColor=#E69F00;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
@@ -59,7 +59,7 @@
     <mxCell id="c2" value="角色切换串" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDEBD0;strokeColor=#E69F00;fontSize=12;" vertex="1" parent="1">
       <mxGeometry x="670" y="330" width="100" height="40" as="geometry"/>
     </mxCell>
-    <mxCell id="c3" value="user：u₁′ …&#10;位置编码自 N 连续" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
+    <mxCell id="c3" value="user：u₁′ …&#10;位置编码自 N+q 连续" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#D6EBF5;strokeColor=#0072B2;strokeWidth=2;fontSize=12;" vertex="1" parent="1">
       <mxGeometry x="770" y="330" width="160" height="40" as="geometry"/>
     </mxCell>
     <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;strokeWidth=2;exitX=0;exitY=1;entryX=0;entryY=0;" edge="1" parent="1" source="a1" target="b1">
@@ -76,7 +76,7 @@
         </Array>
       </mxGeometry>
     </mxCell>
-    <mxCell id="inv" value="全程满足定义 3.5 三不变式：|𝒦| = |mask| = 序列长度、位置编码连续、模板角色合法（运行时检查覆盖全部实验路径）" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#555555;" vertex="1" parent="1">
+    <mxCell id="inv" value="裁剪后：|𝒦|=|mask|=N，assistant 账本长度=Ĥ(p)；角色串 q 个 token 预填充后：|𝒦|=|mask|=N+q，账本不包含角色串。" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#555555;" vertex="1" parent="1">
       <mxGeometry x="150" y="390" width="740" height="30" as="geometry"/>
     </mxCell>
   </root>
