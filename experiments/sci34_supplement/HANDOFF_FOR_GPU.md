@@ -1,6 +1,8 @@
-# GPU 实验机交接文档（SCI 补实验）
+# GPU 实验机交接文档（SCI 补实验，已完成归档）
 
-> 面向对象：GPU 实验机上的运行 agent。本文档是唯一入口，按顺序执行。
+> 正式补实验已全部完成：P1 v2 结果见 run `sci34_dc52978_20260901_async_prepared_v2` 与 D-015。当前不要再次执行本文档；以下内容只保留为复现与审计流程。
+>
+> 面向对象：需要独立复现实验的 GPU 运行 agent。
 > 详细参考：[GPU_RUNBOOK.md](GPU_RUNBOOK.md)（完整命令）、[EXPERIMENT_PLAN.md](EXPERIMENT_PLAN.md)（设计与验收）、[CLAIMS_MATRIX.md](CLAIMS_MATRIX.md)（允许的论文主张）。
 > 阅读顺序：本文档 → GPU_RUNBOOK.md → 遇到主张类问题查 CLAIMS_MATRIX.md。
 
@@ -10,7 +12,7 @@
    - **S-E3** 固定生成轨迹一致性（消除原 E3 两条件生成轨迹不同的混杂）；
    - **S-A1** KV crop + 角色恢复联合计时（raw repeats + median/IQR）；
    - **S-P1** headless 异步播放控制路径微基准。
-2. **当前批准任务只定向重跑 S-P1 prepared-state v2**。旧 P1 在播放器启动前发起的异步 `ensure_full()` 尚未完成，第一次 stop 后的同步把这段准备工作错误计入 stop→crop/role；这不是可通过删除首个样本解决的一次性冷启动。旧 `${CAMPAIGN}_async` 原样保留，E3/judge/A1 与所有旧实验都不重跑。
+2. **归档状态**：S-P1 prepared-state v2 已完成并通过 D-015 验收。旧 P1 在播放器启动前发起的异步 `ensure_full()` 尚未完成，第一次 stop 后的同步把这段准备工作错误计入 stop→crop/role；这不是可通过删除首个样本解决的一次性冷启动。独立复现时仍须保持旧 `${CAMPAIGN}_async` 只读，且不得顺带重跑 E3/judge/A1。
 3. **明确禁止**：人工评测步骤、A2/E3/A1 重跑、真实声卡播放、在线 TTS 取消、完整音频闭环、任何联网下载模型。
 
 ## 1. 环境要求

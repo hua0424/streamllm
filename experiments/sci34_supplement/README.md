@@ -8,7 +8,7 @@
 |---|---|---|---|
 | S-E3 | 固定生成轨迹 E3 | playback/generation 共享同一首轮输出，消除原 E3 的生成轨迹混杂 | 受控文本、Mock TTS 时长映射、greedy probe |
 | S-A1 | joint crop + role microbenchmark | 直接测联合恢复路径，保存 raw repeats 和 median/IQR | 模型侧 GPU 微基准，不是完整 barge-in |
-| S-P1 | headless async control path | 测软件停播确认、timeline lookup、GPU crop/role 联合路径 | 无声卡墙钟播放，不是声学停播或在线 TTS 取消 |
+| S-P1 | headless async control path | 已接受：180 条 prepared-state v2 事件，测软件停播确认、timeline lookup、GPU crop/role 联合路径 | 无声卡墙钟播放，不是声学停播或在线 TTS 取消 |
 
 不包含：人工盲评、A2 重跑、完整真实音频闭环、B-syn、E4、中文或多主模型实验。
 
@@ -37,6 +37,8 @@ experiments/sci34_supplement/results/<experiment>/<run_id>/
 ```
 
 Resume 时会比较 config hash 与输入 SHA-256。不一致时拒绝续跑，避免再次混合 fixture、模型或旧 schema。
+
+已接受的 P1 v2 结果位于 `results/async_bargein/sci34_dc52978_20260901_async_prepared_v2/`。GPU 实验员按约定用 `git add -f` 将默认忽略的正式结果、日志和环境快照纳入 commit `ee1dcc7`；该操作只增加版本化审计副本，不改变实验数据或协议。
 
 ## 快速入口
 

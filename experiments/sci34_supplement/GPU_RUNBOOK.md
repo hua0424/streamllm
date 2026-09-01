@@ -1,4 +1,6 @@
-# GPU 主机执行说明
+# GPU 主机执行说明（补实验已完成，仅供复现）
+
+> D-015 已接受正式 P1 v2 run `sci34_dc52978_20260901_async_prepared_v2`。当前论文不需要再次运行本手册；以下命令仅用于独立复现。
 
 以下命令从项目根目录执行。示例假设仓库位于 `/dataA/streamllm`，模型已在本地缓存或本地目录中。正式实验禁止临时下载模型。
 
@@ -192,7 +194,7 @@ uv run python -m experiments.sci34_supplement.analyze_latency \
 
 ## 9. Headless 异步播放 P1 prepared-state 定向重跑
 
-旧 `${CAMPAIGN}_async` 的准备态异步工作污染结果只保留作审计，不修改、不追加。本次只重跑 P1，详细协议、环境快照与专用打包命令见 [P1_PREPARED_RERUN.md](P1_PREPARED_RERUN.md)。该实验不需要声卡，主模型只用于真实 KV crop/role 软件路径。
+旧 `${CAMPAIGN}_async` 的准备态异步工作污染结果只保留作审计，不修改、不追加。若独立复现，只运行 P1，详细协议、环境快照与专用打包命令见 [P1_PREPARED_RERUN.md](P1_PREPARED_RERUN.md)。该实验不需要声卡，主模型只用于真实 KV crop/role 软件路径。
 
 ```bash
 export P1_RUN_ID="${CAMPAIGN}_async_prepared_v2"
@@ -225,11 +227,11 @@ uv run python -m experiments.sci34_supplement.analyze_latency \
 
 ```bash
 bash experiments/sci34_supplement/run_all_gpu.sh
-# 当前 P1 定向重跑：
+# 仅复现 P1：
 P1_ONLY=1 bash experiments/sci34_supplement/run_all_gpu.sh
 ```
 
-脚本保留完整补实验编排能力，但 P1 默认使用新 prepared-state v2 协议和独立 `${CAMPAIGN}_async_prepared_v2` 目录。当前批准的是 P1-only 定向重跑，优先直接执行第 9 节或设置 `P1_ONLY=1` 运行脚本。若要 A1 50 repeats，设置：
+脚本保留完整补实验编排能力，但 P1 默认使用 prepared-state v2 协议和独立 `${CAMPAIGN}_async_prepared_v2` 目录。独立复现 P1 时，优先直接执行第 9 节或设置 `P1_ONLY=1` 运行脚本。若复现 A1 50 repeats，设置：
 
 ```bash
 export A1_REPEATS=50
@@ -239,7 +241,7 @@ bash experiments/sci34_supplement/run_all_gpu.sh
 
 ## 11. 打包和回传
 
-本次为 **P1-only 定向重跑**。不得重新打包 E3/judge/A1，也不得把旧 `${CAMPAIGN}_async` 混入新包。按 [P1_PREPARED_RERUN.md](P1_PREPARED_RERUN.md) 仅打包：
+独立复现时采用 **P1-only** 打包。不得重新打包 E3/judge/A1，也不得把旧 `${CAMPAIGN}_async` 混入新包。按 [P1_PREPARED_RERUN.md](P1_PREPARED_RERUN.md) 仅打包：
 
 - `async_bargein/${P1_RUN_ID}/`（新 run 的 manifest、raw records、summary、analysis）；
 - `run_logs/${P1_RUN_ID}.log`；

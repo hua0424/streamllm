@@ -52,9 +52,10 @@ GPU 运行方最初按“无 per-length warmup 的 CUDA 首次分配/kernel 编�
 - 验收全过：180 条 formal records（9 单元 × 20），`protocol=async_prepared_v2`、
   `prepared_state_synchronized=true`、`leaked_samples=0`、request/ack 精确命中目标采样点；
   partial 几何 0.25/0.75→true（120 条 mid_fragment）、0.5→false（60 条 fragment_boundary）。
-- 关键数值（median/p95，ms；全 9 单元范围）：stop ack 0.055–0.062 / ≤0.077；
-  post-stop sync 0.167–0.176 / ≤0.35；timeline lookup 0.47–0.50 / ≤0.94；
-  stop→crop 2.44–2.53 / ≤3.49；stop→role 78.6–80.8 / ≤86.1。
+- 关键数值（median / 最大单元 P95，ms；全 9 单元）：stop ack 0.055–0.062 / 约 0.077；
+  post-stop sync 0.167–0.176 / 约 0.352；timeline lookup 0.47–0.50 / 约 0.94；
+  stop→crop 2.44–2.53 / 约 3.492；stop→role 78.6–80.8 / 约 86.1。精确最大单元 P95
+  分别为 0.076842、0.351591、0.939422、3.491824 和 86.084611 ms。
   旧 run 的跨单元冷启动异常消失：stop→crop/role 在 512/2048/8192 与三个位置间均匀，
   `setup_ms`（41–1717 ms，随长度增长）被正确隔离在 stop 路径之外。
 - 环境：`sentencepiece==0.2.2` 已并入 pyproject（`dc52978`），venv 内旧装版本一致；

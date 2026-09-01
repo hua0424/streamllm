@@ -31,15 +31,16 @@
 - 包含播放器停播、timeline lookup、服务通信或 GPU 并发负载。
 - 结果无条件适用于其他模型和推理引擎。
 
-## S-P1 prepared-state v2 完成后
+## S-P1 prepared-state v2 已接受
 
-旧 P1 v1 的 stop→crop/role 联合计时被异步准备态工作污染，只可作为协议审计；以下主张必须基于新 run ID 的 v2 正式结果。
+正式证据为 run `sci34_dc52978_20260901_async_prepared_v2`（代码 `dc52978`，结果 `ee1dcc7`）。旧 P1 v1 的 stop→crop/role 联合计时被异步准备态工作污染，只可作为协议审计。
 
 ### 可以声称
 
-- headless wall-clock-paced software playback 的 stop acknowledgment、游标泄漏和 timeline lookup 分布。
-- 在该控制路径中，stop→crop 和 stop→role 的软件/模型侧联合延迟。
-- GPU 服务器无需声卡即可复现实验。
+- 9 个单元、180 条正式事件全部精确命中软件采样目标，停播确认后零软件采样泄漏；其中 120 条为片段内路径、60 条为片段边界路径。
+- headless wall-clock-paced software playback 的 stop acknowledgment、post-stop device sync 和 timeline lookup 分布。
+- 在该控制路径中，stop→crop 和 stop→role 的软件/模型侧累计延迟；九单元中位数范围分别为 2.44–2.53 ms 和 78.6–80.8 ms，最大单元 P95 分别约为 3.492 ms 和 86.1 ms。
+- 播放前 setup 已单独计量并从 stop 路径排除；GPU 服务器无需声卡即可复现实验。
 
 ### 不可以声称
 
@@ -48,6 +49,8 @@
 - 在线 CosyVoice 推理已被取消。
 - ASR、LLM、TTS、播放器真实并发竞争已验证。
 - 生产级完整端到端 barge-in latency。
+- 九个单元范围较窄即可证明上下文长度无关、跨硬件不变或可与 A1 跨 campaign 相减得到固定系统开销。
+- 把累计区间与组件中位数相加。
 
 ## 不做人工评测的影响
 

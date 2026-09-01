@@ -1,6 +1,8 @@
-# P1 prepared-state 定向重跑
+# P1 prepared-state 定向重跑（已完成，仅供复现）
 
-本轮只重跑 S-P1 的 headless 软件控制路径；不使用声卡、不运行真实 TTS/ASR、不做完整音频闭环。旧 `${CAMPAIGN}_async` 保持只读，新 run-id 必须以 `async_prepared_v2` 结尾。
+> 正式 run `sci34_dc52978_20260901_async_prepared_v2` 已通过 D-015 验收并归档于 `results/async_bargein/`。除非开展独立复现实验，不要再次执行本页命令；当前论文不需要更多 P1 重跑。
+
+本协议只运行 S-P1 的 headless 软件控制路径；不使用声卡、不运行真实 TTS/ASR、不做完整音频闭环。旧 `${CAMPAIGN}_async` 保持只读，新复现 run-id 必须以 `async_prepared_v2` 结尾。
 
 ## 1. 固定环境与精确快照
 

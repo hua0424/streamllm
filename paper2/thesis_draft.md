@@ -1,7 +1,7 @@
 # 播放感知的级联式流式语音对话上下文管理
 
 > 全文合并草稿（自动生成，勿直接编辑；请修改分章 Markdown 后重新合并）。
-> 本文件已于 2026-09-01 依据固定轨迹 E3、联合计时 A1 与补实验审计结果更新。
+> 本文件已于 2026-09-01 依据固定轨迹 E3、联合计时 A1、prepared-state P1 v2 与补实验审计结果更新。
 
 # 摘要
 
@@ -13,7 +13,7 @@
 
 在 Qwen2-7B-Instruct 和 MultiWOZ 派生数据上的固定轨迹受控实验中，playback 与 generation 条件共享同一条被打断回复、片段时间轴和注入位置，首轮及后续探测回复均限制为最多 40 token。片段目标非空的 297 个配对场景中，规则检测率为 67.0%（199/297）与 63.6%（189/297），单一异构 LLM 裁判率为 42.8%（127/297）与 40.7%（121/297）；generation 减 playback 的按对话聚类 bootstrap 95% 区间分别为 [−9.5, 2.8] 和 [−8.9, 6.1] 个百分点。按自身非空目标修正后的字符比例—空白边界代理包含 380 个配对场景，规则检测率为 75.3%（286/380）与 73.7%（280/380），裁判率为 43.9%（167/380）与 41.3%（157/380），相应区间为 [−5.75, 2.50] 和 [−8.25, 2.67] 个百分点。四个点估计均较小且方向与预设假设相反，配对检验均不显著；这些结果不支持优效、等效、非劣或伤害主张。另有 400/400 的 playback 条件通过“局部完整未播放文本为空”的构造检查，但该检查不属于语义效果估计。
 
-推测阈值的九点扫描显示总体的计算浪费—有效首 token 延迟权衡：阈值为 0.92 时，以约 4.5% 的 token 浪费将平均延迟由不推测时的 48.3 ms 降至 12.1 ms。新的同步 GPU 微基准对 KV 裁剪与角色恢复进行同一区间联合计时；在 256–8192 token 上，联合路径中位数为 31.054–48.315 ms，IQR 为 0.635–3.099 ms，重新预填充中位数与联合路径中位数之比为 2.254–40.620。该结果是模型侧微基准，不是完整用户打断链路。受独立生成混杂的历史策略运行中，重写策略未获得高于朴素策略的平均连贯性分数；现有数据不支持策略因果比较。
+推测阈值的九点扫描显示总体的计算浪费—有效首 token 延迟权衡：阈值为 0.92 时，以约 4.5% 的 token 浪费将平均延迟由不推测时的 48.3 ms 降至 12.1 ms。新的同步 GPU 微基准对 KV 裁剪与角色恢复进行同一区间联合计时；在 256–8192 token 上，联合路径中位数为 31.054–48.315 ms，IQR 为 0.635–3.099 ms，重新预填充中位数与联合路径中位数之比为 2.254–40.620。独立的 prepared-state P1 在 180 次 headless 墙钟节拍软件播放中均精确命中注入目标且无软件采样泄漏；软件停播确认、stop→crop 和 stop→角色恢复的单元中位数分别为 0.055–0.062、2.44–2.53 和 78.6–80.8 ms，最大单元 P95 分别约为 0.077、3.492 和 86.1 ms。A1 是模型侧微基准，P1 只测软件播放器与模型状态控制；二者都不是声卡、声学停播或生产端到端打断测量。受独立生成混杂的历史策略运行中，重写策略未获得高于朴素策略的平均连贯性分数；现有数据不支持策略因果比较。
 
 **关键词**：语音对话系统；用户打断；KV 缓存；推测生成；上下文一致性；低延迟
 
@@ -25,7 +25,7 @@ The thesis first distinguishes the generation boundary, the registered-fragment 
 
 In a fixed-trajectory controlled experiment using Qwen2-7B-Instruct and MultiWOZ-derived data, the playback and generation conditions share the same interrupted response, fragment timeline, and injection position; both interrupted turns and subsequent probes are capped at 40 tokens. Among 297 pairs with a nonempty fragment target, rule-positive rates are 67.0% (199/297) and 63.6% (189/297), while single cross-family LLM-judge rates are 42.8% (127/297) and 40.7% (121/297). Dialogue-cluster bootstrap 95% intervals for generation minus playback are [−9.5, 2.8] and [−8.9, 6.1] percentage points, respectively. After eligibility is corrected using the proxy target itself, 380 pairs remain: rule-positive rates are 75.3% (286/380) and 73.7% (280/380), judge-positive rates are 43.9% (167/380) and 41.3% (157/380), and the corresponding intervals are [−5.75, 2.50] and [−8.25, 2.67] percentage points. All four point estimates are small and opposite to the prespecified direction, and none of the paired tests is significant. The evidence supports no superiority, equivalence, noninferiority, or harm claim. Separately, all 400 playback cases pass the construction check that condition-local complete-unheard text is empty; this is not a semantic-effect estimate.
 
-A nine-point threshold scan shows an overall waste–effective-TTFT trade-off: at a threshold of 0.92, approximately 4.5% token waste reduces mean latency from 48.3 ms without speculation to 12.1 ms. A new synchronized GPU microbenchmark directly times joint KV cropping and role recovery. Across contexts of 256–8192 tokens, joint medians are 31.054–48.315 ms, IQRs are 0.635–3.099 ms, and ratios of re-prefill median to joint-path median are 2.254–40.620. This is a model-side microbenchmark, not a complete barge-in path. In the confounded history-policy runs, rewriting did not yield a higher mean coherence score than naive retention; no causal policy comparison is supported.
+A nine-point threshold scan shows an overall waste–effective-TTFT trade-off: at a threshold of 0.92, approximately 4.5% token waste reduces mean latency from 48.3 ms without speculation to 12.1 ms. A new synchronized GPU microbenchmark directly times joint KV cropping and role recovery. Across contexts of 256–8192 tokens, joint medians are 31.054–48.315 ms, IQRs are 0.635–3.099 ms, and ratios of re-prefill median to joint-path median are 2.254–40.620. In a separate prepared-state P1 campaign, all 180 headless wall-clock-paced software-playback trials hit their injection targets exactly with zero software-sample leakage. Cell medians for software stop acknowledgement, stop-to-crop, and stop-to-role are 0.055–0.062, 2.44–2.53, and 78.6–80.8 ms, with maximum cell P95 values of approximately 0.077, 3.492, and 86.1 ms. A1 is a model-side microbenchmark, while P1 covers only the software-player/model-state control path; neither measures sound-card, acoustic-stop, or production end-to-end barge-in latency. In the confounded history-policy runs, rewriting did not yield a higher mean coherence score than naive retention; no causal policy comparison is supported.
 
 **Keywords**: spoken dialogue system; barge-in; KV cache; speculative generation; context consistency; low latency
 ---
@@ -56,7 +56,7 @@ A nine-point threshold scan shows an overall waste–effective-TTFT trade-off: a
 本文是一项面向开源级联语音对话栈的系统与工程研究。主要工作如下。
 
 - **C1：可作废的推测生成调度。** 使用现成话轮检测模型的连续置信度和单一推测阈值启动提前生成，以推测预算限制单次作废成本。确定性实验以用户话轮真值终点作为推测结果的接受事件；真实部署可增加独立的播出门控，但本文未对其进行实证评测。九个离散阈值在当前同步实验驱动程序中形成总体的计算浪费—有效 TTFT 权衡，其中阈值 0.92 对应约 4.5% token 浪费和 12.1 ms 平均有效 TTFT。
-- **C2：播放感知的 KV 缓存管理。** 建立跨播放采样、音频块、TTS 文本片段和 token 区间的关联时间轴；依据片段级保留边界执行 `DynamicCache.crop`，同步裁剪掩码和 token 账本，并重建 ChatML 类角色边界。固定轨迹 E3 以共享首轮回复的配对设计检验后续复现效应，四个词面/裁判点估计均较小、方向与预设假设相反且不显著，因此不作优效、等效、非劣或伤害推断。新的同步 GPU 微基准在 256–8192 token 上直接联合计时裁剪与角色恢复，重新预填充中位数与联合路径中位数之比为 2.254–40.620。
+- **C2：播放感知的 KV 缓存管理。** 建立跨播放采样、音频块、TTS 文本片段和 token 区间的关联时间轴；依据片段级保留边界执行 `DynamicCache.crop`，同步裁剪掩码和 token 账本，并重建 ChatML 类角色边界。固定轨迹 E3 以共享首轮回复的配对设计检验后续复现效应，四个词面/裁判点估计均较小、方向与预设假设相反且不显著，因此不作优效、等效、非劣或伤害推断。同步 GPU 微基准在 256–8192 token 上直接联合计时裁剪与角色恢复，重新预填充中位数与联合路径中位数之比为 2.254–40.620；独立的 prepared-state P1 在 180 次 headless 墙钟节拍软件播放中验证了精确目标注入、零软件采样泄漏及 stop→crop/role 控制路径，但不代表声卡或生产端到端打断。
 - **C3：被打断历史处理策略的探索。** 实现朴素保留、打断标记和轻量模型重写，并报告连贯性与重写耗时。现有运行未观察到重写相对朴素策略的收益，而且三策略的首轮回复由独立采样产生，因而该结果不构成严格的策略因果比较。
 - **可检视实现与评测。** 论文给出上述机制在开源级联栈中的完整实现，并保存主要实验 JSON、绘图脚本和离线重分析程序。由于部分处理后输入、模型 revision、随机种子和原始重复计时尚未随结果完整归档，本文将其表述为可检视、部分可复现的研究工件，而不作无条件的“完全可复现”主张。
 
@@ -64,7 +64,7 @@ A nine-point threshold scan shows an overall waste–effective-TTFT trade-off: a
 
 ## 1.4 论文组织结构
 
-第二章梳理商用实践、学术研究和 KV 缓存技术并界定本文位置；第三章形式化生成、合成、播放与片段级保留边界，定义状态修正和评测指标；第四章介绍推测生成、播放感知 KV 管理和历史处理策略；第五章说明系统模块、关键实现、部署及验证方法；第六章报告一致性、浪费—延迟权衡、响应延迟组合评估和消融结果；第七章讨论与已有系统的关系以及构念、内部、外部和结论效度威胁；第八章总结全文并给出后续研究方向。
+第二章梳理商用实践、学术研究和 KV 缓存技术并界定本文位置；第三章形式化生成、合成、播放与片段级保留边界，定义状态修正和评测指标；第四章介绍推测生成、播放感知 KV 管理和历史处理策略；第五章说明系统模块、关键实现、部署及验证方法；第六章报告一致性、浪费—延迟权衡、响应延迟组合评估、KV 复用微基准、prepared-state 软件控制路径和历史策略消融；第七章讨论与已有系统的关系以及构念、内部、外部和结论效度威胁；第八章总结全文并给出后续研究方向。
 ---
 
 # 第二章 相关工作
@@ -258,7 +258,16 @@ $$
 
 **mouth-to-ear 延迟**：用户话轮结束到首块音频可播放的时间。第六章将 LLM 计算墙钟时间与 TTS 真机画像组合建模；该数值不是实际音频闭环的端到端实测。
 
-**KV 裁剪操作延迟 $L_{\mathrm{crop}}$**：孤立执行缓存裁剪的墙钟时间。A1 的主要恢复指标 $L_{\mathrm{joint}}$ 在同一 GPU 同步计时区间内依次执行 crop 与角色恢复，并与重新预填充的逐次墙钟计时比较；每个上下文长度保存 50 次原始重复并报告中位数与 IQR。实际打断响应还应包含播放器停播、队列清理、$\Phi$ 查询、服务通信和线程调度，因此 $L_{\mathrm{joint}}$ 仍是模型侧微基准而非完整打断链路。
+**KV 裁剪操作延迟 $L_{\mathrm{crop}}$**：孤立执行缓存裁剪的墙钟时间。A1 的主要恢复指标 $L_{\mathrm{joint}}$ 在同一 GPU 同步计时区间内依次执行 crop 与角色恢复，并与重新预填充的逐次墙钟计时比较；每个上下文长度保存 50 次原始重复并报告中位数与 IQR。该口径不含播放器控制或时间轴查询，仍是模型侧微基准。
+
+**Prepared-state 软件控制路径延迟**：P1 在播放器启动前完成目标 KV 状态恢复和设备同步，并把该准备时间记为 $L_{\mathrm{setup}}$，但将其排除在 stop 路径之外。stop 请求发出后，分别记录软件播放器确认 $L_{\mathrm{ack}}$、确认后的设备同步 $L_{\mathrm{sync}}$ 和时间轴反查 $L_{\Phi}$；同时定义两个从同一 stop 请求时刻起算的累计端点：
+
+$$
+L_{\mathrm{stop\to crop}}=t_{\mathrm{crop\ done}}-t_{\mathrm{stop\ request}},\qquad
+L_{\mathrm{stop\to role}}=t_{\mathrm{role\ done}}-t_{\mathrm{stop\ request}}. \tag{3-6}
+$$
+
+$L_{\mathrm{stop\to crop}}$ 已嵌套包含软件停播确认、stop 后设备同步、$\Phi$ 查询和同步 KV 裁剪；$L_{\mathrm{stop\to role}}$ 又嵌套包含前者及角色恢复。各区间中位数不能相加，P1 与另一 campaign 的 A1 也不能通过相减解释系统开销。P1 只覆盖 headless、墙钟节拍的软件播放器和模型状态，不含声卡缓冲、声学停播、用户实际听到边界、在线 TTS 取消、真实模块并发或生产端到端打断延迟。
 
 ### 3.4.2 一致性指标
 
@@ -277,7 +286,7 @@ $$
 
 $$
 \rho=\frac{\sum\text{作废的推测 token 数}}
-{\sum\text{作废的推测 token 数}+\sum\text{最终生成 token 数}}. \tag{3-6}
+{\sum\text{作废的推测 token 数}+\sum\text{最终生成 token 数}}. \tag{3-7}
 $$
 
 不同推测阈值 $\theta$ 对应离散工作点
@@ -297,12 +306,12 @@ KV 复用收益通过“重新预填充耗时中位数 / 同一计时区间联�
 | 固定轨迹下两种历史边界的后续复现率有何差异 | 片段目标、字符比例—空白边界近似目标 | E3 |
 | 推测阈值如何影响计算与响应 | $\rho$、$\mathrm{TTFT}_{\mathrm{eff}}$ | E2（同时作为 A3） |
 | 组合系统在受控文本输入下的响应差异 | TTFT、建模 mouth-to-ear | E1 |
-| KV 状态复用是否降低恢复计算 | 联合 crop+角色恢复及重新预填充耗时 | A1 |
+| KV 状态复用及软件控制路径的时延表现如何 | A1 联合 crop+角色恢复/重新预填充耗时；P1 软件 stop 确认、反查及累计恢复端点 | A1、P1 |
 | 三种历史处理策略的描述性表现 | 连贯性评分、重写耗时 | A2 |
 
 ## 3.5 本章小结
 
-本章首先避免在不同量纲之间直接比较进度，使用片段级保留边界 $\widehat H(p)$ 将播放采样位置解析为 token 端点；随后将本文保证限定为片段操作语义下的历史对齐，并按代码真实实现定义字符比例—空白边界代理。KV 修正被拆为裁剪和角色恢复两个阶段，assistant token 账本保持本轮相对长度语义。最后，本章区分固定轨迹语义效果估计、构造性检查、联合 GPU 微基准、TTS 画像建模和完整打断链路，为第六章限制结论强度提供统一口径。
+本章首先避免在不同量纲之间直接比较进度，使用片段级保留边界 $\widehat H(p)$ 将播放采样位置解析为 token 端点；随后将本文保证限定为片段操作语义下的历史对齐，并按代码真实实现定义字符比例—空白边界代理。KV 修正被拆为裁剪和角色恢复两个阶段，assistant token 账本保持本轮相对长度语义。最后，本章区分固定轨迹语义效果估计、构造性检查、联合 GPU 微基准、prepared-state 软件控制路径、TTS 画像建模和生产端到端打断链路，为第六章限制结论强度提供统一口径。
 ---
 
 # 第四章 方法设计
@@ -381,6 +390,8 @@ $$
 只裁剪 KV 而不更新掩码会使后续 past length 与真实缓存长度不一致；只更新文本历史而保留旧 KV 则会使模型仍能访问被删除状态。因此三份状态必须作为一个逻辑操作维护。
 
 A1 在每个上下文长度进行 5 次预热和 50 次重复，并用设备前后同步包围同一计时区间内的 `DynamicCache.crop` 与角色恢复。该联合模型侧微基准不包含时间轴查询、播放器停止、线程调度或服务通信，因而不能扩展为完整打断响应延迟。
+
+为测量播放器—时间轴—模型状态控制路径，P1 使用 prepared-state 屏障：每次 trial 先调用 `ensure_full()` 恢复目标 KV 状态，再完成设备同步，只有两步均结束后才启动墙钟节拍软件播放器。准备耗时单独记录，既不进入 stop 请求的起点，也不混入 stop 后第一次设备同步。播放器到达预定软件采样点后发出 stop 请求，控制路径依次记录播放器线程确认、确认后的设备同步、时间轴反查、同步裁剪和角色恢复完成端点。stop→crop 与 stop→role 是从同一 stop 请求起算的嵌套累计区间，不是可与各组件中位数相加的独立项。该屏障修复了旧协议把未完成准备工作计入 stop 路径的问题，但 P1 仍只实例化 headless 软件播放和模型状态，不实例化声卡、在线 TTS 取消或真实模块并发。
 
 ### 4.3.3 角色边界恢复与多轮累积
 
@@ -466,19 +477,19 @@ KV 是连续 token 状态，角色信息由 chat template 特殊标记表达。�
 
 编排器定义用户话轮结束、触发、首 token、首 TTS 块、首播、打断注入、停播和 KV 裁剪完成等时间戳，并维护推测计数、作废 token、KV 保留量和时间轴快照。E3 保存了较完整的逐场景时间轴和时间戳；E1、E2、A1 和 A2 只保存各自主指标子集。因此，不能概括为“所有实验均保存全部埋点、所有指标均可从原始记录复算”。
 
-为保护原始 GPU 输出，本研究先用 `experiments/scripts/reanalyze_paper2_results.py` 在不修改原始 JSON 的前提下排除开发 fixture，重算 E1 描述统计、E2 正式工作点并诊断旧 E3/A1/A2 的方法学边界。随后在独立的 `experiments/sci34_supplement/` 工件中运行固定轨迹 E3 和联合 A1；新旧实验结果不合并为同一总体。E3 的 100 条共享轨迹、800 条条件记录、裁判记录与统计摘要，以及 A1 的 50 次逐点原始计时均独立归档。
+为保护原始 GPU 输出，本研究先用 `experiments/scripts/reanalyze_paper2_results.py` 在不修改原始 JSON 的前提下排除开发 fixture，重算 E1 描述统计、E2 正式工作点并诊断旧 E3/A1/A2 的方法学边界。随后在独立的 `experiments/sci34_supplement/` 工件中运行固定轨迹 E3 和联合 A1；最后以独立 run `sci34_dc52978_20260901_async_prepared_v2` 运行 P1 软件控制路径。E3 的 100 条共享轨迹、800 条条件记录与裁判摘要，A1 的逐长度 50 次原始计时，以及 P1 的 180 条正式记录、manifest、分析文件和环境快照均分别归档。各 campaign 结果不合并为同一总体。
 
 ## 5.5 部署、验证与可复现性
 
-两轮正式实验 campaign 均使用同一型号的双 NVIDIA RTX 3090。主模型 Qwen2-7B-Instruct 部署在一张卡；TEN Turn Detection、Qwen3-0.6B 重写模型和 Mistral-7B-Instruct-v0.3 裁判模型在另一张卡上分时运行；CosyVoice2 使用独立环境采集 TTS 画像。不同模型实例不共享权重。旧 E1/E2/A2 campaign 与固定轨迹 E3/联合 A1 补实验 campaign 使用了不同 CPU 主机，但本文不虚构或补写未归档的 CPU 型号；两轮 campaign 的绝对墙钟时间不汇总、不池化，跨 campaign 只保留各自协议内的比较。
+正式结果来自三个独立 campaign，均使用同型号的双 NVIDIA RTX 3090，但不因此视为同一计时总体。旧 E1/E2/A2 campaign 中，主模型 Qwen2-7B-Instruct 部署在一张卡；TEN Turn Detection、Qwen3-0.6B 重写模型和 Mistral-7B-Instruct-v0.3 裁判模型在另一张卡上分时运行；CosyVoice2 使用独立环境采集 TTS 画像。不同模型实例不共享权重。固定轨迹 E3/联合 A1 属于第二 campaign。prepared-state P1 v2 是第三 campaign，主机为双路 Intel Xeon Gold 6330（2×28 核、112 逻辑 CPU）、约 756 GiB 内存、Ubuntu 22.04.5、NVIDIA driver 580.105.08 和双 RTX 3090。前两个 campaign 的 CPU 主机与 P1 主机并不相同，且旧 campaign 的 CPU 型号未完整归档；三者的绝对墙钟时间不汇总、不池化，也不通过 A1 与 P1 数值相减推导控制开销。
 
 实现验证包括时间轴边界语义、KV 长度不变式、断句字符守恒、推测状态机和多轮打断链路等组件级检查。固定轨迹 E3 中，playback 条件的局部完整未播放文本在 400/400 个场景中为空；该结果由片段边界和指标定义共同决定，只是构造检查，不能替代对真实播放系统或语义效果的验证。代码审查同样属于质量控制过程，不应被视为实验有效性的独立证据。
 
-仓库保存了代码、主要结果 JSON、绘图脚本和数据派生逻辑，支持读者检查实验口径和复算大部分汇总值。固定轨迹 E3 与联合 A1 的补实验工件进一步归档了 commit、配置哈希、数据哈希或样本清单、模型文件指纹、环境信息和原始重复记录；A1 的 IQR 可由 50 次原始计时复算。不过，旧 E1/E2/A2 campaign 仍未统一归档处理后输入文件、模型精确 revision、全部环境版本和随机状态，且部分实验采用温度采样、没有多随机种子重复。因此，整体工件仍只能称为部分可复现。
+仓库保存了代码、主要结果 JSON、绘图脚本和数据派生逻辑，支持读者检查实验口径和复算大部分汇总值。固定轨迹 E3 与联合 A1 的补实验工件进一步归档了 commit、配置哈希、数据哈希或样本清单、模型文件指纹、环境信息和原始重复记录；A1 的 IQR 可由 50 次原始计时复算。P1 v2 的正式身份为 run `sci34_dc52978_20260901_async_prepared_v2`、实验代码 commit `dc52978`、结果入库 commit `ee1dcc7`，并归档 180 条原始记录、manifest、汇总分析以及 CPU、内存、OS、驱动和 GPU 前后快照。不过，旧 E1/E2/A2 campaign 仍未统一归档处理后输入文件、模型精确 revision、全部环境版本和随机状态，且部分实验采用温度采样、没有多随机种子重复。因此，整体工件仍只能称为部分可复现。
 
 ## 5.6 本章小结
 
-本章从模块、时间轴、KV 操作、编排和实验记录五个方面说明系统实现。实现的关键是把 TTS 文本片段同时关联到 token 和采样坐标，并把 KV、掩码和 token 账本作为受统一不变式约束的状态组合。与此同时，本章明确了 Mock TTS、构造检查、补实验与旧 campaign 的边界，避免把模拟时序、跨 CPU campaign 的绝对时间或局部模型侧计时表述为真实全链路测量。
+本章从模块、时间轴、KV 操作、编排和实验记录五个方面说明系统实现。实现的关键是把 TTS 文本片段同时关联到 token 和采样坐标，并把 KV、掩码和 token 账本作为受统一不变式约束的状态组合。与此同时，本章明确了 Mock TTS、构造检查、三个独立 campaign 和 prepared-state 软件控制路径的边界，避免把模拟时序、跨 CPU campaign 的绝对时间、headless 停播控制或局部模型侧计时表述为真实声学及生产全链路测量。
 ---
 
 # 第六章 实验与结果分析
@@ -490,14 +501,14 @@ KV 是连续 token 状态，角色信息由 chat template 特殊标记表达。�
 - **RQ1：** 在固定被打断回复轨迹下，playback 与 generation 历史边界的后续信息复现率有何差异？
 - **RQ2：** 推测阈值如何影响作废计算和有效首 token 延迟？
 - **RQ3：** 在受控文本输入和 TTS 画像条件下，组合系统的响应延迟与非流式对照有何差异？
-- **RQ4：** KV 裁剪与角色恢复相对重新预填充能够节省多少计算？
+- **RQ4：** KV 状态复用的模型侧计算收益如何，prepared-state 软件播放控制路径从停播请求到裁剪与角色恢复的时延分布如何？
 - **RQ5：** 标记或轻量重写是否改善被打断历史的后续连贯性？
 
 ### 6.1.1 硬件、模型与数据
 
 实验机使用两张 NVIDIA RTX 3090（24 GB）。主模型为 Qwen2-7B-Instruct[11]；话轮检测器为 TEN Turn Detection[12]（7.6B）；历史重写模型为 Qwen3-0.6B[16]；LLM 裁判为 Mistral-7B-Instruct-v0.3[13]；TTS 画像由 CosyVoice2-0.5B[14]采集。裁判与主模型来自不同模型家族，这减少了同族偏差的一种来源，但不能消除单裁判和单提示词偏差。
 
-数据由 MultiWOZ 2.1[15]派生。E1、E2 使用 100 条子句切分文本话语。旧 E2/E3 结果文件因断点续传混入内置开发 fixture；本文不修改 GPU 原始输出，而通过 `reanalyze_paper2_results.py` 排除 `fx*` 记录，E2 清洗后为 9×100 条记录。RQ1 的主要证据来自随后独立运行的固定轨迹 E3：使用 100 条至少包含三个 user 轮的纯 MultiWOZ 对话，在 25%、50%、75% 和干净片段边界四个位置分别构造场景，共 400 个配对场景、800 条条件记录，无 fixture。
+数据由 MultiWOZ 2.1[15]派生。E1、E2 使用 100 条子句切分文本话语。旧 E2/E3 结果文件因断点续传混入内置开发 fixture；本文不修改 GPU 原始输出，而通过 `reanalyze_paper2_results.py` 排除 `fx*` 记录，E2 清洗后为 9×100 条记录。RQ1 的主要证据来自随后独立运行的固定轨迹 E3：使用 100 条至少包含三个 user 轮的纯 MultiWOZ 对话，在 25%、50%、75% 和干净片段边界四个位置分别构造场景，共 400 个配对场景、800 条条件记录，无 fixture。RQ4 还包括独立的 prepared-state P1：3 个上下文长度、3 个播放注入位置、每单元 20 次正式重复，共 180 条记录。
 
 TEN 的标定成对正确率 1.00 来自 8 条手工完整句和 8 条手工不完整句的 64 个跨类对，并非独立 MultiWOZ 测试集上的稳定 AUC。该结果只用于确定阈值扫描范围。
 
@@ -507,7 +518,7 @@ E1/E2 使用确定性文本段驱动程序，不包含真实音频输入和 ASR 
 
 固定轨迹 E3 在注入打断前以 greedy 解码完成最多 40 个 assistant token 的生成，并登记由 CosyVoice2 画像参数化的 Mock TTS 音频；随后在同一首轮 token 轨迹、断句时间轴和注入位置上派生 playback 与 generation 历史。每个唯一保留历史只生成一次两轮 greedy 探测回复，回复同样上限为 40 token；只要任一回复命中目标便计为一次复现。该设置近似生成积压较大的条件，仍可能高估自然在线早期打断中的差异历史量。
 
-TTS 画像基于 6 条 CosyVoice2 样本：首块延迟中位数为 2433.6 ms，实时率中位数为 0.513，每非空白字符采样数中位数为 3175。首块延迟和实时率在该小样本中较稳定，但每字符采样数范围较宽，因而 System A 的完整音频时长建模具有较大不确定性。旧 E1/E2/A2 与固定轨迹 E3/联合 A1 属于两轮 campaign：CPU 主机不同，但均使用同型号双 RTX 3090。本文不虚构未归档的 CPU 名称，也不池化两轮 campaign 的绝对时间；比较只在各自协议内部进行。表 6-1 区分本章的证据类型。
+TTS 画像基于 6 条 CosyVoice2 样本：首块延迟中位数为 2433.6 ms，实时率中位数为 0.513，每非空白字符采样数中位数为 3175。首块延迟和实时率在该小样本中较稳定，但每字符采样数范围较宽，因而 System A 的完整音频时长建模具有较大不确定性。正式结果来自三个独立 campaign：旧 E1/E2/A2、固定轨迹 E3/联合 A1、prepared-state P1 v2。三者均使用同型号双 RTX 3090，但 CPU、OS 或调度环境并不相同，绝对墙钟时间不池化。P1 v2 主机为双路 Intel Xeon Gold 6330（2×28 核、112 逻辑 CPU）、约 756 GiB 内存、Ubuntu 22.04.5、NVIDIA driver 580.105.08 和双 RTX 3090；其余 campaign 不补造未完整归档的 CPU 型号。表 6-1 区分本章的证据类型。
 
 **表 6-1　指标的测量属性**
 
@@ -517,6 +528,7 @@ TTS 画像基于 6 条 CosyVoice2 样本：首块延迟中位数为 2433.6 ms，
 | mouth-to-ear | LLM 墙钟时间 + TTS 画像建模 | 非真实音频闭环；画像仅 6 句 |
 | KV crop-only | 孤立 GPU 微基准 | 仅为局部缓存操作，不等于恢复或完整打断延迟 |
 | 联合 crop+角色恢复 | 同一同步区间的 GPU 微基准 | 不含反查、停播、通信和并发负载 |
+| P1 软件 stop→crop/role | prepared-state、headless 墙钟节拍软件播放控制路径 | 无声卡/声学停播、用户实际听到边界、在线 TTS 或真实模块并发 |
 | playback 局部完整未播放文本为空 | 构造性结果 | 由指标与保留边界共同定义，不是语义效果估计 |
 | 固定轨迹 E3 语义结果 | 规则与单一 LLM 裁判 | 无人类双标；代理误差、40-token 上限和抽样不确定性 |
 | A2 语义结果 | 单一 LLM 裁判 | 条件轨迹不一致，不支持因果比较 |
@@ -584,7 +596,9 @@ mouth-to-ear 建模值为 System A 9080 ms、B-ours 2482 ms。前者组合了完
 
 外部 TTS 延迟不能在缺少一致硬件、精度、并发、预热和计时边界的情况下直接代入本文模型。CosyVoice2 官方项目公开的“低至 150 ms”宣称也未完整给出上述条件，因此本章不使用外部首块数字重算两系统的加速比。现有落盘记录还不含输入音频时长，无法完成原设计中的“延迟随输入长度斜率”检验。
 
-## 6.5 RQ4：KV 复用联合微基准（A1）
+## 6.5 RQ4：KV 状态复用与软件打断控制路径
+
+### 6.5.1 KV 复用联合微基准（A1）
 
 新的 A1 在 256、512、1024、2048、4096 和 8192 token 上直接测量模型侧恢复路径。每个长度先执行 5 次预热，再进行 50 次正式重复；`perf_counter_ns` 计时区间前后均执行设备同步。主要路径在同一同步区间内联合执行 KV crop 与角色恢复，重新预填充使用相同保留前缀并追加同一 assistant-to-user 角色切换。原始重复已归档，可复算中位数与 IQR。
 
@@ -604,6 +618,26 @@ mouth-to-ear 建模值为 System A 9080 ms、B-ours 2482 ms。前者组合了完
 
 A1 没有计入时间轴查询、真实播放器停播、服务通信、线程调度和 GPU 并发负载。因此该微基准只支持：在受测模型、双 RTX 3090 环境和六个上下文长度上，联合 crop+角色恢复的模型侧中位耗时低于重新预填充。它不是完整 barge-in 延迟，也不支持把局部 crop-only 耗时解释为完整响应时间。
 
+### 6.5.2 Prepared-state 软件打断控制路径（P1）
+
+P1 v2 使用 Qwen2-7B-Instruct 和 headless、墙钟节拍的软件播放器，在 512、2048、8192 token 三个上下文长度及 0.25、0.50、0.75 三个播放位置上各运行 20 次正式重复，即 $3\times3\times20=180$ 条记录。每个单元先执行 3 次不落盘预热。六个等时长片段的几何使 0.25 和 0.75 落在片段内部，共 120 条 `mid_fragment`；0.50 落在片段边界，共 60 条 `fragment_boundary`。
+
+prepared-state 屏障在播放器启动前完成 `ensure_full()` 和 GPU 同步。该准备过程的逐次原始范围为 40.499–1722.228 ms，九个单元的中位数范围为 41.208–1717.110 ms；这些时间明确排除在 stop 路径之外。180/180 条记录的 stop request 与 acknowledgement 均精确命中目标软件采样位置，且 `leaked_samples=0`。这验证的是软件播放游标在控制路径中的目标命中和零泄漏，不是声卡、扬声器或用户实际听到的采样边界。
+
+**表 6-5　Prepared-state P1 软件控制路径延迟（9 个单元，每单元 n=20，ms）**
+
+| 计时区间 | 单元中位数范围 | 九个单元中最大的单元 P95 |
+|---|---:|---:|
+| 软件停播确认 | 0.055–0.062 | 约 0.077 |
+| stop 后设备同步 | 0.167–0.176 | 约 0.352 |
+| 时间轴反查 | 0.47–0.50 | 约 0.94 |
+| stop→crop 完成 | 2.44–2.53 | 约 3.492 |
+| stop→角色恢复完成 | 78.6–80.8 | 约 86.1 |
+
+stop→crop 已从同一 stop 请求起点累计软件停播确认、stop 后同步、时间轴反查和同步裁剪；stop→角色恢复又累计至角色边界恢复完成。因此两个 stop 累计区间相互嵌套，组件中位数与累计端点不能相加。九个单元的中位数范围较窄只是本次主机、模型和协议下的观察，不支持上下文无关主张；P1 也不与不同 campaign 的 A1 进行绝对时间池化或相减。
+
+该实验的正式身份为 run `sci34_dc52978_20260901_async_prepared_v2`，实验代码 commit `dc52978`，结果入库 commit `ee1dcc7`。它将 P1 v1 发现的异步准备态污染移出 stop 窗口，但仍仅覆盖 headless 软件播放器和模型状态控制，不包含声卡硬件缓冲、声学停播、用户实际听到的最后采样、在线 TTS 取消、真实 ASR/LLM/TTS/播放器并发竞争或生产级端到端 barge-in 延迟。
+
 ## 6.6 RQ5：被打断历史处理策略（A2）
 
 当前 A2 每策略包含 100 条记录。单一 Mistral 裁判的连贯性均值为：朴素策略 3.76、重写策略 3.62、标记策略 3.29；分数分布明显两极化，例如朴素策略中 64 条为 5 分、26 条为 1 分。重写调用耗时均值为 639 ms，中位数 670 ms，线性插值 P90 约 935 ms，最大值 1165 ms。
@@ -619,7 +653,7 @@ A1 没有计入时间轴查询、真实播放器停播、服务通信、线程�
 1. **RQ1：** 固定轨迹 E3 消除了旧实验的首轮独立生成混杂。在片段目标 n=297 和修正代理目标 n=380 的四项规则/裁判比较中，generation−playback 点估计均较小、方向与预设假设相反，按对话聚类的 95% 区间均跨零，McNemar 描述性检验也均不显著；现有证据不支持优效、等效、非劣或伤害主张。另有 400/400 的 playback 局部完整未播放文本为空，这只是构造检查。
 2. **RQ2：** 九个离散阈值显示总体的计算浪费—有效 TTFT 权衡，$\theta=0.92$ 是当前数据上的候选工作点；曲线在低阈值端不是严格单调，也尚未在异步在线系统中验证。
 3. **RQ3：** 文本驱动程序中 B-ours 的平均有效 TTFT 低于一次性预填充对照，mouth-to-ear 建模也反映流式首片段播放的结构差异；该实验不包含真实音频闭环，也未完成输入长度斜率分析。
-4. **RQ4：** 同步联合 GPU 微基准支持 KV 复用的模型侧计算收益：256–8192 token 上的联合中位数为 31.054–48.315 ms，重新预填充中位数与联合路径中位数之比为 2.254–40.620；该路径不包含播放器、时间轴或服务调度，不能解释为完整打断响应。
+4. **RQ4：** 同步联合 GPU 微基准支持 KV 复用的模型侧计算收益：256–8192 token 上的联合中位数为 31.054–48.315 ms，重新预填充中位数与联合路径中位数之比为 2.254–40.620。独立 P1 的 180 次 prepared-state 软件播放 trial 均精确命中目标且零软件采样泄漏；stop→crop 与 stop→角色恢复的单元中位数分别为 2.44–2.53 ms 和 78.6–80.8 ms。A1 与 P1 分属不同 campaign；前者不含播放器，后者不含声卡、声学停播、在线 TTS 或真实模块并发，均不能解释为生产端到端打断响应。
 5. **RQ5：** 受混杂的三策略运行中，历史重写未获得高于朴素策略的平均分；现有数据只支持描述性观察，不支持策略因果比较。
 ---
 
@@ -629,7 +663,7 @@ A1 没有计入时间轴查询、真实播放器停播、服务通信、线程�
 
 本文与 OpenAI Realtime API、Azure Voice Live 和 LiveKit Agents 的关系是公开研究实现与既有工程实践的互补，而不是功能有无的对立。已有系统已经根据播放进度更新会话历史；本文的主要差异在于把播放器采样位置、TTS 文本片段和 LLM token 区间保存为可检视记录，并在推理内部显式裁剪 KV、同步掩码和恢复角色边界。
 
-这种差异具有两方面研究价值。其一，缓存状态保留使裁剪后的多轮对话无需重新预填充全部历史，联合 A1 在受测硬件上量化了模型侧计算差异。其二，显式时间轴使每次保留边界能够离线检查。另一方面，商业系统的内部实现没有公开，本文不能据公开接口断言它们只进行粗粒度处理或不使用缓存优化；本文也没有完成“实测播放位置”与“实时速度假设”的直接 E4 对比。因此，比较应限于公开可观察的接口和工件。
+这种差异具有两方面研究价值。其一，缓存状态保留使裁剪后的多轮对话无需重新预填充全部历史，联合 A1 在受测硬件上量化了模型侧计算差异。其二，显式时间轴使每次保留边界能够离线检查，prepared-state P1 则在 headless 软件播放控制路径上测量了停播确认、反查和模型状态恢复端点。另一方面，商业系统的内部实现没有公开，本文不能据公开接口断言它们只进行粗粒度处理或不使用缓存优化；本文也没有完成“实测播放位置”与“实时速度假设”的直接 E4 对比。因此，比较应限于公开可观察的接口和工件。
 
 ## 7.2 效度威胁
 
@@ -659,13 +693,15 @@ E3 同一对话产生四个注入标签和两个条件，观测并不独立。�
 
 TEN 的 1.00 成对可分性只来自 16 条手工标定句，不能代表真实口语端点性能。Mistral 与 Qwen 属不同家族有助于减少一种偏差，但单裁判仍不足以支持跨模型泛化。A1 的缓存行为依赖 Transformers `DynamicCache`、具体注意力实现和 ChatML 类模板；迁移到其他推理引擎需要重新实现并验证状态契约。
 
-旧 E1/E2/A2 campaign 与固定轨迹 E3/联合 A1 补实验 campaign 使用不同 CPU 主机，但均使用同型号双 RTX 3090。CPU 型号未在旧 campaign 中完整归档，本文不补造名称；两轮 campaign 的绝对毫秒值不池化，因此不能用跨 campaign 的绝对时间差作硬件无关结论。
+旧 E1/E2/A2、固定轨迹 E3/联合 A1、prepared-state P1 v2 是三个独立 campaign，均使用同型号双 RTX 3090，但 CPU、OS 或调度环境并不相同。P1 主机为双路 Xeon Gold 6330、112 逻辑 CPU 和约 756 GiB 内存；旧 campaign 的 CPU 型号未完整归档，本文不补造名称。三个 campaign 的绝对毫秒值不池化，也不能用跨 campaign 的差值或 A1−P1 相减作硬件无关结论。
 
 ### 7.2.4 结论效度
 
 固定轨迹 E3 的主要不确定性来自按对话聚类的 bootstrap 区间。片段目标中，规则和裁判的 generation−playback 95% 区间分别为 [−9.5, 2.8] 和 [−8.9, 6.1] 个百分点；修正代理目标中分别为 [−5.75, 2.50] 和 [−8.25, 2.67] 个百分点。四个点估计均为负、方向与预设假设相反，但区间跨零，McNemar p 值为 0.164、0.512、0.405 和 0.229。未检出显著差异不等于策略等效、非劣或没有伤害；负点估计也不足以声称 playback 有害。
 
-联合 A1 每点保存 50 次原始计时并可复算 IQR，改善了旧 A1 只有汇总值的问题。但它仍是直接同步的模型侧联合区间，不含播放器停止、时间轴查询、服务通信和 GPU 并发负载。另一个 headless 软件播放 P1 v1 在 `ensure_full()` 后未于播放器启动前同步，stop 后首次设备同步把尚未完成的准备态 KV 恢复错误计入 stop→crop/role；该延迟跨同一单元的多次重复持续，并非删除首个冷启动样本即可修复。P1 v1 因而不能作为联合链路的数值证据，prepared-state v2 尚待定向重跑。
+联合 A1 每点保存 50 次原始计时并可复算 IQR，改善了旧 A1 只有汇总值的问题。但它仍是直接同步的模型侧联合区间，不含播放器停止、时间轴查询、服务通信和 GPU 并发负载。旧 headless 软件播放 P1 v1 在 `ensure_full()` 后未于播放器启动前同步，stop 后首次设备同步把尚未完成的准备态 KV 恢复错误计入 stop→crop/role；该延迟跨同一单元的多次重复持续，并非删除首个冷启动样本即可修复，故 v1 只保留为协议失败审计。
+
+P1 v2 通过播放前 prepared-state 屏障修复该污染，180/180 条记录精确命中目标软件采样位置且零软件采样泄漏；stop→crop 和 stop→角色恢复的单元中位数分别为 2.44–2.53 ms 和 78.6–80.8 ms。不过，这些端点来自 headless、墙钟节拍的软件播放器和模型状态控制：软件停播确认不等于声卡或扬声器停止，游标不等于用户实际听到的最后采样，实验也未取消在线 TTS 或引入 ASR/LLM/TTS/播放器真实并发。九个单元范围较窄不能证明上下文无关，且嵌套区间不能相加。
 
 E1 没有保存输入时长，无法验证预定的长度斜率；TTS 每字符采样数画像仅 6 句且变异较大。本文因此不把建模 mouth-to-ear 当作精确系统基准。A2 由于三策略输入不一致，其显著性检验也缺乏清晰处理效应含义。
 
@@ -679,7 +715,7 @@ KV 裁剪要求推理引擎允许缩短历史缓存，并能同步维护掩码�
 
 ## 7.4 本章小结
 
-本文的系统机制在受控条件下得到实现与测量：片段边界具有可构造检查的状态语义，固定轨迹 E3 提供了消除首轮生成混杂后的配对语义结果，联合 A1 量化了模型侧状态复用相对重新预填充的协议内计算差异。证据边界同样明确：E3 四个小点估计均与预设方向相反且不显著，不支持优效、等效、非劣或伤害结论；物理播放真值仍由文本代理近似；无人类双标；A1 不是完整打断链路；A2 不能作因果推断。下一步应优先完成协议有效的生产式异步链路测量、固定轨迹 A2 和独立人工评测。
+本文的系统机制在受控条件下得到实现与测量：片段边界具有可构造检查的状态语义，固定轨迹 E3 提供了消除首轮生成混杂后的配对语义结果，联合 A1 量化了模型侧状态复用相对重新预填充的协议内计算差异，P1 v2 则量化了 prepared-state 软件播放控制路径。证据边界同样明确：E3 四个小点估计均与预设方向相反且不显著，不支持优效、等效、非劣或伤害结论；物理播放真值仍由文本代理近似；无人类双标；A1 不是播放器链路，P1 不是声卡、在线 TTS、真实并发或生产端到端测量；A2 不能作因果推断。下一步应优先完成真实音频与生产式异步链路测量、固定轨迹 A2 和独立人工评测。
 ---
 
 # 第八章 总结与展望
@@ -696,11 +732,13 @@ E2 的九个离散阈值点显示总体的计算浪费—有效 TTFT 权衡。�
 
 联合 A1 在 256–8192 token 上使用 5 次预热和 50 次重复，在设备同步包围的同一计时区间内执行 crop 与角色恢复。六个长度的联合中位数依次为 31.616、31.852、31.054、31.519、36.903 和 48.315 ms，IQR 为 2.356、2.162、3.099、1.197、0.635 和 0.928 ms；重新预填充中位数与联合路径中位数之比为 2.254、4.124、7.707、15.020、25.453 和 40.620。该结果只量化模型侧联合路径，不包含播放器停播、时间轴查询、通信和并发调度，不能解释为完整打断响应。
 
-旧 E1/E2/A2 与固定轨迹 E3/联合 A1 属于两轮 campaign。两轮均使用同型号双 RTX 3090，但 CPU 主机不同；本文不虚构未归档的 CPU 型号，也不池化两轮 campaign 的绝对时间。综上，本文最稳健的结果是：播放位置可以被实现为可检查的片段级 KV 状态操作；固定轨迹语义评测没有检出预设方向上的收益；在直接同步的模型侧微基准中，联合 KV 恢复路径低于重新预填充。真实交互自然度、在线尾延迟和更细物理播放边界仍需进一步验证。
+独立 P1 v2 在 512、2048、8192 token 与 0.25、0.50、0.75 三个播放位置上各运行 20 次，共 180 条正式记录，其中 120 条为片段内、60 条为片段边界。180/180 次 stop request 与 acknowledgement 精确命中目标软件采样位置，且零软件采样泄漏。软件停播确认、stop 后设备同步、时间轴反查、stop→crop 和 stop→角色恢复的单元中位数范围依次为 0.055–0.062、0.167–0.176、0.47–0.50、2.44–2.53 和 78.6–80.8 ms；相应最大的单元 P95 约为 0.077、0.352、0.94、3.492 和 86.1 ms。播放前准备态耗时被单独记录并排除。两个 stop 累计区间彼此嵌套，组件中位数与累计端点不能相加；实验只代表 headless 墙钟节拍软件播放器和模型状态，不代表声卡、声学停播、用户实际听到边界、在线 TTS、真实模块并发或生产端到端打断。
+
+旧 E1/E2/A2、固定轨迹 E3/联合 A1、prepared-state P1 v2 属于三个独立 campaign。三者均使用同型号双 RTX 3090，但 CPU、OS 或调度环境并不相同；本文不池化绝对时间，也不通过 A1 与 P1 相减解释控制开销。综上，本文最稳健的结果是：播放位置可以被实现为可检查的片段级 KV 状态操作；固定轨迹语义评测没有检出预设方向上的收益；在直接同步的模型侧微基准中，联合 KV 恢复路径低于重新预填充；在 prepared-state 软件控制路径中，目标命中、零软件采样泄漏和各嵌套恢复端点得到受控测量。真实交互自然度、在线 TTS/并发尾延迟和更细物理播放边界仍需进一步验证。
 
 ## 8.2 后续工作
 
-1. **真实异步音频与生产控制闭环。** 先按 prepared-state v2 协议定向重跑 headless P1：在播放器启动前同步完成 `ensure_full()`，把准备耗时与 stop 后控制路径分开记录，并同时覆盖片段内和片段边界打断。随后再接入真实流式 ASR、异步 TTS、音频队列和播放器，联合测量打断检测、停播、时间轴查询、KV 裁剪和角色恢复；同时让下一 ASR 文本段与推测解码真实竞争。
+1. **真实异步音频与生产控制闭环。** prepared-state P1 v2 已完成 headless 软件播放控制路径测量；下一步接入真实流式 ASR、在线异步 TTS、音频队列、声卡和播放器，联合测量打断检测、声学停播、时间轴查询、KV 裁剪和角色恢复，并让下一 ASR 文本段与推测解码真实竞争。
 2. **固定轨迹的 A2 因果对照。** 为三种历史自然化策略缓存同一 assistant token 流、断句结果和打断点，使用固定解码或成对随机种子，避免首轮与下一轮生成差异混入处理效应。
 3. **更细播放边界。** 利用 TTS 的词级 duration、音素对齐或强制对齐建立更接近物理真值的 $\widetilde H(p)$，比较片段、词和 token 粒度的边际收益与实现成本。
 4. **独立人工评测。** 在随机盲抽样上使用至少两名标注员，分别测量未播放信息引用、语义保真、连贯性和真实音频感知；报告标注员一致性和置信区间。
