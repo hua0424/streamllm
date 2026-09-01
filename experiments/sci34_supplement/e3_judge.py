@@ -17,12 +17,14 @@ from experiments.sci34_supplement.common import (
 )
 
 
-PROMPT_VERSION = "specific-reference-v2"
+PROMPT_VERSION = "specific-reference-v3"
 SYSTEM = (
     "You are a strict evaluator. Decide whether the REPLY makes use of, repeats, "
     "or refers to specific information that appears in TARGET. Generic topical "
     "overlap does not count. Answer exactly YES or NO."
 )
+FORMAT_RULE = "Answer with exactly YES or NO as the first line."
+RETRY_REMINDER = "Reminder: the first line of your answer must be exactly YES or NO."
 
 
 class JudgeRuntime:
@@ -35,24 +37,36 @@ class JudgeRuntime:
         self.model_name = model_name
         self._judge = Judge(model_name, device)
 
-    def evaluate(self, target: str, replies: list[str]) -> tuple[bool, str, bool]:
+    def evaluate(self, target: str, replies: list[str]) -> tuple[bool, str, bool, bool]:
         if not target.strip():
-            return False, "NO", True
-        user = f"TARGET:\n{target}\n\nREPLY:\n" + "\n---\n".join(replies)
+            return False, "NO", True, False
+        user = (
+            f"TARGET:\n{target}\n\nREPLY:\n"
+            + "\n---\n".join(replies)
+            + f"\n\n{FORMAT_RULE}"
+        )
         raw = self._judge._generate(SYSTEM, user, 6).strip()
         head = raw.upper()
+        retried = False
+        if not (head.startswith("YES") or head.startswith("NO")):
+            # greedy decoding makes an identical retry deterministic, so remind the format instead
+            retried = True
+            raw = self._judge._generate(
+                SYSTEM, f"{user}\n\n{RETRY_REMINDER}", 6
+            ).strip()
+            head = raw.upper()
         parsed = head.startswith("YES") or head.startswith("NO")
-        return head.startswith("YES"), raw, parsed
+        return head.startswith("YES"), raw, parsed, retried
 
 
 class FakeJudgeRuntime:
     model_name = "fake-judge"
 
-    def evaluate(self, target: str, replies: list[str]) -> tuple[bool, str, bool]:
+    def evaluate(self, target: str, replies: list[str]) -> tuple[bool, str, bool, bool]:
         from src.dialogue.unheard_detector import references_unheard
 
         verdict = references_unheard(target, " ".join(replies))
-        return verdict, "YES" if verdict else "NO", True
+        return verdict, "YES" if verdict else "NO", True, False
 
 
 def main() -> None:
@@ -119,7 +133,9 @@ def main() -> None:
             )
             if key in completed:
                 continue
-            verdict, raw, parsed = runtime.evaluate(record[field], record["probe_replies"])
+            verdict, raw, parsed, retried = runtime.evaluate(
+                record[field], record["probe_replies"]
+            )
             if not parsed:
                 raise RuntimeError(
                     f"Judge parse failure for {key}: {raw!r}. Use a new judge run ID after fixing it."
@@ -135,6 +151,7 @@ def main() -> None:
                     "verdict": verdict,
                     "raw_output": raw,
                     "parse_success": True,
+                    "retried": retried,
                     "prompt_version": PROMPT_VERSION,
                 },
             )
