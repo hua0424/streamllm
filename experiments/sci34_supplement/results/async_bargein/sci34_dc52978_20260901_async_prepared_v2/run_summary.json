@@ -1,0 +1,16 @@
+{
+  "protocol": "async_prepared_v2",
+  "prepared_state": "full_kv_synchronized_before_playback",
+  "records": 180,
+  "warmups_per_incomplete_cell": 3,
+  "warmups_persisted": false,
+  "partial_expectations_validated": true,
+  "prepared_state_validated": true,
+  "zero_leakage_validated": true,
+  "exact_target_validated": true,
+  "records_by_path_kind": {
+    "mid_fragment": 120,
+    "fragment_boundary": 60
+  },
+  "scope_note": "Headless wall-clock-paced software playback. It excludes sound-card buffers, online TTS cancellation, and production end-to-end barge-in latency."
+}

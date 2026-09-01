@@ -1,0 +1,1 @@
+model_name=Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz

@@ -1,0 +1,8 @@
+python 3.10.18
+sentencepiece 0.2.2
+torch 2.8.0+cu128
+transformers 4.57.1
+cuda_runtime 12.8
+cudnn 91002
+0 NVIDIA GeForce RTX 3090 25296044032 8 6
+1 NVIDIA GeForce RTX 3090 25296044032 8 6

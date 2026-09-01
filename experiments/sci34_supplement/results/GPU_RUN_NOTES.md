@@ -42,6 +42,28 @@ GPU 运行方最初按“无 per-length warmup 的 CUDA 首次分配/kernel 编�
 或挑选所谓稳态单元修复。旧 run 继续作为审计记录保留；后续只能以新 run-id 按 prepared-state v2
 协议定向重跑。
 
+## P1 prepared-state v2 定向重跑（2026-09-01 晚，commit `dc52978`）
+
+按 `P1_PREPARED_RERUN.md` 完整执行，run-id `sci34_dc52978_20260901_async_prepared_v2`：
+
+- 协议：每次 trial 先 `ensure_full()` + GPU 同步再启动播放器（`setup_ms` 单独记录、
+  不计入 stop 路径），stop 后同步单独记为 `post_stop_sync_ms`；每 `(length,fraction)`
+  单元先 3 次 warmup（不落盘），再 20 次正式 repeat。
+- 验收全过：180 条 formal records（9 单元 × 20），`protocol=async_prepared_v2`、
+  `prepared_state_synchronized=true`、`leaked_samples=0`、request/ack 精确命中目标采样点；
+  partial 几何 0.25/0.75→true（120 条 mid_fragment）、0.5→false（60 条 fragment_boundary）。
+- 关键数值（median/p95，ms；全 9 单元范围）：stop ack 0.055–0.062 / ≤0.077；
+  post-stop sync 0.167–0.176 / ≤0.35；timeline lookup 0.47–0.50 / ≤0.94；
+  stop→crop 2.44–2.53 / ≤3.49；stop→role 78.6–80.8 / ≤86.1。
+  旧 run 的跨单元冷启动异常消失：stop→crop/role 在 512/2048/8192 与三个位置间均匀，
+  `setup_ms`（41–1717 ms，随长度增长）被正确隔离在 stop 路径之外。
+- 环境：`sentencepiece==0.2.2` 已并入 pyproject（`dc52978`），venv 内旧装版本一致；
+  快照（lscpu/meminfo/uname/nvidia-smi 前后/依赖哈希）见
+  `run_logs/sci34_dc52978_20260901_async_prepared_v2_snapshots/`；两张 3090 运行前后均无其他进程。
+- 打包：`results/sci34_dc52978_20260901_async_prepared_v2.tar.gz`（仅新 P1 run + 日志 + 快照，
+  30 项），SHA-256 `4c6188249f1226e5692a85468cf1e9c3b05e648494a5ce9a6e5a475b264c0bc8`。
+  旧 `sci34_f11ccba_20260901_async` 目录路径/时间戳/内容未动。
+
 ## GPU 干扰记录
 
 A1 正式 run 前后 `nvidia-smi` 快照存于 `a1/nvidia_smi_before_formal.txt`、
