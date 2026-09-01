@@ -1,0 +1,26 @@
+{
+  "fragment_playback": {
+    "n": 400,
+    "positive": 127,
+    "rate": 0.3175,
+    "parse_failures": 0
+  },
+  "fragment_generation": {
+    "n": 400,
+    "positive": 121,
+    "rate": 0.3025,
+    "parse_failures": 0
+  },
+  "proxy_playback": {
+    "n": 400,
+    "positive": 167,
+    "rate": 0.4175,
+    "parse_failures": 0
+  },
+  "proxy_generation": {
+    "n": 400,
+    "positive": 157,
+    "rate": 0.3925,
+    "parse_failures": 0
+  }
+}

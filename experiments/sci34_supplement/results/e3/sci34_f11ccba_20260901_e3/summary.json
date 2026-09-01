@@ -1,0 +1,800 @@
+{
+  "design": {
+    "dialogues": 100,
+    "records": 800,
+    "pairs": 400,
+    "total_pairs": 400,
+    "eligible_pairs": 297,
+    "empty_target_pairs": 103
+  },
+  "construction_checks": {
+    "playback_local_unheard_empty": true,
+    "playback_local_fragment_reference_positive": 0,
+    "n": 400
+  },
+  "metrics": {
+    "rule_fragment": {
+      "conditions": {
+        "playback": {
+          "n": 297,
+          "positive": 199,
+          "rate": 0.67003367003367,
+          "wilson_95_ci": [
+            0.6146854004182735,
+            0.721039603694931
+          ]
+        },
+        "generation": {
+          "n": 297,
+          "positive": 189,
+          "rate": 0.6363636363636364,
+          "wilson_95_ci": [
+            0.5802362577111487,
+            0.689008547567758
+          ]
+        }
+      },
+      "mcnemar": {
+        "pairs": 297,
+        "playback_only": 26,
+        "generation_only": 16,
+        "exact_p": 0.16414940178310644
+      },
+      "dialogue_cluster_bootstrap": {
+        "clusters": 96,
+        "generation_minus_playback": -0.03211805555555555,
+        "difference_95_ci": [
+          -0.09548611111111105,
+          0.0277777777777779
+        ],
+        "bootstrap_repeats": 10000,
+        "seed": 20260831
+      }
+    },
+    "rule_proxy": {
+      "conditions": {
+        "playback": {
+          "n": 297,
+          "positive": 228,
+          "rate": 0.7676767676767676,
+          "wilson_95_ci": [
+            0.7164149686323401,
+            0.8121026121003284
+          ]
+        },
+        "generation": {
+          "n": 297,
+          "positive": 222,
+          "rate": 0.7474747474747475,
+          "wilson_95_ci": [
+            0.6951189668312518,
+            0.793510494600838
+          ]
+        }
+      },
+      "mcnemar": {
+        "pairs": 297,
+        "playback_only": 21,
+        "generation_only": 15,
+        "exact_p": 0.4050322461407632
+      },
+      "dialogue_cluster_bootstrap": {
+        "clusters": 96,
+        "generation_minus_playback": -0.013020833333333329,
+        "difference_95_ci": [
+          -0.06336805555555547,
+          0.03385416666666663
+        ],
+        "bootstrap_repeats": 10000,
+        "seed": 20260831
+      }
+    },
+    "judge_fragment": {
+      "conditions": {
+        "playback": {
+          "n": 297,
+          "positive": 127,
+          "rate": 0.4276094276094276,
+          "wilson_95_ci": [
+            0.3726213420634922,
+            0.48444623044276724
+          ]
+        },
+        "generation": {
+          "n": 297,
+          "positive": 121,
+          "rate": 0.4074074074074074,
+          "wilson_95_ci": [
+            0.3530542811038468,
+            0.46412517210183385
+          ]
+        }
+      },
+      "mcnemar": {
+        "pairs": 297,
+        "playback_only": 32,
+        "generation_only": 26,
+        "exact_p": 0.5118423084381691
+      },
+      "dialogue_cluster_bootstrap": {
+        "clusters": 96,
+        "generation_minus_playback": -0.013020833333333324,
+        "difference_95_ci": [
+          -0.08940972222222227,
+          0.06076388888888895
+        ],
+        "bootstrap_repeats": 10000,
+        "seed": 20260831
+      }
+    },
+    "judge_proxy": {
+      "conditions": {
+        "playback": {
+          "n": 297,
+          "positive": 133,
+          "rate": 0.4478114478114478,
+          "wilson_95_ci": [
+            0.3922824051409809,
+            0.5046732866658573
+          ]
+        },
+        "generation": {
+          "n": 297,
+          "positive": 123,
+          "rate": 0.41414141414141414,
+          "wilson_95_ci": [
+            0.35956608199239204,
+            0.47090941098014827
+          ]
+        }
+      },
+      "mcnemar": {
+        "pairs": 297,
+        "playback_only": 33,
+        "generation_only": 23,
+        "exact_p": 0.2288055412343561
+      },
+      "dialogue_cluster_bootstrap": {
+        "clusters": 96,
+        "generation_minus_playback": -0.032986111111111105,
+        "difference_95_ci": [
+          -0.10069444444444442,
+          0.03211805555555558
+        ],
+        "bootstrap_repeats": 10000,
+        "seed": 20260831
+      }
+    }
+  },
+  "by_fraction": {
+    "0.25": {
+      "eligible_pairs": 96,
+      "metrics": {
+        "rule_fragment": {
+          "conditions": {
+            "playback": {
+              "n": 96,
+              "positive": 83,
+              "rate": 0.8645833333333334,
+              "wilson_95_ci": [
+                0.7819886149785562,
+                0.9191229355418891
+              ]
+            },
+            "generation": {
+              "n": 96,
+              "positive": 80,
+              "rate": 0.8333333333333334,
+              "wilson_95_ci": [
+                0.7462900984810511,
+                0.8947261762804989
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 96,
+            "playback_only": 6,
+            "generation_only": 3,
+            "exact_p": 0.5078125
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 96,
+            "generation_minus_playback": -0.03125,
+            "difference_95_ci": [
+              -0.09375,
+              0.03125
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        },
+        "rule_proxy": {
+          "conditions": {
+            "playback": {
+              "n": 96,
+              "positive": 88,
+              "rate": 0.9166666666666666,
+              "wilson_95_ci": [
+                0.8441009676029043,
+                0.9571693758490329
+              ]
+            },
+            "generation": {
+              "n": 96,
+              "positive": 87,
+              "rate": 0.90625,
+              "wilson_95_ci": [
+                0.8313466930777846,
+                0.949891891787854
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 96,
+            "playback_only": 3,
+            "generation_only": 2,
+            "exact_p": 1.0
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 96,
+            "generation_minus_playback": -0.010416666666666666,
+            "difference_95_ci": [
+              -0.05208333333333337,
+              0.03125
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        },
+        "judge_fragment": {
+          "conditions": {
+            "playback": {
+              "n": 96,
+              "positive": 48,
+              "rate": 0.5,
+              "wilson_95_ci": [
+                0.401924024529863,
+                0.598075975470137
+              ]
+            },
+            "generation": {
+              "n": 96,
+              "positive": 45,
+              "rate": 0.46875,
+              "wilson_95_ci": [
+                0.3720607443853214,
+                0.5678439798557835
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 96,
+            "playback_only": 11,
+            "generation_only": 8,
+            "exact_p": 0.6476058959960938
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 96,
+            "generation_minus_playback": -0.03125,
+            "difference_95_ci": [
+              -0.12499999999999994,
+              0.05208333333333337
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        },
+        "judge_proxy": {
+          "conditions": {
+            "playback": {
+              "n": 96,
+              "positive": 42,
+              "rate": 0.4375,
+              "wilson_95_ci": [
+                0.3425682747577502,
+                0.5372411737244593
+              ]
+            },
+            "generation": {
+              "n": 96,
+              "positive": 39,
+              "rate": 0.40625,
+              "wilson_95_ci": [
+                0.31345302166501676,
+                0.5062611510582975
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 96,
+            "playback_only": 11,
+            "generation_only": 8,
+            "exact_p": 0.6476058959960938
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 96,
+            "generation_minus_playback": -0.03125,
+            "difference_95_ci": [
+              -0.12499999999999994,
+              0.0625
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        }
+      }
+    },
+    "0.5": {
+      "eligible_pairs": 80,
+      "metrics": {
+        "rule_fragment": {
+          "conditions": {
+            "playback": {
+              "n": 80,
+              "positive": 51,
+              "rate": 0.6375,
+              "wilson_95_ci": [
+                0.5281079450222215,
+                0.7342920693555084
+              ]
+            },
+            "generation": {
+              "n": 80,
+              "positive": 49,
+              "rate": 0.6125,
+              "wilson_95_ci": [
+                0.5029365721075572,
+                0.7117543487469493
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 80,
+            "playback_only": 8,
+            "generation_only": 6,
+            "exact_p": 0.79052734375
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 80,
+            "generation_minus_playback": -0.025,
+            "difference_95_ci": [
+              -0.11250000000000004,
+              0.0625
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        },
+        "rule_proxy": {
+          "conditions": {
+            "playback": {
+              "n": 80,
+              "positive": 65,
+              "rate": 0.8125,
+              "wilson_95_ci": [
+                0.7134167737100688,
+                0.8829468953302267
+              ]
+            },
+            "generation": {
+              "n": 80,
+              "positive": 64,
+              "rate": 0.8,
+              "wilson_95_ci": [
+                0.6995375627182917,
+                0.8729715595603921
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 80,
+            "playback_only": 5,
+            "generation_only": 4,
+            "exact_p": 1.0
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 80,
+            "generation_minus_playback": -0.0125,
+            "difference_95_ci": [
+              -0.08750000000000002,
+              0.0625
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        },
+        "judge_fragment": {
+          "conditions": {
+            "playback": {
+              "n": 80,
+              "positive": 33,
+              "rate": 0.4125,
+              "wilson_95_ci": [
+                0.3110585761276188,
+                0.5219595965410984
+              ]
+            },
+            "generation": {
+              "n": 80,
+              "positive": 33,
+              "rate": 0.4125,
+              "wilson_95_ci": [
+                0.3110585761276188,
+                0.5219595965410984
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 80,
+            "playback_only": 8,
+            "generation_only": 8,
+            "exact_p": 1.0
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 80,
+            "generation_minus_playback": 0.0,
+            "difference_95_ci": [
+              -0.09999999999999998,
+              0.09999999999999998
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        },
+        "judge_proxy": {
+          "conditions": {
+            "playback": {
+              "n": 80,
+              "positive": 39,
+              "rate": 0.4875,
+              "wilson_95_ci": [
+                0.38107879540381073,
+                0.5950666578345774
+              ]
+            },
+            "generation": {
+              "n": 80,
+              "positive": 35,
+              "rate": 0.4375,
+              "wilson_95_ci": [
+                0.33413860916143806,
+                0.5465886570305026
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 80,
+            "playback_only": 9,
+            "generation_only": 5,
+            "exact_p": 0.4239501953125
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 80,
+            "generation_minus_playback": -0.05,
+            "difference_95_ci": [
+              -0.13750000000000007,
+              0.03749999999999998
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        }
+      }
+    },
+    "0.75": {
+      "eligible_pairs": 41,
+      "metrics": {
+        "rule_fragment": {
+          "conditions": {
+            "playback": {
+              "n": 41,
+              "positive": 14,
+              "rate": 0.34146341463414637,
+              "wilson_95_ci": [
+                0.21558808257384846,
+                0.49450163480170306
+              ]
+            },
+            "generation": {
+              "n": 41,
+              "positive": 11,
+              "rate": 0.2682926829268293,
+              "wilson_95_ci": [
+                0.1569496404781167,
+                0.41933533107076637
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 41,
+            "playback_only": 4,
+            "generation_only": 1,
+            "exact_p": 0.375
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 41,
+            "generation_minus_playback": -0.07317073170731707,
+            "difference_95_ci": [
+              -0.19512195121951217,
+              0.024390243902439046
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        },
+        "rule_proxy": {
+          "conditions": {
+            "playback": {
+              "n": 41,
+              "positive": 24,
+              "rate": 0.5853658536585366,
+              "wilson_95_ci": [
+                0.4336710313403013,
+                0.7224345054574786
+              ]
+            },
+            "generation": {
+              "n": 41,
+              "positive": 22,
+              "rate": 0.5365853658536586,
+              "wilson_95_ci": [
+                0.38746471267669474,
+                0.6794376602366394
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 41,
+            "playback_only": 5,
+            "generation_only": 3,
+            "exact_p": 0.7265625
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 41,
+            "generation_minus_playback": -0.04878048780487805,
+            "difference_95_ci": [
+              -0.19512195121951215,
+              0.07317073170731714
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        },
+        "judge_fragment": {
+          "conditions": {
+            "playback": {
+              "n": 41,
+              "positive": 13,
+              "rate": 0.3170731707317073,
+              "wilson_95_ci": [
+                0.19564613898988575,
+                0.4698419964434429
+              ]
+            },
+            "generation": {
+              "n": 41,
+              "positive": 10,
+              "rate": 0.24390243902439024,
+              "wilson_95_ci": [
+                0.13825002738090333,
+                0.39343336222575687
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 41,
+            "playback_only": 5,
+            "generation_only": 2,
+            "exact_p": 0.453125
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 41,
+            "generation_minus_playback": -0.07317073170731707,
+            "difference_95_ci": [
+              -0.1951219512195122,
+              0.04878048780487804
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        },
+        "judge_proxy": {
+          "conditions": {
+            "playback": {
+              "n": 41,
+              "positive": 19,
+              "rate": 0.4634146341463415,
+              "wilson_95_ci": [
+                0.32056233976336046,
+                0.6125352873233052
+              ]
+            },
+            "generation": {
+              "n": 41,
+              "positive": 16,
+              "rate": 0.3902439024390244,
+              "wilson_95_ci": [
+                0.2565614506012352,
+                0.5427314306587621
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 41,
+            "playback_only": 5,
+            "generation_only": 2,
+            "exact_p": 0.453125
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 41,
+            "generation_minus_playback": -0.07317073170731707,
+            "difference_95_ci": [
+              -0.1951219512195122,
+              0.04878048780487804
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        }
+      }
+    },
+    "boundary": {
+      "eligible_pairs": 80,
+      "metrics": {
+        "rule_fragment": {
+          "conditions": {
+            "playback": {
+              "n": 80,
+              "positive": 51,
+              "rate": 0.6375,
+              "wilson_95_ci": [
+                0.5281079450222215,
+                0.7342920693555084
+              ]
+            },
+            "generation": {
+              "n": 80,
+              "positive": 49,
+              "rate": 0.6125,
+              "wilson_95_ci": [
+                0.5029365721075572,
+                0.7117543487469493
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 80,
+            "playback_only": 8,
+            "generation_only": 6,
+            "exact_p": 0.79052734375
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 80,
+            "generation_minus_playback": -0.025,
+            "difference_95_ci": [
+              -0.11250000000000004,
+              0.0625
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        },
+        "rule_proxy": {
+          "conditions": {
+            "playback": {
+              "n": 80,
+              "positive": 51,
+              "rate": 0.6375,
+              "wilson_95_ci": [
+                0.5281079450222215,
+                0.7342920693555084
+              ]
+            },
+            "generation": {
+              "n": 80,
+              "positive": 49,
+              "rate": 0.6125,
+              "wilson_95_ci": [
+                0.5029365721075572,
+                0.7117543487469493
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 80,
+            "playback_only": 8,
+            "generation_only": 6,
+            "exact_p": 0.79052734375
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 80,
+            "generation_minus_playback": -0.025,
+            "difference_95_ci": [
+              -0.11250000000000004,
+              0.0625
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        },
+        "judge_fragment": {
+          "conditions": {
+            "playback": {
+              "n": 80,
+              "positive": 33,
+              "rate": 0.4125,
+              "wilson_95_ci": [
+                0.3110585761276188,
+                0.5219595965410984
+              ]
+            },
+            "generation": {
+              "n": 80,
+              "positive": 33,
+              "rate": 0.4125,
+              "wilson_95_ci": [
+                0.3110585761276188,
+                0.5219595965410984
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 80,
+            "playback_only": 8,
+            "generation_only": 8,
+            "exact_p": 1.0
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 80,
+            "generation_minus_playback": 0.0,
+            "difference_95_ci": [
+              -0.09999999999999998,
+              0.09999999999999998
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        },
+        "judge_proxy": {
+          "conditions": {
+            "playback": {
+              "n": 80,
+              "positive": 33,
+              "rate": 0.4125,
+              "wilson_95_ci": [
+                0.3110585761276188,
+                0.5219595965410984
+              ]
+            },
+            "generation": {
+              "n": 80,
+              "positive": 33,
+              "rate": 0.4125,
+              "wilson_95_ci": [
+                0.3110585761276188,
+                0.5219595965410984
+              ]
+            }
+          },
+          "mcnemar": {
+            "pairs": 80,
+            "playback_only": 8,
+            "generation_only": 8,
+            "exact_p": 1.0
+          },
+          "dialogue_cluster_bootstrap": {
+            "clusters": 80,
+            "generation_minus_playback": 0.0,
+            "difference_95_ci": [
+              -0.09999999999999998,
+              0.09999999999999998
+            ],
+            "bootstrap_repeats": 10000,
+            "seed": 20260831
+          }
+        }
+      }
+    }
+  },
+  "scope_note": "All conditions within a dialogue share one interrupted-turn trajectory. Playback fragment-level zero remains a construction check; paired effects are evaluated on the shared fixed trajectory."
+}

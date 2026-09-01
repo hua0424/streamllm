@@ -1,0 +1,43 @@
+2026-09-01 13:05:03.999 - experiments.scripts.run_llm_judge - INFO - Loading judge model /root/autodl-tmp/dataA/models/Mistral-7B-Instruct-v0.3 on cuda:0
+Traceback (most recent call last):
+  File "/root/autodl-tmp/dataA/streamllm/experiments/scripts/run_llm_judge.py", line 59, in __init__
+    self.tok = AutoTokenizer.from_pretrained(model_name, local_files_only=True, **kw)
+  File "/root/autodl-tmp/dataA/streamllm/.venv/lib/python3.10/site-packages/transformers/models/auto/tokenization_auto.py", line 1140, in from_pretrained
+    return tokenizer_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
+  File "/root/autodl-tmp/dataA/streamllm/.venv/lib/python3.10/site-packages/transformers/tokenization_utils_base.py", line 2097, in from_pretrained
+    return cls._from_pretrained(
+  File "/root/autodl-tmp/dataA/streamllm/.venv/lib/python3.10/site-packages/transformers/tokenization_utils_base.py", line 2343, in _from_pretrained
+    tokenizer = cls(*init_inputs, **init_kwargs)
+  File "/root/autodl-tmp/dataA/streamllm/.venv/lib/python3.10/site-packages/transformers/models/llama/tokenization_llama_fast.py", line 154, in __init__
+    super().__init__(
+  File "/root/autodl-tmp/dataA/streamllm/.venv/lib/python3.10/site-packages/transformers/tokenization_utils_fast.py", line 108, in __init__
+    raise ValueError(
+ValueError: Cannot instantiate this tokenizer from a slow version. If it's based on sentencepiece, make sure you have sentencepiece installed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/root/.local/share/uv/python/cpython-3.10.18-linux-x86_64-gnu/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/root/.local/share/uv/python/cpython-3.10.18-linux-x86_64-gnu/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/e3_judge.py", line 166, in <module>
+    main()
+  File "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/e3_judge.py", line 108, in main
+    runtime = FakeJudgeRuntime() if args.fake else JudgeRuntime(args.judge_model, args.device)
+  File "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/e3_judge.py", line 36, in __init__
+    self._judge = Judge(model_name, device)
+  File "/root/autodl-tmp/dataA/streamllm/experiments/scripts/run_llm_judge.py", line 63, in __init__
+    self.tok = AutoTokenizer.from_pretrained(model_name, local_files_only=False, **kw)
+  File "/root/autodl-tmp/dataA/streamllm/.venv/lib/python3.10/site-packages/transformers/models/auto/tokenization_auto.py", line 1140, in from_pretrained
+    return tokenizer_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
+  File "/root/autodl-tmp/dataA/streamllm/.venv/lib/python3.10/site-packages/transformers/tokenization_utils_base.py", line 2097, in from_pretrained
+    return cls._from_pretrained(
+  File "/root/autodl-tmp/dataA/streamllm/.venv/lib/python3.10/site-packages/transformers/tokenization_utils_base.py", line 2343, in _from_pretrained
+    tokenizer = cls(*init_inputs, **init_kwargs)
+  File "/root/autodl-tmp/dataA/streamllm/.venv/lib/python3.10/site-packages/transformers/models/llama/tokenization_llama_fast.py", line 154, in __init__
+    super().__init__(
+  File "/root/autodl-tmp/dataA/streamllm/.venv/lib/python3.10/site-packages/transformers/tokenization_utils_fast.py", line 108, in __init__
+    raise ValueError(
+ValueError: Cannot instantiate this tokenizer from a slow version. If it's based on sentencepiece, make sure you have sentencepiece installed.
+exit=1

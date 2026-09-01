@@ -1,0 +1,110 @@
+2026-09-01 12:53:59.234 - src.llm.stream_llm_inference - INFO - Loading LLM model /root/autodl-tmp/dataA/models/Qwen2-7B-Instruct on cuda:0
+INFO:src.llm.stream_llm_inference:Loading LLM model /root/autodl-tmp/dataA/models/Qwen2-7B-Instruct on cuda:0
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.01it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.08it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:02<00:00,  1.12it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.20it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.15it/s]
+2026-09-01 12:54:03.514 - src.llm.stream_llm_inference - INFO - LLM模型加载完成。
+INFO:src.llm.stream_llm_inference:LLM模型加载完成。
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+INFO:root:Initializing NLTK Tokenizer
+INFO:__main__:Completed 1/100: PMUL4877.json
+INFO:__main__:Completed 2/100: SSNG0202.json
+INFO:__main__:Completed 3/100: PMUL3024.json
+INFO:__main__:Completed 4/100: PMUL1995.json
+INFO:__main__:Completed 5/100: PMUL4937.json
+INFO:__main__:Completed 6/100: SNG0516.json
+INFO:__main__:Completed 7/100: PMUL4864.json
+INFO:__main__:Completed 8/100: MUL0460.json
+INFO:__main__:Completed 9/100: SNG0666.json
+INFO:__main__:Completed 10/100: MUL0241.json
+INFO:__main__:Completed 11/100: MUL1715.json
+INFO:__main__:Completed 12/100: SNG01598.json
+INFO:__main__:Completed 13/100: SNG0752.json
+INFO:__main__:Completed 14/100: PMUL0331.json
+INFO:__main__:Completed 15/100: PMUL3590.json
+INFO:__main__:Completed 16/100: SNG01999.json
+INFO:__main__:Completed 17/100: MUL1277.json
+INFO:__main__:Completed 18/100: PMUL3714.json
+INFO:__main__:Completed 19/100: MUL1188.json
+INFO:__main__:Completed 20/100: SNG1397.json
+INFO:__main__:Completed 21/100: MUL1476.json
+INFO:__main__:Completed 22/100: MUL1457.json
+INFO:__main__:Completed 23/100: WOZ20545.json
+INFO:__main__:Completed 24/100: PMUL3916.json
+INFO:__main__:Completed 25/100: SNG01312.json
+INFO:__main__:Completed 26/100: SNG0926.json
+INFO:__main__:Completed 27/100: SSNG0009.json
+INFO:__main__:Completed 28/100: MUL2256.json
+INFO:__main__:Completed 29/100: SNG0395.json
+INFO:__main__:Completed 30/100: MUL2185.json
+INFO:__main__:Completed 31/100: PMUL1643.json
+INFO:__main__:Completed 32/100: MUL2139.json
+INFO:__main__:Completed 33/100: PMUL0241.json
+INFO:__main__:Completed 34/100: WOZ20274.json
+INFO:__main__:Completed 35/100: SNG1099.json
+INFO:__main__:Completed 36/100: PMUL1746.json
+INFO:__main__:Completed 37/100: MUL0339.json
+INFO:__main__:Completed 38/100: SNG0137.json
+INFO:__main__:Completed 39/100: MUL1039.json
+INFO:__main__:Completed 40/100: PMUL3159.json
+INFO:__main__:Completed 41/100: MUL0060.json
+INFO:__main__:Completed 42/100: SNG02106.json
+INFO:__main__:Completed 43/100: PMUL2239.json
+INFO:__main__:Completed 44/100: MUL2468.json
+INFO:__main__:Completed 45/100: MUL2502.json
+INFO:__main__:Completed 46/100: SNG01554.json
+INFO:__main__:Completed 47/100: PMUL3292.json
+INFO:__main__:Completed 48/100: PMUL0341.json
+INFO:__main__:Completed 49/100: SSNG0368.json
+INFO:__main__:Completed 50/100: PMUL1994.json
+INFO:__main__:Completed 51/100: PMUL2885.json
+INFO:__main__:Completed 52/100: PMUL3783.json
+INFO:__main__:Completed 53/100: PMUL0524.json
+INFO:__main__:Completed 54/100: WOZ20452.json
+INFO:__main__:Completed 55/100: MUL0209.json
+INFO:__main__:Completed 56/100: PMUL0323.json
+INFO:__main__:Completed 57/100: SNG1124.json
+INFO:__main__:Completed 58/100: WOZ20124.json
+INFO:__main__:Completed 59/100: PMUL4793.json
+INFO:__main__:Completed 60/100: SNG01319.json
+INFO:__main__:Completed 61/100: PMUL0282.json
+INFO:__main__:Completed 62/100: MUL2325.json
+INFO:__main__:Completed 63/100: MUL2311.json
+INFO:__main__:Completed 64/100: MUL0148.json
+INFO:__main__:Completed 65/100: PMUL0549.json
+INFO:__main__:Completed 66/100: MUL0730.json
+INFO:__main__:Completed 67/100: MUL0885.json
+INFO:__main__:Completed 68/100: PMUL3323.json
+INFO:__main__:Completed 69/100: MUL1009.json
+INFO:__main__:Completed 70/100: PMUL4525.json
+INFO:__main__:Completed 71/100: SNG02118.json
+INFO:__main__:Completed 72/100: SNG1313.json
+INFO:__main__:Completed 73/100: PMUL4161.json
+INFO:__main__:Completed 74/100: SNG01535.json
+INFO:__main__:Completed 75/100: PMUL0550.json
+INFO:__main__:Completed 76/100: PMUL0888.json
+INFO:__main__:Completed 77/100: MUL0322.json
+INFO:__main__:Completed 78/100: WOZ20652.json
+INFO:__main__:Completed 79/100: MUL1569.json
+INFO:__main__:Completed 80/100: PMUL1275.json
+INFO:__main__:Completed 81/100: WOZ20119.json
+INFO:__main__:Completed 82/100: WOZ20440.json
+INFO:__main__:Completed 83/100: PMUL1615.json
+INFO:__main__:Completed 84/100: SNG01454.json
+INFO:__main__:Completed 85/100: PMUL3554.json
+INFO:__main__:Completed 86/100: MUL2224.json
+INFO:__main__:Completed 87/100: SNG0364.json
+INFO:__main__:Completed 88/100: SNG0671.json
+INFO:__main__:Completed 89/100: PMUL4601.json
+INFO:__main__:Completed 90/100: MUL0717.json
+INFO:__main__:Completed 91/100: PMUL2302.json
+INFO:__main__:Completed 92/100: PMUL0126.json
+INFO:__main__:Completed 93/100: SNG0300.json
+INFO:__main__:Completed 94/100: PMUL1512.json
+INFO:__main__:Completed 95/100: PMUL2639.json
+INFO:__main__:Completed 96/100: PMUL0052.json
+INFO:__main__:Completed 97/100: MUL0361.json
+INFO:__main__:Completed 98/100: SNG0502.json
+INFO:__main__:Completed 99/100: MUL1212.json
+INFO:__main__:Completed 100/100: PMUL4858.json
+/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e3/sci34_f11ccba_20260901_e3
+exit=0

@@ -1,0 +1,548 @@
+2026-09-01 13:26:47.586 - src.llm.stream_llm_inference - INFO - Loading LLM model /root/autodl-tmp/dataA/models/Qwen2-7B-Instruct on cuda:0
+INFO:src.llm.stream_llm_inference:Loading LLM model /root/autodl-tmp/dataA/models/Qwen2-7B-Instruct on cuda:0
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.14it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.19it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:02<00:00,  1.13it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.15it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.15it/s]
+2026-09-01 13:26:51.905 - src.llm.stream_llm_inference - INFO - LLM模型加载完成。
+INFO:src.llm.stream_llm_inference:LLM模型加载完成。
+2026-09-01 13:26:52.462 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=0
+2026-09-01 13:26:53.066 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=1
+2026-09-01 13:26:53.568 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=2
+2026-09-01 13:26:54.064 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=3
+2026-09-01 13:26:54.569 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=4
+2026-09-01 13:26:55.063 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=5
+2026-09-01 13:26:55.564 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=6
+2026-09-01 13:26:56.066 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=7
+2026-09-01 13:26:56.576 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=8
+2026-09-01 13:26:57.040 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=9
+2026-09-01 13:26:57.536 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=10
+2026-09-01 13:26:58.029 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=11
+2026-09-01 13:26:58.524 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=12
+2026-09-01 13:26:59.025 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=13
+2026-09-01 13:26:59.510 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=14
+2026-09-01 13:27:00.010 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=15
+2026-09-01 13:27:00.503 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=16
+2026-09-01 13:27:00.976 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=17
+2026-09-01 13:27:01.473 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=18
+2026-09-01 13:27:01.969 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=121, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=512 fraction=0.25 repeat=19
+2026-09-01 13:27:02.675 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=0
+2026-09-01 13:27:03.310 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=1
+2026-09-01 13:27:03.988 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=2
+2026-09-01 13:27:04.650 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=3
+2026-09-01 13:27:05.315 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=4
+2026-09-01 13:27:05.965 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=5
+2026-09-01 13:27:06.629 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=6
+2026-09-01 13:27:07.243 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=7
+2026-09-01 13:27:07.851 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=8
+2026-09-01 13:27:08.464 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=9
+2026-09-01 13:27:09.133 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=10
+2026-09-01 13:27:09.768 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=11
+2026-09-01 13:27:10.430 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=12
+2026-09-01 13:27:11.095 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=13
+2026-09-01 13:27:11.752 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=14
+2026-09-01 13:27:12.420 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=15
+2026-09-01 13:27:13.069 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=16
+2026-09-01 13:27:13.737 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=17
+2026-09-01 13:27:14.389 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=18
+2026-09-01 13:27:15.052 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=242, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=512 fraction=0.5 repeat=19
+2026-09-01 13:27:15.919 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=0
+2026-09-01 13:27:16.763 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=1
+2026-09-01 13:27:17.600 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=2
+2026-09-01 13:27:18.386 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=3
+2026-09-01 13:27:19.228 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=4
+2026-09-01 13:27:20.116 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=5
+2026-09-01 13:27:20.956 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=6
+2026-09-01 13:27:21.791 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=7
+2026-09-01 13:27:22.600 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=8
+2026-09-01 13:27:23.443 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=9
+2026-09-01 13:27:24.283 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=10
+2026-09-01 13:27:25.122 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=11
+2026-09-01 13:27:25.968 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=12
+2026-09-01 13:27:26.808 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=13
+2026-09-01 13:27:27.650 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=14
+2026-09-01 13:27:28.478 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=15
+2026-09-01 13:27:29.319 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=16
+2026-09-01 13:27:30.163 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=17
+2026-09-01 13:27:31.002 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=18
+2026-09-01 13:27:31.839 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=362, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=512 fraction=0.75 repeat=19
+2026-09-01 13:27:32.516 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=0
+2026-09-01 13:27:33.405 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=1
+2026-09-01 13:27:34.293 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=2
+2026-09-01 13:27:35.180 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=3
+2026-09-01 13:27:36.073 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=4
+2026-09-01 13:27:36.962 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=5
+2026-09-01 13:27:37.850 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=6
+2026-09-01 13:27:38.738 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=7
+2026-09-01 13:27:39.632 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=8
+2026-09-01 13:27:40.528 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=9
+2026-09-01 13:27:41.417 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=10
+2026-09-01 13:27:42.305 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=11
+2026-09-01 13:27:43.198 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=12
+2026-09-01 13:27:44.088 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=13
+2026-09-01 13:27:44.979 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=14
+2026-09-01 13:27:45.867 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=15
+2026-09-01 13:27:46.758 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=16
+2026-09-01 13:27:47.651 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=17
+2026-09-01 13:27:48.541 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=18
+2026-09-01 13:27:49.446 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=505, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=2048 fraction=0.25 repeat=19
+2026-09-01 13:27:50.437 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=0
+2026-09-01 13:27:51.314 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=1
+2026-09-01 13:27:52.192 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=2
+2026-09-01 13:27:53.073 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=3
+2026-09-01 13:27:53.954 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=4
+2026-09-01 13:27:54.832 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=5
+2026-09-01 13:27:55.707 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=6
+2026-09-01 13:27:56.582 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=7
+2026-09-01 13:27:57.460 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=8
+2026-09-01 13:27:58.303 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=9
+2026-09-01 13:27:59.178 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=10
+2026-09-01 13:28:00.058 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=11
+2026-09-01 13:28:00.938 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=12
+2026-09-01 13:28:01.814 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=13
+2026-09-01 13:28:02.692 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=14
+2026-09-01 13:28:03.570 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=15
+2026-09-01 13:28:04.449 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=16
+2026-09-01 13:28:05.317 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=17
+2026-09-01 13:28:06.183 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=18
+2026-09-01 13:28:07.018 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=1010, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=2048 fraction=0.5 repeat=19
+2026-09-01 13:28:08.081 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=0
+2026-09-01 13:28:09.017 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=1
+2026-09-01 13:28:09.951 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=2
+2026-09-01 13:28:10.882 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=3
+2026-09-01 13:28:11.785 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=4
+2026-09-01 13:28:12.722 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=5
+2026-09-01 13:28:13.660 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=6
+2026-09-01 13:28:14.598 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=7
+2026-09-01 13:28:15.553 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=8
+2026-09-01 13:28:16.489 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=9
+2026-09-01 13:28:17.401 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=10
+2026-09-01 13:28:18.320 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=11
+2026-09-01 13:28:19.252 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=12
+2026-09-01 13:28:20.186 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=13
+2026-09-01 13:28:21.124 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=14
+2026-09-01 13:28:22.061 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=15
+2026-09-01 13:28:22.995 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=16
+2026-09-01 13:28:23.924 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=17
+2026-09-01 13:28:24.864 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=18
+2026-09-01 13:28:25.794 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=1514, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=2048 fraction=0.75 repeat=19
+2026-09-01 13:28:28.013 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=0
+2026-09-01 13:28:31.934 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=1
+2026-09-01 13:28:35.853 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=2
+2026-09-01 13:28:39.790 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=3
+2026-09-01 13:28:43.730 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=4
+2026-09-01 13:28:47.669 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=5
+2026-09-01 13:28:51.615 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=6
+2026-09-01 13:28:55.570 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=7
+2026-09-01 13:28:59.521 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=8
+2026-09-01 13:29:03.471 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=9
+2026-09-01 13:29:07.433 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=10
+2026-09-01 13:29:11.390 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=11
+2026-09-01 13:29:15.347 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=12
+2026-09-01 13:29:19.309 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=13
+2026-09-01 13:29:23.270 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=14
+2026-09-01 13:29:27.232 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=15
+2026-09-01 13:29:31.196 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=16
+2026-09-01 13:29:35.160 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=17
+2026-09-01 13:29:39.124 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=18
+2026-09-01 13:29:43.089 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 4800: interrupted frag 0, crop_token_end=2041, partial=False, heard=[0], discarded=[1, 2, 3]
+INFO:__main__:async length=8192 fraction=0.25 repeat=19
+2026-09-01 13:29:47.072 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=0
+2026-09-01 13:29:49.752 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=1
+2026-09-01 13:29:52.434 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=2
+2026-09-01 13:29:55.115 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=3
+2026-09-01 13:29:57.798 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=4
+2026-09-01 13:30:00.479 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=5
+2026-09-01 13:30:03.160 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=6
+2026-09-01 13:30:05.842 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=7
+2026-09-01 13:30:08.524 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=8
+2026-09-01 13:30:11.206 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=9
+2026-09-01 13:30:13.888 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=10
+2026-09-01 13:30:16.567 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=11
+2026-09-01 13:30:19.253 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=12
+2026-09-01 13:30:21.943 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=13
+2026-09-01 13:30:24.629 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=14
+2026-09-01 13:30:27.310 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=15
+2026-09-01 13:30:29.993 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=16
+2026-09-01 13:30:32.676 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=17
+2026-09-01 13:30:35.359 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=18
+2026-09-01 13:30:38.043 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 9600: interrupted frag 1, crop_token_end=4082, partial=False, heard=[0, 1], discarded=[2, 3]
+INFO:__main__:async length=8192 fraction=0.5 repeat=19
+2026-09-01 13:30:40.723 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=0
+2026-09-01 13:30:42.256 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=1
+2026-09-01 13:30:43.823 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=2
+2026-09-01 13:30:45.387 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=3
+2026-09-01 13:30:46.951 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=4
+2026-09-01 13:30:48.515 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=5
+2026-09-01 13:30:50.083 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=6
+2026-09-01 13:30:51.644 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=7
+2026-09-01 13:30:53.212 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=8
+2026-09-01 13:30:54.778 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=9
+2026-09-01 13:30:56.307 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=10
+2026-09-01 13:30:57.845 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=11
+2026-09-01 13:30:59.413 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=12
+2026-09-01 13:31:00.978 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=13
+2026-09-01 13:31:02.546 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=14
+2026-09-01 13:31:04.106 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=15
+2026-09-01 13:31:05.664 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=16
+2026-09-01 13:31:07.229 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=17
+2026-09-01 13:31:08.758 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=18
+2026-09-01 13:31:10.319 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 14400: interrupted frag 2, crop_token_end=6122, partial=False, heard=[0, 1, 2], discarded=[3]
+INFO:__main__:async length=8192 fraction=0.75 repeat=19
+/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/async_bargein/sci34_f11ccba_20260901_async
+exit=0

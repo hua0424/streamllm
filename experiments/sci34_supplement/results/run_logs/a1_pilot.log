@@ -1,0 +1,14 @@
+2026-09-01 13:18:16.679 - src.llm.stream_llm_inference - INFO - Loading LLM model /root/autodl-tmp/dataA/models/Qwen2-7B-Instruct on cuda:0
+INFO:src.llm.stream_llm_inference:Loading LLM model /root/autodl-tmp/dataA/models/Qwen2-7B-Instruct on cuda:0
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.11it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.19it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:02<00:00,  1.14it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.16it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.15it/s]
+2026-09-01 13:18:20.951 - src.llm.stream_llm_inference - INFO - LLM模型加载完成。
+INFO:src.llm.stream_llm_inference:LLM模型加载完成。
+INFO:__main__:A1 complete: target=256 actual=256
+INFO:__main__:A1 complete: target=512 actual=512
+INFO:__main__:A1 complete: target=1024 actual=1024
+INFO:__main__:A1 complete: target=2048 actual=2048
+INFO:__main__:A1 complete: target=4096 actual=4096
+INFO:__main__:A1 complete: target=8192 actual=8192
+/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/a1/sci34_f11ccba_20260901_a1_pilot
+exit=0

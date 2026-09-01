@@ -1,0 +1,4 @@
+{
+  "records": 180,
+  "scope_note": "Headless wall-clock-paced software playback. It excludes sound-card buffers, online TTS cancellation, and production end-to-end barge-in latency."
+}
