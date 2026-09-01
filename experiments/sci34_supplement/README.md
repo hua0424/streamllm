@@ -40,6 +40,7 @@ Resume 时会比较 config hash 与输入 SHA-256。不一致时拒绝续跑，�
 
 ## 快速入口
 
+- GPU 实验机交接入口：[HANDOFF_FOR_GPU.md](HANDOFF_FOR_GPU.md)
 - 完整协议：[EXPERIMENT_PLAN.md](EXPERIMENT_PLAN.md)
 - 允许的论文主张：[CLAIMS_MATRIX.md](CLAIMS_MATRIX.md)
 - GPU 主机步骤：[GPU_RUNBOOK.md](GPU_RUNBOOK.md)
