@@ -51,6 +51,7 @@ class PacedSamplePlayer:
         self._stop = threading.Event()
         self._started = threading.Event()
         self._stopped = threading.Event()
+        self._progress = threading.Condition()
         self._thread: threading.Thread | None = None
         self.start_ns: int | None = None
         self.stop_ns: int | None = None
@@ -82,19 +83,25 @@ class PacedSamplePlayer:
             self.wakeup_error_ms.append((actual_ns - deadline_ns) / 1_000_000)
             played = next_played
             self.timeline.set_played(played)
+            with self._progress:
+                self._progress.notify_all()
         self.stop_ns = time.perf_counter_ns()
         self._stopped.set()
+        with self._progress:
+            self._progress.notify_all()
 
     def wait_until(self, target_samples: int, timeout: float = 30.0) -> None:
         deadline = time.perf_counter() + timeout
-        while self.timeline.played_samples < target_samples:
-            if self._stopped.is_set():
-                break
-            if time.perf_counter() >= deadline:
-                raise TimeoutError(
-                    f"Playback did not reach {target_samples}; current={self.timeline.played_samples}"
-                )
-            time.sleep(min(0.001, self.block_samples / self.sample_rate / self.time_scale / 4))
+        with self._progress:
+            while self.timeline.played_samples < target_samples:
+                if self._stopped.is_set():
+                    break
+                remaining = deadline - time.perf_counter()
+                if remaining <= 0:
+                    raise TimeoutError(
+                        f"Playback did not reach {target_samples}; current={self.timeline.played_samples}"
+                    )
+                self._progress.wait(timeout=remaining)
 
     def stop(self) -> StopResult:
         request_ns = time.perf_counter_ns()

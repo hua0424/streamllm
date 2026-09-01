@@ -29,13 +29,18 @@
 - 重跑 `sci34_f11ccba_20260901_judge_v2`：1600 条全部完成，`parse_failures=0`，`retried=0`
   （v3 提示词下格式失败完全消失，重试机制未触发）。
 
-## P1 冷启动观察（步骤 9，供论文口径决策）
+## P1 异常观察与设计方复核（步骤 9）
 
-P1 协议无 per-length warmup（脚本无该参数，按 runbook 原样执行）。每个新上下文长度的
-前 1–2 个 (length, fraction) 单元格 stop→crop/role 中位数显著偏高（2048/f0.25 ≈108ms；
-8192/f0.25 ≈1388ms、f0.5 ≈657ms），同长度后续单元格回落到稳态（s2crop ≈1–2.5ms、
-s2role ≈77–81ms）。模式符合 CUDA 首次分配/kernel 编译的冷启动特征。数据按协议原样上报，
-未做任何剔除或重跑；若设计方需要稳态口径，需明确指示后用新 run-id 重跑。
+GPU 运行方最初按“无 per-length warmup 的 CUDA 首次分配/kernel 编译”上报异常：2048/f0.25
+的 stop→crop/role 中位数约 108 ms，8192/f0.25 约 1388 ms、f0.5 约 657 ms；同长度后续
+单元格回落到 stop→crop 约 1–2.5 ms、stop→role 约 77–81 ms。原始数据未做任何剔除或重跑。
+
+设计方随后结合 180 条 raw records 与代码顺序复核，否定了“一次性冷启动”解释：受影响单元的
+额外等待跨 20 次重复持续，并随待恢复 KV 后缀长度与播放等待时间变化。根因是每次
+`fixture.ensure_full()` 后未在 `player.start()` 前同步；stop 后首次设备同步把尚未完成的准备态
+恢复错误计入 stop→crop/role。因此旧 run 的联合路径数值被判为协议无效，不能通过删除首个样本
+或挑选所谓稳态单元修复。旧 run 继续作为审计记录保留；后续只能以新 run-id 按 prepared-state v2
+协议定向重跑。
 
 ## GPU 干扰记录
 

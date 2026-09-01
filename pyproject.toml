@@ -28,6 +28,7 @@ dependencies = [
     "transformers>=4.52.3",
     "seaborn>=0.13.2",
     "stream2sentence>=1.0.0",
+    "sentencepiece==0.2.2",
 ]
 
 [tool.uv.sources]

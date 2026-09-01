@@ -18,7 +18,7 @@ git status --short --branch
 # 此处必须无修改；结果目录已忽略，不会污染后续步骤。
 ```
 
-正式 run 默认要求干净提交；runner 会在加载模型前检查并拒绝 dirty tree。`results/` 已被本目录的 `.gitignore` 排除，因此完成一个子实验不会使后续子实验因结果文件而变脏。`--allow-dirty` 仅用于诊断，不得用于投稿正式结果。
+正式 run 默认要求干净提交；runner 会在加载模型前检查并拒绝 dirty tree。prepared-state P1 v2 的新 run、日志与打包件默认忽略，因此断点续传不会被自身结果误判为 dirty；验收后若需把新结果纳入仓库，必须由设计方显式 `git add -f`，GPU 正式运行阶段不要自行入库。`--allow-dirty` 仅用于诊断，不得用于投稿正式结果。
 
 ## 1. 环境变量
 
@@ -190,32 +190,34 @@ uv run python -m experiments.sci34_supplement.analyze_latency \
   --kind a1
 ```
 
-## 9. Headless 异步播放 P1
+## 9. Headless 异步播放 P1 prepared-state 定向重跑
 
-该实验不需要声卡。主模型用于实际 crop/role 操作：
+旧 `${CAMPAIGN}_async` 的准备态异步工作污染结果只保留作审计，不修改、不追加。本次只重跑 P1，详细协议、环境快照与专用打包命令见 [P1_PREPARED_RERUN.md](P1_PREPARED_RERUN.md)。该实验不需要声卡，主模型只用于真实 KV crop/role 软件路径。
 
 ```bash
+export P1_RUN_ID="${CAMPAIGN}_async_prepared_v2"
 CUDA_VISIBLE_DEVICES=0 uv run python -m experiments.sci34_supplement.async_bargein \
-  --run-id "${CAMPAIGN}_async" \
+  --run-id "$P1_RUN_ID" \
   --results-root "$OUT_ROOT/async_bargein" \
   --runtime transformers \
   --model "$MAIN_MODEL" \
   --device cuda:0 \
   --lengths 512 2048 8192 \
   --fractions 0.25 0.5 0.75 \
+  --warmups 3 \
   --repeats 20 \
   --sample-rate 24000 \
   --duration-s 0.8 \
-  --fragments 4 \
+  --fragments 6 \
   --block-ms 20 \
   --time-scale 1
 
 uv run python -m experiments.sci34_supplement.analyze_latency \
-  --run-dir "$OUT_ROOT/async_bargein/${CAMPAIGN}_async" \
+  --run-dir "$OUT_ROOT/async_bargein/$P1_RUN_ID" \
   --kind async
 ```
 
-该 run 应产生 180 records。正式结果必须称“headless wall-clock-paced software playback microbenchmark”。
+协议在每次播放前执行 `ensure_full()` 后立即同步 GPU，记录 `setup_ms`，并对每个 `(length, fraction)` 单元先做 3 次不落盘 warmup。断点恢复用完全相同命令加 `--resume`；只对尚缺正式记录的单元重新 warmup。验收：180 条正式 records；warmup 不在 `records.jsonl`；0.25/0.75 全为 `partial=true`，0.5 全为 `partial=false`；所有记录 `protocol=async_prepared_v2` 且 `prepared_state_synchronized=true`。正式结果必须称“headless wall-clock-paced software playback microbenchmark”。
 
 ## 10. 一键运行
 
@@ -223,9 +225,11 @@ uv run python -m experiments.sci34_supplement.analyze_latency \
 
 ```bash
 bash experiments/sci34_supplement/run_all_gpu.sh
+# 当前 P1 定向重跑：
+P1_ONLY=1 bash experiments/sci34_supplement/run_all_gpu.sh
 ```
 
-脚本默认跑：E3 100 条 → judge → E3 分析 → A1 20 repeats → P1 180 events。若要 A1 50 repeats，设置：
+脚本保留完整补实验编排能力，但 P1 默认使用新 prepared-state v2 协议和独立 `${CAMPAIGN}_async_prepared_v2` 目录。当前批准的是 P1-only 定向重跑，优先直接执行第 9 节或设置 `P1_ONLY=1` 运行脚本。若要 A1 50 repeats，设置：
 
 ```bash
 export A1_REPEATS=50
@@ -235,17 +239,13 @@ bash experiments/sci34_supplement/run_all_gpu.sh
 
 ## 11. 打包和回传
 
-```bash
-cd "$OUT_ROOT"
-tar -czf "${CAMPAIGN}.tar.gz" \
-  e3/${CAMPAIGN}_e3 \
-  judge/${CAMPAIGN}_judge \
-  a1/${CAMPAIGN}_a1* \
-  async_bargein/${CAMPAIGN}_async
-sha256sum "${CAMPAIGN}.tar.gz" > "${CAMPAIGN}.tar.gz.sha256"
-```
+本次为 **P1-only 定向重跑**。不得重新打包 E3/judge/A1，也不得把旧 `${CAMPAIGN}_async` 混入新包。按 [P1_PREPARED_RERUN.md](P1_PREPARED_RERUN.md) 仅打包：
 
-回传 tarball 和 sha256，不要只复制 summary；论文更新需要 manifest、raw records 和日志。
+- `async_bargein/${P1_RUN_ID}/`（新 run 的 manifest、raw records、summary、analysis）；
+- `run_logs/${P1_RUN_ID}.log`；
+- `run_logs/${P1_RUN_ID}_snapshots/`（CPU/RAM/kernel/driver/GPU 精确快照）。
+
+回传 tarball 和 sha256，不要只复制 summary。
 
 ## 12. 失败处理
 

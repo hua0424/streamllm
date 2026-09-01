@@ -6,6 +6,7 @@
 
 - playback 与 generation 条件共享同一条被打断 assistant 生成轨迹。
 - 在固定轨迹和 greedy probe 下，两种历史策略对共同差异文本的后续复现率存在某一实测差异，并给出配对 CI。
+- E3 的片段目标与 proxy 目标按各自非空目标独立定义分析总体：片段口径仅纳入 `unheard_text.strip()` 非空的 pair，proxy 口径仅纳入 `strict_unheard_text.strip()` 非空的 pair；两者的 `n` 不要求相同。
 - playback 片段口径不把完整未播放片段写入历史，这是构造性性质。
 
 ### 不可以声称
@@ -13,6 +14,7 @@
 - 结果代表自然在线用户打断的总体发生率。
 - LLM judge 等价于人工真值。
 - 字符比例—空白边界 proxy 是物理词/token 播放真值。
+- 片段与 proxy 指标共享同一个 eligibility 分母；旧 `eligible_pairs` 字段只能作为片段 eligibility 的兼容别名解读。
 - Mock TTS 实验验证了真实播放器或在线 TTS 停止。
 
 ## S-A1 完成后
@@ -29,7 +31,9 @@
 - 包含播放器停播、timeline lookup、服务通信或 GPU 并发负载。
 - 结果无条件适用于其他模型和推理引擎。
 
-## S-P1 完成后
+## S-P1 prepared-state v2 完成后
+
+旧 P1 v1 的 stop→crop/role 联合计时被异步准备态工作污染，只可作为协议审计；以下主张必须基于新 run ID 的 v2 正式结果。
 
 ### 可以声称
 

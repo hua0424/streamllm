@@ -26,7 +26,7 @@ uv run python -m src.dialogue.run_timeline_test
 
 ## 结果目录
 
-每个正式 run 使用独立 run ID：
+每个正式 run 使用独立 run ID。prepared-state P1 v2 的新 run、日志和打包件默认被 `results/.gitignore` 忽略，避免正式 run 或 resume 污染 clean-tree 检查；设计方验收后如需入库，应显式 `git add -f`：
 
 ```text
 experiments/sci34_supplement/results/<experiment>/<run_id>/
@@ -44,4 +44,5 @@ Resume 时会比较 config hash 与输入 SHA-256。不一致时拒绝续跑，�
 - 完整协议：[EXPERIMENT_PLAN.md](EXPERIMENT_PLAN.md)
 - 允许的论文主张：[CLAIMS_MATRIX.md](CLAIMS_MATRIX.md)
 - GPU 主机步骤：[GPU_RUNBOOK.md](GPU_RUNBOOK.md)
+- P1 prepared-state 定向重跑：[P1_PREPARED_RERUN.md](P1_PREPARED_RERUN.md)
 - 一键编排：[run_all_gpu.sh](run_all_gpu.sh)

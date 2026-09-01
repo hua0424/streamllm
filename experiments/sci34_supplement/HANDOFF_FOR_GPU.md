@@ -10,8 +10,8 @@
    - **S-E3** 固定生成轨迹一致性（消除原 E3 两条件生成轨迹不同的混杂）；
    - **S-A1** KV crop + 角色恢复联合计时（raw repeats + median/IQR）；
    - **S-P1** headless 异步播放控制路径微基准。
-2. **旧实验数据全部保留有效，不重跑**。本机 CPU 与旧实验机不同属预期情况；manifest 会自动记录环境，无需与旧机对比。
-3. **明确禁止**：人工评测步骤（已取消）、A2 重跑、真实声卡播放、在线 TTS 取消、任何联网下载模型。
+2. **当前批准任务只定向重跑 S-P1 prepared-state v2**。旧 P1 在播放器启动前发起的异步 `ensure_full()` 尚未完成，第一次 stop 后的同步把这段准备工作错误计入 stop→crop/role；这不是可通过删除首个样本解决的一次性冷启动。旧 `${CAMPAIGN}_async` 原样保留，E3/judge/A1 与所有旧实验都不重跑。
+3. **明确禁止**：人工评测步骤、A2/E3/A1 重跑、真实声卡播放、在线 TTS 取消、完整音频闭环、任何联网下载模型。
 
 ## 1. 环境要求
 
@@ -66,49 +66,28 @@ uv run python -m src.dialogue.run_timeline_test
 
 三项全部 PASS 后才加载 7B。
 
-### 步骤 4：E3 三条数据 integration
+### 步骤 4：采集重跑前精确环境快照
 
-按 GPU_RUNBOOK.md 第 4 节命令（`--limit 3 --formal`）。
+执行 [P1_PREPARED_RERUN.md](P1_PREPARED_RERUN.md) 的 snapshot 命令，保存 CPU 型号/拓扑、RAM、kernel、NVIDIA driver、每张 GPU 的精确字段以及 GPU 进程清单。快照必须进入本次回传包，不能只依赖 manifest 的概括字段。
 
-验收：`trajectories.jsonl` = 3 行，`records.jsonl` = 24 行（3 对话 × 4 位置 × 2 条件）。
+### 步骤 5：P1 prepared-state v2（无声卡，180 正式事件）
 
-### 步骤 5：E3 正式 100 条
+按 GPU_RUNBOOK.md 第 9 节或 P1_PREPARED_RERUN.md 的命令。新 run-id 必须以 `async_prepared_v2` 结尾；默认每个 `(length, fraction)` 做 3 次 warmup，warmup 不落盘；每次 `ensure_full()` 后必须先同步 GPU 再启动播放器。
 
-按 GPU_RUNBOOK.md 第 5 节命令（`--limit 100 --formal`）。
+验收：
 
-验收：`trajectories.jsonl` = 100，`records.jsonl` = 800，无 `fx*` ID。
+- `records.jsonl` 恰好 180 行，全部 `trial_kind=formal`；
+- `protocol=async_prepared_v2`、`prepared_state_synchronized=true`，并有非负 `setup_ms`；
+- 0.25/0.75 全部 `partial=true`，0.5 全部 `partial=false`；
+- 旧 `${CAMPAIGN}_async` 的路径、时间戳和哈希不变。
 
-中断恢复：**完全相同参数** + `--resume`。参数/数据/模型变化会拒绝恢复。
+中断恢复：完全相同参数加 `--resume`。runner 只对存在缺失记录的 `(length, fraction)` 单元做 3 次 warmup，再补缺失 repeat；已完整单元不 warm、不重跑。
 
-### 步骤 6：Mistral 裁判（换卡 1）
+### 步骤 6：分析、后快照与 P1-only 打包
 
-按 GPU_RUNBOOK.md 第 6 节命令。
+生成 `analysis.json`，采集 after snapshots，然后按 P1_PREPARED_RERUN.md **只打包新 P1 run + 本次日志/快照**并生成 SHA-256。不得混入旧 P1、E3、judge 或 A1。
 
-验收：`parse_failures` 全为 0。解析失败会立即中止——保留现场，修复后用**新 run-id**重跑，禁止把失败记为 NO。
-
-### 步骤 7：E3 分析
-
-按 GPU_RUNBOOK.md 第 7 节命令。
-
-验收：`summary.json` 生成；`construction_checks.playback_local_unheard_empty` 为 true；记录 `total_pairs / eligible_pairs / empty_target_pairs`。
-
-### 步骤 8：A1 联合计时
-
-先 20 repeats 预跑确认 8k 不 OOM，再正式 50 repeats（`A1_REPEATS=50 A1_WARMUP=5` 或按第 8 节命令显式传参）。
-
-验收：每个长度 4 组 raw 数组长度 = repeats；`analysis.json` 生成；主加速比 = `median(re-prefill raw) / median(joint raw)`。
-
-### 步骤 9：P1 异步播放（无声卡，180 事件）
-
-按 GPU_RUNBOOK.md 第 9 节命令（3 长度 × 3 位置 × 20 repeats，`--time-scale 1`）。
-
-验收：`records.jsonl` = 180 行；所有记录 ack 后游标稳定（脚本内置断言）。
-
-### 步骤 10：打包回传
-
-按 GPU_RUNBOOK.md 第 11 节打包 `e3/judge/a1/async_bargein` 各 run 目录（含 manifest、records、summary、日志）+ sha256，回传 tarball。
-
-**不要只传 summary**——论文更新需要 manifest 和 raw records。
+**不要只传 summary**——需要 manifest、180 条 raw records、analysis、运行日志和完整 snapshots。
 
 ## 3. 失败处理速查
 
@@ -125,16 +104,17 @@ uv run python -m src.dialogue.run_timeline_test
 
 跑完后回传：
 
-1. 各 run 的 run-id、commit、GPU/CPU 信息（manifest 已含，确认无缺）；
-2. E3：`summary.json` 关键数字（eligible pairs、各口径 rate、McNemar p、bootstrap CI）；
-3. A1：各长度 joint median/IQR 与加速比；
-4. P1：stop ack / stop→crop / stop→role 的 median/P95；
-5. 任何失败与处置记录。
+1. 新 P1 run-id、commit，以及 snapshots 中的精确 CPU/RAM/kernel/driver/GPU 信息；
+2. 180 条 formal records 与 partial/boundary 验收结果；
+3. P1：每个 `(length,fraction)` 的 stop ack / stop→crop / stop→role median/P95；
+4. warmup 数、prepared-state/setup 字段确认；
+5. 任何失败、resume 与处置记录。
 
 ## 5. 红线（不可违反）
 
-1. 不修改 `experiments/results/` 下任何旧 GPU 结果文件；
-2. 不重跑旧 E1/E2/E3/A1/A2 正式实验；
+1. 不修改任何旧 GPU 结果，尤其旧 `async_bargein/${CAMPAIGN}_async`；
+2. 不重跑 E1/E2/E3/A1/A2、judge 或其他补实验；
 3. 不执行任何人工评测步骤；
 4. 不把 P1 结果称为真实声卡停播或完整 barge-in latency（口径见 CLAIMS_MATRIX.md）；
-5. 不在正式 run 中联网下载模型或数据。
+5. 不在正式 run 中联网下载模型或数据；
+6. 回传包不得包含旧 P1/E3/judge/A1，只包含新 P1 run 与本轮日志/快照。

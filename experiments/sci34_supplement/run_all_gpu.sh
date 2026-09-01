@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-: "${DIALOGUES:?Set DIALOGUES to the formal p2_turns.json path}"
 : "${MAIN_MODEL:?Set MAIN_MODEL to the local Qwen2-7B-Instruct path}"
-: "${JUDGE_MODEL:?Set JUDGE_MODEL to the local Mistral judge path}"
 : "${OUT_ROOT:?Set OUT_ROOT to the supplementary result root}"
 : "${CAMPAIGN:?Set CAMPAIGN to a unique fixed run id}"
+
+P1_ONLY="${P1_ONLY:-0}"
+if [[ "$P1_ONLY" != "1" ]]; then
+  : "${DIALOGUES:?Set DIALOGUES to the formal p2_turns.json path}"
+  : "${JUDGE_MODEL:?Set JUDGE_MODEL to the local Mistral judge path}"
+fi
 
 export HF_TOKEN=
 export HF_HUB_OFFLINE=1
@@ -15,10 +19,13 @@ export TOKENIZERS_PARALLELISM=false
 SEED="${SEED:-20260831}"
 A1_REPEATS="${A1_REPEATS:-20}"
 A1_WARMUP="${A1_WARMUP:-3}"
+P1_WARMUPS="${P1_WARMUPS:-3}"
+P1_RUN_ID="${P1_RUN_ID:-${CAMPAIGN}_async_prepared_v2}"
 DEVICE="${DEVICE:-cuda:0}"
 
 uv run python -m experiments.sci34_supplement.smoke
 
+if [[ "$P1_ONLY" != "1" ]]; then
 CUDA_VISIBLE_DEVICES=0 uv run python -m experiments.sci34_supplement.e3_fixed_trajectory \
   --dialogues "$DIALOGUES" \
   --run-id "${CAMPAIGN}_e3" \
@@ -62,25 +69,27 @@ CUDA_VISIBLE_DEVICES=0 uv run python -m experiments.sci34_supplement.a1_joint_la
 uv run python -m experiments.sci34_supplement.analyze_latency \
   --run-dir "$OUT_ROOT/a1/${CAMPAIGN}_a1" \
   --kind a1
+fi
 
 CUDA_VISIBLE_DEVICES=0 uv run python -m experiments.sci34_supplement.async_bargein \
-  --run-id "${CAMPAIGN}_async" \
+  --run-id "$P1_RUN_ID" \
   --results-root "$OUT_ROOT/async_bargein" \
   --runtime transformers \
   --model "$MAIN_MODEL" \
   --device "$DEVICE" \
   --lengths 512 2048 8192 \
   --fractions 0.25 0.5 0.75 \
+  --warmups "$P1_WARMUPS" \
   --repeats 20 \
   --sample-rate 24000 \
   --duration-s 0.8 \
-  --fragments 4 \
+  --fragments 6 \
   --block-ms 20 \
   --time-scale 1 \
   --resume
 
 uv run python -m experiments.sci34_supplement.analyze_latency \
-  --run-dir "$OUT_ROOT/async_bargein/${CAMPAIGN}_async" \
+  --run-dir "$OUT_ROOT/async_bargein/$P1_RUN_ID" \
   --kind async
 
-printf 'SCI supplement completed: %s\n' "$CAMPAIGN"
+printf 'SCI supplement P1 completed: %s\n' "$P1_RUN_ID"

@@ -1,4 +1,6 @@
-# 实验结果入库留存；仅排除回传用打包件与解释器缓存
+# P1 prepared-state 正式 run、日志与回传件不污染 clean-tree 检查。
 *.tar.gz
 *.tar.gz.sha256
 __pycache__/
+async_bargein/*_async_prepared_v2/
+run_logs/*_async_prepared_v2*
