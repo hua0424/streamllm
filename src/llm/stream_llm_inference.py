@@ -300,12 +300,14 @@ class StreamLLMInference:
 
     def generate_accumulating(self, cache: "StreamLLMInference.AccumKVCache",
                               max_new_tokens=50, temperature=0.1, top_p=0.9,
-                              repetition_penalty=1.1):
+                              repetition_penalty=1.1, on_token_decoded=None):
         """
         二期版流式生成：边生成边把 assistant token 的 KV 写回 cache（可被 crop）。
         yield (token_text, assistant_relative_idx)。第 i 个 assistant token 占据
         KV 位置 assistant_start + i；生成后 cache.seq_length == assistant_start + 已生成数。
-        打断只需消费侧停止迭代；cache 即为可被 crop 的对象。
+        打断只需消费侧停止迭代；cache 即为可被 crop 的对象。可选
+        on_token_decoded 在 token 选定后、下一次模型 forward 前同步调用，供确认性
+        延迟实验记录“首 token 已可交付”时刻；默认 None 保持生产调用行为不变。
         """
         if cache is None or cache.next_token_logits is None:
             raise Exception("AccumKVCache 未初始化或缺少起始 logits")
@@ -315,6 +317,8 @@ class StreamLLMInference:
             is_eos = next_token_id.item() == self.tokenizer.eos_token_id
             token_text = self.tokenizer.decode(next_token_id[0], skip_special_tokens=True)
             rel_idx = len(cache.assistant_token_ids)  # 该 token 的 assistant 相对下标
+            if on_token_decoded is not None:
+                on_token_decoded(token_text, rel_idx, int(next_token_id.item()))
 
             # 显式拼 attention_mask 与 position_ids（与一期 _add_stream_prompt 同风格，Q2）
             gen_attention_mask = torch.cat(

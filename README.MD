@@ -176,6 +176,20 @@ A: 可以在 `.env` 或 `config.py` 中调整 `VAD_THRESHOLD` (默认 0.5) 和 `
 **Q: ASR 识别结果在流式输出时会变化？**
 A: 是的，这是预期的。为了提高准确率，流式 ASR 会保留一部分音频上下文（Context），当前的输出可能会在接收到更多音频后被修正（如果使用了更复杂的输出策略）。但在本项目的简单实现中，我们主要关注**确定的**输出片段如何尽快送入 LLM。
 
-## 7. 许可证
+## 7. 二期 E1/E2 确认性 campaign
+
+`paper2` 分支的 `experiments/sci34_supplement/e1e2_confirmatory/` 已实现独立的受控文本段确认性 harness：
+
+- CLI：`holdout_builder`、`trigger_cache`、`campaign`、`run_session`、`analyze`、`validate`；
+- 无模型验证：`uv run python -m experiments.sci34_supplement.e1e2_confirmatory.smoke`；
+- 协议：新的 100 条 disjoint MultiWOZ holdout、B@0.92 预冻结、Qwen2-7B greedy、TEN 只读 cache、不可变 campaign manifest、5 个强制共享 manifest 的独立进程（session-index 0..4）；
+- accepted E3 排除源固定为 `experiments/sci34_supplement/results/e3/sci34_f11ccba_20260901_e3/manifest.json`；
+- Raw records 已保存最后一段到达、首个最终 token 准备及其差值；analyzer 以 arrival-to-ready 为实际受控墙钟主指标；同步 oracle 的 `endpoint_accept` 不等于最后段到达，`TTFT_eff` 仅为候选准备后的时延的乐观下界（推测收益的上界）；
+- 浪费率主定义为 `wasted_tokens / (wasted_tokens + final_tokens)`；
+- 当前状态：代码已实现并与 `--help` 对齐，GPU formal campaign 待执行，论文稿与旧结果保持不动。
+
+GPU 操作只以 `experiments/sci34_supplement/e1e2_confirmatory/GPU_HANDOFF.md` 为准。该实验输入不是实际音频，不支持真实 ASR、在线 TTS、声卡、mouth-to-ear 或生产端到端主张。
+
+## 8. 许可证
 
 本项目采用 MIT 许可证。

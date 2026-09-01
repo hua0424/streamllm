@@ -4,3 +4,8 @@
 __pycache__/
 async_bargein/*_async_prepared_v2/
 run_logs/*_async_prepared_v2*
+# E1/E2 confirmatory campaign：正式 run、日志和回传件在验收前保持忽略；接受后精确 git add -f。
+e1e2_confirmatory/*/
+e1e2_confirmatory/*.tar.gz
+e1e2_confirmatory/*.tar.gz.sha256
+run_logs/*e1e2_confirmatory*

@@ -5,6 +5,27 @@
 
 ---
 
+## D-016（2026-09-01）冻结 E1/E2 确认性受控文本段 campaign
+
+**决策**：旧 E1/E2 保持只读，不直接重跑旧脚本；新增独立 `experiments/sci34_supplement/e1e2_confirmatory/` campaign，在新的未见 holdout 上确认受控模型侧 E1/E2。正式结果验收前不修改论文数字、权威分章、摘要、`thesis_draft` 或 IEEE 衍生稿。
+
+**预冻结协议与实现对齐**：
+1. **阈值与解码**：`0.92` 来源于旧探索 campaign，在新 holdout 结果可见前冻结为唯一 confirmatory candidate；C-E1 使用 System A vs B@0.92，C-E2 使用 B@0.92 vs `never_speculate` 并报告全部离散点。主模型固定 Qwen2-7B-Instruct、greedy、`max_new_tokens=32`、`spec_chunk=12`、batch size 1。
+2. **新 holdout**：从本地 MultiWOZ 2.1 确定性派生 100 条话语，显式排除旧 E1/E2 与 accepted 固定轨迹 E3。E3 排除源固定为真实 manifest：`experiments/sci34_supplement/results/e3/sci34_f11ccba_20260901_e3/manifest.json`。formal 默认拒绝 fixture、重复/空 segment、缺文件和联网回退。
+3. **TEN cache**：TEN 对每个累积 segment prefix 真实前向一次，输出单个只读 JSON cache，保存未舍入 confidence、文本/template/token/model/input 身份与 hash；五个 formal session replay 同一 cache。TEN runtime 不进入指标窗口，故不作在线 trigger 零开销主张。
+4. **独立重复**：运行 5 个独立 Python 进程，`session-index=0..4`，每个重新加载模型并完成 100 条×10 条件；每条 warmup path 默认重复 3 次且不进入 formal records，条件顺序按 session/dialogue 平衡。进程重启后不得拼接同一 session；当前 `--resume` 只允许相同 `process_start_id`。
+5. **时间语义修正**：严格区分 `last_segment_arrival`、`first_token_ready` 与同步 oracle 的 `endpoint_accept`。实际受控墙钟主指标是 `first_token_ready - last_segment_arrival`；`endpoint_accept` 不是最后一段到达瞬间。`TTFT_eff` 仅是候选已准备后同步 oracle 接受的时延的乐观下界（推测收益的上界）。Raw records 已保存 `last_segment_arrival_ns`、`first_token_ready_ns`、`arrival_to_first_token_ready_ns`、`endpoint_accept_ns` 和 `oracle_preaccept_processing_ns`；validator 复算恒等式，analyzer 以 arrival-to-ready 为主指标。
+6. **浪费率与分析**：正式 pooled waste 固定为 `sum(wasted_tokens) / sum(wasted_tokens + final_tokens)`；`speculative_tokens` 只作诊断。C-E1/C-E2 使用配对记录和 session→dialogue 两层 bootstrap；主分析不删异常值，versioned analysis 不覆盖。
+7. **实际 CLI 与 manifest**：已实现并核对 `holdout_builder`、`trigger_cache`、`campaign`、`run_session`、`analyze`、`validate`、`smoke`。`campaign` 在 TEN cache 后生成不可变 formal manifest，冻结 input/cache/TEN/main-model/protocol identity；formal `run_session` 强制传同一个 `--campaign-manifest`。Pilot 使用独立 non-formal session、`--limit 3` 且不传 formal manifest。
+
+**证据边界**：输入是受控预切分文本段，**不是实际音频**。允许主张限于指定模型/硬件下、可审计的最后段到达至首 token 准备墙钟行为、同步 oracle 的 `TTFT_eff` 时延的乐观下界（推测收益的上界）与推测浪费工作点；不得声称真实流式 ASR、实际 endpoint detector、在线 TTS、播放器/声卡、声学停播、真实 mouth-to-ear、生产端到端 barge-in 或 `0.92` 为部署最优阈值。
+
+**影响**：campaign CLI、不可变 manifest、raw 主墙钟字段与文档已对齐，代码已实现，GPU formal 数据待运行。GPU 数据、campaign manifest、analysis、validation 与 acceptance 全部通过后，才由论文主代理决定是否更新权威 Markdown；旧 JSON 永不覆盖，论文稿与旧结果本次不改。
+
+**状态**：accepted
+
+---
+
 ## D-015（2026-09-01）接受 prepared-state P1 v2 并区分第三实验 campaign
 
 **决策**：接受 run `sci34_dc52978_20260901_async_prepared_v2` 为 headless 墙钟软件播放控制路径的正式证据；P1 v1 继续仅作失败协议审计。D-015 只取代 D-014 中“P1 v2 待运行”的状态，不改变 D-014 已接受的固定轨迹 E3 与联合 A1 结论。
