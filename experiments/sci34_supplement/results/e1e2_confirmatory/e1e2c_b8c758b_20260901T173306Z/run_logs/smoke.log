@@ -1,0 +1,65 @@
+2026-09-02 01:33:18.797 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 300: interrupted frag 1, crop_token_end=149, partial=True, heard=[0, 1], discarded=[2, 3, 4, 5]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 300: interrupted frag 1, crop_token_end=149, partial=True, heard=[0, 1], discarded=[2, 3, 4, 5]
+2026-09-02 01:33:19.140 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 300: interrupted frag 1, crop_token_end=149, partial=True, heard=[0, 1], discarded=[2, 3, 4, 5]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 300: interrupted frag 1, crop_token_end=149, partial=True, heard=[0, 1], discarded=[2, 3, 4, 5]
+2026-09-02 01:33:19.484 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 300: interrupted frag 1, crop_token_end=149, partial=True, heard=[0, 1], discarded=[2, 3, 4, 5]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 300: interrupted frag 1, crop_token_end=149, partial=True, heard=[0, 1], discarded=[2, 3, 4, 5]
+2026-09-02 01:33:20.128 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 600: interrupted frag 2, crop_token_end=224, partial=False, heard=[0, 1, 2], discarded=[3, 4, 5]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 600: interrupted frag 2, crop_token_end=224, partial=False, heard=[0, 1, 2], discarded=[3, 4, 5]
+2026-09-02 01:33:20.770 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 600: interrupted frag 2, crop_token_end=224, partial=False, heard=[0, 1, 2], discarded=[3, 4, 5]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 600: interrupted frag 2, crop_token_end=224, partial=False, heard=[0, 1, 2], discarded=[3, 4, 5]
+2026-09-02 01:33:21.414 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 600: interrupted frag 2, crop_token_end=224, partial=False, heard=[0, 1, 2], discarded=[3, 4, 5]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 600: interrupted frag 2, crop_token_end=224, partial=False, heard=[0, 1, 2], discarded=[3, 4, 5]
+2026-09-02 01:33:22.358 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 900: interrupted frag 4, crop_token_end=373, partial=True, heard=[0, 1, 2, 3, 4], discarded=[5]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 900: interrupted frag 4, crop_token_end=373, partial=True, heard=[0, 1, 2, 3, 4], discarded=[5]
+2026-09-02 01:33:23.301 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 900: interrupted frag 4, crop_token_end=373, partial=True, heard=[0, 1, 2, 3, 4], discarded=[5]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 900: interrupted frag 4, crop_token_end=373, partial=True, heard=[0, 1, 2, 3, 4], discarded=[5]
+2026-09-02 01:33:24.244 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 900: interrupted frag 4, crop_token_end=373, partial=True, heard=[0, 1, 2, 3, 4], discarded=[5]
+INFO:src.dialogue.timeline:[timeline] barge_in @sample 900: interrupted frag 4, crop_token_end=373, partial=True, heard=[0, 1, 2, 3, 4], discarded=[5]
+{"status": "PASS", "root": "/tmp/sci34-smoke-zu24xypw"}
+2026-09-02 01:33:26.786 - __main__ - INFO - ========================================================
+2026-09-02 01:33:26.786 - __main__ - INFO - PlaybackTimeline smoke test
+2026-09-02 01:33:26.786 - __main__ - INFO - ========================================================
+2026-09-02 01:33:26.786 - __main__ - INFO - S1 mid-fragment 打断 @1.5s
+2026-09-02 01:33:26.786 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 24000: interrupted frag 1, crop_token_end=11, partial=True, heard=[0, 1], discarded=[2]
+2026-09-02 01:33:26.786 - __main__ - INFO -   [PASS] 被打断片段=frag1
+2026-09-02 01:33:26.786 - __main__ - INFO -   [PASS] crop 到 frag1.token_end=11
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] partial=True（半截）
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] heard=[0,1]
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] discarded=[2]
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] frag2 状态=DISCARDED
+2026-09-02 01:33:26.787 - __main__ - INFO - S2 片段边界打断 @2.0s（干净截断）
+2026-09-02 01:33:26.787 - src.dialogue.timeline - INFO - [timeline] barge_in @sample 32000: interrupted frag 1, crop_token_end=11, partial=False, heard=[0, 1], discarded=[2]
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] 被打断片段=frag1（听完 frag1）
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] crop 到 frag1.token_end=11
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] partial=False（干净边界，非半截）
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] heard=[0,1]
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] discarded=[2]
+2026-09-02 01:33:26.787 - __main__ - INFO - S2b 听完 frag0 @1.0s（干净截断）
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] 命中 frag0（听完 frag0）
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] crop 到 frag0.token_end=5
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] partial=False（frag0 完整听完）
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] heard=[0]
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] discarded=[1,2]
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] 只读不改状态：frag2 仍 SYNTHESIZING
+2026-09-02 01:33:26.787 - __main__ - INFO - S3 打断时尚未播放任何音频
+2026-09-02 01:33:26.787 - src.dialogue.timeline - INFO - [timeline] barge_in with nothing heard → full rollback (crop_token_end=0)
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] interrupted=None
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] crop_token_end=0（回滚到 assistant 起点）
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] heard 为空
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] 全部 discarded
+2026-09-02 01:33:26.787 - __main__ - INFO - S4 反查 / heard_text
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] sample 24000 命中 frag1
+2026-09-02 01:33:26.787 - __main__ - INFO -   [PASS] sample 40000 命中 frag2
+2026-09-02 01:33:26.788 - __main__ - INFO -   [PASS] sample 越界(99999) 命中最后片段 frag2
+2026-09-02 01:33:26.788 - __main__ - INFO -   [PASS] heard_text='今天天气晴，温度25度，'
+2026-09-02 01:33:26.788 - __main__ - INFO - ========================================================
+2026-09-02 01:33:26.788 - __main__ - INFO - ALL PASS ✓
+2026-09-02 01:33:26.788 - __main__ - INFO - ========================================================
+I0902 01:33:26.792000 205280 .venv/lib/python3.10/site-packages/torch/_subclasses/fake_tensor.py:3171] FakeTensor cache stats:
+I0902 01:33:26.793000 205280 .venv/lib/python3.10/site-packages/torch/_subclasses/fake_tensor.py:3172]   cache_hits: 0
+I0902 01:33:26.793000 205280 .venv/lib/python3.10/site-packages/torch/_subclasses/fake_tensor.py:3173]   cache_misses: 0
+2026-09-02 01:33:28.945 - experiments.scripts.prepare_multiwoz_data - INFO - 读入 5 条对话（/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/e1e2_confirmatory/fixtures/mini_multiwoz.json）
+2026-09-02 01:33:28.946 - experiments.scripts.prepare_multiwoz_data - INFO - 读入 5 条对话（/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/e1e2_confirmatory/fixtures/mini_multiwoz.json）
+{"status": "PASS", "models_loaded": false, "network_used": false, "root": "/tmp/e1e2-confirmatory-smoke-lpm81rk5"}
+ALL SMOKE SECTIONS DONE

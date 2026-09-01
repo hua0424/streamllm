@@ -1,0 +1,8 @@
+2026-09-02 02:00:33.910 - src.llm.stream_llm_inference - INFO - Loading LLM model /root/autodl-tmp/dataA/models/Qwen2-7B-Instruct on cuda:0
+INFO:src.llm.stream_llm_inference:Loading LLM model /root/autodl-tmp/dataA/models/Qwen2-7B-Instruct on cuda:0
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.17it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.19it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:02<00:00,  1.19it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.22it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.21it/s]
+2026-09-02 02:00:38.023 - src.llm.stream_llm_inference - INFO - LLM模型加载完成。
+INFO:src.llm.stream_llm_inference:LLM模型加载完成。
+INFO:root:Initializing NLTK Tokenizer
+/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/sessions/s01

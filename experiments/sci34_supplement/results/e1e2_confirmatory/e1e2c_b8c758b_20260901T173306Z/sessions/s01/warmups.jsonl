@@ -1,0 +1,15 @@
+{"done_ns": 19836665804482451, "path_kind": "full_prefill", "repeat": 0, "started_ns": 19836665123183751}
+{"done_ns": 19836666060335403, "path_kind": "full_prefill", "repeat": 1, "started_ns": 19836665805023319}
+{"done_ns": 19836666311651662, "path_kind": "full_prefill", "repeat": 2, "started_ns": 19836666060798982}
+{"done_ns": 19836666721432184, "path_kind": "survived_speculation", "repeat": 0, "started_ns": 19836666311949998}
+{"done_ns": 19836667059153700, "path_kind": "survived_speculation", "repeat": 1, "started_ns": 19836666721852336}
+{"done_ns": 19836667390079925, "path_kind": "survived_speculation", "repeat": 2, "started_ns": 19836667059576105}
+{"done_ns": 19836668036794678, "path_kind": "invalidated_crop", "repeat": 0, "started_ns": 19836667390468930}
+{"done_ns": 19836668711745782, "path_kind": "invalidated_crop", "repeat": 1, "started_ns": 19836668037109291}
+{"done_ns": 19836669352335118, "path_kind": "invalidated_crop", "repeat": 2, "started_ns": 19836668712184898}
+{"done_ns": 19836669717333957, "path_kind": "never_speculate", "repeat": 0, "started_ns": 19836669352634563}
+{"done_ns": 19836670055179322, "path_kind": "never_speculate", "repeat": 1, "started_ns": 19836669717621068}
+{"done_ns": 19836670388248533, "path_kind": "never_speculate", "repeat": 2, "started_ns": 19836670055486428}
+{"done_ns": 19836670752900457, "path_kind": "sentence_chunker", "repeat": 0, "started_ns": 19836670388563934}
+{"done_ns": 19836670753342798, "path_kind": "sentence_chunker", "repeat": 1, "started_ns": 19836670753221589}
+{"done_ns": 19836670753553540, "path_kind": "sentence_chunker", "repeat": 2, "started_ns": 19836670753484057}

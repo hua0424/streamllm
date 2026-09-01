@@ -1,0 +1,41 @@
+{
+  "completed_at_utc": "2026-09-01T17:58:31.045988+00:00",
+  "records": 30,
+  "dialogues": 3,
+  "conditions": [
+    "system_a_full_prefill",
+    "b_threshold_0.0052",
+    "b_threshold_0.1979",
+    "b_threshold_0.3906",
+    "b_threshold_0.5833",
+    "b_threshold_0.7760",
+    "b_threshold_0.8500",
+    "b_threshold_0.9200",
+    "b_threshold_0.9688",
+    "b_never_speculate"
+  ],
+  "warmup_records": 15,
+  "campaign_identity_hash": "897b24fb238157c6b108748682e0775afe19361715cc515170fded4e882075a1",
+  "environment": {
+    "python": "3.10.18 (main, Oct  7 2025, 15:34:08) [Clang 20.1.4 ]",
+    "platform": "Linux-5.15.0-136-generic-x86_64-with-glibc2.35",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "perf_counter": {
+      "implementation": "clock_gettime(CLOCK_MONOTONIC)",
+      "monotonic": true,
+      "adjustable": false,
+      "resolution": 1e-09
+    },
+    "numpy": "1.26.4",
+    "scipy": "1.15.3",
+    "torch": "2.8.0+cu128",
+    "cuda_runtime": "12.8",
+    "cudnn": 91002,
+    "cuda_available": true,
+    "gpus": [
+      "NVIDIA GeForce RTX 3090"
+    ],
+    "transformers": "4.57.1"
+  }
+}

@@ -1,0 +1,4 @@
+2026-09-02 01:54:47.150 - src.dialogue.trigger - INFO - Loading soft-trigger model /root/autodl-tmp/dataA/models/TEN_Turn_Detection on cuda:0
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:00<00:00, 77.34it/s]
+2026-09-02 01:54:51.742 - src.dialogue.trigger - INFO - soft-trigger ready (pos_ids=[12129, 8060], neg_ids=[15092, 63616, 11489, 3783])
+{"entry_count":222,"identity_hash":"e366921baa816a0cd4a64260016321dc0e9d1aeacf11d31da2fc019e50bf6e7a","path":"/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/trigger_cache/trigger_cache.json","sha256":"64008c9277f5c43d88d4bcc710fd3c27c4b635fb61dcfbfbee23c261f86835da"}

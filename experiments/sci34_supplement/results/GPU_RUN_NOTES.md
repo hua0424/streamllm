@@ -69,3 +69,28 @@ GPU 运行方最初按“无 per-length warmup 的 CUDA 首次分配/kernel 编�
 
 A1 正式 run 前后 `nvidia-smi` 快照存于 `a1/nvidia_smi_before_formal.txt`、
 `a1/nvidia_smi_after_formal.txt`；期间无其他 GPU 进程。
+
+## E1/E2 确认性 campaign（2026-09-01/02，commit `b8c758b`）
+
+按 `e1e2_confirmatory/GPU_HANDOFF.md` 完整执行，campaign `e1e2c_b8c758b_20260901T173306Z`：
+
+- 环境准备：TEN_Turn_Detection 本机原缺失，进入冻结流程前一次性经 ModelScope 下载
+  （15GB/17 文件，`/root/autodl-tmp/dataA/models/TEN_Turn_Detection`）；此后全程
+  `HF_HUB_OFFLINE=1` 离线，正式 run 零联网。`uv sync --frozen`，pyproject/uv.lock 前后 hash 不变。
+- 流程：六模块 CLI 核对 → 四项 smoke 全 PASS → before snapshot → holdout 100 条
+  （与旧 E1/E2/E3 交集 0，sha `e86c0ccb…`）→ TEN cache 222 entries（卡1）→ 冻结
+  campaign manifest（sha `2f4bd76e…`）→ pilot 30 records（独立非 formal campaign）→
+  五个 formal session 顺序各一进程，5 × 1000 = 5000 records，validation `ok=true`
+  （无 duplicate/truncation，五 process identity 唯一，条件顺序平衡）→
+  `analysis_v1.json`（bootstrap 10000×，seed 20260901）→ ACCEPTANCE.md 填写 →
+  after snapshot + 72 文件 checksums + tarball（sha 见 `.tar.gz.sha256`，
+  `88de19dd10e344fc70a6a075b481fcba30e34ab6907c119792b5fd7253b31eaf`）。
+- 旧结果保护：`exp1_latency.json`/`exp2_tradeoff.json`/`paper2_reanalysis.json` 跑前跑后
+  SHA-256 逐字节一致（guard diff 通过）；论文稿与旧实验结果零改动。
+- 关键数值（单位 ms，配对 n=500）：C-E1 实际墙钟主指标（last_segment_arrival→
+  first_token_ready）A 27.70 vs B@0.92 62.38，配对 A−B −34.69（95% CI [−35.30, −34.11]）；
+  TTFT_eff 乐观下界口径 A−B +17.44（CI [16.12, 18.75]）。C-E2 B@0.92 vs never：主墙钟
+  −0.03（CI [−0.55, +0.51] 含 0），oracle 下界 +20.80（CI [19.50, 22.10]）；
+  B@0.92 pooled waste 2.85%、survival 67.0%。九阈值 waste/survival 单调。
+- 全部口径与红线遵守：不把 TTFT_eff 称实际墙钟、不把 endpoint_accept 称最后段到达、
+  不把受控文本段称真实音频；结果按 .gitignore 约定验收后 `git add -f` 入库。

@@ -1,0 +1,15 @@
+{"done_ns": 19837650787216077, "path_kind": "full_prefill", "repeat": 0, "started_ns": 19837650000365157}
+{"done_ns": 19837651072655490, "path_kind": "full_prefill", "repeat": 1, "started_ns": 19837650787687195}
+{"done_ns": 19837651351148977, "path_kind": "full_prefill", "repeat": 2, "started_ns": 19837651073081431}
+{"done_ns": 19837651729444117, "path_kind": "survived_speculation", "repeat": 0, "started_ns": 19837651351611220}
+{"done_ns": 19837652046922394, "path_kind": "survived_speculation", "repeat": 1, "started_ns": 19837651729871865}
+{"done_ns": 19837652365215061, "path_kind": "survived_speculation", "repeat": 2, "started_ns": 19837652047290696}
+{"done_ns": 19837653056959695, "path_kind": "invalidated_crop", "repeat": 0, "started_ns": 19837652365480779}
+{"done_ns": 19837653775035431, "path_kind": "invalidated_crop", "repeat": 1, "started_ns": 19837653057380253}
+{"done_ns": 19837654461730262, "path_kind": "invalidated_crop", "repeat": 2, "started_ns": 19837653775362631}
+{"done_ns": 19837654800778597, "path_kind": "never_speculate", "repeat": 0, "started_ns": 19837654462212616}
+{"done_ns": 19837655125441293, "path_kind": "never_speculate", "repeat": 1, "started_ns": 19837654801085899}
+{"done_ns": 19837655450774172, "path_kind": "never_speculate", "repeat": 2, "started_ns": 19837655125837053}
+{"done_ns": 19837655834298802, "path_kind": "sentence_chunker", "repeat": 0, "started_ns": 19837655451083179}
+{"done_ns": 19837655834839182, "path_kind": "sentence_chunker", "repeat": 1, "started_ns": 19837655834686489}
+{"done_ns": 19837655835058585, "path_kind": "sentence_chunker", "repeat": 2, "started_ns": 19837655834982493}

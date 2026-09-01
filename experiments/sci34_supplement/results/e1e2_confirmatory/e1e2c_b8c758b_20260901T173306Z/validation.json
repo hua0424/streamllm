@@ -1,0 +1,754 @@
+{
+  "schema_version": 1,
+  "experiment": "e1e2_confirmatory",
+  "validated_at_utc": "2026-09-01T19:23:49.667951+00:00",
+  "campaign_dir": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z",
+  "ok": true,
+  "errors": [],
+  "grid": {
+    "ok": true,
+    "errors": [],
+    "records": 5000,
+    "sessions": 5,
+    "dialogues": 100,
+    "conditions": [
+      "system_a_full_prefill",
+      "b_threshold_0.0052",
+      "b_threshold_0.1979",
+      "b_threshold_0.3906",
+      "b_threshold_0.5833",
+      "b_threshold_0.7760",
+      "b_threshold_0.8500",
+      "b_threshold_0.9200",
+      "b_threshold_0.9688",
+      "b_never_speculate"
+    ],
+    "expected_records": 5000,
+    "duplicate_keys": [],
+    "process_ids": {
+      "s01": [
+        "pid-215224-1788285655186877365-b6764d040f484080b35f8e7ea93cef36"
+      ],
+      "s02": [
+        "pid-220915-1788286640061608948-ee60719dfb334eda877138bcb406cf0d"
+      ],
+      "s03": [
+        "pid-226775-1788287654557036881-5aa28763e25c4b2eb8c46e51a96f684e"
+      ],
+      "s04": [
+        "pid-232529-1788288647388977345-e1c3703674b94dbb8835b25caff50cb5"
+      ],
+      "s05": [
+        "pid-238270-1788289640934982861-0868d27c51004b4f90c5a21ab058dc5d"
+      ]
+    },
+    "campaign_identity_hashes": [
+      "897b24fb238157c6b108748682e0775afe19361715cc515170fded4e882075a1"
+    ],
+    "balance": {
+      "s01": {
+        "ordinal_counts": {
+          "system_a_full_prefill": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.0052": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.1979": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.3906": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.5833": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.7760": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.8500": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.9200": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.9688": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_never_speculate": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ]
+        },
+        "maximum_spread": 0
+      },
+      "s02": {
+        "ordinal_counts": {
+          "system_a_full_prefill": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.0052": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.1979": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.3906": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.5833": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.7760": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.8500": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.9200": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.9688": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_never_speculate": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ]
+        },
+        "maximum_spread": 0
+      },
+      "s03": {
+        "ordinal_counts": {
+          "system_a_full_prefill": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.0052": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.1979": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.3906": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.5833": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.7760": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.8500": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.9200": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.9688": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_never_speculate": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ]
+        },
+        "maximum_spread": 0
+      },
+      "s04": {
+        "ordinal_counts": {
+          "system_a_full_prefill": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.0052": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.1979": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.3906": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.5833": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.7760": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.8500": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.9200": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.9688": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_never_speculate": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ]
+        },
+        "maximum_spread": 0
+      },
+      "s05": {
+        "ordinal_counts": {
+          "system_a_full_prefill": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.0052": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.1979": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.3906": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.5833": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.7760": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.8500": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.9200": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_threshold_0.9688": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ],
+          "b_never_speculate": [
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10,
+            10
+          ]
+        },
+        "maximum_spread": 0
+      }
+    }
+  },
+  "timing": {
+    "ok": true,
+    "errors": [],
+    "counters": {
+      "survived": 3345,
+      "threshold_records": 4000
+    }
+  },
+  "provenance": {
+    "ok": true,
+    "errors": [],
+    "campaign_identity_hashes": [
+      "897b24fb238157c6b108748682e0775afe19361715cc515170fded4e882075a1"
+    ],
+    "trigger_cache_sha256": [
+      "64008c9277f5c43d88d4bcc710fd3c27c4b635fb61dcfbfbee23c261f86835da"
+    ],
+    "input_sha256": [
+      "e86c0ccb0ae4c56617b983b50940b6c97d672ff9955f0962b8f25f0411d14161"
+    ],
+    "campaign_manifest_sha256": [
+      "2f4bd76e759945e62a5536b6b4399ad129c47a0b76c967bb653e22ffcf0f4ed8"
+    ],
+    "top_level_campaign_manifest": {
+      "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/campaign_manifest.json",
+      "sha256": "2f4bd76e759945e62a5536b6b4399ad129c47a0b76c967bb653e22ffcf0f4ed8",
+      "content_hash": "b307e054f5c699c671c9bd6a59270e15ddd53751a6e32f6b0ce403ebfd9bf146",
+      "identity_hash": "897b24fb238157c6b108748682e0775afe19361715cc515170fded4e882075a1"
+    },
+    "runtime_metadata": [
+      {
+        "attention_backend": "sdpa",
+        "resolved_dtype": "torch.bfloat16"
+      }
+    ],
+    "sources": [
+      {
+        "session_id": "s01",
+        "manifest_path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/sessions/s01/manifest.json",
+        "manifest_sha256": "b5d407ba2c55a5dce9fed85a90a7a5017c915546eb9e2a524a0d3e8a2431a69f",
+        "records_path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/sessions/s01/records.jsonl",
+        "records_sha256": "acb7436d4ac23c8bc6900b95eeb43187dc6ff64f7924157fe33d5ec0b8e00a6a",
+        "records": 1000
+      },
+      {
+        "session_id": "s02",
+        "manifest_path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/sessions/s02/manifest.json",
+        "manifest_sha256": "4d203f06ca712442f41fb282ae54d291e5fd4c07e079cb9474d90a323dac6dd3",
+        "records_path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/sessions/s02/records.jsonl",
+        "records_sha256": "072059714b65eebe812d508aaf3369c018cf80bf1f38a792d034d312be9e54a3",
+        "records": 1000
+      },
+      {
+        "session_id": "s03",
+        "manifest_path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/sessions/s03/manifest.json",
+        "manifest_sha256": "347f43e40c483b34f292342a7309c92a467e1e7c259e136bb57d844127be0c05",
+        "records_path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/sessions/s03/records.jsonl",
+        "records_sha256": "49a9b96dadb512771b411f4dcc7580b63993a2b7e8cbb372f1fc548628a036e6",
+        "records": 1000
+      },
+      {
+        "session_id": "s04",
+        "manifest_path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/sessions/s04/manifest.json",
+        "manifest_sha256": "a7e677de3c4dc21052aa2eb7db9b150107ef5aba6b6b5a6ef14b523a74ff6906",
+        "records_path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/sessions/s04/records.jsonl",
+        "records_sha256": "2c4f26ff22777b28b2069d2c41b4e4786daf6234b1d3056821123802c062b9ee",
+        "records": 1000
+      },
+      {
+        "session_id": "s05",
+        "manifest_path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/sessions/s05/manifest.json",
+        "manifest_sha256": "18ae01fb1dae06b229057fd5fea7e08e0a2475c99df171b5e4a56d934f8f1dcd",
+        "records_path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/sessions/s05/records.jsonl",
+        "records_sha256": "4a22e86885e8d3b55ec39805f4d233a1624dfbc2da430f373133ef891d930f63",
+        "records": 1000
+      }
+    ]
+  }
+}

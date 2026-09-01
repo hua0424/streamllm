@@ -1,0 +1,824 @@
+[
+  {
+    "id": "MUL1483.json#u5",
+    "full_text": "I am leaving from Cambridge and headed to Stevenage. I would like to leave after 17:30 please.",
+    "segments": [
+      "I am leaving from Cambridge and ",
+      "headed to Stevenage. I would like to leave after 17:30 please."
+    ]
+  },
+  {
+    "id": "PMUL2959.json#u4",
+    "full_text": "Yes I need a place to stay that is a hotel that is moderate and I need it for 5 nights for 1 person from Tuesday.",
+    "segments": [
+      "Yes I need a place to stay that is a hotel that is moderate and ",
+      "I need it for 5 nights for 1 person from Tuesday."
+    ]
+  },
+  {
+    "id": "PMUL0200.json#u6",
+    "full_text": "Sounds good, can I please have their postcode and the price range?",
+    "segments": [
+      "Sounds good, ",
+      "can I please have their postcode and ",
+      "the price range?"
+    ]
+  },
+  {
+    "id": "MUL1638.json#u4",
+    "full_text": "I'm looking for a train that departs from Stansted Airport on Monday and arrives at Cambridge by 08:00.",
+    "segments": [
+      "I'm looking for a train that departs from Stansted Airport on Monday and ",
+      "arrives at Cambridge by 08:00."
+    ]
+  },
+  {
+    "id": "PMUL2893.json#u0",
+    "full_text": "Hi, I am planning a trip and need some suggestions.  I am looking for places to go in town.",
+    "segments": [
+      "Hi, ",
+      "I am planning a trip and ",
+      "need some suggestions.  I am looking for places to go in town."
+    ]
+  },
+  {
+    "id": "PMUL4264.json#u0",
+    "full_text": "Hi. I would like to visit the Cambridge Artworks. Where is it located and how much does it cost?",
+    "segments": [
+      "Hi. I would like to visit the Cambridge Artworks. Where is it located and ",
+      "how much does it cost?"
+    ]
+  },
+  {
+    "id": "MUL1210.json#u0",
+    "full_text": "Need a place to stay on the west side, and I need it cheap.",
+    "segments": [
+      "Need a place to stay on the west side, ",
+      "and I need it cheap."
+    ]
+  },
+  {
+    "id": "PMUL4096.json#u2",
+    "full_text": "No, but I'd like the address if you can give it to me.",
+    "segments": [
+      "No, ",
+      "but I'd like the address if you can give it to me."
+    ]
+  },
+  {
+    "id": "MUL1012.json#u1",
+    "full_text": "Yes, I would like to book the room for 3 people and 3 nights starting on Wednesday.",
+    "segments": [
+      "Yes, ",
+      "I would like to book the room for 3 people and ",
+      "3 nights starting on Wednesday."
+    ]
+  },
+  {
+    "id": "MUL2446.json#u1",
+    "full_text": "I am pretty much open to anything! Could you recommend one and give me their information please?",
+    "segments": [
+      "I am pretty much open to anything! Could you recommend one and ",
+      "give me their information please?"
+    ]
+  },
+  {
+    "id": "PMUL4326.json#u1",
+    "full_text": "Hello. I'm excited to visit Cambridge. Can you give me addresses and phone numbers of different types of attractions in the centre of town?",
+    "segments": [
+      "Hello. I'm excited to visit Cambridge. Can you give me addresses and ",
+      "phone numbers of different types of attractions in the centre of town?"
+    ]
+  },
+  {
+    "id": "MUL2389.json#u2",
+    "full_text": "Yes, thank you. A table for five at 11:45 on Wednesday.",
+    "segments": [
+      "Yes, ",
+      "thank you. A table for five at 11:45 on Wednesday."
+    ]
+  },
+  {
+    "id": "PMUL0049.json#u1",
+    "full_text": "Yes please.  I need a room for 5 nights, arriving on Friday.  There are 3 of us.",
+    "segments": [
+      "Yes please.  I need a room for 5 nights, ",
+      "arriving on Friday.  There are 3 of us."
+    ]
+  },
+  {
+    "id": "MUL0562.json#u1",
+    "full_text": "That sounds good, I need the postcode and the entrance fee as well please.",
+    "segments": [
+      "That sounds good, ",
+      "I need the postcode and ",
+      "the entrance fee as well please."
+    ]
+  },
+  {
+    "id": "PMUL4636.json#u1",
+    "full_text": "No. but it should also have free wifi.",
+    "segments": [
+      "No. but ",
+      "it should also have free wifi."
+    ]
+  },
+  {
+    "id": "MUL1781.json#u2",
+    "full_text": "No thank you, I have all the information I need on that.  Thank you!",
+    "segments": [
+      "No thank you, ",
+      "I have all the information I need on that.  Thank you!"
+    ]
+  },
+  {
+    "id": "MUL2173.json#u2",
+    "full_text": "No, thanks, I'm just exploring options right now. It sounds like this Acorn place should go at the top of my list.",
+    "segments": [
+      "No, thanks, ",
+      "I'm just exploring options right now. It sounds like this Acorn place should go at the top of my list."
+    ]
+  },
+  {
+    "id": "SNG02051.json#u3",
+    "full_text": "no, I just need to know the postcode.",
+    "segments": [
+      "no, ",
+      "I just need to know the postcode."
+    ]
+  },
+  {
+    "id": "PMUL3724.json#u4",
+    "full_text": "Great, thank you so much. May I also have the reference number once you have booked it?",
+    "segments": [
+      "Great, ",
+      "thank you so much. May I also have the reference number once you have booked it?"
+    ]
+  },
+  {
+    "id": "PMUL2474.json#u2",
+    "full_text": "Yes, I will choose that. Can you give me the postcode, phone number, and address for Downing College? Thanks",
+    "segments": [
+      "Yes, ",
+      "I will choose that. Can you give me the postcode, phone number, ",
+      "and address for Downing College? Thanks"
+    ]
+  },
+  {
+    "id": "MUL0362.json#u3",
+    "full_text": "I need to go to norwich, and I need to leave sometime after 19:15.",
+    "segments": [
+      "I need to go to norwich, ",
+      "and I need to leave sometime after 19:15."
+    ]
+  },
+  {
+    "id": "SNG0947.json#u0",
+    "full_text": "Hi, I need a place to stay with free wifi and in a moderate price range.",
+    "segments": [
+      "Hi, ",
+      "I need a place to stay with free wifi and ",
+      "in a moderate price range."
+    ]
+  },
+  {
+    "id": "MUL0917.json#u7",
+    "full_text": "I'm not sure which exact time will be best, but I definitely want to arrive to the restaurant in time for my reservation.",
+    "segments": [
+      "I'm not sure which exact time will be best, ",
+      "but I definitely want to arrive to the restaurant in time for my reservation."
+    ]
+  },
+  {
+    "id": "SNG0175.json#u1",
+    "full_text": "No I just needed the phone number and post code. Thank You",
+    "segments": [
+      "No I just needed the phone number and ",
+      "post code. Thank You"
+    ]
+  },
+  {
+    "id": "PMUL1885.json#u3",
+    "full_text": "Yes, please. I'm also looking for a hotel that's cheap and in the north.",
+    "segments": [
+      "Yes, ",
+      "please. I'm also looking for a hotel that's cheap and ",
+      "in the north."
+    ]
+  },
+  {
+    "id": "PMUL2894.json#u0",
+    "full_text": "Hi, I'm looking for information on the Alexander Bed and Breakfast please?",
+    "segments": [
+      "Hi, ",
+      "I'm looking for information on the Alexander Bed and Breakfast please?"
+    ]
+  },
+  {
+    "id": "MUL0577.json#u0",
+    "full_text": "Hi, I am looking for attractions in the centre of town. Do you have any recommendations?",
+    "segments": [
+      "Hi, ",
+      "I am looking for attractions in the centre of town. Do you have any recommendations?"
+    ]
+  },
+  {
+    "id": "MUL2589.json#u4",
+    "full_text": "Yes, I am looking for a theatre.  Possibly in the centre.",
+    "segments": [
+      "Yes, ",
+      "I am looking for a theatre.  Possibly in the centre."
+    ]
+  },
+  {
+    "id": "MUL0625.json#u0",
+    "full_text": "I'm looking for a place to stay looking for a moderate price range and should have at least a star of 4",
+    "segments": [
+      "I'm looking for a place to stay looking for a moderate price range and ",
+      "should have at least a star of 4"
+    ]
+  },
+  {
+    "id": "WOZ20595.json#u1",
+    "full_text": "i dont care the type of cuisine but can you find me something in the west?",
+    "segments": [
+      "i dont care the type of cuisine but ",
+      "can you find me something in the west?"
+    ]
+  },
+  {
+    "id": "SSNG0320.json#u5",
+    "full_text": "No, that's fine. Thank you for your help.",
+    "segments": [
+      "No, ",
+      "that's fine. Thank you for your help."
+    ]
+  },
+  {
+    "id": "SNG0415.json#u0",
+    "full_text": "I need a train on Friday, arriving by 12:15.",
+    "segments": [
+      "I need a train on Friday, ",
+      "arriving by 12:15."
+    ]
+  },
+  {
+    "id": "PMUL1173.json#u2",
+    "full_text": "Yes, I also need to book a train for Monday.  Can you help me with that?",
+    "segments": [
+      "Yes, ",
+      "I also need to book a train for Monday.  Can you help me with that?"
+    ]
+  },
+  {
+    "id": "MUL0711.json#u0",
+    "full_text": "Hi, I I'm looking for a hotel to stay at that is moderately priced and includes free wifi.",
+    "segments": [
+      "Hi, ",
+      "I I'm looking for a hotel to stay at that is moderately priced and ",
+      "includes free wifi."
+    ]
+  },
+  {
+    "id": "MUL2622.json#u0",
+    "full_text": "Hi, I am coming to Cambridge next week and am really excited by all tourist attractions available.",
+    "segments": [
+      "Hi, ",
+      "I am coming to Cambridge next week and ",
+      "am really excited by all tourist attractions available."
+    ]
+  },
+  {
+    "id": "MUL0804.json#u2",
+    "full_text": "That sounds cool, I will just need the area it's in and the postcode. Oh, and how much is the cost to get in?",
+    "segments": [
+      "That sounds cool, ",
+      "I will just need the area it's in and ",
+      "the postcode. Oh, ",
+      "and how much is the cost to get in?"
+    ]
+  },
+  {
+    "id": "PMUL0716.json#u1",
+    "full_text": "Im sorry, my wife was confused on what we were doing, disregard that last request.   I really need a train from cambridge to leicester",
+    "segments": [
+      "Im sorry, ",
+      "my wife was confused on what we were doing, ",
+      "disregard that last request.   I really need a train from cambridge to leicester"
+    ]
+  },
+  {
+    "id": "MUL2317.json#u1",
+    "full_text": "I'm not particular on the area, do you have a recommendation?",
+    "segments": [
+      "I'm not particular on the area, ",
+      "do you have a recommendation?"
+    ]
+  },
+  {
+    "id": "SNG02248.json#u1",
+    "full_text": "No, I just need to know the type of food they serve and the phone number.",
+    "segments": [
+      "No, ",
+      "I just need to know the type of food they serve and ",
+      "the phone number."
+    ]
+  },
+  {
+    "id": "PMUL0104.json#u3",
+    "full_text": "There are 8 of us, staying 5 nights, beginning on saturday.",
+    "segments": [
+      "There are 8 of us, ",
+      "staying 5 nights, ",
+      "beginning on saturday."
+    ]
+  },
+  {
+    "id": "PMUL0255.json#u0",
+    "full_text": "Got any fish and chip shops on the westside?",
+    "segments": [
+      "Got any fish and ",
+      "chip shops on the westside?"
+    ]
+  },
+  {
+    "id": "MUL2059.json#u2",
+    "full_text": "Actually, no I will book it later but can I please get the price of the ticket and the travel time?",
+    "segments": [
+      "Actually, ",
+      "no I will book it later but ",
+      "can I please get the price of the ticket and ",
+      "the travel time?"
+    ]
+  },
+  {
+    "id": "MUL0875.json#u0",
+    "full_text": "Hello, I am new to town and would like some ideas on whee I should go in the centre.",
+    "segments": [
+      "Hello, ",
+      "I am new to town and ",
+      "would like some ideas on whee I should go in the centre."
+    ]
+  },
+  {
+    "id": "SNG01444.json#u0",
+    "full_text": "Are there any 3-star hotels, guesthouses, or B&B's that have wifi that you don't have to pay for?",
+    "segments": [
+      "Are there any 3-star hotels, guesthouses, ",
+      "or B&B's that have wifi that you don't have to pay for?"
+    ]
+  },
+  {
+    "id": "MUL1693.json#u1",
+    "full_text": "Yes, I'd like to find a place serving North American cuisine.",
+    "segments": [
+      "Yes, ",
+      "I'd like to find a place serving North American cuisine."
+    ]
+  },
+  {
+    "id": "PMUL2366.json#u0",
+    "full_text": "I'm looking for a family friendly restaurant that is reasonably price and located in the center of town near attractions, hotels and easy access to transportation such as buses and taxis.",
+    "segments": [
+      "I'm looking for a family friendly restaurant that is reasonably price and ",
+      "located in the center of town near attractions, hotels and ",
+      "easy access to transportation such as buses and taxis."
+    ]
+  },
+  {
+    "id": "MUL2002.json#u0",
+    "full_text": "I need to find a Train leaving on Friday from London Liverpool Street and arriving in Cambridge.",
+    "segments": [
+      "I need to find a Train leaving on Friday from London Liverpool Street and ",
+      "arriving in Cambridge."
+    ]
+  },
+  {
+    "id": "PMUL2132.json#u1",
+    "full_text": "Yes, the phone number would be fantastic! thank you!",
+    "segments": [
+      "Yes, ",
+      "the phone number would be fantastic! thank you!"
+    ]
+  },
+  {
+    "id": "PMUL2790.json#u2",
+    "full_text": "No, I think that will be it. Cheers.",
+    "segments": [
+      "No, ",
+      "I think that will be it. Cheers."
+    ]
+  },
+  {
+    "id": "SNG02304.json#u0",
+    "full_text": "Can you book me a taxi to arrive by 23:30? Oh, and I am departing from wandlebury country park.",
+    "segments": [
+      "Can you book me a taxi to arrive by 23:30? Oh, ",
+      "and I am departing from wandlebury country park."
+    ]
+  },
+  {
+    "id": "MUL0598.json#u2",
+    "full_text": "The first is fine. What is the travel time and departure time of that train?",
+    "segments": [
+      "The first is fine. What is the travel time and ",
+      "departure time of that train?"
+    ]
+  },
+  {
+    "id": "PMUL0450.json#u1",
+    "full_text": "It can be any type, not just a hotel. I also need free wifi.",
+    "segments": [
+      "It can be any type, ",
+      "not just a hotel. I also need free wifi."
+    ]
+  },
+  {
+    "id": "MUL1249.json#u0",
+    "full_text": "Hello, I need some information about a certain restaurant.",
+    "segments": [
+      "Hello, ",
+      "I need some information about a certain restaurant."
+    ]
+  },
+  {
+    "id": "PMUL3180.json#u2",
+    "full_text": "book it for 7 people and 3 nights starting from sunday.",
+    "segments": [
+      "book it for 7 people and ",
+      "3 nights starting from sunday."
+    ]
+  },
+  {
+    "id": "MUL0379.json#u0",
+    "full_text": "I am looking to get to the Rajmahal restaurant please, how do I get there?",
+    "segments": [
+      "I am looking to get to the Rajmahal restaurant please, ",
+      "how do I get there?"
+    ]
+  },
+  {
+    "id": "PMUL1188.json#u1",
+    "full_text": "I will be leaving on saturday and going to london liverpool street.",
+    "segments": [
+      "I will be leaving on saturday and ",
+      "going to london liverpool street."
+    ]
+  },
+  {
+    "id": "PMUL3117.json#u0",
+    "full_text": "I need a train out of Cambridge, but I need to arrive at my destination by 08:00. Are there any trains that early?",
+    "segments": [
+      "I need a train out of Cambridge, ",
+      "but I need to arrive at my destination by 08:00. Are there any trains that early?"
+    ]
+  },
+  {
+    "id": "MUL2110.json#u0",
+    "full_text": "I'm looking for a hotel called the autumn house, can you give me some information about it?",
+    "segments": [
+      "I'm looking for a hotel called the autumn house, ",
+      "can you give me some information about it?"
+    ]
+  },
+  {
+    "id": "MUL0626.json#u0",
+    "full_text": "I'm looking to book a train that goes to ely and leaves on sunday please.",
+    "segments": [
+      "I'm looking to book a train that goes to ely and ",
+      "leaves on sunday please."
+    ]
+  },
+  {
+    "id": "PMUL4768.json#u1",
+    "full_text": "Sounds good, can you book that for 1 person at 18:30 on thursday?",
+    "segments": [
+      "Sounds good, ",
+      "can you book that for 1 person at 18:30 on thursday?"
+    ]
+  },
+  {
+    "id": "MUL0657.json#u0",
+    "full_text": "Hi, I am looking for a train to Cambridge that will be departing from Leicaster on sunday after 17:45.",
+    "segments": [
+      "Hi, ",
+      "I am looking for a train to Cambridge that will be departing from Leicaster on sunday after 17:45."
+    ]
+  },
+  {
+    "id": "MUL1791.json#u0",
+    "full_text": "I am planning a trip to Cambridge and I would like to know nice places to visit in the North.",
+    "segments": [
+      "I am planning a trip to Cambridge and ",
+      "I would like to know nice places to visit in the North."
+    ]
+  },
+  {
+    "id": "PMUL3486.json#u0",
+    "full_text": "I have to get to cambridge from london kings cross for a family matter, can you help me book a train?",
+    "segments": [
+      "I have to get to cambridge from london kings cross for a family matter, ",
+      "can you help me book a train?"
+    ]
+  },
+  {
+    "id": "PMUL1305.json#u4",
+    "full_text": "i don't want that museum, i hate technology. i want to destroy this computer i'm using.",
+    "segments": [
+      "i don't want that museum, ",
+      "i hate technology. i want to destroy this computer i'm using."
+    ]
+  },
+  {
+    "id": "PMUL2651.json#u5",
+    "full_text": "Well, maybe try a swimming pool. That might be better.",
+    "segments": [
+      "Well, ",
+      "maybe try a swimming pool. That might be better."
+    ]
+  },
+  {
+    "id": "MUL0765.json#u0",
+    "full_text": "I am looking for information about Rosa's Bed and Breakfast in Cambridge.",
+    "segments": [
+      "I am looking for information about Rosa's Bed and ",
+      "Breakfast in Cambridge."
+    ]
+  },
+  {
+    "id": "SNG0688.json#u3",
+    "full_text": "I wanted the reservation for 12:15, is that what you booked for me?",
+    "segments": [
+      "I wanted the reservation for 12:15, ",
+      "is that what you booked for me?"
+    ]
+  },
+  {
+    "id": "PMUL0117.json#u0",
+    "full_text": "Hi I am hoping to find a place that is expensive I can stay at, and also has free wifi.",
+    "segments": [
+      "Hi I am hoping to find a place that is expensive I can stay at, ",
+      "and also has free wifi."
+    ]
+  },
+  {
+    "id": "SSNG0347.json#u0",
+    "full_text": "Yes, I am looking for a hotel please. I would need free wifi and free parking.",
+    "segments": [
+      "Yes, ",
+      "I am looking for a hotel please. I would need free wifi and free parking."
+    ]
+  },
+  {
+    "id": "PMUL0340.json#u6",
+    "full_text": "Yes, I prefer the north and I must have free wifi, please.",
+    "segments": [
+      "Yes, ",
+      "I prefer the north and ",
+      "I must have free wifi, please."
+    ]
+  },
+  {
+    "id": "PMUL4965.json#u0",
+    "full_text": "I'm looking for colleges in town centre, preferably free admission.",
+    "segments": [
+      "I'm looking for colleges in town centre, ",
+      "preferably free admission."
+    ]
+  },
+  {
+    "id": "PMUL1712.json#u0",
+    "full_text": "I'm looking for information about train bookings, can you assist me?",
+    "segments": [
+      "I'm looking for information about train bookings, ",
+      "can you assist me?"
+    ]
+  },
+  {
+    "id": "SNG0463.json#u3",
+    "full_text": "Any part of town is fine, I just need the address and postcode of one you'd recommend.",
+    "segments": [
+      "Any part of town is fine, ",
+      "I just need the address and ",
+      "postcode of one you'd recommend."
+    ]
+  },
+  {
+    "id": "MUL1110.json#u1",
+    "full_text": "Thanks, do you know what area in the city they're located? I could also use a phone number if you have it on record.",
+    "segments": [
+      "Thanks, ",
+      "do you know what area in the city they're located? I could also use a phone number if you have it on record."
+    ]
+  },
+  {
+    "id": "SNG0873.json#u0",
+    "full_text": "I am looking for a place to stay and it should include free wifi and free parking.",
+    "segments": [
+      "I am looking for a place to stay and ",
+      "it should include free wifi and free parking."
+    ]
+  },
+  {
+    "id": "SNG0624.json#u0",
+    "full_text": "I'm looking for a restaurant that offers British food in a moderate price range, can you help me with that?",
+    "segments": [
+      "I'm looking for a restaurant that offers British food in a moderate price range, ",
+      "can you help me with that?"
+    ]
+  },
+  {
+    "id": "PMUL1405.json#u0",
+    "full_text": "Hi! I am planning a trip to Cambridge and am looking to catch a train from leicester. I need to arrive in Cambridge by 14:45. Is there a train that would work for me?",
+    "segments": [
+      "Hi! I am planning a trip to Cambridge and ",
+      "am looking to catch a train from leicester. I need to arrive in Cambridge by 14:45. Is there a train that would work for me?"
+    ]
+  },
+  {
+    "id": "PMUL2242.json#u0",
+    "full_text": "I wanted to visit the restaurant named La Raza, could you tell me the hours it is open, and if I should try to book a reservation?",
+    "segments": [
+      "I wanted to visit the restaurant named La Raza, ",
+      "could you tell me the hours it is open, ",
+      "and if I should try to book a reservation?"
+    ]
+  },
+  {
+    "id": "PMUL3766.json#u1",
+    "full_text": "pick one and give me the area and entrance fee",
+    "segments": [
+      "pick one and ",
+      "give me the area and entrance fee"
+    ]
+  },
+  {
+    "id": "PMUL2899.json#u1",
+    "full_text": "A hotel that has free parking and in the north part of town. I would like one in the moderate price range.",
+    "segments": [
+      "A hotel that has free parking and ",
+      "in the north part of town. I would like one in the moderate price range."
+    ]
+  },
+  {
+    "id": "PMUL3276.json#u5",
+    "full_text": "I need to leave London Liverpool Street on Thursday and get to Cambridge by 11:30.",
+    "segments": [
+      "I need to leave London Liverpool Street on Thursday and ",
+      "get to Cambridge by 11:30."
+    ]
+  },
+  {
+    "id": "SNG01919.json#u0",
+    "full_text": "I need a taxi from the missing sock and I need to get to my destination by 08:30. Can you help?",
+    "segments": [
+      "I need a taxi from the missing sock and ",
+      "I need to get to my destination by 08:30. Can you help?"
+    ]
+  },
+  {
+    "id": "PMUL4131.json#u0",
+    "full_text": "I am planning a trip and need help with a particular hotel.",
+    "segments": [
+      "I am planning a trip and ",
+      "need help with a particular hotel."
+    ]
+  },
+  {
+    "id": "SNG0751.json#u3",
+    "full_text": "I prefer the east and would like free wifi",
+    "segments": [
+      "I prefer the east and ",
+      "would like free wifi"
+    ]
+  },
+  {
+    "id": "PMUL0384.json#u1",
+    "full_text": "No, but it should be in the east.",
+    "segments": [
+      "No, ",
+      "but it should be in the east."
+    ]
+  },
+  {
+    "id": "PMUL1207.json#u3",
+    "full_text": "All I needed was the info on travel times, can you also help me find an attraction called Clare Hall?",
+    "segments": [
+      "All I needed was the info on travel times, ",
+      "can you also help me find an attraction called Clare Hall?"
+    ]
+  },
+  {
+    "id": "SNG01840.json#u1",
+    "full_text": "No, that is it. Thank you, good bye.",
+    "segments": [
+      "No, ",
+      "that is it. Thank you, good bye."
+    ]
+  },
+  {
+    "id": "PMUL3891.json#u1",
+    "full_text": "I am fine with any price range, please pick a guesthouse.",
+    "segments": [
+      "I am fine with any price range, ",
+      "please pick a guesthouse."
+    ]
+  },
+  {
+    "id": "PMUL1651.json#u1",
+    "full_text": "Truly? I'm sorry, I'm just surprised Cambridge doesn't have a 5 star hotel. Well, I need something moderately priced.",
+    "segments": [
+      "Truly? I'm sorry, ",
+      "I'm just surprised Cambridge doesn't have a 5 star hotel. Well, ",
+      "I need something moderately priced."
+    ]
+  },
+  {
+    "id": "SNG0397.json#u1",
+    "full_text": "I will be traveling on monday and need to arrive by 14:15",
+    "segments": [
+      "I will be traveling on monday and ",
+      "need to arrive by 14:15"
+    ]
+  },
+  {
+    "id": "PMUL0130.json#u7",
+    "full_text": "Yes, I am also looking for a place to stay. I would like a 4-star hotel.",
+    "segments": [
+      "Yes, ",
+      "I am also looking for a place to stay. I would like a 4-star hotel."
+    ]
+  },
+  {
+    "id": "MUL1390.json#u2",
+    "full_text": "Great, can you book me a table for Wednesday?",
+    "segments": [
+      "Great, ",
+      "can you book me a table for Wednesday?"
+    ]
+  },
+  {
+    "id": "PMUL3908.json#u3",
+    "full_text": "I will also need a train for Saturday, leaving after 13:45.",
+    "segments": [
+      "I will also need a train for Saturday, ",
+      "leaving after 13:45."
+    ]
+  },
+  {
+    "id": "PMUL2066.json#u2",
+    "full_text": "Yes, that would be great. Please book that for me.",
+    "segments": [
+      "Yes, ",
+      "that would be great. Please book that for me."
+    ]
+  },
+  {
+    "id": "PMUL1329.json#u1",
+    "full_text": "Yes, that's why I'm requesting help from Cambridge TownInfo.",
+    "segments": [
+      "Yes, ",
+      "that's why I'm requesting help from Cambridge TownInfo."
+    ]
+  },
+  {
+    "id": "PMUL2674.json#u4",
+    "full_text": "I need to make reservations for 6 people and 2 nights from sunday.",
+    "segments": [
+      "I need to make reservations for 6 people and ",
+      "2 nights from sunday."
+    ]
+  },
+  {
+    "id": "SNG0315.json#u0",
+    "full_text": "Hi, I'm looking for some train information. Could you tell me what trains leave on Wednesday for Norwich?",
+    "segments": [
+      "Hi, ",
+      "I'm looking for some train information. Could you tell me what trains leave on Wednesday for Norwich?"
+    ]
+  },
+  {
+    "id": "MUL2221.json#u0",
+    "full_text": "Yes, I need a train for wednesday arriving at 14:45.",
+    "segments": [
+      "Yes, ",
+      "I need a train for wednesday arriving at 14:45."
+    ]
+  },
+  {
+    "id": "SNG02289.json#u0",
+    "full_text": "I am looking for a place to dine. The restaurant should be in the west and should serve british food",
+    "segments": [
+      "I am looking for a place to dine. The restaurant should be in the west and ",
+      "should serve british food"
+    ]
+  },
+  {
+    "id": "MUL1513.json#u1",
+    "full_text": "I'd like to go to Cambridge and would be leaving on Thursday after 16:30. What is available then?",
+    "segments": [
+      "I'd like to go to Cambridge and ",
+      "would be leaving on Thursday after 16:30. What is available then?"
+    ]
+  }
+]
