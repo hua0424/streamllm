@@ -1,7 +1,7 @@
 """生成论文第六章图 6-1 ~ 6-4。
 
-数据一律从 experiments/results/*.json 读取，禁止硬编码实验数字
-（图内出现的数值均为运行时计算/读取，保证图文一致可复现）。
+数据一律从 experiments/results/ 或 experiments/sci34_supplement/results/ 的
+审计结果读取，禁止硬编码实验数字（图内数值均为运行时计算/读取）。
 
 用法（项目根目录）：
     uv run python -m experiments.scripts.plot_figures          # 中文版（学位论文）
@@ -22,6 +22,19 @@ from matplotlib import font_manager
 
 ROOT = Path(__file__).resolve().parents[2]
 RESULTS = ROOT / "experiments" / "results"
+SUPPLEMENT_RESULTS = ROOT / "experiments" / "sci34_supplement" / "results"
+E3_ANALYSIS = (
+    SUPPLEMENT_RESULTS
+    / "e3"
+    / "sci34_f11ccba_20260901_e3"
+    / "analysis_metric_specific_eligibility_v1.json"
+)
+A1_ANALYSIS = (
+    SUPPLEMENT_RESULTS
+    / "a1"
+    / "sci34_f11ccba_20260901_a1"
+    / "analysis.json"
+)
 FIGDIR = ROOT / "paper2" / "figures"
 
 EN = "--en" in sys.argv
@@ -29,12 +42,10 @@ SUFFIX = "_en" if EN else ""
 
 # ---- 标签表：中/英一份数据两套文字 ----
 _ZH = {
-    "f1_xlabel": "打断注入位置（播放比例）",
-    "f1_ylabel": "未听内容引用率（%）",
-    "f1_xticks": ["25%", "50%", "75%", "干净边界"],
-    "f1_leg_rule": "B-gen（词面检测）",
-    "f1_leg_judge": "B-gen（LLM 裁判）",
-    "f1_leg_ours": "B-ours（片段口径，构造性零）",
+    "f1_xlabel": "共同目标与检测器",
+    "f1_ylabel": "引用率差值（generation - playback，百分点）",
+    "f1_labels": ["片段目标\n词面检测", "片段目标\nLLM 裁判", "近似目标\n词面检测", "近似目标\nLLM 裁判"],
+    "f1_note": "对话聚类 bootstrap 95% CI；全部跨越零线\nplayback 条件本地完整未听文本 400/400 为空（构造检查）",
     "f2_knee": "候选工作区间\nθ∈[0.85, 0.97]",
     "f2_leg_pts": "推测工作点",
     "f2_leg_sent": "永不推测（保守极限）",
@@ -47,19 +58,18 @@ _ZH = {
     "f3_leg_tts": "其中：TTS 首块合成延迟",
     "f3_note": "（TTS 首块 {tts:.0f} ms）",
     "f4_leg_pre": "重新预填充（放弃 KV 复用）",
-    "f4_leg_recover": "crop 中位数 + 角色恢复中位数",
+    "f4_leg_recover": "联合 crop + 角色恢复（单次同步窗口）",
     "f4_leg_crop": "KV 裁剪操作（crop-only）",
-    "f4_note": "0.31–0.34 ms（仅 KV 裁剪）",
+    "f4_note": "误差线为四分位距；每点 50 次正式重复",
     "f4_xlabel": "上下文长度（token）",
     "f4_ylabel": "延迟（ms，median）",
+    "f4_iqr_ylabel": "IQR（ms）",
 }
 _EN = {
-    "f1_xlabel": "Barge-in injection position (playback fraction)",
-    "f1_ylabel": "Unheard-content reference rate (%)",
-    "f1_xticks": ["25%", "50%", "75%", "clean boundary"],
-    "f1_leg_rule": "B-gen (lexical detector)",
-    "f1_leg_judge": "B-gen (LLM judge)",
-    "f1_leg_ours": "B-ours (fragment scope; by construction)",
+    "f1_xlabel": "Shared target and detector",
+    "f1_ylabel": "Reference-rate difference (generation − playback, pp)",
+    "f1_labels": ["fragment\nlexical", "fragment\nLLM judge", "proxy\nlexical", "proxy\nLLM judge"],
+    "f1_note": "Dialogue-cluster bootstrap 95% CIs; all cross zero\nLocal complete-unheard text is empty in 400/400 playback cases (construction check)",
     "f2_knee": "candidate region\nθ∈[0.85, 0.97]",
     "f2_leg_pts": "speculative operating points",
     "f2_leg_sent": "never speculate (conservative limit)",
@@ -72,11 +82,12 @@ _EN = {
     "f3_leg_tts": "TTS first-chunk synthesis latency",
     "f3_note": "(TTS first chunk {tts:.0f} ms)",
     "f4_leg_pre": "re-prefill (no KV reuse)",
-    "f4_leg_recover": "median crop + median role recovery",
+    "f4_leg_recover": "joint crop + role recovery (one synchronized window)",
     "f4_leg_crop": "KV crop operation only",
-    "f4_note": "0.31–0.34 ms (KV crop only)",
+    "f4_note": "Error bars show IQR; 50 formal repeats per point",
     "f4_xlabel": "Context length (tokens)",
     "f4_ylabel": "Latency (ms, median)",
+    "f4_iqr_ylabel": "IQR (ms)",
 }
 L = _EN if EN else _ZH
 
@@ -136,62 +147,72 @@ def _save(fig, stem):
 
 # ---------------------------------------------------------------- 图 6-1
 def fig6_1():
-    data = _load("exp3_consistency_judged.json")
-    fractions = ["0.25", "0.5", "0.75", "boundary"]
+    with open(E3_ANALYSIS, encoding="utf-8") as f:
+        data = json.load(f)
 
-    def rate(cond, frac, field):
-        rec = [
-            r
-            for r in data["records"]
-            if not str(r["id"]).lower().startswith("fx")
-            and r["condition"] == cond
-            and str(r["fraction"]) == frac
-        ]
-        assert len(rec) == 100, f"expected 100 formal records for {cond}/{frac}, got {len(rec)}"
-        return 100.0 * sum(bool(r[field]) for r in rec) / len(rec)
+    metric_names = ["rule_fragment", "judge_fragment", "rule_proxy", "judge_proxy"]
+    expected_pairs = [297, 297, 380, 380]
+    effects = []
+    lows = []
+    highs = []
+    for name, expected in zip(metric_names, expected_pairs):
+        metric = data["metrics"][name]
+        bootstrap = metric["dialogue_cluster_bootstrap"]
+        pairs = metric["mcnemar"]["pairs"]
+        assert pairs == expected, f"{name}: expected {expected} eligible pairs, got {pairs}"
+        effect = 100.0 * bootstrap["generation_minus_playback"]
+        low, high = [100.0 * value for value in bootstrap["difference_95_ci"]]
+        effects.append(effect)
+        lows.append(low)
+        highs.append(high)
+    assert all(low <= 0 <= high for low, high in zip(lows, highs))
+    assert data["construction_checks"]["playback_local_unheard_empty"]
+    print(f"[fig6-1] fixed-trajectory effects (pp): {effects}; all cluster CIs cross zero ✓")
 
-    gen_rule = [rate("generation", f, "referenced_unheard") for f in fractions]
-    gen_judge = [rate("generation", f, "judge_referenced_unheard") for f in fractions]
-    ours_rule = [rate("playback", f, "referenced_unheard") for f in fractions]
-    ours_judge = [rate("playback", f, "judge_referenced_unheard") for f in fractions]
-
-    expect = {"gen_rule": [85.0, 47.0, 21.0, 48.0], "gen_judge": [4.0, 1.0, 2.0, 2.0]}
-    for key, got in (("gen_rule", gen_rule), ("gen_judge", gen_judge)):
-        for e, g in zip(expect[key], got):
-            assert abs(e - g) < 0.01, f"self-check fail {key}: expect {e} got {g:.2f}"
-    assert max(ours_rule + ours_judge) == 0.0, "B-ours 片段口径应为构造性零"
-    print(f"[fig6-1] formal MultiWOZ: B-gen rule {gen_rule} judge {gen_judge}; B-ours fragment-scope zero ✓")
-
-    x = range(len(fractions))
-    w = 0.26
-    fig, ax = plt.subplots(figsize=(6.4, 3.6))
-    b1 = ax.bar(
-        [i - w for i in x], gen_rule, w,
-        color=C_SKY, edgecolor="black", lw=0.6, label=L["f1_leg_rule"],
+    y = list(range(len(metric_names)))
+    colors = [C_SKY, C_ORANGE, C_BLUE, C_VERMI]
+    xerr = [
+        [effect - low for effect, low in zip(effects, lows)],
+        [high - effect for effect, high in zip(effects, highs)],
+    ]
+    fig, ax = plt.subplots(figsize=(6.8, 3.9))
+    ax.axvline(0, color=G_DARK, lw=1.0, zorder=1)
+    for index, (effect, color) in enumerate(zip(effects, colors)):
+        ax.errorbar(
+            effect,
+            index,
+            xerr=[[xerr[0][index]], [xerr[1][index]]],
+            fmt="o",
+            color=color,
+            ecolor=color,
+            markeredgecolor="black",
+            markeredgewidth=0.5,
+            capsize=4,
+            lw=1.6,
+            ms=7,
+            zorder=3,
+        )
+        ax.annotate(
+            f"{effect:+.1f} pp (n={expected_pairs[index]})",
+            (effect, index),
+            textcoords="offset points",
+            xytext=(7, 7),
+            fontsize=8.5,
+        )
+    ax.set_yticks(y)
+    ax.set_yticklabels(L["f1_labels"])
+    ax.invert_yaxis()
+    ax.set_xlabel(L["f1_ylabel"])
+    ax.text(
+        0.01,
+        -0.25,
+        L["f1_note"],
+        transform=ax.transAxes,
+        fontsize=8.3,
+        va="top",
+        color=G_DARK,
     )
-    b2 = ax.bar(
-        x, gen_judge, w,
-        color=C_ORANGE, edgecolor="black", lw=0.6, label=L["f1_leg_judge"],
-    )
-    ax.bar(
-        [i + w for i in x], ours_rule, w,
-        color=C_GREEN, edgecolor="black", lw=0.6, label=L["f1_leg_ours"],
-    )
-    for bars in (b1, b2):
-        for r in bars:
-            ax.annotate(
-                f"{r.get_height():.1f}",
-                (r.get_x() + r.get_width() / 2, r.get_height()),
-                ha="center", va="bottom", fontsize=8.5,
-            )
-    for i in x:
-        ax.annotate("0.0", (i + w, 0), ha="center", va="bottom", fontsize=8.5)
-    ax.set_xticks(list(x))
-    ax.set_xticklabels(L["f1_xticks"])
-    ax.set_xlabel(L["f1_xlabel"])
-    ax.set_ylabel(L["f1_ylabel"])
-    ax.set_ylim(0, 100)
-    ax.legend(loc="upper right")
+    fig.subplots_adjust(bottom=0.29, left=0.20)
     _save(fig, "fig6_1")
 
 
@@ -322,44 +343,91 @@ def fig6_3():
 
 # ---------------------------------------------------------------- 图 6-4
 def fig6_4():
-    rows = _load("exp_a1_kvreuse.json")["results"]
-    ctx = [r["ctx_len"] for r in rows]
-    crop = [r["crop_only_ms"] for r in rows]
-    recovery = [r["crop_role_ms"] for r in rows]
-    reprefill = [r["reprefill_ms"] for r in rows]
-    speedup = [r["speedup"] for r in rows]
-    print(f"[fig6-4] ctx {ctx}  component-sum ratio {speedup}")
+    with open(A1_ANALYSIS, encoding="utf-8") as f:
+        rows = json.load(f)["rows"]
+    ctx = [row["target_length"] for row in rows]
+    crop = [row["statistics"]["crop_only_ms"]["median"] for row in rows]
+    joint = [row["statistics"]["crop_role_joint_ms"]["median"] for row in rows]
+    joint_q1 = [row["statistics"]["crop_role_joint_ms"]["q1"] for row in rows]
+    joint_q3 = [row["statistics"]["crop_role_joint_ms"]["q3"] for row in rows]
+    reprefill = [row["statistics"]["reprefill_ms"]["median"] for row in rows]
+    reprefill_q1 = [row["statistics"]["reprefill_ms"]["q1"] for row in rows]
+    reprefill_q3 = [row["statistics"]["reprefill_ms"]["q3"] for row in rows]
+    speedup = [row["speedup_reprefill_over_joint_median"] for row in rows]
+    assert all(row["statistics"]["crop_role_joint_ms"]["n"] == 50 for row in rows)
+    print(f"[fig6-4] ctx {ctx}  synchronized joint speedup {speedup}")
 
-    fig, ax = plt.subplots(figsize=(6.4, 4.2))
-    ax.plot(
-        ctx, reprefill, "o-", color=C_VERMI, lw=1.8, ms=6, label=L["f4_leg_pre"],
+    joint_err = [
+        [median - q1 for median, q1 in zip(joint, joint_q1)],
+        [q3 - median for median, q3 in zip(joint, joint_q3)],
+    ]
+    reprefill_err = [
+        [median - q1 for median, q1 in zip(reprefill, reprefill_q1)],
+        [q3 - median for median, q3 in zip(reprefill, reprefill_q3)],
+    ]
+    fig, (ax, ax_iqr) = plt.subplots(
+        2,
+        1,
+        figsize=(6.6, 5.5),
+        sharex=True,
+        gridspec_kw={"height_ratios": [3.2, 1], "hspace": 0.08},
     )
-    ax.plot(
-        ctx, recovery, "s--", color=C_ORANGE, lw=1.5, ms=6, mfc="white",
+    ax.errorbar(
+        ctx,
+        reprefill,
+        yerr=reprefill_err,
+        fmt="o-",
+        color=C_VERMI,
+        lw=1.8,
+        ms=6,
+        capsize=3,
+        label=L["f4_leg_pre"],
+    )
+    ax.errorbar(
+        ctx,
+        joint,
+        yerr=joint_err,
+        fmt="s--",
+        color=C_ORANGE,
+        lw=1.6,
+        ms=6,
+        capsize=3,
+        mfc="white",
         label=L["f4_leg_recover"],
     )
     ax.plot(
-        ctx, crop, "^-", color=C_BLUE, lw=2.2, ms=7, mfc="white",
+        ctx, crop, "^-", color=C_BLUE, lw=1.7, ms=6, mfc="white",
         label=L["f4_leg_crop"],
     )
-    for x, y, sp in zip(ctx, recovery, speedup):
+    for x, y, sp in zip(ctx, joint, speedup):
         ax.annotate(
-            f"{sp:g}×", (x, y), textcoords="offset points", xytext=(0, 7),
-            ha="center", fontsize=8.5,
+            f"{sp:.1f}×", (x, y), textcoords="offset points", xytext=(0, 8),
+            ha="center", fontsize=8.3,
         )
-    ax.annotate(
+    joint_iqr = [high - low for low, high in zip(joint_q1, joint_q3)]
+    reprefill_iqr = [high - low for low, high in zip(reprefill_q1, reprefill_q3)]
+    ax_iqr.plot(ctx, joint_iqr, "s--", color=C_ORANGE, lw=1.5, ms=5, mfc="white")
+    ax_iqr.plot(ctx, reprefill_iqr, "o-", color=C_VERMI, lw=1.5, ms=5)
+    ax_iqr.set_ylabel(L["f4_iqr_ylabel"], fontsize=9)
+    ax_iqr.text(
+        0.99,
+        0.93,
         L["f4_note"],
-        (ctx[2], crop[2]), textcoords="offset points", xytext=(0, 10),
-        ha="center", fontsize=9, color=G_DARK,
+        transform=ax_iqr.transAxes,
+        ha="right",
+        va="top",
+        fontsize=7.8,
+        bbox=dict(facecolor="white", edgecolor="none", alpha=0.85, pad=1.5),
     )
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_ylim(top=max(reprefill) * 1.8)
-    ax.set_xticks(ctx)
-    ax.set_xticklabels([str(c) for c in ctx])
-    ax.set_xlabel(L["f4_xlabel"])
     ax.set_ylabel(L["f4_ylabel"])
-    ax.legend(loc="upper left", fontsize=8.5)
+    ax.legend(loc="upper left", fontsize=8.1)
+    ax_iqr.set_xscale("log")
+    ax_iqr.set_xticks(ctx)
+    ax_iqr.set_xticklabels([str(c) for c in ctx])
+    ax_iqr.set_xlabel(L["f4_xlabel"])
     _save(fig, "fig6_4")
 
 

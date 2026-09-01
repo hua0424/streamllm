@@ -475,7 +475,8 @@ for sentence_chunk in generate_sentences(
 | 2026-07-17 | **全部正式实验数据完成（7B+MultiWOZ+TEN）** | A1: crop 恒 0.3ms/re-prefill 至 8k→1863ms（39.7x）；E1: TTFT 27.4→0.6ms（97.9%），建模 m2e 9080→2482ms；**E2 九点曲线**（29.2%/0.5ms→拐点 0.85-0.97→0%/48.5ms）；E3: loose 0%/51%，strict 51%/73.3%，judge 交叉 0%/2.7%（规则=上界/judge=下界，κ≈0.05 系 MultiWOZ 领域词过触发，**方法学发现**）；A2: judge 连贯性 naive 3.76/rewrite 3.62/mark 3.29，重写 P90 937ms 可隐藏。人工校验样本表 37 条已生成（e3_human_validation_sample.md，待人工填写仲裁）。实验机余一未推提交（E2 加密），凭据需人工 |
 
 | 2026-07-21 | **论文收尾：4 图 + 摘要 + 文献 + 统稿完成** | `plot_figures.py` 生成图 6-1~6-4（PDF+PNG，数据直读 JSON 并内置自检，B/W 友好）并织入 ch6；表号重排 6-1~6-4；中英摘要+关键词（`abstract.md`）；全文文献表 `references.md`（[1]-[17]，4 条 † arXiv 编号已联网复核无误）；统稿修正：A1 加速比按 JSON 改 8.6/15.3/25.2×、浪费率符号统一为 ρ（handoff 中 ρ/W 写反）、ch4 推测预算 κ→B 避免与 Cohen's κ 冲突、ch6 定义 3.4→3.3 引用勘误、12→12.1ms；E3 表 6-1 全部计数逐项对 JSON 验证通过 |
-| 2026-08-31 | **论文数据审计、形式化修正与完整初稿重写（D-013）** | 不重跑 GPU、保留原始 JSON；新增 `reanalyze_paper2_results.py` 与独立 `paper2_reanalysis.json`。排除 E3 的 3 个 fixture（正式 100 对话/每条件 400）和 E2 的 12 条 fixture；E3 正式 B-gen loose 规则/裁判为 50.3%/2.3%，改用配对 McNemar + dialogue-cluster bootstrap；A1 分开 crop-only 与 crop+role；A2 因独立生成混杂降格。摘要、八章、大纲、合并稿与图 3-1/4-4/6-1~6-4 已按新口径重写。原始进度不再跨量纲比较，片段内尾部按代码真实语义定义为字符比例—空白边界代理；assistant token 账本保持本轮相对长度。IEEE 两套稿正文尚待从新版源同步。 |
+| 2026-08-31 | **论文数据审计、形式化修正与完整初稿重写（D-013）** | 不重跑 GPU、保留原始 JSON；新增 `reanalyze_paper2_results.py` 与独立 `paper2_reanalysis.json`。排除 E3 的 3 个 fixture（正式 100 对话/每条件 400）和 E2 的 12 条 fixture；当时的旧 E3 仅作为受独立生成混杂的诊断，A1 分开 crop-only 与 crop+role，A2 因独立生成混杂降格。原始进度不再跨量纲比较，片段内尾部按代码真实语义定义为字符比例—空白边界代理；assistant token 账本保持本轮相对长度。该里程碑随后由 D-014 的固定轨迹 E3 与联合 A1 正文证据升级。 |
+| 2026-09-01 | **SCI3/4 补实验验收并修订权威正文（D-014）** | 固定轨迹 E3 成为 RQ1 主证据：片段 n=297 的规则/裁判为 67.0% vs 63.6%、42.8% vs 40.7%；修正 proxy n=380 为 75.3% vs 73.7%、43.9% vs 41.3%；四项 cluster CI 均跨零，点估计均与预设方向相反，不作优效/等效/非劣/伤害主张。playback 400/400 局部完整未播放文本为空单列构造检查；0.5/boundary 片段目标重复；无人工双标，judge v3 为单提示词模型代理。联合 A1（warmup5/repeats50）在 256–8192 token 的中位数 31.054–48.315 ms、IQR 0.635–3.099 ms、相对重新预填充加速 2.254–40.620×，不是完整 barge-in。新旧 campaign CPU 不同但均双 RTX3090，绝对时间不池化。P1 v1 因播放器启动前未同步 `ensure_full()`，使未完成的异步准备工作被 stop 后同步计入 joint path，故协议无效；prepared-state v2 pending，正文/摘要不放占位数字。权威分章与实验图在本里程碑后继续同步，IEEE 衍生稿仍暂不修改。 |
 
 **全部 6 个实验（E1/E2/E3/A1/A2/A3）的 harness 已在验证机 0.5B 跑通并自检 PASS**（A3 与 E2 共享数据）。完整状态表 + 实验机待办清单见 `paper2/experiment_design.md` §9'。
 **实验机总清单**：① 真实 MultiWOZ 派生数据 ② 主 LLM 7B ③ TEN 7B 软触发（阈值重标）④ real CosyVoice2（TimingProfile/SYNTH_RTF 实测替换 + mouth-to-ear 实测）⑤ LLM-judge（E3 交叉验证 + A2 连贯性评分）⑥ 可选：真实音频→流式 ASR 链路接入。
@@ -483,7 +484,7 @@ for sentence_chunk in generate_sentences(
 **环境现状**：本机 5070 Ti GPU 可用（torch 2.8.0+cu128），可跑 0.5B 全链路验证。
 **环境坑（验证机）**：① `.env` 的 `HF_HOME=/mhh/model/hfhome` 在本机为空（无缓存）；② `.env` 的 `HF_TOKEN` 已失效，会导致公开模型也 401——**下载模型时需 `HF_TOKEN=` 清空**；③ `.env` 的 `LLM_MODEL_NAME=Qwen/Qwen2-7B-Instruct` 是实验模型，验证机代码应显式传 `model_name="Qwen/Qwen2.5-0.5B-Instruct"`。
 
-**下一个里程碑（进行中）**：`src/llm/stream_llm_inference.py` 改造——`generate()` 边生成边累积可 crop 的 assistant-side KVCache（Q4/Q5）+ `DynamicCache.crop` + role 重建（Q3）。这是第一个需要跑 0.5B LLM 的 mini demo（CPU 可 smoke），把 PlaybackTimeline 的 `crop_token_end` 接到真实 KV 上。
+**下一个里程碑（D-014 后）**：定向运行 prepared-state P1 v2（播放器启动前同步准备态、准备耗时与 stop 路径分离、覆盖片段内/边界打断），再接入更接近生产的异步音频/播放器控制闭环；完成固定轨迹 A2；开展随机盲法、至少双标注员的人类评测。固定轨迹 E3 与联合 A1 已验收，不再列为待办。
 
 ---
 
