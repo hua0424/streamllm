@@ -131,9 +131,33 @@ $$
 
 ### 3.4.1 延迟指标
 
-**推测触发到首 token 延迟 $\mathrm{TTFT}_{\mathrm{spec}}$**：推测阈值被触发到推测生成产生首 token 的墙钟时间。该指标描述触发—生成链路，不表示内容已经获准播出。
+E1/E2 的延迟测量以三个事件为时间基准：
 
-**有效首 token 延迟 $\mathrm{TTFT}_{\mathrm{eff}}$**：用户话轮真值终点到首个可继续使用的 assistant token 的时间。当提前生成结果在真值终点被接受时，已有 token 可使该值接近零。本文实验中的接受由真值终点触发，因而该指标属于受控模拟口径。
+- **最后段到达** $t_{\mathrm{arr}}$（last_segment_arrival）：最后一个 ASR 稳定文本段进入 LLM 输入路径的时间戳；
+- **首 token 就绪** $t_{\mathrm{rdy}}$（first_token_ready）：首个 assistant token 完成计算、可被下游消费的时间戳；
+- **端点接受** $t_{\mathrm{acc}}$（endpoint_accept）：oracle 以用户话轮真值终点接受或作废推测候选的时间戳。$t_{\mathrm{acc}}$ 不是最后一段到达的瞬间：在同步驱动程序中，接受发生在最后段增量预填充、触发判断和同步候选处理之后。
+
+**到达—就绪延迟**是实际墙钟主指标：
+
+$$
+L_{\mathrm{arr}\to\mathrm{rdy}}=t_{\mathrm{rdy}}-t_{\mathrm{arr}}. \tag{3-6}
+$$
+
+该指标度量输入到齐后系统交付首个 token 的实际墙钟开销，其定义不依赖推测是否存在，也不依赖接受事件的语义。
+
+**有效首 token 延迟 $\mathrm{TTFT}_{\mathrm{eff}}$** 是 oracle 接受口径的时延乐观下界（推测收益的上界）：
+
+$$
+\mathrm{TTFT}_{\mathrm{eff}}=
+\begin{cases}
+0, & \text{若 } t_{\mathrm{acc}} \text{ 时存在存活且已就绪的推测候选};\\
+t_{\mathrm{deliv}}-t_{\mathrm{acc}}, & \text{否则},
+\end{cases} \tag{3-7}
+$$
+
+其中“已就绪”指接受时刻就绪候选 token 数大于零，$t_{\mathrm{deliv}}$ 为端点之后按需生成首个可交付 token 的时间戳。当用户在触发后继续说话、真值端点晚于同步端点时，就绪候选可以立即交付，式（3-7）量化此时可获得的最大时延收益；因此它是乐观下界，而不是式（3-6）意义上的到达—就绪墙钟测量。本文实验中的接受由真值终点触发，因而该指标属于受控模拟口径。
+
+**推测触发到首 token 延迟 $\mathrm{TTFT}_{\mathrm{spec}}$**：推测阈值被触发到推测生成产生首 token 的墙钟时间。该指标描述触发—生成链路，不表示内容已经获准播出。
 
 **mouth-to-ear 延迟**：用户话轮结束到首块音频可播放的时间。第六章将 LLM 计算墙钟时间与 TTS 真机画像组合建模；该数值不是实际音频闭环的端到端实测。
 
@@ -143,7 +167,7 @@ $$
 
 $$
 L_{\mathrm{stop\to crop}}=t_{\mathrm{crop\ done}}-t_{\mathrm{stop\ request}},\qquad
-L_{\mathrm{stop\to role}}=t_{\mathrm{role\ done}}-t_{\mathrm{stop\ request}}. \tag{3-6}
+L_{\mathrm{stop\to role}}=t_{\mathrm{role\ done}}-t_{\mathrm{stop\ request}}. \tag{3-8}
 $$
 
 $L_{\mathrm{stop\to crop}}$ 已嵌套包含软件停播确认、stop 后设备同步、$\Phi$ 查询和同步 KV 裁剪；$L_{\mathrm{stop\to role}}$ 又嵌套包含前者及角色恢复。各区间中位数不能相加，P1 与另一 campaign 的 A1 也不能通过相减解释系统开销。P1 只覆盖 headless、墙钟节拍的软件播放器和模型状态，不含声卡缓冲、声学停播、用户实际听到边界、在线 TTS 取消、真实模块并发或生产端到端打断延迟。
@@ -165,16 +189,16 @@ $L_{\mathrm{stop\to crop}}$ 已嵌套包含软件停播确认、stop 后设备�
 
 $$
 \rho=\frac{\sum\text{作废的推测 token 数}}
-{\sum\text{作废的推测 token 数}+\sum\text{最终生成 token 数}}. \tag{3-7}
+{\sum\text{作废的推测 token 数}+\sum\text{最终生成 token 数}}. \tag{3-9}
 $$
 
-不同推测阈值 $\theta$ 对应离散工作点
+式（3-9）的 pooled 口径与确认性 E1/E2 campaign 的正式 estimand 相同，即 $\sum$作废 $/\bigl(\sum$作废$+\sum$最终$\bigr)$。不同推测阈值 $\theta$ 对应离散工作点
 
 $$
 \bigl(\rho(\theta),\mathrm{TTFT}_{\mathrm{eff}}(\theta)\bigr).
 $$
 
-阈值降低通常提高提前生成覆盖率，也可能增加作废计算。有限个测试点只能支持总体权衡趋势，不自动构成连续或严格单调的 Pareto 前沿。
+阈值降低通常提高提前生成覆盖率，也可能增加作废计算。第六章同时报告各工作点的到达—就绪延迟与推测存活率；有限个测试点只能支持总体权衡趋势，不自动构成连续或严格单调的 Pareto 前沿。
 
 KV 复用收益通过“重新预填充耗时中位数 / 同一计时区间联合执行 crop 与角色恢复的耗时中位数”描述。为避免口径混淆，本文以联合路径为主要分母，并把 crop-only、role-only 作为局部诊断；不再用两个独立中位数之和替代联合路径中位数。
 
@@ -183,11 +207,11 @@ KV 复用收益通过“重新预填充耗时中位数 / 同一计时区间联�
 | 研究问题 | 主要指标 | 实验 |
 |---|---|---|
 | 固定轨迹下两种历史边界的后续复现率有何差异 | 片段目标、字符比例—空白边界近似目标 | E3 |
-| 推测阈值如何影响计算与响应 | $\rho$、$\mathrm{TTFT}_{\mathrm{eff}}$ | E2（同时作为 A3） |
-| 组合系统在受控文本输入下的响应差异 | TTFT、建模 mouth-to-ear | E1 |
+| 推测阈值如何影响计算与响应 | $\rho$、$L_{\mathrm{arr}\to\mathrm{rdy}}$、推测存活率、$\mathrm{TTFT}_{\mathrm{eff}}$（oracle 下界） | E2（同时作为 A3） |
+| 组合系统在受控文本输入下的响应差异 | $L_{\mathrm{arr}\to\mathrm{rdy}}$、$\mathrm{TTFT}_{\mathrm{eff}}$（oracle 下界）、建模 mouth-to-ear | E1 |
 | KV 状态复用及软件控制路径的时延表现如何 | A1 联合 crop+角色恢复/重新预填充耗时；P1 软件 stop 确认、反查及累计恢复端点 | A1、P1 |
 | 三种历史处理策略的描述性表现 | 连贯性评分、重写耗时 | A2 |
 
 ## 3.5 本章小结
 
-本章首先避免在不同量纲之间直接比较进度，使用片段级保留边界 $\widehat H(p)$ 将播放采样位置解析为 token 端点；随后将本文保证限定为片段操作语义下的历史对齐，并按代码真实实现定义字符比例—空白边界代理。KV 修正被拆为裁剪和角色恢复两个阶段，assistant token 账本保持本轮相对长度语义。最后，本章区分固定轨迹语义效果估计、构造性检查、联合 GPU 微基准、prepared-state 软件控制路径、TTS 画像建模和生产端到端打断链路，为第六章限制结论强度提供统一口径。
+本章首先避免在不同量纲之间直接比较进度，使用片段级保留边界 $\widehat H(p)$ 将播放采样位置解析为 token 端点；随后将本文保证限定为片段操作语义下的历史对齐，并按代码真实实现定义字符比例—空白边界代理。KV 修正被拆为裁剪和角色恢复两个阶段，assistant token 账本保持本轮相对长度语义。延迟测量以最后段到达、首 token 就绪和端点接受三个事件为基准，区分实际墙钟的到达—就绪主指标与 oracle 接受口径的 $\mathrm{TTFT}_{\mathrm{eff}}$ 乐观下界。最后，本章区分固定轨迹语义效果估计、构造性检查、联合 GPU 微基准、prepared-state 软件控制路径、TTS 画像建模和生产端到端打断链路，为第六章限制结论强度提供统一口径。

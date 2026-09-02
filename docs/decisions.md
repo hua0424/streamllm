@@ -5,6 +5,22 @@
 
 ---
 
+## D-017（2026-09-02）接受确认性 E1/E2 campaign 并以双口径重写 E1/E2 结论
+
+**决策**：接受 run `e1e2c_b8c758b_20260901T173306Z`（代码 commit `b8c758b`、结果 commit `62508dc`、manifest `2f4bd76e…f4ed8`）为 E1/E2 的确认性正式证据（第四个独立 campaign）。设计侧对 5000 条 raw records 独立复算与 analysis_v1.json 全部一致；checksums 72 文件对 git blob 全绿；旧三个结果文件 blob 逐字节不变；holdout 与旧 E1/E2/E3 的 ID 与对话级交集为 0。
+
+**结果与口径**：
+1. 实际墙钟主指标（last_segment_arrival→first_token_ready，配对 n=500）：C-E1 中 System A 27.70 ms vs B@0.92 62.38 ms，配对 A−B −34.69（95% CI [−35.30, −34.11]），B 更慢；C-E2 中 B@0.92 与 never 无显著差异（−0.03，CI [−0.55, +0.51]），九条件 arrival→ready 平坦于约 62 ms。
+2. oracle TTFT_eff（时延乐观下界/推测收益上界）：C-E1 A−B +17.44（CI [16.12, 18.75]）；C-E2 never−B +20.80（CI [19.50, 22.10]）。B@0.92 pooled waste（wasted/(wasted+final)）2.85%，survival 67.0%，ready 中位 12，候选领先中位 291 ms，未存活 on-demand 31.09 ms≈never oracle 31.06 ms。
+3. 机制：同步 harness 中 A 关键路径＝单次批量 prefill＋首 token；B＝最后段增量 prefill＋assistant role 注入＋首 token（≈两次串行前向），短文本下单次前向固定开销主导，故 B 到达→就绪更慢。oracle 口径量化"端点晚于触发"时的可立即交付收益。
+4. 旧 E1/E2 的 0.581/12.1 ms 属 oracle 口径误作墙钟（user_end 记录在同步推测完成后）；确认性 campaign 显式修正，旧结果降级为探索性 campaign 审计。
+
+**影响**：摘要、第一/三/五/六/七/八章按双口径重写 E1/E2 表述；图 6-2/6-3 由新 analysis 重画；旧 E1/E2 数字不再作为 headline。禁止把 oracle 收益说成墙钟改善，禁止新增真实 ASR/TTS/声学/生产端到端主张。IEEE 衍生稿待权威 Markdown 稳定后整体同步。
+
+**状态**：accepted
+
+---
+
 ## D-016（2026-09-01）冻结 E1/E2 确认性受控文本段 campaign
 
 **决策**：旧 E1/E2 保持只读，不直接重跑旧脚本；新增独立 `experiments/sci34_supplement/e1e2_confirmatory/` campaign，在新的未见 holdout 上确认受控模型侧 E1/E2。正式结果验收前不修改论文数字、权威分章、摘要、`thesis_draft` 或 IEEE 衍生稿。

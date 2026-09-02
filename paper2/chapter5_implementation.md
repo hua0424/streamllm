@@ -17,7 +17,7 @@
 | `src/dialogue/rewriter.py` | 重写被打断轮的保留前缀 | 调用耗时、输出非空和替换路径 |
 | `src/dialogue/orchestrator.py` | 串联用户输入、推测、生成、断句、TTS、打断和状态修正 | 状态机、条件开关、逐轮指标 |
 | `experiments/scripts/` | 旧二期实验驱动程序及 A3 共享扫描、画像、绘图和离线重分析 | 旧结果落盘、fixture 清洗和统计复算 |
-| `experiments/sci34_supplement/` | 固定轨迹 E3、联合 A1、prepared-state P1 及其 manifest/分析协议 | 配对目标一致性、原始重复、准备态计时边界和断点恢复 |
+| `experiments/sci34_supplement/` | 固定轨迹 E3、联合 A1、prepared-state P1、确认性 E1/E2 及其 manifest/分析协议 | 配对目标一致性、原始重复、准备态计时边界、双口径时间戳校验和断点恢复 |
 
 上述结构把机制实现和实验实例化分开：编排器面向统一接口，实验脚本决定使用真实后端还是画像驱动的模拟后端。
 
@@ -47,18 +47,20 @@
 
 实验中的 Mock TTS 由 CosyVoice2 六句真机画像参数化，使用每非空白字符采样数、首块延迟和实时率构造确定性时长近似。它能够统一控制播放比例，并保留平均时长尺度，但不等价于真实异步合成、网络传输、音频缓冲、停播延迟和线程唤醒。mouth-to-ear 结果因此属于“计算时间与 TTS 画像组合建模”，而不是完整音频闭环的墙钟实测。
 
-编排器定义用户话轮结束、触发、首 token、首 TTS 块、首播、打断注入、停播和 KV 裁剪完成等时间戳，并维护推测计数、作废 token、KV 保留量和时间轴快照。E3 保存了较完整的逐场景时间轴和时间戳；E1、E2、A1 和 A2 只保存各自主指标子集。因此，不能概括为“所有实验均保存全部埋点、所有指标均可从原始记录复算”。
+编排器定义用户话轮结束、触发、首 token、首 TTS 块、首播、打断注入、停播和 KV 裁剪完成等时间戳，并维护推测计数、作废 token、KV 保留量和时间轴快照。E3 保存了较完整的逐场景时间轴和时间戳；旧 E1、E2 以及 A1、A2 只保存各自主指标子集。因此，不能概括为“所有实验均保存全部埋点、所有指标均可从原始记录复算”。
 
-为保护原始 GPU 输出，本研究先用 `experiments/scripts/reanalyze_paper2_results.py` 在不修改原始 JSON 的前提下排除开发 fixture，重算 E1 描述统计、E2 正式工作点并诊断旧 E3/A1/A2 的方法学边界。随后在独立的 `experiments/sci34_supplement/` 工件中运行固定轨迹 E3 和联合 A1；最后以独立 run `sci34_dc52978_20260901_async_prepared_v2` 运行 P1 软件控制路径。E3 的 100 条共享轨迹、800 条条件记录与裁判摘要，A1 的逐长度 50 次原始计时，以及 P1 的 180 条正式记录、manifest、分析文件和环境快照均分别归档。各 campaign 结果不合并为同一总体。
+为保护原始 GPU 输出，本研究先用 `experiments/scripts/reanalyze_paper2_results.py` 在不修改原始 JSON 的前提下排除开发 fixture，重算 E1 描述统计、E2 正式工作点并诊断旧 E3/A1/A2 的方法学边界。随后在独立的 `experiments/sci34_supplement/` 工件中运行固定轨迹 E3 和联合 A1；再以独立 run `sci34_dc52978_20260901_async_prepared_v2` 运行 P1 软件控制路径。E3 的 100 条共享轨迹、800 条条件记录与裁判摘要，A1 的逐长度 50 次原始计时，以及 P1 的 180 条正式记录、manifest、分析文件和环境快照均分别归档。各 campaign 结果不合并为同一总体。
+
+E1/E2 的正式证据来自第四个独立 campaign——确认性受控文本段 run `e1e2c_b8c758b_20260901T173306Z`（实验代码 commit `b8c758b`、结果入库 commit `62508dc`）。该 campaign 由 5 个独立 Python 进程组成，每个进程重新加载主模型并对同一批 100 条新 holdout 话语执行 10 个条件（一次性 prefill 对照、八个推测阈值与不推测），共 5000 条原始 records、配对 n=500；holdout 从本地 MultiWOZ 2.1 确定性派生，与旧 E1/E2 记录 ID 及固定轨迹 E3 样本 ID 的交集为零。解码固定为 greedy，运行时为 bfloat16 精度与 sdpa 注意力后端且五个 session 一致；TEN 话轮置信度通过 222 个条目的离线 replay cache 逐段回放，不进入任何延迟计时窗口。每条 record 保存最后段到达、首 token 就绪、端点接受等原始时间戳，校验器按恒等式逐条复算；campaign 归档了不可变 manifest 与身份哈希、覆盖 72 个文件的 SHA-256 checksums、五 session records、分析与校验文件以及运行前后环境快照。旧 E1/E2 结果文件的 git blob 在该 campaign 前后逐字节不变；二者由此降级为探索性旧 campaign，仅作审计引用，其中旧 E2 的阈值 0.92 是本次预冻结的唯一候选工作点。
 
 ## 5.5 部署、验证与可复现性
 
-正式结果来自三个独立 campaign，均使用同型号的双 NVIDIA RTX 3090，但不因此视为同一计时总体。旧 E1/E2/A2 campaign 中，主模型 Qwen2-7B-Instruct 部署在一张卡；TEN Turn Detection、Qwen3-0.6B 重写模型和 Mistral-7B-Instruct-v0.3 裁判模型在另一张卡上分时运行；CosyVoice2 使用独立环境采集 TTS 画像。不同模型实例不共享权重。固定轨迹 E3/联合 A1 属于第二 campaign。prepared-state P1 v2 是第三 campaign，主机为双路 Intel Xeon Gold 6330（2×28 核、112 逻辑 CPU）、约 756 GiB 内存、Ubuntu 22.04.5、NVIDIA driver 580.105.08 和双 RTX 3090。前两个 campaign 的 CPU 主机与 P1 主机并不相同，且旧 campaign 的 CPU 型号未完整归档；三者的绝对墙钟时间不汇总、不池化，也不通过 A1 与 P1 数值相减推导控制开销。
+正式结果来自四个独立 campaign，均使用同型号的双 NVIDIA RTX 3090，但不因此视为同一计时总体。旧 E1/E2/A2 是探索性旧 campaign：主模型 Qwen2-7B-Instruct 部署在一张卡；TEN Turn Detection、Qwen3-0.6B 重写模型和 Mistral-7B-Instruct-v0.3 裁判模型在另一张卡上分时运行；CosyVoice2 使用独立环境采集 TTS 画像。不同模型实例不共享权重。其 E1/E2 把用户端点时间戳记录在同步推测完成之后，使 oracle 口径被误作实际墙钟；该口径 artifact 已由确认性 campaign 修正，旧结果保留为审计引用。固定轨迹 E3/联合 A1 属于第二 campaign。prepared-state P1 v2 是第三 campaign，主机为双路 Intel Xeon Gold 6330（2×28 核、112 逻辑 CPU）、约 756 GiB 内存、Ubuntu 22.04.5、NVIDIA driver 580.105.08 和双 RTX 3090。确认性 E1/E2（run `e1e2c_b8c758b_20260901T173306Z`）是第四 campaign，五个独立进程以 greedy、bfloat16 和 sdpa 在单卡上运行主模型，TEN 置信度离线回放。各 campaign 的 CPU、OS 或调度环境并不相同，且旧 campaign 的 CPU 型号未完整归档，本文不补造名称；四个 campaign 的绝对墙钟时间不汇总、不池化，也不通过 A1 与 P1 数值相减推导控制开销。
 
 实现验证包括时间轴边界语义、KV 长度不变式、断句字符守恒、推测状态机和多轮打断链路等组件级检查。固定轨迹 E3 中，playback 条件的局部完整未播放文本在 400/400 个场景中为空；该结果由片段边界和指标定义共同决定，只是构造检查，不能替代对真实播放系统或语义效果的验证。代码审查同样属于质量控制过程，不应被视为实验有效性的独立证据。
 
-仓库保存了代码、主要结果 JSON、绘图脚本和数据派生逻辑，支持读者检查实验口径和复算大部分汇总值。固定轨迹 E3 与联合 A1 的补实验工件进一步归档了 commit、配置哈希、数据哈希或样本清单、模型文件指纹、环境信息和原始重复记录；A1 的 IQR 可由 50 次原始计时复算。P1 v2 的正式身份为 run `sci34_dc52978_20260901_async_prepared_v2`、实验代码 commit `dc52978`、结果入库 commit `ee1dcc7`，并归档 180 条原始记录、manifest、汇总分析以及 CPU、内存、OS、驱动和 GPU 前后快照。不过，旧 E1/E2/A2 campaign 仍未统一归档处理后输入文件、模型精确 revision、全部环境版本和随机状态，且部分实验采用温度采样、没有多随机种子重复。因此，整体工件仍只能称为部分可复现。
+仓库保存了代码、主要结果 JSON、绘图脚本和数据派生逻辑，支持读者检查实验口径和复算大部分汇总值。固定轨迹 E3 与联合 A1 的补实验工件进一步归档了 commit、配置哈希、数据哈希或样本清单、模型文件指纹、环境信息和原始重复记录；A1 的 IQR 可由 50 次原始计时复算。P1 v2 的正式身份为 run `sci34_dc52978_20260901_async_prepared_v2`、实验代码 commit `dc52978`、结果入库 commit `ee1dcc7`，并归档 180 条原始记录、manifest、汇总分析以及 CPU、内存、OS、驱动和 GPU 前后快照。确认性 E1/E2 campaign 的正式身份为 run `e1e2c_b8c758b_20260901T173306Z`、实验代码 commit `b8c758b`、结果入库 commit `62508dc`，其 manifest 冻结输入、trigger cache 与协议身份哈希，checksums 覆盖 72 个文件，5000 条原始 records 可复算双口径延迟恒等式。不过，旧 E1/E2/A2 这一支探索性 campaign 仍未统一归档处理后输入文件、模型精确 revision、全部环境版本和随机状态，且部分实验采用温度采样、没有多随机种子重复。因此，整体工件仍只能称为部分可复现。
 
 ## 5.6 本章小结
 
-本章从模块、时间轴、KV 操作、编排和实验记录五个方面说明系统实现。实现的关键是把 TTS 文本片段同时关联到 token 和采样坐标，并把 KV、掩码和 token 账本作为受统一不变式约束的状态组合。与此同时，本章明确了 Mock TTS、构造检查、三个独立 campaign 和 prepared-state 软件控制路径的边界，避免把模拟时序、跨 CPU campaign 的绝对时间、headless 停播控制或局部模型侧计时表述为真实声学及生产全链路测量。
+本章从模块、时间轴、KV 操作、编排和实验记录五个方面说明系统实现。实现的关键是把 TTS 文本片段同时关联到 token 和采样坐标，并把 KV、掩码和 token 账本作为受统一不变式约束的状态组合。与此同时，本章明确了 Mock TTS、构造检查、四个独立 campaign（含确认性 E1/E2 与降级为探索性审计的旧 E1/E2）和 prepared-state 软件控制路径的边界，避免把模拟时序、跨 CPU campaign 的绝对时间、headless 停播控制、oracle 口径收益或局部模型侧计时表述为真实声学及生产全链路测量。

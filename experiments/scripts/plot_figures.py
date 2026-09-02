@@ -2,10 +2,13 @@
 
 数据一律从 experiments/results/ 或 experiments/sci34_supplement/results/ 的
 审计结果读取，禁止硬编码实验数字（图内数值均为运行时计算/读取）。
+图 6-2/6-3 自 D-017 起改读确认性 campaign e1e2c 的 analysis_v1.json
+（C-E1/C-E2 双口径：实际墙钟主指标 + oracle TTFT_eff 时延乐观下界）。
 
 用法（项目根目录）：
-    uv run python -m experiments.scripts.plot_figures          # 中文版（学位论文）
+    uv run python -m experiments.scripts.plot_figures          # 中文版（学位论文），全部四图
     uv run python -m experiments.scripts.plot_figures --en     # 英文版（期刊投稿，文件名加 _en）
+    uv run python -m experiments.scripts.plot_figures fig6_2 fig6_3   # 只重画指定图（其余文件不动）
 
 输出：paper2/figures/fig6_{1..4}[_en].svg + .pdf + .png
 """
@@ -21,7 +24,6 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager
 
 ROOT = Path(__file__).resolve().parents[2]
-RESULTS = ROOT / "experiments" / "results"
 SUPPLEMENT_RESULTS = ROOT / "experiments" / "sci34_supplement" / "results"
 E3_ANALYSIS = (
     SUPPLEMENT_RESULTS
@@ -35,6 +37,12 @@ A1_ANALYSIS = (
     / "sci34_f11ccba_20260901_a1"
     / "analysis.json"
 )
+E1E2C_ANALYSIS = (
+    SUPPLEMENT_RESULTS
+    / "e1e2_confirmatory"
+    / "e1e2c_b8c758b_20260901T173306Z"
+    / "analysis_v1.json"
+)
 FIGDIR = ROOT / "paper2" / "figures"
 
 EN = "--en" in sys.argv
@@ -46,17 +54,27 @@ _ZH = {
     "f1_ylabel": "引用率差值（generation - playback，百分点）",
     "f1_labels": ["片段目标\n词面检测", "片段目标\nLLM 裁判", "近似目标\n词面检测", "近似目标\nLLM 裁判"],
     "f1_note": "对话聚类 bootstrap 95% CI；全部跨越零线\nplayback 条件本地完整未听文本 400/400 为空（构造检查）",
-    "f2_knee": "候选工作区间\nθ∈[0.85, 0.97]",
-    "f2_leg_pts": "推测工作点",
+    "f2_title_a": "（a）oracle 口径：TTFT$_{eff}$ 时延乐观下界",
+    "f2_title_b": "（b）实际墙钟主指标",
+    "f2_xlabel": "推测浪费率 ρ（%，pooled）",
+    "f2_ylabel_a": "TTFT$_{eff}$ 均值（ms）",
+    "f2_ylabel_b": "最后段到达→首 token\n就绪均值（ms）",
+    "f2_leg_pts": "推测工作点（θ 扫描）",
     "f2_leg_sent": "永不推测（保守极限）",
     "f2_sent": "永不推测",
-    "f2_surv": "存活",
-    "f2_xlabel": "推测浪费率 ρ（%）",
-    "f2_ylabel": "TTFT$_{eff}$（ms）",
-    "f3_x1": "TTFT（ms，实测）",
-    "f3_x2": "mouth-to-ear（ms，建模值：首片段就绪 + TTS 首块，3090 实测画像）",
-    "f3_leg_tts": "其中：TTS 首块合成延迟",
-    "f3_note": "（TTS 首块 {tts:.0f} ms）",
+    "f2_hl": "θ=0.92\n确认工作点",
+    "f2_flat": "全条件平坦 {lo:.1f}–{hi:.1f} ms",
+    "f2_note": "（a）为 oracle 时延乐观下界（推测收益上界），（b）为实际墙钟主指标（最后段到达→首 token 就绪）；\n"
+               "同批九条件（8 阈值 + 永不推测），每点 n={n}（{sess} session × {dial} 对话）。",
+    "f3_title_a": "（a）实际墙钟：最后段到达→首 token 就绪",
+    "f3_title_b": "（b）oracle TTFT$_{eff}$：时延乐观下界",
+    "f3_ylabel": "延迟（ms）",
+    "f3_label_a": "系统 A\n一次性全量预填充",
+    "f3_label_b": "B-ours\nθ=0.92 推测",
+    "f3_bar_note": "均值 {mean:.2f}\n中位 {med:.2f}",
+    "f3_diff": "配对差 A-B：{diff:+.2f} ms\n95% CI [{lo:.2f}, {hi:.2f}]",
+    "f3_note": "同批配对（n={n}）：（a）为实际墙钟主指标（B 更慢）；（b）为同步 oracle 端点下的乐观下界（推测收益上界，B 更低）。\n"
+               "两种口径度量不同对象，不可相加、不可混称。",
     "f4_leg_pre": "重新预填充（放弃 KV 复用）",
     "f4_leg_recover": "联合 crop + 角色恢复（单次同步窗口）",
     "f4_leg_crop": "KV 裁剪操作（crop-only）",
@@ -70,17 +88,29 @@ _EN = {
     "f1_ylabel": "Reference-rate difference (generation − playback, pp)",
     "f1_labels": ["fragment\nlexical", "fragment\nLLM judge", "proxy\nlexical", "proxy\nLLM judge"],
     "f1_note": "Dialogue-cluster bootstrap 95% CIs; all cross zero\nLocal complete-unheard text is empty in 400/400 playback cases (construction check)",
-    "f2_knee": "candidate region\nθ∈[0.85, 0.97]",
-    "f2_leg_pts": "speculative operating points",
+    "f2_title_a": "(a) Oracle view: TTFT$_{eff}$ optimistic latency lower bound",
+    "f2_title_b": "(b) Wall-clock primary metric",
+    "f2_xlabel": "Speculation waste rate ρ (%, pooled)",
+    "f2_ylabel_a": "Mean TTFT$_{eff}$ (ms)",
+    "f2_ylabel_b": "Arrival → first token ready\nmean (ms)",
+    "f2_leg_pts": "speculative working points (θ sweep)",
     "f2_leg_sent": "never speculate (conservative limit)",
-    "f2_sent": "never speculate",
-    "f2_surv": "surv. ",
-    "f2_xlabel": "Speculation waste rate ρ (%)",
-    "f2_ylabel": "TTFT$_{eff}$ (ms)",
-    "f3_x1": "TTFT (ms, measured)",
-    "f3_x2": "mouth-to-ear (ms, modeled)",
-    "f3_leg_tts": "TTS first-chunk synthesis latency",
-    "f3_note": "(TTS first chunk {tts:.0f} ms)",
+    "f2_sent": "never",
+    "f2_hl": "θ=0.92\nconfirmatory point",
+    "f2_flat": "flat across conditions, {lo:.1f}–{hi:.1f} ms",
+    "f2_note": "(a) Oracle latency optimistic lower bound (= upper bound of speculation benefit); "
+               "(b) actual wall-clock primary metric (last-segment arrival → first token ready).\n"
+               "Nine conditions (8 thresholds + never), n={n} each ({sess} sessions × {dial} dialogues).",
+    "f3_title_a": "(a) Wall clock: arrival → first token ready",
+    "f3_title_b": "(b) Oracle TTFT$_{eff}$: optimistic latency lower bound",
+    "f3_ylabel": "Latency (ms)",
+    "f3_label_a": "System A\none-shot full prefill",
+    "f3_label_b": "B-ours\nθ=0.92 speculative",
+    "f3_bar_note": "mean {mean:.2f}\nmedian {med:.2f}",
+    "f3_diff": "Paired A-B: {diff:+.2f} ms\n95% CI [{lo:.2f}, {hi:.2f}]",
+    "f3_note": "Same paired batch (n={n}): (a) wall-clock primary metric (B slower); "
+               "(b) optimistic lower bound under the synchronous oracle endpoint (upper bound of speculation benefit, B lower).\n"
+               "The two views measure different objects and must not be added or conflated.",
     "f4_leg_pre": "re-prefill (no KV reuse)",
     "f4_leg_recover": "joint crop + role recovery (one synchronized window)",
     "f4_leg_crop": "KV crop operation only",
@@ -125,11 +155,6 @@ C_VERMI = "#D55E00"
 C_SKY = "#56B4E9"
 G_DARK = "#333333"
 G_MID = "#888888"
-
-
-def _load(name):
-    with open(RESULTS / name, encoding="utf-8") as f:
-        return json.load(f)
 
 
 def _save(fig, stem):
@@ -218,126 +243,215 @@ def fig6_1():
 
 # ---------------------------------------------------------------- 图 6-2
 def fig6_2():
-    curve = _load("paper2_reanalysis.json")["e2"]["curve"]
-    curve = sorted(curve, key=lambda p: p["threshold"])
-    assert len(curve) == 9 and all(p["n"] == 100 for p in curve)
-    waste = [100 * p["spec_waste_rate"] for p in curve]
-    ttft = [p["ttft_eff_ms"] for p in curve]
-    surv = [100 * p["survived_rate"] for p in curve]
-    thr = [p["threshold"] for p in curve]
-    print(f"[fig6-2] {len(curve)} formal pts, waste {waste[0]:.1f}%→{waste[-1]:.1f}%")
+    """C-E2 九工作点双口径：(a) oracle TTFT_eff 下界对 pooled 浪费率；(b) 实际墙钟平坦。"""
+    with open(E1E2C_ANALYSIS, encoding="utf-8") as f:
+        data = json.load(f)
+    cs = data["condition_summaries"]
+    conds = data["design"]["conditions"]
+    thresholds = [c for c in conds if c.startswith("b_threshold_")]
+    never = "b_never_speculate"
+    hl = data["design"]["confirmatory_condition"]
+    assert len(thresholds) == 8 and conds[-1] == never and hl in thresholds
+    n = cs[never]["n"]
+    assert all(cs[c]["n"] == n for c in thresholds + [never])
 
-    fig, ax = plt.subplots(figsize=(6.6, 4.2))
-    knee = [w for w, t in zip(waste, thr) if 0.85 <= t <= 0.97]
-    ax.axvspan(min(knee), max(knee), color=C_SKY, alpha=0.15, zorder=0)
-    ax.annotate(
-        L["f2_knee"],
-        ((min(knee) + max(knee)) / 2, max(ttft) * 0.82),
-        ha="center", fontsize=9, color=G_DARK,
+    def waste(c):
+        return 100.0 * cs[c]["pooled_token_waste_ratio"]
+
+    def oracle(c):
+        return cs[c]["ttft_eff_ms_oracle_latency_lower_bound"]["mean"]
+
+    def wall(c):
+        return cs[c]["arrival_to_first_token_ready_ms_primary"]
+
+    # 运行时复核验收结论：浪费率随 θ 非增、oracle 均值非降、墙钟全条件平坦
+    assert all(waste(a) >= waste(b) - 1e-9 for a, b in zip(thresholds, thresholds[1:]))
+    assert all(oracle(a) <= oracle(b) + 1e-9 for a, b in zip(thresholds, thresholds[1:]))
+    assert waste(never) == 0.0 and oracle(never) >= oracle(thresholds[-1])
+    wall_means = [wall(c)["mean"] for c in thresholds] + [wall(never)["mean"]]
+    lo, hi = min(wall_means), max(wall_means)
+    assert hi - lo < 1.0
+    print(
+        f"[fig6-2] 9 pts n={n}: waste {waste(thresholds[0]):.1f}%→0%, "
+        f"oracle {oracle(thresholds[0]):.2f}→{oracle(thresholds[-1]):.2f}→never "
+        f"{oracle(never):.2f} ms, wall flat {lo:.1f}-{hi:.1f} ms"
     )
 
-    real = [i for i, t in enumerate(thr) if t <= 1.0]
-    sent = [i for i, t in enumerate(thr) if t > 1.0]
-    ax.plot(
-        [waste[i] for i in real] + [waste[i] for i in sent],
-        [ttft[i] for i in real] + [ttft[i] for i in sent],
-        "-", color=C_BLUE, lw=1.8, zorder=2,
+    fig, (ax_a, ax_b) = plt.subplots(
+        1, 2, figsize=(6.9, 3.5), sharex=True, gridspec_kw={"wspace": 0.32}
     )
-    ax.plot(
-        [waste[i] for i in real], [ttft[i] for i in real],
-        "o", color=C_BLUE, ms=6.5, zorder=3, label=L["f2_leg_pts"],
+    xs = [waste(c) for c in thresholds]
+
+    # ---- (a) oracle TTFT_eff 下界（推测收益上界的反面：越低越好） ----
+    ax_a.plot(xs, [oracle(c) for c in thresholds], "-", color=C_BLUE, lw=1.6, zorder=2)
+    ax_a.plot(
+        xs, [oracle(c) for c in thresholds], "o", color=C_BLUE, ms=5.5,
+        zorder=3, label=L["f2_leg_pts"],
     )
-    ax.plot(
-        [waste[i] for i in sent], [ttft[i] for i in sent],
-        "s", mfc="white", mec=C_VERMI, ms=8, mew=1.8, zorder=3,
-        label=L["f2_leg_sent"],
+    ax_a.plot(
+        [waste(never)], [oracle(never)], "s", mfc="white", mec=C_VERMI,
+        ms=8, mew=1.8, zorder=3, label=L["f2_leg_sent"],
     )
-    offset_spec = {
-        0.0052: (0, 10, "center"),
-        0.776: (5, 8, "left"),
-        0.85: (-9, 6, "right"),
-        0.92: (6, 4, "left"),
-        0.9688: (8, 4, "left"),
-        1.1: (10, -10, "left"),
-    }
-    leader_spec = {
-        0.1979: (22, 4.5),
-        0.3906: (19, 8),
-        0.5833: (16, 11.5),
-    }
-    for w_, t_, th_, s_ in zip(waste, ttft, thr, surv):
-        label = L["f2_sent"] if th_ > 1.0 else f"θ={th_:g}"
-        text = f"{label}\n{L['f2_surv']}{s_:.0f}%"
-        if th_ in leader_spec:
-            ax.annotate(
-                text, (w_, t_), xytext=leader_spec[th_], textcoords="data",
-                fontsize=7.8, ha="left", color=G_DARK,
+    # 低阈值端四点在图底部拥挤，用引线把 θ 标签扇形展开
+    leader = {0.1979: (21.0, 6.0), 0.3906: (18.2, 10.8), 0.5833: (16.2, 15.0), 0.776: (14.6, 19.2)}
+    offset = {0.0052: (-5, 8, "right"), 0.85: (9, 4, "left"), 0.9688: (8, -3, "left")}
+    for c in thresholds:
+        t = float(c.rsplit("_", 1)[1])
+        if c == hl:
+            continue
+        if t in leader:
+            ax_a.annotate(
+                f"θ={t:g}", (waste(c), oracle(c)), xytext=leader[t], textcoords="data",
+                ha="left", fontsize=7.3, color=G_DARK,
                 arrowprops=dict(arrowstyle="-", color=G_MID, lw=0.7),
             )
         else:
-            dx, dy, ha = offset_spec[th_]
-            ax.annotate(
-                text, (w_, t_), textcoords="offset points", xytext=(dx, dy),
-                fontsize=7.8, ha=ha, color=G_DARK,
+            dx, dy, ha = offset[t]
+            ax_a.annotate(
+                f"θ={t:g}", (waste(c), oracle(c)), textcoords="offset points",
+                xytext=(dx, dy), ha=ha, fontsize=7.3, color=G_DARK,
             )
-    ax.set_xlabel(L["f2_xlabel"])
-    ax.set_ylabel(L["f2_ylabel"])
-    ax.set_xlim(left=-1.5)
-    ax.set_ylim(-2, 55)
-    ax.legend(loc="upper right")
+    ax_a.scatter(
+        [waste(hl)], [oracle(hl)], s=200, facecolors="none", edgecolors=C_VERMI,
+        linewidths=1.5, zorder=4,
+    )
+    ax_a.annotate(
+        L["f2_hl"], (waste(hl), oracle(hl)), xytext=(7.2, 26.0), textcoords="data",
+        ha="left", va="center", fontsize=7.8, color=G_DARK,
+        arrowprops=dict(arrowstyle="-", color=G_MID, lw=0.7),
+    )
+    ax_a.set_xlim(-1.8, 33.5)
+    ax_a.set_ylim(-1.5, 34.5)
+    ax_a.set_xlabel(L["f2_xlabel"])
+    ax_a.set_ylabel(L["f2_ylabel_a"])
+    ax_a.set_title(L["f2_title_a"], fontsize=10)
+    ax_a.legend(loc="upper right", fontsize=7.8)
+
+    # ---- (b) 实际墙钟主指标：同九点，全条件平坦 ----
+    means = [wall(c)["mean"] for c in thresholds]
+    yerr = [
+        [wall(c)["mean"] - wall(c)["q1"] for c in thresholds],
+        [wall(c)["q3"] - wall(c)["mean"] for c in thresholds],
+    ]
+    ax_b.errorbar(
+        xs, means, yerr=yerr, fmt="o-", color=C_BLUE, lw=1.5, ms=5,
+        capsize=3, zorder=3,
+    )
+    ax_b.errorbar(
+        [waste(never)], [wall(never)["mean"]],
+        yerr=[[wall(never)["mean"] - wall(never)["q1"]], [wall(never)["q3"] - wall(never)["mean"]]],
+        fmt="s", mfc="white", mec=C_VERMI, ms=8, mew=1.8, capsize=3, zorder=3,
+    )
+    ax_b.scatter(
+        [waste(hl)], [wall(hl)["mean"]], s=200, facecolors="none",
+        edgecolors=C_VERMI, linewidths=1.5, zorder=4,
+    )
+    ax_b.annotate(
+        L["f2_hl"], (waste(hl), wall(hl)["mean"]), textcoords="offset points",
+        xytext=(8, 6), ha="left", va="bottom", fontsize=7.8, color=G_DARK,
+        arrowprops=dict(arrowstyle="-", color=G_MID, lw=0.7),
+    )
+    ax_b.text(
+        0.52, 0.28, L["f2_flat"].format(lo=lo, hi=hi), transform=ax_b.transAxes,
+        ha="center", va="center", fontsize=8.2, color=G_DARK,
+        bbox=dict(facecolor="white", edgecolor=G_MID, alpha=0.9, pad=2.5),
+    )
+    ax_b.set_ylim(0, 80)
+    ax_b.set_xlabel(L["f2_xlabel"])
+    ax_b.set_ylabel(L["f2_ylabel_b"], fontsize=9.5)
+    ax_b.set_title(L["f2_title_b"], fontsize=10)
+
+    fig.subplots_adjust(bottom=0.26, top=0.90, left=0.075, right=0.985)
+    fig.text(
+        0.075, 0.015,
+        L["f2_note"].format(
+            n=n, sess=data["design"]["sessions"], dial=data["design"]["dialogues_per_session"]
+        ),
+        fontsize=8.2, va="bottom", ha="left", color=G_DARK,
+    )
     _save(fig, "fig6_2")
 
 
 # ---------------------------------------------------------------- 图 6-3
 def fig6_3():
-    s = _load("exp1_latency.json")["summary"]
-    tts_first = _load("cosyvoice_profile.json")["profile"]["first_chunk_latency_ms"]
-    a_ttft, b_ttft = s["a_ttft_ms"], s["b_ttft_eff_ms"]
-    a_m2e, b_m2e = s["a_mouth_to_ear_ms_modeled"], s["b_mouth_to_ear_ms_modeled"]
-    print(f"[fig6-3] TTFT {a_ttft}/{b_ttft}  m2e {a_m2e}/{b_m2e}  tts {tts_first}")
+    """C-E1 配对双口径：(a) 实际墙钟 arrival→first-token-ready；(b) oracle TTFT_eff 下界。"""
+    with open(E1E2C_ANALYSIS, encoding="utf-8") as f:
+        data = json.load(f)
+    cs = data["condition_summaries"]
+    cond_a, cond_b = data["design"]["e1_pair"]
+    assert cond_a == "system_a_full_prefill"
+    assert cond_b == data["design"]["confirmatory_condition"]
+    n = data["e1"]["primary_paired"]["n"]
+    assert n == cs[cond_a]["n"] == cs[cond_b]["n"]
+
+    a_wall = cs[cond_a]["arrival_to_first_token_ready_ms_primary"]
+    b_wall = cs[cond_b]["arrival_to_first_token_ready_ms_primary"]
+    a_orc = cs[cond_a]["ttft_eff_ms_oracle_latency_lower_bound"]
+    b_orc = cs[cond_b]["ttft_eff_ms_oracle_latency_lower_bound"]
+    # System A 无推测：oracle 口径与墙钟口径是同一观测量
+    assert abs(a_wall["mean"] - a_orc["mean"]) < 1e-6
+
+    diff_wall = data["e1"]["primary_paired"]["absolute_difference_ms_a_minus_b"]["mean"]
+    ci_wall = data["bootstrap"]["ci"][
+        "e1_primary_mean_arrival_to_ready_difference_ms_system_a_minus_b092"
+    ]
+    diff_orc = data["e1"]["oracle_ttft_eff_latency_lower_bound_paired"][
+        "absolute_difference_ms_a_minus_b"
+    ]["mean"]
+    ci_orc = data["bootstrap"]["ci"][
+        "e1_oracle_mean_ttft_eff_difference_ms_system_a_minus_b092"
+    ]
+    assert diff_wall < 0 < diff_orc
+    assert ci_wall["upper"] < 0 < ci_orc["lower"]
+    print(
+        f"[fig6-3] n={n} wall A {a_wall['mean']:.2f} vs B {b_wall['mean']:.2f} "
+        f"diff {diff_wall:+.2f} CI [{ci_wall['lower']:.2f},{ci_wall['upper']:.2f}]; "
+        f"oracle A {a_orc['mean']:.2f} vs B {b_orc['mean']:.2f} "
+        f"diff {diff_orc:+.2f} CI [{ci_orc['lower']:.2f},{ci_orc['upper']:.2f}]"
+    )
+
+    def panel(ax, a, b, title, diff, ci):
+        x = [0, 1]
+        means = [a["mean"], b["mean"]]
+        ax.bar(
+            x, means, width=0.52, color=[C_ORANGE, C_BLUE],
+            edgecolor="black", lw=0.6, zorder=2,
+        )
+        # IQR 竖线（q1→q3，带端帽）+ 中位刻度：均值可能落在 IQR 外（如 bimodal oracle），不能作误差棒
+        for xi, stat in zip(x, (a, b)):
+            ax.plot([xi, xi], [stat["q1"], stat["q3"]], color=G_DARK, lw=1.2, zorder=3)
+            for q in ("q1", "q3"):
+                ax.plot([xi - 0.07, xi + 0.07], [stat[q], stat[q]], color=G_DARK, lw=1.2, zorder=3)
+            ax.plot(
+                [xi - 0.10, xi + 0.10], [stat["median"], stat["median"]],
+                color="white", lw=1.6, zorder=4,
+            )
+            ax.annotate(
+                L["f3_bar_note"].format(mean=stat["mean"], med=stat["median"]),
+                (xi, stat["q3"]), textcoords="offset points", xytext=(0, 6),
+                ha="center", fontsize=8.2,
+            )
+        ax.text(
+            0.5, 0.97, L["f3_diff"].format(diff=diff, lo=ci["lower"], hi=ci["upper"]),
+            transform=ax.transAxes, ha="center", va="top", fontsize=8.2,
+            bbox=dict(facecolor="white", edgecolor=G_MID, alpha=0.9, pad=2.5),
+        )
+        ax.set_xticks(x)
+        ax.set_xticklabels([L["f3_label_a"], L["f3_label_b"]])
+        ax.set_ylim(0, max(a["q3"], b["q3"]) * 1.55)
+        ax.set_ylabel(L["f3_ylabel"])
+        ax.set_title(title, fontsize=10)
 
     fig, (ax1, ax2) = plt.subplots(
-        2, 1, figsize=(6.0, 4.6), gridspec_kw={"height_ratios": [1, 1.3]}
+        1, 2, figsize=(6.9, 3.6), gridspec_kw={"wspace": 0.30}
     )
-    ylabels = ["System A", "B-ours"]
-
-    ax1.barh(
-        ylabels[::-1], [b_ttft, a_ttft],
-        color=[C_BLUE, C_ORANGE], edgecolor="black", lw=0.6, height=0.55,
+    panel(ax1, a_wall, b_wall, L["f3_title_a"], diff_wall, ci_wall)
+    panel(ax2, a_orc, b_orc, L["f3_title_b"], diff_orc, ci_orc)
+    fig.subplots_adjust(bottom=0.24, top=0.90, left=0.075, right=0.985)
+    fig.text(
+        0.075, 0.015, L["f3_note"].format(n=n),
+        fontsize=8.2, va="bottom", ha="left", color=G_DARK,
     )
-    for y, v in zip(ylabels[::-1], [b_ttft, a_ttft]):
-        ax1.annotate(
-            f"{v:g} ms", (v, y), textcoords="offset points", xytext=(5, 0),
-            va="center", fontsize=9.5,
-        )
-    ax1.set_xlim(0, a_ttft * 1.25)
-    ax1.set_xlabel(L["f3_x1"])
-
-    ax2.barh(
-        "System A", a_m2e, color=C_ORANGE, edgecolor="black", lw=0.6, height=0.55,
-    )
-    ax2.barh(
-        "B-ours", tts_first, color=C_SKY, edgecolor="black", lw=0.6,
-        height=0.55, label=L["f3_leg_tts"],
-    )
-    ax2.barh(
-        "B-ours", b_m2e - tts_first, left=tts_first, color=C_BLUE,
-        edgecolor="black", lw=0.6, height=0.55,
-    )
-    ax2.annotate(
-        f"{a_m2e:.0f} ms", (a_m2e, "System A"),
-        textcoords="offset points", xytext=(5, 0), va="center", fontsize=9.5,
-    )
-    note = L["f3_note"].format(tts=tts_first)
-    ax2.annotate(
-        f"{b_m2e:.0f} ms {note}", (b_m2e, "B-ours"),
-        textcoords="offset points", xytext=(5, 0), va="center", fontsize=9.5,
-    )
-    ax2.set_xlim(0, a_m2e * 1.42)
-    ax2.set_xlabel(L["f3_x2"])
-    ax2.invert_yaxis()
-    ax2.legend(loc="lower right")
-    fig.tight_layout()
     _save(fig, "fig6_3")
 
 
@@ -432,8 +546,11 @@ def fig6_4():
 
 
 if __name__ == "__main__":
-    fig6_1()
-    fig6_2()
-    fig6_3()
-    fig6_4()
-    print(("EN" if EN else "ZH"), "全部完成 →", FIGDIR)
+    figures = {"fig6_1": fig6_1, "fig6_2": fig6_2, "fig6_3": fig6_3, "fig6_4": fig6_4}
+    requested = [a for a in sys.argv[1:] if not a.startswith("-")]
+    todo = {name: fn for name, fn in figures.items() if not requested or name in requested}
+    unknown = set(requested) - set(figures)
+    assert not unknown, f"unknown figure names: {sorted(unknown)}"
+    for fn in todo.values():
+        fn()
+    print(("EN" if EN else "ZH"), "完成：", ", ".join(todo), "→", FIGDIR)
