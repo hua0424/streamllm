@@ -683,7 +683,7 @@ class TransformersBackend:
                 errors.append("controlled content tokens differ from fixture")
             if role_phase != "ASSISTANT_EOT_PENDING":
                 errors.append("controlled EOS did not leave ASSISTANT_EOT_PENDING")
-        else:
+        elif case.termination == "max_tokens":
             if observed != "MAX_TOKENS":
                 errors.append("small-budget greedy generation did not report MAX_TOKENS")
             if len(content_ids) != cap:

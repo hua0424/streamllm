@@ -7,6 +7,7 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
+from typing import Any
 
 from experiments.sci34_supplement.common import atomic_write_json, atomic_write_text, load_jsonl, sha256_file
 from experiments.sci34_supplement.c2_equivalence.analyze import build_analysis
@@ -24,6 +25,111 @@ from experiments.sci34_supplement.c2_equivalence.validate import validate_campai
 
 PACKAGE_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = PACKAGE_ROOT.parents[2]
+
+
+def _unit_termination_probe_branching(cases) -> None:
+    """D-020 regression: route TransformersBackend._termination_probe through a stub
+    LLM so the genuine/requalified natural_eos, max_tokens, and controlled
+    eos_at_cap branches are all exercised without loading a model. Each stubbed
+    probe is additionally cross-checked by the independent validator."""
+    from types import SimpleNamespace
+
+    import torch
+
+    from experiments.sci34_supplement.c2_equivalence.protocol import (
+        EOS_AT_CAP_MAX_NEW_TOKENS,
+        MAX_TOKENS_PROBE_BUDGET,
+        NATURAL_EOS_MAX_NEW_TOKENS,
+    )
+    from experiments.sci34_supplement.c2_equivalence.runtime import TransformersBackend
+    from experiments.sci34_supplement.c2_equivalence.validate import _validate_termination_probe
+
+    eot = 2
+
+    def fresh_cache() -> Any:
+        return SimpleNamespace(
+            token_ids=[101, 102, 103],
+            assistant_token_ids=[],
+            seq_length=3,
+            attention_mask=SimpleNamespace(shape=[1, 3]),
+            role_phase="ASSISTANT_OPEN",
+            generation_end_reason="NONE",
+        )
+
+    def make_backend(scripted):
+        backend = TransformersBackend.__new__(TransformersBackend)
+        backend.device = "cpu"
+        backend.torch = torch
+        backend.parts = SimpleNamespace(eot_token_id=eot)
+        backend._initial_path = lambda user_text: (fresh_cache(), SimpleNamespace())
+        backend._encode = lambda text: [901, 902, 903]
+
+        class StubLLM:
+            _decode_logits = None
+
+            def generate_accumulating(
+                self, cache, max_new_tokens, temperature, top_p, repetition_penalty, on_token_decoded=None
+            ):
+                step = 0
+                while step < max_new_tokens:
+                    if self._decode_logits is not None:
+                        out = self._decode_logits(None, temperature, top_p, repetition_penalty)
+                        token_id = int(out[0, 0].item())
+                    else:
+                        token_id = scripted(step)
+                    if on_token_decoded is not None:
+                        on_token_decoded(f"t{token_id}", len(cache.assistant_token_ids), token_id)
+                    step += 1
+                    if token_id == eot:
+                        cache.role_phase = "ASSISTANT_EOT_PENDING"
+                        cache.generation_end_reason = "EOS"
+                        return
+                    cache.token_ids.append(token_id)
+                    cache.assistant_token_ids.append(token_id)
+                    cache.seq_length += 1
+                    yield token_id
+                cache.generation_end_reason = "MAX_TOKENS"
+                cache.role_phase = "ASSISTANT_OPEN"
+
+        backend.llm = StubLLM()
+        return backend
+
+    natural_case = next(case for case in cases if case.termination == "natural_eos")
+    max_case = next(case for case in cases if case.termination == "max_tokens")
+    cap_case = next(case for case in cases if case.termination == "eos_at_cap")
+
+    # genuine natural EOS: the D-020 pilot failure branch.
+    genuine_probe = make_backend(lambda step: [701, 702, eot][step])._termination_probe(natural_case, "u")
+    assert genuine_probe["passed"] is True and not genuine_probe["errors"], genuine_probe["errors"]
+    assert genuine_probe["genuine_eos"] is True and genuine_probe["requalified"] is False
+    assert genuine_probe["observed_end_reason"] == "EOS" and genuine_probe["eos_step"] == 3
+    assert genuine_probe["role_phase"] == "ASSISTANT_EOT_PENDING"
+    assert not _validate_termination_probe(genuine_probe, case=natural_case, formal=False)
+
+    # deterministic run-on: requalified natural_eos.
+    runon_probe = make_backend(lambda step: 5000 + step)._termination_probe(natural_case, "u")
+    assert runon_probe["passed"] is True and not runon_probe["errors"], runon_probe["errors"]
+    assert runon_probe["genuine_eos"] is False and runon_probe["requalified"] is True
+    assert runon_probe["observed_end_reason"] == "MAX_TOKENS"
+    assert runon_probe["content_token_count"] == NATURAL_EOS_MAX_NEW_TOKENS
+    assert runon_probe["role_phase"] == "ASSISTANT_OPEN"
+    assert not _validate_termination_probe(runon_probe, case=natural_case, formal=False)
+
+    # max_tokens probe.
+    max_probe = make_backend(lambda step: 7000 + step)._termination_probe(max_case, "u")
+    assert max_probe["passed"] is True and not max_probe["errors"], max_probe["errors"]
+    assert max_probe["observed_end_reason"] == "MAX_TOKENS"
+    assert max_probe["content_token_count"] == MAX_TOKENS_PROBE_BUDGET
+    assert max_probe["genuine_eos"] is None and max_probe["requalified"] is None
+    assert not _validate_termination_probe(max_probe, case=max_case, formal=False)
+
+    # controlled eos_at_cap fixture through the stub decode hook.
+    cap_probe = make_backend(None)._termination_probe(cap_case, "u")
+    assert cap_probe["passed"] is True and not cap_probe["errors"], cap_probe["errors"]
+    assert cap_probe["controlled"] is True and cap_probe["eos_step"] == EOS_AT_CAP_MAX_NEW_TOKENS
+    assert cap_probe["fixture_token_ids"][-1] == eot
+    assert not _validate_termination_probe(cap_probe, case=cap_case, formal=False)
+
 GUARDED_RESULTS = (
     REPO_ROOT / "experiments" / "results" / "exp1_latency.json",
     REPO_ROOT / "experiments" / "results" / "exp2_tradeoff.json",
@@ -236,6 +342,9 @@ def main() -> None:
             for record in first_records
             if record["termination"] == "natural_eos"
         )
+
+        # D-020 regression: the real TransformersBackend probe branch routing, stubbed.
+        _unit_termination_probe_branching(cases)
 
         # v2 requalification semantics exercised directly on the probe validator.
         natural_record = next(

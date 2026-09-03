@@ -5,6 +5,18 @@
 
 ---
 
+## D-020（2026-09-03）修复 v2 探针分支缺陷（pilot 暴露），协议内容不变
+
+**决策**：`TransformersBackend._termination_probe` 的 termination 检查结构中，`eos_at_cap` 之后的 `else:` 误捕 `natural_eos`，对 genuine EOS case 强加 max-token 断言。7B pilot `c2pilot_a501df43_20260903T033106Z`（结果 commit `899462c`）在 c2_01 上确定性暴露：`genuine_eos=true`、`eos_step=21≤256`、`ASSISTANT_EOT_PENDING`，却记 3 条 max-token 错误并被 runner fail-closed 拦截，formal 按规程未启动。修复为 `elif case.termination == "max_tokens":`。**协议 v2 全部冻结内容不变**（cases、24-case 网格、相对门槛、对照臂、margin 规则、cap 256、≥5/10 genuine 均不动）；这是 v2 实现的分支缺陷，不是协议变更，不构成"事后改协议"。
+
+**覆盖补强**：FakeBackend 自行合成探针字典、此前 0.5B dry-run 恰走 requalified 路径，故两处本地验证都未覆盖 genuine 分支。`smoke.py` 新增 stub 化 `TransformersBackend._termination_probe` 四分支路由单元回归（genuine/requalified natural、max_tokens、受控 eos_at_cap），并用独立 validator 逐条交叉校验 stub 探针输出。
+
+**影响**：仅 `runtime.py` 一行分支条件 + `smoke.py` 回归；`src/` 零改动；v1 归档与 v2 pilot（`899462c`）工件只读。pilot 同时证实噪声对照臂在 7B 上工作正常（c2_01：对照噪声 max_abs 0.3125 vs path 0.289，相对限 0.625，门槛全过），与本地 0.5B dry-run 的 path/control≈1.08 相互印证。修复 commit 推送后实验机从 §5 pilot 重跑。
+
+**状态**：accepted（修复完成；v2 Qwen2-7B formal evidence 仍 pending）
+
+---
+
 ## D-019（2026-09-03）判定 C2 v1 formal run rejected；以噪声对照臂 + 相对门槛发布协议 v2
 
 **决策**：Qwen2-7B formal run `c2eq_563dd22a_20260903T013547Z`（code commit `563dd22`、结果 commit `1a47ac1`）判定 **rejected 并永久归档**；不修改其任何容差或工件。`src/` 无需改动。C2 协议升级为 v2 并冻结，以新 run-id 定向重跑（唯一 GPU 任务，入口 `c2_equivalence/GPU_HANDOFF.md`）。

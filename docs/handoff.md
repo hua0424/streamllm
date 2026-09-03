@@ -6,7 +6,7 @@
 
 **分支**：`paper2`
 
-**状态**：C2 v1 formal `c2eq_563dd22a_20260903T013547Z` 已执行并 rejected（token/state 层 100% 等价；v1 绝对 logit 阈与 greedy-exact 门槛被证明对任何正确实现不可达成，4/10 natural_eos greedy run-on 属 cap×snapshot 组合）。`src/` 无缺陷、不改。协议 v2（噪声对照臂 + 相对门槛 + margin 规则 + natural cap 256/重资格化）已实现并在本地通过 fake smoke 与 0.5B CUDA 真模型 dry-run（path/control 比值最差 1.08）。v2 Qwen2-7B formal 待实验机执行。
+**状态**：C2 v1 formal `c2eq_563dd22a_20260903T013547Z` 已执行并 rejected（token/state 层 100% 等价；v1 绝对 logit 阈与 greedy-exact 门槛被证明对任何正确实现不可达成，4/10 natural_eos greedy run-on 属 cap×snapshot 组合）。`src/` 无缺陷、不改。协议 v2 已实现并在本地通过 fake smoke 与 0.5B CUDA dry-run（path/control 最差 1.08）。实验机 v2 pilot（`899462c`）证实噪声对照臂在 7B 上工作正常（c2_01：control 0.3125 vs path 0.289，限 0.625 全过），但暴露 runtime 探针 else 分支误捕 genuine natural_eos 的实现缺陷；已按 D-020 修复并补 stub 四分支回归。实验机从 `GPU_HANDOFF.md` §5 pilot 起重跑（§0–§4 已绿）。v2 Qwen2-7B formal 待执行。
 
 **GPU 唯一入口**：`experiments/sci34_supplement/c2_equivalence/GPU_HANDOFF.md`（协议 v2 版）
 
