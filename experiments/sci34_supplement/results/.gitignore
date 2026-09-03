@@ -14,3 +14,8 @@ c2_equivalence/*/
 c2_equivalence/*.tar.gz
 c2_equivalence/*.tar.gz.sha256
 run_logs/*c2_equivalence*
+# C2 v3 crop-integrity addendum：pilot/formal 与回传包在验收前保持忽略。
+c2_crop_integrity/*/
+c2_crop_integrity/*.tar.gz
+c2_crop_integrity/*.tar.gz.sha256
+run_logs/*c2_crop_integrity*

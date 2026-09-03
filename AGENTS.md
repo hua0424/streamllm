@@ -8,7 +8,7 @@ This file provides guidance to agents (Claude Code, ZCode, etc.) when working wi
 
 **两期工作**：
 - **一期（已完成，`main` 分支）**：流式 ASR + LLM KV cache 增量预填充，打破"TTFT 随语音长度线性增长"。一期代码集中在 `src/asr/`、`src/llm/`、`src/run_test_simple.py`（四线程流水线）。
-- **二期（既有 campaign 已完成，C2 v2 复跑待 7B 验收，`paper2` 分支）**：播放感知的 KV 缓存管理 + barge-in（打断）。既有 E1/E2/E3/A1/P1 结果已归档，不得无条件重跑；2026-09-02 二审后按 D-018 修复 EOS/EOT 与角色状态；2026-09-03 C2 v1 formal 判定 rejected 归档（token/state 层 100% 等价，v1 绝对 logit 阈对任何正确实现不可达成），按 D-019 发布协议 v2（噪声对照臂 + 2× 相对门槛 + margin 规则），正式 Qwen2-7B correctness evidence 仍 pending。论文稿在 `paper2/`；GPU 结果验收前不统一改正文。开始二期任务前必读 `docs/paper2_context.md`（主上下文）、`docs/decisions.md`（决策日志 D-001~）和 `docs/handoff.md`（当前唯一 GPU 断点）。
+- **二期（既有 campaign 已完成，C2 v3 addendum 待 7B 验收，`paper2` 分支）**：播放感知的 KV 缓存管理 + barge-in（打断）。既有 E1/E2/E3/A1/P1 结果已归档，不得无条件重跑；D-018 已修复 EOS/EOT 与角色状态。C2 v1/v2 formal 均按各自冻结数值门槛 rejected 并保留；两轮均给出 45/45 token/state/EOT 正向证据，但 clean-prefill 数值对照受 BF16 不同 forward 拓扑混杂，不能据此判 crop bug或声称数值等价。D-021 新增 exact-only v3 crop-integrity addendum（24 cases/27 events，production crop vs 同 pre-crop K/V 独立切片 oracle），正式 Qwen2-7B evidence pending。论文稿在 `paper2/`；GPU 结果验收前不统一改正文。开始二期任务前必读 `docs/paper2_context.md`、`docs/decisions.md` 和 `docs/handoff.md`（当前唯一 GPU 断点）。
 
 ## 环境与命令
 

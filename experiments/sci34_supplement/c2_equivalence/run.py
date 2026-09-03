@@ -102,6 +102,11 @@ def _write_checkpoint_sidecars(
     return saved
 
 
+def _count_runner_qualified_probes(records: list[Mapping[str, Any]]) -> int:
+    """Count qualified probes independently of the enclosing case verdict."""
+    return sum(bool(record.get("termination_probe", {}).get("passed")) for record in records)
+
+
 def _assert_probe_qualified(probe: Mapping[str, Any], *, termination: str) -> None:
     """Runner-side hard gate; independent validator repeats these checks."""
     cap = {
@@ -384,11 +389,7 @@ def run_campaign(
     if len(completed) != len(cases):
         raise AssertionError(f"Incomplete C2 grid: {len(completed)} != {len(cases)}")
     failed = sorted(record["case_id"] for record in records if not record.get("passed"))
-    qualified_probes = sum(
-        bool(record.get("termination_probe", {}).get("passed"))
-        and record.get("passed")
-        for record in records
-    )
+    qualified_probes = _count_runner_qualified_probes(records)
     natural_declared = [
         record for record in records if record.get("termination") == "natural_eos"
     ]

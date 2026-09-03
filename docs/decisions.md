@@ -5,6 +5,24 @@
 
 ---
 
+## D-021（2026-09-03）保持 C2 v2 rejected；新增 exact-only v3 crop-integrity addendum
+
+**v2 审计结论**：Qwen2-7B run `c2eq_5c56b014_20260903T040829Z`（code `5c56b01`、结果 `8d9b863`）按冻结协议正确判定 **rejected**：24/24 termination probe、45/45 token/state/账本/EOT/scenario、43/45 top-1（两次均为近并列）、45/45 continuation margin 规则及绝对安全上限全过，但单控制 2× 相对门槛仅 42/45。不得把 2.0 事后放宽到 2.7，也不得把 v2 改判通过。
+
+设计侧对 24 records 与 45×3 个 FP32 logits 数组独立复算，并做两项分离审查：v2 control 以 canonical **语义边界**分块并强制最后 token 单独 forward，而 production path 的初始 512/2048/8192 context 是一次 forward、assistant/role/user 各按真实 API chunk 追加，45 个 checkpoint 也未走 control 所声称镜像的单-token refresh；两者拓扑不匹配。三项失败亦无 crop 特异信号：c2_06 的 max_abs 由 canonical rank 146,048、概率约 7.7×10⁻¹² 的尾部 token 单点决定，且 path→canonical 总变差 0.0078 反而小于 control 的 0.0365；c2_10/c2_21 的 mean_abs 主要是 softmax 不变的全词表常数偏移，中心化后 path/control 比仅 1.24/1.04。故三项失败只说明“超过该预注册但不可识别的单控制门槛”，既不证明 crop bug，也不支持 clean-prefill 数值等价。`src/` 不改。
+
+**决策**：在不改 C2 v1/v2 协议与既有结果的前提下，新增 `experiments/sci34_supplement/c2_crop_integrity/` 作为 protocol v3 exact-only addendum。v3 精确复制 v2 24-case JSON（SHA-256 `acda9afb…0696`），覆盖每 case 首次 crop 与 3 个指定 case 的第二次 crop，共 27 events；不重跑 v2 termination probe。正式 Qwen2-7B/BF16 路径以 `generate_accumulating` + 受控非 EOT token selection 逐 token生成冻结 assistant fixture，硬验每 token 一次 `_prefill_ids_p2` forward。每次 crop 前对全层 retained K/V 前缀生成 shape/dtype/device/SHA-256 manifest 并独立 clone oracle；production arm 唯一调用 `crop_to_token`，要求 crop 前缀、production crop 后、oracle 三者逐张量 `torch.equal`/hash exact。之后 production role API 与 oracle 以相同 token-ID chunk、position/mask 直接 forward，逐步要求 K/V、logits、mask、token ledger、retained-prefix hash 与 role/end/content 状态全部 bitwise/exact。
+
+**防伪与独立性**：manifest 冻结每 case token plan；validator 从 case、逐 fragment token partition、role/content boundary 和 second-crop fraction 独立推导 keep，不信任 stored keep；逐层验证 K/V `shape[-2] == keep`，独立重算 JSON/token/layer aggregate hashes、24/27 网格、第一/第二 assistant 的逐-token event ledger、unique EOT 与 operation-derived role state。wrong-length disposable negative control 与 smoke 的 wrong-keep/layer-hash/duplicate-EOT/missing-event 篡改必须被检出。v3 无经验容差、无 clean re-prefill logit gate；v2 clean-prefill 数据仅保留为 rejected 描述性证据。另修复 v2 summary 的 `runner_qualified` 误与 case `passed` 联合计数问题，v2 raw/verdict 不改。
+
+**本地验证**：compile 与 fake full workflow PASS（24 cases/27 events，四类 tamper + missing-snapshot seal 拒绝）；0.5B CUDA 真模型代表 pilot 覆盖 c2_01 与 c2_08，共 3 个真实 crop（含 next-turn/second crop），所有 pre-prefix=production-post=oracle、post-crop mask/token/length、matched recovery K/V/logits/state 均 bitwise/exact。
+
+**证据边界**：若 7B formal 通过，只能主张冻结 snapshot/dtype/backend 下的 crop/truncation integrity 与 matched recovery determinism；不得主张 clean re-prefill 数值等价、跨模型普适、在线 ASR/TTS/player 或生产端到端正确性。
+
+**状态**：accepted（v2 rejected 归档；v3 代码与协议已实现；Qwen2-7B formal v3 evidence pending）
+
+---
+
 ## D-020（2026-09-03）修复 v2 探针分支缺陷（pilot 暴露），协议内容不变
 
 **决策**：`TransformersBackend._termination_probe` 的 termination 检查结构中，`eos_at_cap` 之后的 `else:` 误捕 `natural_eos`，对 genuine EOS case 强加 max-token 断言。7B pilot `c2pilot_a501df43_20260903T033106Z`（结果 commit `899462c`）在 c2_01 上确定性暴露：`genuine_eos=true`、`eos_step=21≤256`、`ASSISTANT_EOT_PENDING`，却记 3 条 max-token 错误并被 runner fail-closed 拦截，formal 按规程未启动。修复为 `elif case.termination == "max_tokens":`。**协议 v2 全部冻结内容不变**（cases、24-case 网格、相对门槛、对照臂、margin 规则、cap 256、≥5/10 genuine 均不动）；这是 v2 实现的分支缺陷，不是协议变更，不构成"事后改协议"。
