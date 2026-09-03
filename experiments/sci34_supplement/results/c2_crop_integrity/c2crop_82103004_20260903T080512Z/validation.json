@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "experiment": "c2_crop_integrity",
+  "protocol_version": 3,
+  "campaign_dir": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/c2_crop_integrity/c2crop_82103004_20260903T080512Z",
+  "formal": true,
+  "ok": true,
+  "acceptance_eligible": true,
+  "errors": [],
+  "failed_indexes": [],
+  "grid": {
+    "cases": 24,
+    "expected_cases": 24,
+    "crop_events": 27,
+    "expected_crop_events": 27,
+    "case_order_exact": true,
+    "event_order_exact": true
+  },
+  "exact_gates": {
+    "keep_length_exact": true,
+    "pre_prefix_equals_oracle": true,
+    "post_equals_pre_prefix": true,
+    "post_equals_oracle": true,
+    "shapes_exact": true,
+    "dtypes_exact": true,
+    "devices_exact": true,
+    "mask_exact": true,
+    "token_ids_exact": true,
+    "logits_exact": true,
+    "retained_prefix_hash_exact": true,
+    "negative_control_detected": true
+  },
+  "provenance": {
+    "manifest_sha256": "d8c3db4d609234a072064162a5caa443e25171b2311d84afa48b7b6a4f1d4bc2",
+    "cases_sha256": "acda9afb83ff393d222fc06eb433c1a307dba1eb213fcbbbedfdb860f7500696",
+    "records_sha256": "f775ba238f17439b2b1831f31cbb97eb8ade87ddc7e2517c8eba427ee8b21725",
+    "prior_v2_run_id": "c2eq_5c56b014_20260903T040829Z",
+    "termination_probe_rerun": false
+  },
+  "validated_at_utc": "2026-09-03T08:08:42.014649+00:00"
+}

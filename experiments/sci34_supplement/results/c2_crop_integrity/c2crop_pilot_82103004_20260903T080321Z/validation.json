@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "experiment": "c2_crop_integrity",
+  "protocol_version": 3,
+  "campaign_dir": "/tmp/c2crop_pilot_82103004_20260903T080321Z",
+  "formal": false,
+  "ok": true,
+  "acceptance_eligible": true,
+  "errors": [],
+  "failed_indexes": [],
+  "grid": {
+    "cases": 8,
+    "expected_cases": 8,
+    "crop_events": 9,
+    "expected_crop_events": 9,
+    "case_order_exact": true,
+    "event_order_exact": true
+  },
+  "exact_gates": {
+    "keep_length_exact": true,
+    "pre_prefix_equals_oracle": true,
+    "post_equals_pre_prefix": true,
+    "post_equals_oracle": true,
+    "shapes_exact": true,
+    "dtypes_exact": true,
+    "devices_exact": true,
+    "mask_exact": true,
+    "token_ids_exact": true,
+    "logits_exact": true,
+    "retained_prefix_hash_exact": true,
+    "negative_control_detected": true
+  },
+  "provenance": {
+    "manifest_sha256": "ba1b39f0f1938eba50d9b6961c26498a31340dab2cb2b22b0b8e046356efd844",
+    "cases_sha256": "acda9afb83ff393d222fc06eb433c1a307dba1eb213fcbbbedfdb860f7500696",
+    "records_sha256": "743a26239684cfd7991bba6d7ec988f18fbace5dceda27db6ee0f4e59bccfe68",
+    "prior_v2_run_id": "c2eq_5c56b014_20260903T040829Z",
+    "termination_probe_rerun": false
+  },
+  "validated_at_utc": "2026-09-03T08:04:35.431835+00:00"
+}

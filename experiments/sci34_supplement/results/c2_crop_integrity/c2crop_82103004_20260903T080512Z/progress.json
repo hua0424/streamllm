@@ -1,0 +1,11 @@
+{
+  "updated_at_utc": "2026-09-03T08:08:04.344224+00:00",
+  "status": "complete",
+  "completed_cases": 24,
+  "expected_cases": 24,
+  "completed_crop_events": 27,
+  "expected_crop_events": 27,
+  "failed_cases": [],
+  "last_case": "c2_24_second_long_max",
+  "process_start_id": "pid-100045-1788422771312236945-66bb43a6dbaf4c68b9250299808af85c"
+}

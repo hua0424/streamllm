@@ -241,3 +241,36 @@ genuine 覆盖）后按 v2 `GPU_HANDOFF.md` 重跑全程，run `c2eq_5c56b014_20
   `CROPPED`（期望态放宽，属协议修订需 bump 版本）。红线 3 禁止现场改任一侧配合结果。
 - 工件：pilot 目录全留（`results/c2_crop_integrity/c2crop_pilot_b2c6f22b_20260903T064135Z/`，
   自 /tmp 移入归档）；工作树零改动；本轮不产生 formal/tarball/ACCEPTANCE。
+
+## C2 v3 crop-integrity formal（2026-09-03，commit `8210300`，**accepted + sealed**）
+
+设计侧采用生产侧修法（`prefill_user_text` 重置 `generation_end_reason=NONE`，含
+orchestrator 断言与 kvcrop 新语义检查）后按 v3 `GPU_HANDOFF.md` 重跑，run
+`c2crop_82103004_20260903T080512Z`（identity `fa6f956d…`，manifest sha
+`d8c3db4d…`）。**结果：全部通过——24/24 cases、27/27 crop events 全 exact，
+validation `ok=true` 零错误，ACCEPTANCE `Status: accepted`，seal 已创建并验证。**
+
+- 流程：§0–§2 重建全绿（新 commit 预检 PASS、guard 381 文件含 v1/v2 归档与
+  上轮失败 pilot 只读、五项 smoke 含新语义 kvcrop、模型预检）→ 新 pilot
+  `c2crop_pilot_82103004_20260903T080321Z` 8 records/9 events 全过
+  （`validate --non-formal --expected-cases 8` ok=true；c2_06 修复确认
+  end_reason NONE/NONE）→ 冻结 formal manifest → 单进程 formal 约 3 分钟一次
+  通过（pid-100045-…，无中断）→ guard 干净 → validator `{"errors": [], "ok": true}`
+  → analysis_v1（accepted、descriptive-only、保留 v2 rejected 为描述性证据）→
+  ACCEPTANCE 填写 `Status: accepted` → seal `--create`/`--verify` 通过
+  （30 文件，seal sha `e0997d41793f510fc1120a7c3f08c420097813cc627f08d47716e76b4489f4a9`）→
+  tarball（sha `54cbe2edf961e4536add813c477f3fe3c9808256febc979eab6ef046285304a9`）。
+- 独立重算确认：24 records/27 events 全 `passed=true`；全部 exact 旗标
+  （keep_length/retained_prefix_hash/pre_prefix=post=oracle 三方/post_crop 长度·mask·
+  token/logits/mask/shapes/dtypes/devices）True；27/27 negative control 检出；
+  3 个 no-op crop 同获全套 exact 证明；全部 recovery_check 的
+  kv/logits/masks/production_state exact；production API 为真实
+  `StreamLLMInference.reopen_user_role/prefill_user_text/open_assistant_role`，
+  oracle 为 direct forward、token chunk 逐块一致。
+- 执行插曲（无实质影响）：seal 后我给 seal 日志加 tee 导致 `logs/seal.log`
+  偏离封存空文件哈希、`--verify` 一度失配；按封存期望恢复空文件后原样重跑
+  `--verify` 通过（handoff §7 本不给 seal 加 tee，系操作偏差已纠正）。
+- 旧结果保护：381 文件跑前跑后 SHA-256 一致；v1/v2 rejected 归档与
+  `e3_exact_rescue/` 零改动；论文零改动。v2 保持 rejected，v3 结果未改写 v2 结论
+  （claim boundary 已在 ACCEPTANCE 限定：仅证 crop/truncation 完整性与
+  matched recovery 确定性，不证 clean re-prefill 数值等价）。

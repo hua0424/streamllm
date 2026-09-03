@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "experiment": "c2_crop_integrity",
+  "protocol_version": 3,
+  "created_at_utc": "2026-09-03T08:08:42.496548+00:00",
+  "design": {
+    "sessions": 1,
+    "statistical_repeats": 0,
+    "descriptive_only": true,
+    "cases": 24,
+    "crop_events": 27,
+    "termination_probe_rerun": false,
+    "prior_v2_run_id": "c2eq_5c56b014_20260903T040829Z"
+  },
+  "acceptance": {
+    "passed": true,
+    "failed_cases": 0,
+    "failed_crop_events": 0,
+    "all_exact_gates": true
+  },
+  "overall": {
+    "cases": 24,
+    "case_passes": 24,
+    "crop_events": 27,
+    "crop_event_passes": 27,
+    "no_op_crop_events": 3,
+    "recovery_steps": 60,
+    "second_crop_events": 3,
+    "fixture_tokens": 308,
+    "tokenwise_prefill_calls": 308
+  },
+  "by_context": {
+    "long_8192": 8,
+    "medium_2048": 8,
+    "short_512": 8
+  },
+  "by_scenario": {
+    "clean_fragment_boundary": 3,
+    "crop_pending_eot": 3,
+    "full_rollback_p0": 3,
+    "mid_fragment_snap_end": 3,
+    "next_user_next_assistant": 3,
+    "reply_tail_noop": 3,
+    "second_crop_later_turn": 3,
+    "speculation_full_invalidation": 3
+  },
+  "exact_gates": {
+    "keep_length_exact": true,
+    "pre_prefix_equals_oracle": true,
+    "post_equals_pre_prefix": true,
+    "post_equals_oracle": true,
+    "shapes_exact": true,
+    "dtypes_exact": true,
+    "devices_exact": true,
+    "mask_exact": true,
+    "token_ids_exact": true,
+    "logits_exact": true,
+    "retained_prefix_hash_exact": true,
+    "negative_control_detected": true
+  },
+  "negative_control": {
+    "correct_keep_length": 4,
+    "detected": true,
+    "disposable": true,
+    "kind": "wrong_keep_length_manifest",
+    "positive_control_metadata": {
+      "mechanism": "shape and aggregate manifest mismatch",
+      "wrong_crop_length_would_be_detected": true
+    },
+    "wrong_keep_length": 3
+  },
+  "validation": {
+    "schema_version": 1,
+    "experiment": "c2_crop_integrity",
+    "protocol_version": 3,
+    "campaign_dir": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/c2_crop_integrity/c2crop_82103004_20260903T080512Z",
+    "formal": true,
+    "ok": true,
+    "acceptance_eligible": true,
+    "errors": [],
+    "failed_indexes": [],
+    "grid": {
+      "cases": 24,
+      "expected_cases": 24,
+      "crop_events": 27,
+      "expected_crop_events": 27,
+      "case_order_exact": true,
+      "event_order_exact": true
+    },
+    "exact_gates": {
+      "keep_length_exact": true,
+      "pre_prefix_equals_oracle": true,
+      "post_equals_pre_prefix": true,
+      "post_equals_oracle": true,
+      "shapes_exact": true,
+      "dtypes_exact": true,
+      "devices_exact": true,
+      "mask_exact": true,
+      "token_ids_exact": true,
+      "logits_exact": true,
+      "retained_prefix_hash_exact": true,
+      "negative_control_detected": true
+    },
+    "provenance": {
+      "manifest_sha256": "d8c3db4d609234a072064162a5caa443e25171b2311d84afa48b7b6a4f1d4bc2",
+      "cases_sha256": "acda9afb83ff393d222fc06eb433c1a307dba1eb213fcbbbedfdb860f7500696",
+      "records_sha256": "f775ba238f17439b2b1831f31cbb97eb8ade87ddc7e2517c8eba427ee8b21725",
+      "prior_v2_run_id": "c2eq_5c56b014_20260903T040829Z",
+      "termination_probe_rerun": false
+    },
+    "validated_at_utc": "2026-09-03T08:08:42.423180+00:00"
+  },
+  "provenance": {
+    "records": {
+      "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/c2_crop_integrity/c2crop_82103004_20260903T080512Z/records.jsonl",
+      "sha256": "f775ba238f17439b2b1831f31cbb97eb8ade87ddc7e2517c8eba427ee8b21725"
+    },
+    "validator": {
+      "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/c2_crop_integrity/validate.py",
+      "sha256": "8025413ba3235e222d8e148a7a79603c867248d50edc6e6660dc09a4b653e5ab"
+    },
+    "analyzer": {
+      "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/c2_crop_integrity/analyze.py",
+      "sha256": "48e6aaa80425cd7cc98e2cf21354a273d82152ab393b080040245be532ff6838"
+    }
+  },
+  "claim_boundary": "This addendum directly proves crop/truncation integrity and matched recovery determinism for the frozen Qwen2-7B snapshot, dtype, model implementation, and backend: retained K/V prefixes and every matched recovery step are bitwise equal. It does not establish numerical equivalence to a clean re-prefill, cross-model correctness, or online ASR/TTS/player correctness.",
+  "rejected_descriptive_evidence": "Any v2 clean-prefill numerical comparison remains descriptive prior evidence and is not a v3 gate."
+}
