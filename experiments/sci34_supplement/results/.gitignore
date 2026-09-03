@@ -9,3 +9,8 @@ e1e2_confirmatory/*/
 e1e2_confirmatory/*.tar.gz
 e1e2_confirmatory/*.tar.gz.sha256
 run_logs/*e1e2_confirmatory*
+# C2 correctness campaign：pilot/formal、失败工件与回传包在验收前保持忽略。
+c2_equivalence/*/
+c2_equivalence/*.tar.gz
+c2_equivalence/*.tar.gz.sha256
+run_logs/*c2_equivalence*

@@ -80,7 +80,7 @@ class _Candidate:
     started_ns: int
     first_token_ns: int | None
     tokens: list[tuple[str, int]]
-    eos: bool
+    end_reason: Any
 
 
 class TransformersBackend:
@@ -145,14 +145,13 @@ class TransformersBackend:
     ) -> tuple[list[tuple[str, int]], int | None, int, bool]:
         tokens = list(initial_tokens or [])
         first_delivery_ns: int | None = None
-        eos_id = self._llm.tokenizer.eos_token_id
         before = len(cache.assistant_token_ids)
         for token in token_iter:
             if mark_delivery and first_delivery_ns is None:
                 first_delivery_ns = time.perf_counter_ns()
             tokens.append(token)
         generated_now = len(cache.assistant_token_ids) - before
-        eos = bool(cache.assistant_token_ids and cache.assistant_token_ids[-1] == eos_id)
+        eos = cache.generation_end_reason == self._llm.GenerationEndReason.EOS
         return tokens, first_delivery_ns, generated_now, eos
 
     def warmup(self, path_kind: str) -> None:
@@ -295,15 +294,16 @@ class TransformersBackend:
                 n_invalidated += 1
                 wasted_tokens += len(active.tokens)
                 self._llm.crop_to_token(acc, active.base_seq_len)
-                acc.assistant_start = acc.seq_length
-                acc.assistant_token_ids = []
+                if acc.role_phase != self._llm.RolePhase.USER_OPEN:
+                    raise AssertionError("invalidated candidate did not restore USER_OPEN")
                 active = None
             if acc is None:
                 pre = self._llm.cache_prompt(
                     str(segment), is_end=False, system_prompt=self.system_prompt
                 )
                 acc = self._llm.to_accum_cache(pre)
-                acc.assistant_start = acc.seq_length
+                if acc.role_phase != self._llm.RolePhase.USER_OPEN:
+                    raise AssertionError("streaming prefill must remain USER_OPEN")
             else:
                 self._llm.prefill_user_text(acc, str(segment))
             accumulated += str(segment)
@@ -317,8 +317,8 @@ class TransformersBackend:
             )
             if fired:
                 started_ns = time.perf_counter_ns()
-                base = acc.seq_length
                 self._llm.open_assistant_role(acc)
+                base = acc.assistant_role_start
                 first_decoded: list[int] = []
                 candidate_tokens: list[tuple[str, int]] = []
                 for token in self._greedy_tokens(
@@ -331,28 +331,36 @@ class TransformersBackend:
                 first_ns = first_decoded[0] if first_decoded else None
                 n_speculations += 1
                 speculative_tokens += len(candidate_tokens)
-                eos = bool(
-                    acc.assistant_token_ids
-                    and acc.assistant_token_ids[-1] == self._llm.tokenizer.eos_token_id
+                end_reason = acc.generation_end_reason
+                active = _Candidate(
+                    base, started_ns, first_ns, candidate_tokens, end_reason
                 )
-                active = _Candidate(base, started_ns, first_ns, candidate_tokens, eos)
 
         _synchronize(self.device)
         endpoint_ns = time.perf_counter_ns()
         if last_arrival_ns is None:
             raise AssertionError("System B did not record the final segment arrival")
-        survived = active is not None and bool(active.tokens)
+        eos_only_candidate = (
+            active is not None
+            and active.end_reason == self._llm.GenerationEndReason.EOS
+            and not active.tokens
+        )
+        survived = active is not None and (bool(active.tokens) or eos_only_candidate)
         if survived:
             ready = len(active.tokens)
             first_deliverable_ns = endpoint_ns
             consumer_delivery_ns = time.perf_counter_ns()
-            remaining = 0 if active.eos else self.max_new_tokens - ready
+            remaining = (
+                0 if active.end_reason == self._llm.GenerationEndReason.EOS
+                else max(0, self.max_new_tokens - ready)
+            )
             _, _, _, eos = self._consume(
                 acc,
                 self._greedy_tokens(acc, remaining) if remaining > 0 else iter(()),
                 initial_tokens=active.tokens,
                 mark_delivery=False,
             )
+            eos = eos or eos_only_candidate
             candidate_started_ns = active.started_ns
             candidate_first_ns = active.first_token_ns
             candidate_lead_ns = endpoint_ns - active.first_token_ns if active.first_token_ns else None

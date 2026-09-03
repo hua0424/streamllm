@@ -2,7 +2,7 @@
 
 ## 文档状态
 
-> 本文件是 2026-05-21 的历史实验预案，不再代表正式结果或最终统计口径。GPU 原始结果见 `experiments/results/exp*.json`；排除开发 fixture 后的离线完整性审计见 `experiments/results/paper2_reanalysis.json`；最终结论与限制以 `paper2/chapter6_experiments.md` 和决策 D-013 为准。下文中“单调前沿、完全隐藏、完整 barge-in 亚毫秒”等均是当时的预期或旧口径，不得作为已验证结论引用。
+> 本文件是 2026-05-21 的历史实验预案，不再代表正式结果或最终统计口径。GPU 原始结果见 `experiments/results/exp*.json`；排除开发 fixture 后的离线完整性审计见 `experiments/results/paper2_reanalysis.json`；最终结论与限制以 `paper2/chapter6_experiments.md` 和决策 D-013～D-018 为准。二审后的 C2 EOS/EOT 与 crop/re-prefill 正确性协议见 `experiments/sci34_supplement/c2_equivalence/EXPERIMENT_PLAN.md`，GPU 唯一入口见同目录 `GPU_HANDOFF.md`。下文中“单调前沿、完全隐藏、完整 barge-in 亚毫秒”等均是当时的预期或旧口径，不得作为已验证结论引用。
 
 - Origin Mode: plan
 - Origin Date: 2026-05-21

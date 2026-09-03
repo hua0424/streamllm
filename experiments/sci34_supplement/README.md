@@ -41,11 +41,12 @@ Resume 时会比较 config hash 与输入 SHA-256。不一致时拒绝续跑，�
 
 已接受的 P1 v2 结果位于 `results/async_bargein/sci34_dc52978_20260901_async_prepared_v2/`。GPU 实验员按约定用 `git add -f` 将默认忽略的正式结果、日志和环境快照纳入 commit `ee1dcc7`；该操作只增加版本化审计副本，不改变实验数据或协议。
 
-C-E1/E2 的 `holdout_builder`、`trigger_cache`、`campaign`、`run_session`、`analyze`、`validate` 与 `smoke` 已实现并与 `--help` 对齐；raw arrival-to-ready 主指标已落盘，formal runner 强制共享不可变 campaign manifest。GPU formal campaign 待运行。正式输出使用 `results/e1e2_confirmatory/<campaign_id>/`；目录、日志和 tarball 默认被专用规则忽略，以保证五个独立进程和审计期间 clean-tree 稳定。只有 campaign manifest、raw 主墙钟恒等式、analysis、validation 与 acceptance 全部通过后，才按 handoff 精确 `git add -f` 接受工件。
+C-E1/E2 formal `e1e2c_b8c758b_20260901T173306Z` 已完成并由 D-017 接受；正式输出位于 `results/e1e2_confirmatory/<campaign_id>/`，旧 GPU handoff 只作复现记录。二审后的当前 GPU 待办是独立 C2 correctness campaign：修复 EOS/EOT 角色状态，并比较 crop/recovery 与 canonical token-ID clean re-prefill；其输出使用 `results/c2_equivalence/<run_id>/`，不覆盖任何既有工件。
 
 ## 快速入口
 
-- E1/E2 确认性 campaign：[e1e2_confirmatory/README.md](e1e2_confirmatory/README.md)（GPU 唯一入口为其 `GPU_HANDOFF.md`）
+- 当前 C2 正确性 campaign：[c2_equivalence/README.md](c2_equivalence/README.md)（GPU 唯一入口为其 `GPU_HANDOFF.md`）
+- 已接受 E1/E2 确认性 campaign：[e1e2_confirmatory/README.md](e1e2_confirmatory/README.md)（历史复现入口）
 - 既有 S-E3/S-A1/S-P1 GPU 交接：[HANDOFF_FOR_GPU.md](HANDOFF_FOR_GPU.md)
 - 既有补实验完整协议：[EXPERIMENT_PLAN.md](EXPERIMENT_PLAN.md)
 - 允许的论文主张：[CLAIMS_MATRIX.md](CLAIMS_MATRIX.md)

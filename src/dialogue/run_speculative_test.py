@@ -69,6 +69,8 @@ def main():
     _check("说完瞬间已有就绪 token", m.ready_tokens_at_user_end > 0)
     _check("spec_waste_rate ∈ (0,1)", 0 < m.spec_waste_rate < 1)
     _check("KV 三长度一致", orch.assert_kv_consistent())
+    _check("完成后已唯一关闭 assistant 并回到 USER_OPEN",
+           orch.acc.role_phase == llm.RolePhase.USER_OPEN)
     s1_orch = orch
 
     # ---- S2 保守：只在末段触发 → 存活、零浪费 ----
@@ -81,6 +83,7 @@ def main():
     _check("零浪费", m.spec_wasted_tokens == 0)
     _check("存活", m.spec_survived)
     _check("KV 一致", orch.assert_kv_consistent())
+    _check("候选提交后回到 USER_OPEN", orch.acc.role_phase == llm.RolePhase.USER_OPEN)
 
     # ---- S3 从不触发：现场生成 ----
     logger.info("S3 从不触发（0.1, 0.1）")
@@ -101,7 +104,20 @@ def main():
     _check("第二轮生成了回复", r2.metrics.n_generated > 0)
     _check("第二轮打断生效", r2.interrupted)
     _check("KV 仍一致", s1_orch.assert_kv_consistent())
+    _check("多轮结束回到 USER_OPEN",
+           s1_orch.acc.role_phase == llm.RolePhase.USER_OPEN)
     logger.info(f"  第二轮听到: {r2.heard_text[:60]!r}")
+
+    # ---- S5 mark：必须经 assistant 内容 API，不能污染 user ledger ----
+    logger.info("S5 mark 历史策略 role 状态")
+    mark_orch = DialogueOrchestrator(
+        llm, MockStreamingTTS(TimingProfile()),
+        max_speculative_tokens=24, history_policy="mark",
+    )
+    marked = mark_orch.user_turn("Give a detailed two-part answer.", barge_in_fraction=0.35)
+    _check("mark 路径生成成功", marked.metrics.n_generated > 0)
+    _check("mark 路径回到 USER_OPEN", mark_orch.acc.role_phase == llm.RolePhase.USER_OPEN)
+    _check("mark 路径 KV ledger 一致", mark_orch.assert_kv_consistent())
 
     logger.info("=" * 62)
     logger.info("ALL PASS ✓  —— 推测-作废状态机 + 打断截断 组合正确")

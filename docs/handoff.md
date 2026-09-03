@@ -1,204 +1,185 @@
-# 二期实验执行交接文档（HANDOFF）
+# 二期 C2 正确性补强交接文档
 
-> 面向接手的下一个 agent / 实验机会话。目标：**在实验机（3090 24G ×2）上跑出论文的正式实验数值**。
-> 本文档只讲"怎么跑、跑什么、要什么结果"；设计与指标定义见 `paper2/experiment_design.md`（含 §9' harness 状态表），决策史见 `docs/decisions.md`（D-001~D-012），项目全景见 `docs/paper2_context.md`。
-> （2026-05-21 的旧版 handoff 是设计期交接，已被本版取代，内容存于 git 历史。）
+> 面向实验机执行者和后续论文修订会话。当前唯一待执行的正式 GPU 工作是 **C2 crop/recovery 与 canonical clean re-prefill 的 Qwen2-7B 正确性验收**。既有 E1/E2、E3、A1、P1 已完成，不得重跑或覆盖。
 
-**生成时间**：2026-07-02
-**分支**：`paper2`（HEAD `9567785`，已推送）
-**代码状态**：全部 6 个实验 harness 在验证机（5070 Ti，0.5B）跑通；经**两轮代码审查**（发现 3 BUG + 5 minor，全部修复，见 D-012），回归全绿。**已知零未修 BUG**。
+**更新时间**：2026-09-02
+
+**分支**：`paper2`
+
+**状态**：EOS/EOT 与角色状态机代码已修复；C2 独立 campaign 已实现；本地 CPU/fake smoke 与 0.5B 模型回归已通过；Qwen2-7B formal 证据待实验机执行。
+
+**GPU 唯一入口**：`experiments/sci34_supplement/c2_equivalence/GPU_HANDOFF.md`
 
 ---
 
-## 一、实验机环境准备（一次性）
+## 一、本轮为什么需要 GPU
 
-```bash
-git clone <repo> && cd streamllm && git checkout paper2   # 或已有仓库 git pull
-uv venv --python 3.10 && uv sync        # torch 2.8.0+cu128（兼容 3090 sm_86，D-009）
-cp .env.example .env                     # 然后按下表改
-export LD_LIBRARY_PATH=".venv/lib/python3.10/site-packages/nvidia/cudnn/lib:$LD_LIBRARY_PATH"
+第二次 SCI Q3/Q4 审稿指出两个必须闭环的问题：
+
+1. 原实现把 Qwen 的 `<|im_end|>` 同时当作生成 EOS 和 assistant 关闭 token。生成器曾先把 EOT 写入 KV/assistant 账本，`reopen_user_role()` 随后又写一次关闭边界，正常 EOS 后可能形成重复 EOT。
+2. 既有测试只证明 KV、mask 和长度结构合法以及 crop 后仍能生成；A1 只测时延，P1 只测软件控制路径。它们没有证明 crop+role recovery 与相同 retained history 的 clean re-prefill 在规范 token 序列、logits 和后续生成上等价。
+
+代码现已采用显式 role phase 和 generation end reason：assistant EOT 不进入内容账本或 KV，而由 `reopen_user_role()` 唯一提交一次。正式 GPU campaign 用独立 token-ID clean oracle 验收这条状态路径。
+
+这不是新的时延实验，不产生 TTFT、mouth-to-ear 或生产 barge-in headline。
+
+---
+
+## 二、正式协议
+
+正式协议冻结为：
+
+- 模型：显式本地 Qwen2-7B-Instruct snapshot；
+- 运行：Transformers、BF16、单卡、batch size 1；
+- 网格：24 个确定性 case，1 个逻辑 session，无统计重复、无 bootstrap；
+- 上下文：512、2048、8192 canonical tokens；
+- 覆盖：p=0 全回滚、clean fragment boundary、mid-fragment 吸附、reply-tail/no-op、pending EOT crop、推测全作废、下一 user/assistant、后续轮第二次 crop；
+- 结束分支：真实 natural EOS、受控 EOS-at-cap、真实 max-token；每个 formal case 自身必须通过 termination probe，不能只依赖标签或 pilot；
+- 比较：实际 crop/recovery 路径与相同 retained token IDs 的 canonical clean re-prefill；
+- 输出：完整 token hashes/边界、role/end state、next-token top-1/top-5、FP32 logit 差、32-token greedy continuation、失败 sidecar；
+- 失败处理：任何 case/checkpoint 失败均保留 raw/attempt/NPZ，并判定 formal 未通过；不得删 case 或事后放宽同一协议。
+
+详细定义见：
+
+- `experiments/sci34_supplement/c2_equivalence/EXPERIMENT_PLAN.md`
+- `experiments/sci34_supplement/c2_equivalence/ACCEPTANCE_TEMPLATE.md`
+
+---
+
+## 三、实验机执行顺序
+
+不要从本文复制零散命令。按以下唯一入口逐节执行：
+
+```text
+experiments/sci34_supplement/c2_equivalence/GPU_HANDOFF.md
 ```
 
-`.env` 实验机配置（P2_* 变量是二期模型开关，改这里即可全局换模型，**不用改代码**）：
+它包含：
 
-```bash
-HF_HOME="<实验机模型缓存目录>"
-HF_TOKEN=""                                    # 留空匿名下载（历史 token 已失效，勿用）
-P2_LLM_MODEL_NAME="Qwen/Qwen2-7B-Instruct"     # 主 LLM 换 7B（与一期实验对齐）
-P2_TRIGGER_MODEL_NAME="TEN-framework/TEN_Turn_Detection"   # 软触发换 TEN 7B（见 §四.2）
-P2_REWRITER_MODEL_NAME="Qwen/Qwen3-0.6B"
-P2_DEVICE="cuda:1"                             # trigger/rewriter 放卡1；主 LLM 由 --asr/--llm 逻辑走卡0
+1. checkout 包含本轮代码的 exact clean commit；
+2. 旧结果跑前 SHA-256 guard；
+3. 严格离线环境、空 HF token、显式本地模型目录；
+4. CLI `--help`、CPU smoke、核心状态机回归；
+5. tokenizer/chat template/EOS/EOT identity 检查；
+6. 独立 integration pilot；
+7. 创建不可变 formal manifest；
+8. 单 session formal run 与 case 原子 resume；
+9. 跑后环境 snapshot 和旧结果 hash guard；
+10. `validate → analyze → acceptance → seal → tar`；
+11. 完整目录、tarball/hash 和 E3 数据抢救件回传。
+
+Formal 启动前工作树必须 clean。当前会话不负责 commit/push；执行者应使用后续明确提供的代码 commit，不得用 `--allow-dirty` 生成论文证据。
+
+---
+
+## 四、同时从原实验机抢救 E3 输入
+
+正式 E3 使用的 exact 文件目前未入库：
+
+```text
+/root/autodl-tmp/dataA/streamllm/experiments/datasets/processed/p2_turns.json
 ```
 
-分卡布局（D-002/D-011）：卡0 = 主 LLM 7B(~14G)+KV；卡1 = TEN 7B(~15G)+CosyVoice2(~3G)+Qwen3-0.6B(~1.5G) ≈ 19.5G<24G。
+E3 manifest 记录的 SHA-256：
 
-**环境验证**（跑通即环境 OK，纯逻辑不费时）：
-```bash
-uv run python -m src.dialogue.run_timeline_test      # 纯 Python，秒级
-HF_TOKEN= uv run python -m src.llm.run_kvcrop_test   # 首跑会下载 P2_LLM 模型
-HF_TOKEN= uv run python -m src.dialogue.run_speculative_test
-```
-三个都 `ALL PASS ✓` 才继续。
-
----
-
-## 二、六个实验：命令、产出、预期结果
-
-### ⓪ 执行总顺序与占位参数对应（先看这个）
-
-**顺序：§一环境 → §四.1/§四.2（产出下面的待定参数）→ 本节实验 → §四.3/§四.4。** 占位符全部来自 §四 的产物：
-
-| 占位参数 | 来源（§四 步骤） | 实际值 |
-|---|---|---|
-| E3/A2 的 `--dialogues <MultiWOZ派生.json>` | §四.1 `--out-turns` | `experiments/datasets/processed/p2_turns.json` |
-| E2/E1 的 `--dialogues <segments格式.json>` | §四.1 `--out-segments` | `experiments/datasets/processed/p2_segments.json` |
-| E2 的 `--thresholds` | §四.2 标定输出 `suggested_thresholds` | 照抄输出的数列（空格分隔） |
-| E1 的 `--spec-threshold` | 同上 | 取建议数列的拐点附近一档（中间偏低） |
-| E2/E1 的软触发 | 加 **`--trigger-config ten`**（缺省 dev 是替身！） | — |
-| §四.3 CosyVoice profile | 只影响 E1 实测 m2e 与建模常数 | 可后置；出正式 E1 前完成回填 |
-| §四.4 LLM-judge | E3/A2 **跑完后**的后处理 | `--results` 指向对应结果 JSON |
-
-**实验机填好参数后的完整命令序列**（§四.1/.2 之后直接照抄）：
-```bash
-HF_TOKEN= uv run python -m experiments.scripts.run_exp_a1_kvreuse --lengths 256 512 1024 2048 4096 8192
-HF_TOKEN= uv run python -m experiments.scripts.run_exp3_consistency \
-    --dialogues experiments/datasets/processed/p2_turns.json
-HF_TOKEN= uv run python -m experiments.scripts.run_exp2_tradeoff \
-    --dialogues experiments/datasets/processed/p2_segments.json \
-    --trigger-config ten --thresholds <§四.2 输出的数列>
-HF_TOKEN= uv run python -m experiments.scripts.run_exp1_latency \
-    --dialogues experiments/datasets/processed/p2_segments.json \
-    --trigger-config ten --spec-threshold <拐点档>
-HF_TOKEN= uv run python -m experiments.scripts.run_exp_a2_history \
-    --dialogues experiments/datasets/processed/p2_turns.json
-# E3/A2 完成后 → §四.4 judge；CosyVoice 就绪后 → §四.3 回填 profile、重跑 E1（实测 m2e）
+```text
+a2116b83b38509e45d641ade17ae1791282729836bdca251aa8aba8aa9248a0c
 ```
 
-全部从**项目根目录**跑；结果 JSON 入 `experiments/results/`；E2/E3 支持断点续传（中断重跑同命令即续）。每个脚本都有 `--model`（默认取 P2_LLM_MODEL_NAME）。
+按 GPU handoff 的“E3 exact 数据抢救”步骤保存：
 
-| # | 命令 | 产出 | 预期结果形状（0.5B fixture 参考 → 7B 应更显著） |
-|---|---|---|---|
-| **E3**（核心） | `uv run python -m experiments.scripts.run_exp3_consistency --dialogues <MultiWOZ派生.json>` | `exp3_consistency.json`：summary 含 **loose/strict 双列**未听引用率 + 逐条 records（含 timeline 映射落盘） | loose：B-ours **恒 0%**（构造性保证，论文如此表述）vs B-gen 显著>0（fixture 67-75%）；strict：双列都>0，B-ours 的 strict 值=**片段粒度量化误差**（诚实补充列，见 §五.1 注意事项） |
-| **E2**（核心图） | `uv run python -m experiments.scripts.run_exp2_tradeoff --dialogues <segments格式.json>` | `exp2_tradeoff.json`：curve 数组（threshold→waste_rate/ttft_eff/存活率） | 单调 trade-off 曲线 + 明显拐点（fixture：th0.02→30%浪费/0.5ms ↔ th高→0%/43-75ms；**7B 的 TTFT 全额会到数百 ms，曲线张力更大**）。⚠️ 换 TEN 后阈值扫描区间必须重标（§四.2） |
-| **E1** | `uv run python -m experiments.scripts.run_exp1_latency --dialogues <segments格式.json>` | `exp1_latency.json`：A/B 的 TTFT + 建模 mouth-to-ear | B TTFT_eff ≈0 vs A 全额；m2e 建模值 B<<A。**real CosyVoice2 实测 m2e 见 §四.3** |
-| **A1** | `uv run python -m experiments.scripts.run_exp_a1_kvreuse --lengths 256 512 1024 2048 4096 8192` | `exp_a1_kvreuse.json`：crop/role/re-prefill 三条延迟 vs 上下文长度 | crop 亚 ms 近常数（barge-in 响应延迟卖点）；re-prefill 线性涨（**7B 下更陡，加速比更大**）。计时已用 median 抗噪；趋势异常只 WARN，见输出提示空载重跑 |
-| **A2** | `uv run python -m experiments.scripts.run_exp_a2_history --dialogues <turns格式.json>` | `exp_a2_history.json`：三策略历史样例 + rewrite_ms + **judge_coherence 字段（null，待 §四.4 填）** | 三策略跑通；rewrite mean 数百 ms（"可隐藏"论点）；连贯性结论靠 LLM-judge |
-| **A3** | 无独立脚本 | 复用 `exp2_tradeoff.json` 的 records | 逐阈值分解报告（与 E2 同数据） |
+- exact `p2_turns.json` 及 hash；
+- raw MultiWOZ 路径/hash；
+- `prepare_multiwoz_data.py`、命令和可用 provenance；
+- E3 manifest 与模型 snapshot identity。
 
-**建议执行顺序**：A1（最快，验证 7B 环境）→ E3 → E2（最耗时，扫阈值×全数据）→ E1 → A2。
+若原路径不存在，只能如实记录 `MISSING`；不得重新生成一个文件后冒充 exact 输入。
 
 ---
 
-## 三、实验数据准备（跑正式实验的前置）
+## 五、回传件与验收门槛
 
-本机验证全用内置 fixture；正式数值需要 **MultiWOZ 派生数据**（D-007 P4：英文为主）。三种输入格式（都是 JSON 列表）：
+必须回传完整 formal run，而不是 summary 子集：
 
-1. **E3/A2 用 turns 格式**：`[{"id": "...", "turns": ["user轮1(被打断轮)", "probe轮2", "probe轮3", ...]}]`——turn1 要能引出多部分回答，probe 轮诱导复述（≥3 轮，§4）
-2. **E2/E1 用 segments 格式**：`[{"id": "...", "segments": ["片段1", " 片段2", ...]}]`——段边界=停顿点，部分首段句法上近似完整（制造假停顿）；段自带前导空格
-3. 规模（experiment_design.md §4）：每条件 50-100 段对话；从 MultiWOZ 的 user 轮抽取+切分（切分脚本**尚未写**，是实验机上第一件开发工作；一期 `experiments/datasets/tools/` 有 MultiWOZ 处理工具可参考）
+```text
+results/c2_equivalence/<run_id>/
+├── campaign_manifest.json
+├── cases.json
+├── records.jsonl
+├── attempts.jsonl
+├── progress.json
+├── summary.json
+├── failures/*.npz            # 仅失败 checkpoint
+├── logs/
+├── snapshots/before|after/
+├── validation.json
+├── analysis_v1.json
+├── ACCEPTANCE.md
+└── checksums.sha256
+```
 
----
+另回传 tarball、tarball SHA-256 和 E3 rescue 目录。
 
-## 四、实验机准备步骤（脚本已全部备好并本机验证，2026-07-02——**照单执行即可**）
+硬门槛：
 
-1. **下载 + 派生 MultiWOZ 数据**（下载与派生均已在 2026-07-17 用真实 MultiWOZ 2.1 全量验证：
-   10,438 条对话 → 100 turns + 100 segments）：
-   ```bash
-   # 下载（官方 GitHub，zip 仅 20MB，解压出 358MB data.json）
-   mkdir -p experiments/datasets/raw_data/MultiWOZ
-   cd experiments/datasets/raw_data/MultiWOZ
-   wget https://github.com/budzianowski/multiwoz/raw/master/data/MultiWOZ_2.1.zip
-   unzip -oq MultiWOZ_2.1.zip -x "__MACOSX/*"     # → MultiWOZ_2.1/data.json
-   cd -    # 回项目根目录
+- token serialization、结构边界、KV/mask/ledger：100% exact；
+- 每个 assistant→user 边界恰好一个 EOT；
+- termination probe 与 case 标签/状态一致，EOT 不进入内容 ledger/KV；
+- next-token top-1：100% exact；
+- top-5 overlap：每 checkpoint 至少 4/5；
+- BF16 logits 转 FP32 后 `max_abs <= 0.1`、`mean_abs <= 0.01`；
+- 32-token continuation 及下一轮 continuation：100% exact；
+- validation、analysis、acceptance、seal 和旧结果 guard 全绿。
 
-   # 派生两种实验输入
-   uv run python -m experiments.scripts.prepare_multiwoz_data \
-       --input experiments/datasets/raw_data/MultiWOZ/MultiWOZ_2.1/data.json \
-       --out-turns experiments/datasets/processed/p2_turns.json \
-       --out-segments experiments/datasets/processed/p2_segments.json --max-dialogues 100
-   ```
-   GitHub 不通时：在可访问的机器下载 zip 后 scp 到同一路径。
-   （HF hub 上的 MultiWOZ 多为 parquet/转换格式，与本脚本的原始 JSON 解析不匹配，勿绕 HF。）
-2. **预下载模型 + TEN 阈值重标**：
-   ```bash
-   # ① 预下载（断点续传+自动重试；15GB 级大模型在不稳网络下必用——
-   #    直接跑 calibrate 遇 ChunkedEncodingError/IncompleteRead 就是断流，重跑即续传）
-   nohup env HF_TOKEN= uv run python -m experiments.scripts.predownload_models \
-       --models mistralai/Mistral-7B-Instruct-v0.3 > /tmp/predl.log 2>&1 &
-   tail -f /tmp/predl.log        # 三件套(7B/TEN 7B/Qwen3-0.6B)+裁判，共 ~45GB，耐心
-   # ② 下载完成后标定（TEN_CONFIG 自带模板，无需改 .env 的 P2_TRIGGER_MODEL_NAME）
-   HF_TOKEN= uv run python -m experiments.scripts.calibrate_trigger --config ten
-   # 产出 suggested_thresholds → 传给 run_exp2_tradeoff 的 --thresholds
-   # 脚本自带 AUC>=0.65 可分性体检，过不了会拒绝放行 E2
-   ```
-3. **real CosyVoice2**（适配器 `src/tts/cosyvoice_tts.py`，StreamingTTS 接口，守卫式导入）。
-   **实验机实测安装法（2026-07-17，官方 requirements 直装有三个雷）**：
-   ```bash
-   cd /dataA && git clone --recursive https://github.com/FunAudioLLM/CosyVoice.git cosyvoice
-   cd cosyvoice && uv venv --python 3.10 .venv
-   grep -ivE "^tensorrt" requirements.txt > /tmp/req_notrt.txt   # 雷1: tensorrt 构建内下载易卡死，且本项目用不到 TRT 加速
-   uv pip install "setuptools<80" wheel "numpy==1.26.4" cython    # 雷2: setuptools>=80 移除 pkg_resources（whisper sdist 构建需要）
-                                                                  # 雷3: 部分 sdist 构建期需 numpy/cython 预先在 venv
-   uv pip install -r /tmp/req_notrt.txt python-dotenv \
-       --index-strategy unsafe-best-match --no-build-isolation
-   # 模型走 ModelScope（快）：
-   uv run --project /dataA/streamllm modelscope download --model iic/CosyVoice2-0.5B \
-       --local_dir /dataA/cosyvoice/pretrained_models/CosyVoice2-0.5B
-   # 参考音频用仓库自带 asset/zero_shot_prompt.wav
-   ```
-   然后：
-   ```bash
-   uv run python -m experiments.scripts.benchmark_cosyvoice --ref-audio ref.wav
-   # 产出 cosyvoice_profile.json → 三个实测值回填 TimingProfile 与 SYNTH_RTF，重跑 E1/E2/E3
-   # E1 实测 mouth-to-ear：编排层 tts=CosyVoiceStreamingTTS(...)
-   ```
-4. **LLM-judge**（脚本已验证：替身裁判下 loose κ=0.71 / strict κ=0.23，印证规则 strict 是噪声上界、必须 judge 交叉）：
-   ```bash
-   HF_TOKEN= uv run python -m experiments.scripts.run_llm_judge e3 \
-       --results experiments/results/exp3_consistency.json --judge-model <与主LLM不同家族的强模型>
-   HF_TOKEN= uv run python -m experiments.scripts.run_llm_judge a2 \
-       --results experiments/results/exp_a2_history.json --judge-model <同上>
-   # 产出 *_judged.json（judge率 + Cohen κ / judge_coherence）；另抽 ~50 条人工验证裁判可靠性（P3）
-   # 裁判建议 mistralai/Mistral-7B-Instruct-v0.3（已核实非 gated；非 Qwen 家族、fp16~14.5GB 单卡可跑）
-   ```
+只有全部通过后，`ACCEPTANCE.md` 才能包含精确状态行 `Status: accepted`。
 
 ---
 
-## 五、写论文的人需要知道的三个结果解读要点
+## 六、允许与禁止的结论
 
-1. **E3 的 loose 0% 是构造性保证，不是实验发现**（D-012 BUG1 修正）——论文表述："B-ours 由机制保证历史不含未听片段（loose=0），实验量化的是 B-gen 的失败率与 B-ours 在严格 ground-truth 下的片段粒度量化误差（strict 列）"。strict 列在规则检测器下是**上界**（诱导复述型 probe 易误报），正式解读以 LLM-judge 交叉验证为准
-2. **barge-in 响应延迟 = 反查+crop（亚 ms、与上下文无关）**；role 重建（~十几 ms）不在关键路径（可延迟到下轮输入前）——A1 数据支撑"打断即停"卖点
-3. **B-syn（合成位置截断）在 Mock 同步合成下与 generation 等价**，只有接入异步 real CosyVoice2 后才可区分——论文不得称"已验证 B-syn"；若时间不够可砍（可砍项清单见 experiment_design.md §5 E4 与 D-005 贡献分层）
+通过后只允许说明：
 
----
+> 在冻结的 Qwen2-7B snapshot、tokenizer/chat template、BF16/backend 和 24-case 协议下，修复后的 crop/recovery 路径与 canonical token-ID clean re-prefill 满足预定义的结构、next-token 和 continuation 正确性门槛。
 
-## 六、坑与提醒
+不得据此声称：
 
-- **HF_TOKEN 必须为空/有效**：历史 token 已失效会让公开模型也 401（跑命令前缀 `HF_TOKEN=` 最稳）
-- **大模型下载选路（2026-07-17 实验机实测）**：局域网 HF 缓存代理（192.168.50.202:18090）对**热缓存 ~10MB/s、冷数据回源仅 ~1.4MB/s**（且曾有 ~1GB 截断缓存导致断流）；hf-mirror 直连 ~0.3MB/s；**ModelScope 多分片并行 ~20MB/s 最快**。冷门大模型（TEN/Mistral 等）走 ModelScope：`uv pip install modelscope && uv run modelscope download --model <id> --local_dir /dataA/models/<name>`，然后 .env 用本地路径（`P2_TEN_MODEL_PATH` / `P2_REWRITER_MODEL_NAME` / judge 的 `--judge-model` 均接受本地目录）。ModelScope id：TEN-framework/TEN_Turn_Detection、Qwen/Qwen3-0.6B、LLM-Research/Mistral-7B-Instruct-v0.3（均已核实存在）
-- **镜像下载（实验机常见）**：`.env` 设 `HF_ENDPOINT="https://hf-mirror.com"` 即可（2026-07-17 修复后 `src/config.py` 会把它同步进 huggingface_hub——此前因 import 顺序问题 .env 的该项从未生效、始终连 huggingface.co，网络不通时报误导性的 "not a valid model identifier / pass a token"，实为连不上）。若报此错先查 endpoint 是否生效：`uv run python -c "import transformers; from src import config; import huggingface_hub.constants as c; print(c.ENDPOINT)"`
-- 模型加载 offline-first：首跑联网下载后即可离线
-- `.env` 已 gitignore、每机自维护；勿提交真实 token
-- A1 若趋势 WARN：GPU 有其它负载，空载重跑（数据已落盘，不会丢）
-- E2/E3 断点续传按 (id, threshold/fraction, condition) 去重——**换数据集/模型后务必删旧结果 JSON 再跑**，否则旧记录混入聚合
-- 提交约定：短祈使句中文；决策倒序追加 `docs/decisions.md`；里程碑同步 `paper2_context.md` §九；改方法学同步 `paper2/experiment_design.md`
+- 所有模型、模板、dtype 或推理引擎普适等价；
+- 真实声卡或声学“用户实际听到”边界正确；
+- 真实 ASR/TTS/播放器并发链路正确；
+- 生产 barge-in、TTFT、mouth-to-ear 或用户体验改善。
 
 ---
 
-## 七、建议调用的 skills
+## 七、旧结果与论文冻结规则
 
-- **`code-review`（/code-review）**：写完 MultiWOZ 数据脚本 / CosyVoice2 接入类 / LLM-judge 后，跑一轮再进正式实验（本项目两轮审查抓出 3 个会污染实验数字的 BUG，值得保持）
-- **`verify`**：CosyVoice2 接入后验证真实音频链路行为
-- **`experiment-agent`（/experiment-agent）**：`validate` 模式可用于正式结果 JSON 的统计解读与 11 类统计谬误扫描（论文第六章写作前过一遍）；`run` 模式可托管长实验的监控
-- **`loop`（/loop）**：E2 全量扫描耗时较长，可配合后台监控
+以下既有 campaign 不重跑、不覆盖：
+
+- C-E1/E2：`e1e2c_b8c758b_20260901T173306Z`；
+- 固定轨迹 E3：`sci34_f11ccba_20260901_e3`；
+- 联合 A1：`sci34_f11ccba_20260901_a1`；
+- P1 v2：`sci34_dc52978_20260901_async_prepared_v2`；
+- `experiments/results/` 中全部旧 JSON 与 `paper2_reanalysis.json`。
+
+GPU 正式结果验收前，不修改：
+
+- `paper2/abstract.md`；
+- `paper2/chapter1_introduction.md` 至 `chapter8_conclusion.md`；
+- `paper2/thesis_draft.md`；
+- IEEE 衍生稿、图表和现有论文数字。
+
+结果回传后再统一处理二审的统计重分析、主张收窄和全文修订。
 
 ---
 
-## 八、关键路径速查
+## 八、关键文件
 
-- 实验设计+harness 状态表：`paper2/experiment_design.md`（§9' 是总控表）
-- 编排器（所有实验的核心）：`src/dialogue/orchestrator.py`
-- 软触发（TEN 接入点）：`src/dialogue/trigger.py`（`TEN_CONFIG` 现成）
-- TTS 接口（CosyVoice2 实现点）：`src/tts/streaming_tts.py`（`StreamingTTS` ABC + `TimingProfile` 占位值）
-- 检测器（LLM-judge 交叉验证对象）：`src/dialogue/unheard_detector.py`
-- 论文正文：`paper2/`（outline.md + chapter2 初稿；第三章待写，指标定义与实验设计已咬合）
+- 核心状态机：`src/llm/stream_llm_inference.py`
+- 编排适配：`src/dialogue/orchestrator.py`
+- timeline 合同：`src/dialogue/timeline.py`
+- 核心模型回归：`src/llm/run_kvcrop_test.py`
+- 推测回归：`src/dialogue/run_speculative_test.py`
+- timeline 负向回归：`src/dialogue/run_timeline_test.py`
+- C2 campaign：`experiments/sci34_supplement/c2_equivalence/`
+- 正式 GPU 入口：`experiments/sci34_supplement/c2_equivalence/GPU_HANDOFF.md`
+- 协议冻结决策：`docs/decisions.md` D-018
+- 二审意见：`paper2/review/sci_q3_q4_full_review_2026-09-02.md`

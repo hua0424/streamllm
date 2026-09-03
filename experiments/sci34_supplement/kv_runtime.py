@@ -71,12 +71,9 @@ class TransformersKVFixture:
             {"role": "system", "content": "You are a helpful assistant. Reply in English."},
             {"role": "user", "content": "Tell me about the city."},
         ]
-        base_text = llm.tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True
-        )
-        base_ids = llm.tokenizer(
-            base_text, return_tensors="pt", add_special_tokens=False
-        ).input_ids[0].tolist()
+        base_ids = llm._token_list(llm.tokenizer.apply_chat_template(
+            messages, tokenize=True, add_generation_prompt=True
+        ))
         filler_ids = llm.tokenizer(
             FILLER, return_tensors="pt", add_special_tokens=False
         ).input_ids[0].tolist()
@@ -104,14 +101,15 @@ class TransformersKVFixture:
             attention_mask=mask,
             next_token_logits=outputs.logits[:, -1, :],
             seq_length=self.actual_length,
-            assistant_start=self.assistant_start,
+            token_ids=self._full_ids,
+            role_phase=llm.RolePhase.ASSISTANT_OPEN,
+            assistant_role_start=self.assistant_start - len(llm._user_to_assistant_ids),
+            assistant_content_start=self.assistant_start,
             assistant_token_ids=self._full_ids[self.assistant_start :],
+            generation_end_reason=llm.GenerationEndReason.MAX_TOKENS,
         )
-        self._role_ids = llm.tokenizer(
-            llm._role_switch_to_user,
-            return_tensors="pt",
-            add_special_tokens=False,
-        ).input_ids[0].tolist()
+        llm._assert_accum_consistent(self.acc)
+        self._role_ids = list(llm._assistant_to_user_ids)
         self._reprefill_ids = self._full_ids
 
     @property
@@ -146,13 +144,22 @@ class TransformersKVFixture:
                     use_cache=True,
                     return_dict=True,
                 )
-            self.acc.past_key_values = outputs.past_key_values
+            self.acc.past_key_values = self.llm._as_dynamic_cache(outputs.past_key_values)
             self.acc.attention_mask = mask
+            self.acc.token_ids.extend(missing)
             self.acc.seq_length += ids.shape[1]
             self.acc.next_token_logits = outputs.logits[:, -1, :]
+        self.acc.token_ids = list(self._full_ids)
+        self.acc.role_phase = self.llm.RolePhase.ASSISTANT_OPEN
+        self.acc.assistant_role_start = self.assistant_start - len(self.llm._user_to_assistant_ids)
+        self.acc.assistant_content_start = self.assistant_start
+        self.acc.assistant_content_end = None
+        self.acc.assistant_role_end = None
         self.acc.assistant_token_ids = self._full_ids[
-            self.acc.assistant_start : self.actual_length
+            self.assistant_start : self.actual_length
         ]
+        self.acc.generation_end_reason = self.llm.GenerationEndReason.MAX_TOKENS
+        self.llm._assert_accum_consistent(self.acc)
 
     def crop(self, keep_length: int) -> None:
         self.llm.crop_to_token(self.acc, keep_length)

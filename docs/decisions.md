@@ -5,6 +5,20 @@
 
 ---
 
+## D-018（2026-09-02）显式化 EOT/role 状态并冻结 C2 语义等价验收协议
+
+**决策**：修复二期持久化 KV 的 EOS/EOT 状态语义，并新增独立 `experiments/sci34_supplement/c2_equivalence/` 正确性 campaign。Qwen 的结构性 `<|im_end|>` 不再写入 `assistant_token_ids`、TTS fragment timeline 或 assistant 内容 KV；`generate_accumulating()` 预测 EOT 时进入 `ASSISTANT_EOT_PENDING` 并记录显式 `GenerationEndReason.EOS`，由 `reopen_user_role()` 唯一提交一次 assistant close 并打开下一 user role。max-token、consumer-stop、crop 分别记录显式 end reason，不再通过生成 token 数或账本末 token 推断。
+
+**状态合同**：`AccumKVCache` 新增完整 `token_ids` ledger、`RolePhase`、assistant role/content 边界及 end reason；所有追加统一经 token-ID prefill 核心，role transition 从 `apply_chat_template(tokenize=True)` 推导并验证。强制 `len(token_ids) == seq_length == attention_mask length == DynamicCache length`，assistant 内容 span 与 `assistant_token_ids` 完全一致。`prefill_user_text`、`prefill_assistant_text`、`open_assistant_role`、`reopen_user_role` 均校验 role 前置条件；crop 同步恢复 role/end 状态，并拒绝落在结构 token 中间。timeline 同步增加 token span、chunk 唯一/顺序、sample 连续与播放游标单调合同。
+
+**冻结验证协议**：正式 C2 campaign 固定 Qwen2-7B-Instruct、BF16、Transformers、本地模型、严格离线、24 个确定性 case、1 个逻辑 session、无统计重复。覆盖 512/2048/8192 token，p=0、片段边界、中段吸附、reply-tail、pending EOT、推测全作废、下一轮及第二次 crop；natural EOS、EOS-at-cap、max-token 均由 formal case 自身的 termination probe 硬验证。每个 case 比较实际 crop/recovery 与相同 retained token IDs 的 canonical clean re-prefill，冻结门槛为 token/状态/唯一 EOT/top-1/32-token continuation 全部 exact、top-5 overlap≥4/5、BF16 logits 转 FP32 后 max abs≤0.1 且 mean abs≤0.01。任一失败保留 raw/attempt/sidecar 并判定未通过，禁止删除 case 或事后放宽同一协议。
+
+**影响**：`src/llm/stream_llm_inference.py`、编排器和未来 E1/E2 runtime 改用显式状态；一期 `generate()` 保持不动。既有 C-E1/E2、固定轨迹 E3、联合 A1 与 P1 v2 不重跑、不覆盖；本轮不是时延实验。GPU formal 验收前不修改论文正文、图表或旧结果；执行唯一入口为 `experiments/sci34_supplement/c2_equivalence/GPU_HANDOFF.md`，回传后另追加接受/拒绝决策。
+
+**状态**：accepted（代码与协议冻结；Qwen2-7B formal evidence pending）
+
+---
+
 ## D-017（2026-09-02）接受确认性 E1/E2 campaign 并以双口径重写 E1/E2 结论
 
 **决策**：接受 run `e1e2c_b8c758b_20260901T173306Z`（代码 commit `b8c758b`、结果 commit `62508dc`、manifest `2f4bd76e…f4ed8`）为 E1/E2 的确认性正式证据（第四个独立 campaign）。设计侧对 5000 条 raw records 独立复算与 analysis_v1.json 全部一致；checksums 72 文件对 git blob 全绿；旧三个结果文件 blob 逐字节不变；holdout 与旧 E1/E2/E3 的 ID 与对话级交集为 0。

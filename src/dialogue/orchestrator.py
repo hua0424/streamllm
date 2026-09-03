@@ -91,10 +91,10 @@ class TurnResult:
 
 @dataclass
 class _ActiveSpec:
-    base_seq_len: int                       # 推测起点（user 内容末尾，crop 回滚点）
+    base_seq_len: int                       # assistant role header 起点（crop 后恢复 user-open）
     t_trigger: float = 0.0                  # 软触发过阈时刻（§6 trigger_fire，TTFT_text 起点）
     tokens: List[tuple] = field(default_factory=list)   # [(text, rel_idx)]
-    eos_hit: bool = False
+    end_reason: Optional[StreamLLMInference.GenerationEndReason] = None
     t_first_token: Optional[float] = None   # 推测首 token 墙钟
 
 
@@ -234,8 +234,7 @@ class DialogueOrchestrator:
                            and self.truncation_mode == "playback")
         if truly_truncated and self.history_policy == "mark":
             # 标记法：在被截断的 assistant 内容尾部追加打断标记（零延迟零模型成本）。
-            # _prefill_text_p2 是"向当前打开的 role 追加裸文本"，此时打开的是 assistant。
-            self.llm.prefill_user_text(self.acc, self.mark_text)
+            self.llm.prefill_assistant_text(self.acc, self.mark_text)
             history_text = history_text + self.mark_text
         elif truly_truncated and self.history_policy == "rewrite" and partial and history_text.strip():
             # 重写法：仅截断落在语义不完整处（partial）时启用。重写不新增信息；
@@ -244,7 +243,7 @@ class DialogueOrchestrator:
             rewritten, rewrite_ms = self.rewriter.rewrite(history_text)
             a0 = self.acc.assistant_start
             self.llm.crop_to_token(self.acc, a0)
-            self.llm.prefill_user_text(self.acc, rewritten)
+            self.llm.prefill_assistant_text(self.acc, rewritten)
             history_text = rewritten
             kv_reused_len = a0                               # 保留前缀
             kv_recomputed_len = self.acc.seq_length - a0     # 重算的 assistant 段
@@ -335,21 +334,23 @@ class DialogueOrchestrator:
 
     # ------------------------------------------------------------- 入口 2：增量段 + 推测
     def _start_speculation(self, t_trigger: float) -> _ActiveSpec:
-        spec = _ActiveSpec(base_seq_len=self.acc.seq_length, t_trigger=t_trigger)
         self.llm.open_assistant_role(self.acc)     # 注入 generation_prompt，设 assistant_start
+        spec = _ActiveSpec(
+            base_seq_len=self.acc.assistant_role_start, t_trigger=t_trigger
+        )
         for text, idx in self.llm.generate_accumulating(self.acc, max_new_tokens=self.spec_chunk):
             if spec.t_first_token is None:
                 spec.t_first_token = time.perf_counter()
             spec.tokens.append((text, idx))
-        spec.eos_hit = len(spec.tokens) < self.spec_chunk
+        spec.end_reason = self.acc.generation_end_reason
         return spec
 
     def _invalidate_speculation(self, spec: _ActiveSpec) -> int:
         """作废推测：KV crop 回推测起点（user role 回到打开状态），返回浪费 token 数。"""
         wasted = len(spec.tokens)
         self.llm.crop_to_token(self.acc, spec.base_seq_len)
-        self.acc.assistant_start = self.acc.seq_length      # 同步占位，避免悬空
-        self.acc.assistant_token_ids = []
+        if self.acc.role_phase != self.llm.RolePhase.USER_OPEN:
+            raise AssertionError("推测作废未恢复 USER_OPEN")
         return wasted
 
     def speculative_turn(self, segments: List[str],
@@ -375,7 +376,8 @@ class DialogueOrchestrator:
             if not self._started:
                 kv = self.llm.cache_prompt(seg, is_end=False, system_prompt=self.system_prompt)
                 self.acc = self.llm.to_accum_cache(kv)
-                self.acc.assistant_start = self.acc.seq_length   # user 未结束，占位
+                if self.acc.role_phase != self.llm.RolePhase.USER_OPEN:
+                    raise AssertionError("增量首段应保持 USER_OPEN")
                 self._started = True
             else:
                 self.llm.prefill_user_text(self.acc, seg)
@@ -398,7 +400,10 @@ class DialogueOrchestrator:
             stats["ready"] = len(spec.tokens)
             stats["t_trigger"] = spec.t_trigger          # §6 trigger_fire（存活推测的触发时刻）
             stats["t_first_tok"] = spec.t_first_token    # §3 TTFT_text 的首 token（推测内部）
-            remaining = 0 if spec.eos_hit else self.max_spec - len(spec.tokens)
+            remaining = (
+                0 if spec.end_reason == self.llm.GenerationEndReason.EOS
+                else max(0, self.max_spec - len(spec.tokens))
+            )
             token_iter = chain(
                 iter(spec.tokens),
                 self.llm.generate_accumulating(self.acc, max_new_tokens=remaining)
@@ -423,5 +428,8 @@ class DialogueOrchestrator:
         return r
 
     def assert_kv_consistent(self) -> bool:
-        a = self.acc
-        return a.seq_length == a.attention_mask.shape[1] == a.past_key_values.get_seq_length()
+        try:
+            self.llm._assert_accum_consistent(self.acc)
+        except (AssertionError, RuntimeError):
+            return False
+        return True

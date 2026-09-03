@@ -8,7 +8,7 @@ This file provides guidance to agents (Claude Code, ZCode, etc.) when working wi
 
 **两期工作**：
 - **一期（已完成，`main` 分支）**：流式 ASR + LLM KV cache 增量预填充，打破"TTFT 随语音长度线性增长"。一期代码集中在 `src/asr/`、`src/llm/`、`src/run_test_simple.py`（四线程流水线）。
-- **二期（代码与实验已完成，`paper2` 分支）**：播放感知的 KV 缓存管理 + barge-in（打断）。核心原则「对话历史 = 用户实际听到的内容」。二期新增编排层 `src/dialogue/`（orchestrator / trigger / timeline / unheard_detector / rewriter）、流式 TTS `src/tts/`、播放器 `src/player/`。五个主实验 + 两个消融（`experiments/scripts/run_exp{1_latency,2_tradeoff,3_consistency,_a1_kvreuse,_a2_history}.py`）数据已跑出，结果入 `experiments/results/`，论文稿在 `paper2/`（含 IEEE 投稿版）。开始二期任务前必读 `docs/paper2_context.md`（主交接文档）、`docs/decisions.md`（决策日志 D-001~）、`docs/handoff.md`（当前断点与下一步）。
+- **二期（既有 campaign 已完成，C2 正确性补强待 7B 验收，`paper2` 分支）**：播放感知的 KV 缓存管理 + barge-in（打断）。既有 E1/E2/E3/A1/P1 结果已归档，不得无条件重跑；2026-09-02 二审后按 D-018 修复 EOS/EOT 与角色状态，并新增 `experiments/sci34_supplement/c2_equivalence/`，正式 Qwen2-7B correctness evidence 仍 pending。论文稿在 `paper2/`；GPU 结果验收前不统一改正文。开始二期任务前必读 `docs/paper2_context.md`（主上下文）、`docs/decisions.md`（决策日志 D-001~）和 `docs/handoff.md`（当前唯一 GPU 断点）。
 
 ## 环境与命令
 
@@ -41,7 +41,7 @@ uv run python -m experiments.scripts.run_exp_quality   # 实验三：流式 vs �
 **运行陷阱**：
 - 必须从**项目根目录**以 `-m` 模块方式运行（代码用绝对导入 `from src.config import ...`）。`src/run_test_simple.sh` 会自动 `cd` 根目录并设 `PYTHONPATH=.`。
 - GPU 上若报 cudnn 相关错误，需要 `export LD_LIBRARY_PATH=".venv/lib/python3.10/site-packages/nvidia/cudnn/lib:$LD_LIBRARY_PATH"`（`run_test_simple.sh` 已内置）。
-- **无 pytest**。验证改动 = 跑上面的脚本看打印的延迟指标是否合理。
+- **无 pytest**。性能改动运行对应实验脚本；KV/role 正确性改动必须运行 `src.llm.run_kvcrop_test`、`src.dialogue.run_speculative_test`、`src.dialogue.run_timeline_test` 和 `experiments.sci34_supplement.c2_equivalence.smoke` 的硬断言，不能只看延迟是否合理。
 - 模型加载是 **offline-first**：先试本地缓存（`local_files_only=True`），失败再联网。首次运行需下载 Whisper + Silero VAD + HF 模型。
 
 ## 架构大图（跨文件才能看清的部分）
@@ -75,8 +75,8 @@ _audio_generation_worker → audio_chunk_queue
 **二期在 `StreamLLMInference` 上新增的 assistant-side KV 机制**（`run_kvcrop_test.py` 用 S1-S4 四步验证）：
 1. `generate_accumulating()`：在 `generate()` 基础上边生成边把 KV 累积回 caller 的 KVCache（补上了一期缺失的 assistant 端 KV 累积 + 多轮支持）。每次生成后 `seq/mask/DynamicCache` 三者长度保持一致。
 2. `crop_to_token(target_len)`：打断后用 `DynamicCache.crop()` 截断 KV；crop 后必须**同步截短 `pre_attention_mask` 和 `assistant_token_ids`**，并用新 past_length 重算 position_ids，否则位置编码错乱。
-3. `reopen_user_role()` / `prefill_user_text()` / `open_assistant_role()`：crop 后重建 role 边界，支持续轮。
-4. 整段推测作废 = crop 回 `assistant_start`（0 个 assistant token）。
+3. `reopen_user_role()` / `prefill_user_text()` / `prefill_assistant_text()` / `open_assistant_role()`：按显式 `RolePhase` 重建 role 边界。结构 EOT 不进入 assistant 内容账本或 KV；生成器命中 EOT 后只标记 pending，由 `reopen_user_role()` 唯一提交一次 close。完整 `token_ids`、mask、DynamicCache、内容 span 和 end reason 必须同步一致。
+4. 整段推测作废 = crop 回 `assistant_role_start`，同时删除 assistant header 并恢复 `USER_OPEN`；播放期保留 0 个内容 token 则 crop 到 `assistant_start`，保持 assistant role 打开后再正常关闭。
 
 **二期编排层 `src/dialogue/`**（barge-in 主战场，跨文件才能看清）：
 - `DialogueOrchestrator`（`orchestrator.py`）：二期中枢。两个入口——`user_turn()`（一次性全文，非流式基线 A）、`speculative_turn()`（增量 ASR 段 + 软触发推测-作废，系统 B-ours）。内部 `_start_speculation()` / `_invalidate_speculation()` 管推测生命周期，`_finish_assistant()`（complexity 13，系统最复杂方法）串起"生成消费→断句→TTS→timeline→打断→crop→reopen→metrics"。
@@ -89,5 +89,5 @@ _audio_generation_worker → audio_chunk_queue
 
 - 配置集中在 `src/config.py`（读 `.env`）；模块内不要硬编码路径/设备。ASR 与 LLM 可分卡（`--asr-device` / `--llm-device`）。
 - 核心代码用 `src/utils/logging_utils.py` 的结构化日志，不要用 `print()`（流水线里 `print` 仅用于流式吐字展示）。
-- 提交信息用简短祈使句（多为中文，如"修复…/增加…/完成…"），一次提交一个逻辑变更。改实验方法学时同步更新 `experiments/EXPERIMENT_DESIGN.md`。
+- 提交信息用简短祈使句（多为中文，如"修复…/增加…/完成…"），一次提交一个逻辑变更。二期方法学变更写入对应 `experiments/sci34_supplement/<campaign>/EXPERIMENT_PLAN.md` 并在 `paper2/experiment_design.md` 顶部登记入口；`experiments/EXPERIMENT_DESIGN.md` 仅维护一期范围。
 - 二期每次技术决策倒序追加到 `docs/decisions.md`；里程碑结束同步 `docs/paper2_context.md` §九时间线。

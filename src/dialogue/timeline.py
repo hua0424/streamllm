@@ -90,14 +90,47 @@ class PlaybackTimeline:
         self._next_fragment_id = 0
         self._total_samples = 0            # 已 attach 音频的累积采样数（sample 轴末端）
         self._played_samples = 0           # 播放游标：已播放的累积采样数
+        self._chunk_ids = set()            # 单轮 timeline 内全局唯一
+        self._last_audio_fragment_id: Optional[int] = None
+
+    # mark_status() 只允许按生命周期向前走一步；终态不可复活。
+    _STATUS_TRANSITIONS = {
+        FragmentStatus.SPECULATIVE: {FragmentStatus.SYNTHESIZING, FragmentStatus.DISCARDED},
+        FragmentStatus.SYNTHESIZING: {FragmentStatus.ENQUEUED, FragmentStatus.DISCARDED},
+        FragmentStatus.ENQUEUED: {FragmentStatus.PLAYING, FragmentStatus.DISCARDED},
+        FragmentStatus.PLAYING: {FragmentStatus.PLAYED, FragmentStatus.DISCARDED},
+        FragmentStatus.PLAYED: set(),
+        FragmentStatus.DISCARDED: set(),
+    }
+
+    @staticmethod
+    def _require_status(status: FragmentStatus) -> None:
+        if not isinstance(status, FragmentStatus):
+            raise TypeError(f"status must be FragmentStatus, got {status!r}")
+
+    def _mark_status_locked(self, rec: FragmentRecord, status: FragmentStatus) -> None:
+        self._require_status(status)
+        if status == rec.status:            # 幂等上报合法
+            return
+        if status not in self._STATUS_TRANSITIONS[rec.status]:
+            raise ValueError(f"illegal status transition {rec.status.name} -> {status.name} "
+                             f"for fragment {rec.fragment_id}")
+        rec.status = status
 
     # ----------------------------------------------------------------- 写入侧
     def add_fragment(self, text: str, token_start: int, token_end: int,
                      status: FragmentStatus = FragmentStatus.SPECULATIVE) -> int:
-        """LLM decode 侧：登记一个新片段及其 token 区间，返回 fragment_id。"""
-        if token_end < token_start:
-            raise ValueError(f"token_end({token_end}) < token_start({token_start})")
+        """LLM decode 侧：登记连续、非空的 token 区间，返回 fragment_id。"""
+        self._require_status(status)
+        if status != FragmentStatus.SPECULATIVE:
+            raise ValueError(f"new fragment must start as SPECULATIVE, got {status.name}")
         with self._lock:
+            expected_start = self._fragments[-1].token_end if self._fragments else 0
+            if token_end <= token_start:
+                raise ValueError(f"token span must be non-empty, got [{token_start},{token_end})")
+            if token_start != expected_start:
+                raise ValueError(f"token span must be contiguous: expected start {expected_start}, "
+                                 f"got {token_start}")
             fid = self._next_fragment_id
             self._next_fragment_id += 1
             rec = FragmentRecord(
@@ -110,34 +143,65 @@ class PlaybackTimeline:
             return fid
 
     def attach_chunk(self, fragment_id: int, chunk_id: int, n_samples: int) -> None:
-        """TTS 侧：为片段追加一个音频 chunk，并在累积 sample 轴上占位。"""
+        """TTS 侧：按 fragment 顺序追加全局唯一 chunk，并连续推进 sample 轴。"""
         if n_samples <= 0:
             raise ValueError(f"n_samples must be > 0, got {n_samples}")
         with self._lock:
             rec = self._by_id.get(fragment_id)
             if rec is None:
                 raise KeyError(f"unknown fragment_id {fragment_id}")
+            if chunk_id in self._chunk_ids:
+                raise ValueError(f"duplicate chunk_id {chunk_id}")
+            if (self._last_audio_fragment_id is not None
+                    and fragment_id < self._last_audio_fragment_id):
+                raise ValueError(f"cannot attach fragment {fragment_id} after audio for later fragment "
+                                 f"{self._last_audio_fragment_id} has started")
+            if rec.status not in (FragmentStatus.SPECULATIVE, FragmentStatus.SYNTHESIZING):
+                raise ValueError(f"cannot attach audio to fragment {fragment_id} in terminal/advanced "
+                                 f"status {rec.status.name}")
+
+            # 所有校验先完成再写，异常时 timeline 保持原样（fail closed）。
             if rec.sample_start is None:
-                rec.sample_start = self._total_samples
-                rec.sample_end = self._total_samples
+                sample_start = self._total_samples
+                sample_end = self._total_samples
+            else:
+                if rec.sample_end != self._total_samples:
+                    raise RuntimeError(f"non-contiguous sample range for fragment {fragment_id}: "
+                                       f"end={rec.sample_end}, timeline_end={self._total_samples}")
+                sample_start = rec.sample_start
+                sample_end = rec.sample_end
+
+            rec.sample_start = sample_start
+            rec.sample_end = sample_end + n_samples
             rec.chunk_ids.append(chunk_id)
-            rec.sample_end += n_samples
-            self._total_samples += n_samples
+            self._chunk_ids.add(chunk_id)
+            self._total_samples = rec.sample_end
+            self._last_audio_fragment_id = fragment_id
             if rec.status == FragmentStatus.SPECULATIVE:
                 rec.status = FragmentStatus.SYNTHESIZING
             logger.debug(f"[timeline] fragment {fragment_id} +chunk {chunk_id} "
                          f"(+{n_samples} samples) → [{rec.sample_start},{rec.sample_end})")
 
     def mark_status(self, fragment_id: int, status: FragmentStatus) -> None:
+        """推进片段生命周期；拒绝跳步、回退和终态复活。"""
         with self._lock:
             rec = self._by_id.get(fragment_id)
             if rec is None:
                 raise KeyError(f"unknown fragment_id {fragment_id}")
-            rec.status = status
+            self._mark_status_locked(rec, status)
 
     def set_played(self, played_samples: int) -> None:
-        """播放线程：更新播放游标（已播放的累积采样数）。单值赋值，原子。"""
-        self._played_samples = played_samples
+        """单调推进播放游标；超出已 attach 音频的部分钳制到 sample 轴末端。"""
+        if not isinstance(played_samples, int):
+            raise TypeError(f"played_samples must be int, got {played_samples!r}")
+        if played_samples < 0:
+            raise ValueError(f"played_samples must be >= 0, got {played_samples}")
+        with self._lock:
+            clamped = min(played_samples, self._total_samples)
+            if clamped < self._played_samples:
+                raise ValueError(f"played_samples cannot move backward: "
+                                 f"{self._played_samples} -> {clamped}")
+            self._played_samples = clamped
 
     @property
     def played_samples(self) -> int:
@@ -199,14 +263,40 @@ class PlaybackTimeline:
         with self._lock:
             res = self._resolve_barge_in_locked(pos)
             heard = set(res.heard_fragment_ids)
+            targets = {}
             for f in self._fragments:
                 if f.fragment_id in heard:
-                    if f.fragment_id == res.interrupted_fragment_id and res.partial:
-                        f.status = FragmentStatus.PLAYING
-                    else:
-                        f.status = FragmentStatus.PLAYED
+                    target = (FragmentStatus.PLAYING
+                              if f.fragment_id == res.interrupted_fragment_id and res.partial
+                              else FragmentStatus.PLAYED)
                 else:
-                    f.status = FragmentStatus.DISCARDED
+                    target = FragmentStatus.DISCARDED
+                targets[f.fragment_id] = target
+
+            # barge_in 可按实际播放位置从合成/排队态直接结算，但不能复活 DISCARDED、
+            # 也不能把用户已听到的 PLAYED 内容改成未听。先全量校验再统一写入。
+            allowed_sources = {
+                FragmentStatus.PLAYING: {
+                    FragmentStatus.SYNTHESIZING, FragmentStatus.ENQUEUED,
+                    FragmentStatus.PLAYING,
+                },
+                FragmentStatus.PLAYED: {
+                    FragmentStatus.SYNTHESIZING, FragmentStatus.ENQUEUED,
+                    FragmentStatus.PLAYING, FragmentStatus.PLAYED,
+                },
+                FragmentStatus.DISCARDED: {
+                    FragmentStatus.SPECULATIVE, FragmentStatus.SYNTHESIZING,
+                    FragmentStatus.ENQUEUED, FragmentStatus.PLAYING,
+                    FragmentStatus.DISCARDED,
+                },
+            }
+            for f in self._fragments:
+                target = targets[f.fragment_id]
+                if f.status not in allowed_sources[target]:
+                    raise ValueError(f"illegal barge_in status transition {f.status.name} -> "
+                                     f"{target.name} for fragment {f.fragment_id}")
+            for f in self._fragments:
+                f.status = targets[f.fragment_id]
             if res.interrupted_fragment_id is None:
                 logger.info("[timeline] barge_in with nothing heard → full rollback (crop_token_end=0)")
             else:

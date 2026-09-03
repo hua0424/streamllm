@@ -186,9 +186,9 @@ A: 是的，这是预期的。为了提高准确率，流式 ASR 会保留一部
 - accepted E3 排除源固定为 `experiments/sci34_supplement/results/e3/sci34_f11ccba_20260901_e3/manifest.json`；
 - Raw records 已保存最后一段到达、首个最终 token 准备及其差值；analyzer 以 arrival-to-ready 为实际受控墙钟主指标；同步 oracle 的 `endpoint_accept` 不等于最后段到达，`TTFT_eff` 仅为候选准备后的时延的乐观下界（推测收益的上界）；
 - 浪费率主定义为 `wasted_tokens / (wasted_tokens + final_tokens)`；
-- 当前状态：代码已实现并与 `--help` 对齐，GPU formal campaign 待执行，论文稿与旧结果保持不动。
+- 当前状态：formal campaign `e1e2c_b8c758b_20260901T173306Z` 已完成并由 D-017 接受；5000 条 raw records、analysis、validation 与 checksums 已归档。旧 GPU handoff 仅供复现，不再作为当前待办。
 
-GPU 操作只以 `experiments/sci34_supplement/e1e2_confirmatory/GPU_HANDOFF.md` 为准。该实验输入不是实际音频，不支持真实 ASR、在线 TTS、声卡、mouth-to-ear 或生产端到端主张。
+二审后的当前唯一正式 GPU 待办是 C2 KV/role 正确性验收，入口为 `experiments/sci34_supplement/c2_equivalence/GPU_HANDOFF.md`。它不重跑 E1/E2，也不支持真实 ASR、在线 TTS、声卡、mouth-to-ear 或生产端到端主张。
 
 ## 8. 许可证
 
