@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "experiment": "c2_equivalence",
+  "validated_at_utc": "2026-09-03T01:35:29.107769+00:00",
+  "campaign_dir": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/c2_equivalence/c2pilot_563dd22a_20260903T013205Z",
+  "formal": false,
+  "ok": false,
+  "acceptance_eligible": false,
+  "errors": [
+    "grid: records are missing, duplicated, or out of frozen case order",
+    "c2_01_p0_short_eos/post_recovery: max_abs=0.2890625",
+    "c2_01_p0_short_eos/post_recovery: mean_abs=0.04011145234107971",
+    "c2_01_p0_short_eos/post_recovery: runtime checkpoint reported errors",
+    "c2_01_p0_short_eos/next_assistant: max_abs=0.25",
+    "c2_01_p0_short_eos/next_assistant: mean_abs=0.03733900561928749",
+    "c2_01_p0_short_eos/next_assistant: continuation diverges at 8",
+    "c2_01_p0_short_eos/next_assistant: runtime checkpoint reported errors",
+    "record[0]/c2_01_p0_short_eos: runtime case reported errors",
+    "c2_02_clean_short_max/post_recovery: max_abs=0.4375",
+    "c2_02_clean_short_max/post_recovery: mean_abs=0.08021027594804764",
+    "c2_02_clean_short_max/post_recovery: continuation diverges at 18",
+    "c2_02_clean_short_max/post_recovery: runtime checkpoint reported errors",
+    "record[1]/c2_02_clean_short_max: runtime case reported errors",
+    "c2_03_mid_short_cap/post_recovery: max_abs=0.375",
+    "c2_03_mid_short_cap/post_recovery: mean_abs=0.06967122852802277",
+    "c2_03_mid_short_cap/post_recovery: runtime checkpoint reported errors",
+    "record[2]/c2_03_mid_short_cap: runtime case reported errors",
+    "summary: case count differs",
+    "summary: termination required count differs",
+    "summary: runner qualification count differs"
+  ],
+  "failed_indexes": [
+    {
+      "case_id": "c2_01_p0_short_eos",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_01_p0_short_eos/post_recovery: max_abs=0.2890625",
+        "c2_01_p0_short_eos/post_recovery: mean_abs=0.04011145234107971",
+        "c2_01_p0_short_eos/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_01_p0_short_eos",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_01_p0_short_eos/next_assistant: max_abs=0.25",
+        "c2_01_p0_short_eos/next_assistant: mean_abs=0.03733900561928749",
+        "c2_01_p0_short_eos/next_assistant: continuation diverges at 8",
+        "c2_01_p0_short_eos/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_01_p0_short_eos",
+      "checkpoint": null,
+      "errors": [
+        "c2_01_p0_short_eos/post_recovery: max_abs=0.2890625",
+        "c2_01_p0_short_eos/post_recovery: mean_abs=0.04011145234107971",
+        "c2_01_p0_short_eos/post_recovery: runtime checkpoint reported errors",
+        "c2_01_p0_short_eos/next_assistant: max_abs=0.25",
+        "c2_01_p0_short_eos/next_assistant: mean_abs=0.03733900561928749",
+        "c2_01_p0_short_eos/next_assistant: continuation diverges at 8",
+        "c2_01_p0_short_eos/next_assistant: runtime checkpoint reported errors",
+        "record[0]/c2_01_p0_short_eos: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_02_clean_short_max",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_02_clean_short_max/post_recovery: max_abs=0.4375",
+        "c2_02_clean_short_max/post_recovery: mean_abs=0.08021027594804764",
+        "c2_02_clean_short_max/post_recovery: continuation diverges at 18",
+        "c2_02_clean_short_max/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_02_clean_short_max",
+      "checkpoint": null,
+      "errors": [
+        "c2_02_clean_short_max/post_recovery: max_abs=0.4375",
+        "c2_02_clean_short_max/post_recovery: mean_abs=0.08021027594804764",
+        "c2_02_clean_short_max/post_recovery: continuation diverges at 18",
+        "c2_02_clean_short_max/post_recovery: runtime checkpoint reported errors",
+        "record[1]/c2_02_clean_short_max: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_03_mid_short_cap",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_03_mid_short_cap/post_recovery: max_abs=0.375",
+        "c2_03_mid_short_cap/post_recovery: mean_abs=0.06967122852802277",
+        "c2_03_mid_short_cap/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_03_mid_short_cap",
+      "checkpoint": null,
+      "errors": [
+        "c2_03_mid_short_cap/post_recovery: max_abs=0.375",
+        "c2_03_mid_short_cap/post_recovery: mean_abs=0.06967122852802277",
+        "c2_03_mid_short_cap/post_recovery: runtime checkpoint reported errors",
+        "record[2]/c2_03_mid_short_cap: runtime case reported errors"
+      ]
+    }
+  ],
+  "grid": {
+    "sessions": 1,
+    "statistical_repeats": 0,
+    "cases_expected": 24,
+    "cases_observed": 3,
+    "process_identities": [
+      "pid-8816-1788399197367309581-60ee7711ad314c859bab9feebea5b2f4"
+    ],
+    "resume_process_count": 1
+  },
+  "termination_probes": {
+    "required": 24,
+    "observed": 3,
+    "qualified": 3
+  },
+  "thresholds": {
+    "max_abs_logit_diff": 0.1,
+    "mean_abs_logit_diff": 0.01,
+    "top5_min_overlap": 4,
+    "continuation_tokens": 32
+  },
+  "provenance": {
+    "campaign_manifest": {
+      "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/c2_equivalence/c2pilot_563dd22a_20260903T013205Z/campaign_manifest.json",
+      "sha256": "67d40770dfc83b16f934ed377a39b70696e1b2e552e78c23c4092b992492d82e"
+    },
+    "cases": {
+      "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/c2_equivalence/c2pilot_563dd22a_20260903T013205Z/cases.json",
+      "sha256": "acda9afb83ff393d222fc06eb433c1a307dba1eb213fcbbbedfdb860f7500696"
+    },
+    "records": {
+      "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/c2_equivalence/c2pilot_563dd22a_20260903T013205Z/records.jsonl",
+      "sha256": "19983d805c64f856796a378c2714c5c3136e0c55d288264448b48364ab527c01"
+    }
+  }
+}

@@ -1,0 +1,1 @@
+Linux autodl-container-a7e3429f42-b8e2e65e 5.15.0-136-generic #147-Ubuntu SMP Sat Mar 15 15:53:30 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux

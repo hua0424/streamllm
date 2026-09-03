@@ -1,0 +1,2 @@
+/root/autodl-tmp/dataA/streamllm/experiments/datasets/raw_data/MultiWOZ/MultiWOZ_2.1/data.json
+/root/autodl-tmp/dataA/streamllm/experiments/scripts/prepare_multiwoz_data.py

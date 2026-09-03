@@ -1,0 +1,16 @@
+2026-09-03 09:36:26.535 - src.llm.stream_llm_inference - INFO - Loading LLM model /root/autodl-tmp/dataA/models/Qwen2-7B-Instruct on cuda:0
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.18it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.12it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:02<00:00,  1.09it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.11it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.11it/s]
+2026-09-03 09:36:30.960 - src.llm.stream_llm_inference - INFO - LLM模型加载完成。
+Traceback (most recent call last):
+  File "/root/.local/share/uv/python/cpython-3.10.18-linux-x86_64-gnu/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/root/.local/share/uv/python/cpython-3.10.18-linux-x86_64-gnu/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/c2_equivalence/run.py", line 446, in <module>
+    main()
+  File "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/c2_equivalence/run.py", line 433, in main
+    output = run_campaign(
+  File "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/c2_equivalence/run.py", line 398, in run_campaign
+    raise RuntimeError(
+RuntimeError: C2 correctness failed for 24 cases; artifacts retained: ['c2_01_p0_short_eos', 'c2_02_clean_short_max', 'c2_03_mid_short_cap', 'c2_04_tail_short_eos', 'c2_05_pending_short_eos', 'c2_06_invalidate_short_max', 'c2_07_next_short_eos', 'c2_08_second_short_cap', 'c2_09_p0_medium_max', 'c2_10_clean_medium_eos', 'c2_11_mid_medium_max', 'c2_12_tail_medium_cap', 'c2_13_pending_medium_eos', 'c2_14_invalidate_medium_cap', 'c2_15_next_medium_max', 'c2_16_second_medium_eos', 'c2_17_p0_long_cap', 'c2_18_clean_long_max', 'c2_19_mid_long_eos', 'c2_20_tail_long_eos', 'c2_21_pending_long_max', 'c2_22_invalidate_long_eos', 'c2_23_next_long_cap', 'c2_24_second_long_max']

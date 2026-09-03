@@ -1,0 +1,1101 @@
+{
+  "schema_version": 1,
+  "experiment": "c2_equivalence",
+  "validated_at_utc": "2026-09-03T01:42:33.920084+00:00",
+  "campaign_dir": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/c2_equivalence/c2eq_563dd22a_20260903T013547Z",
+  "formal": true,
+  "ok": false,
+  "acceptance_eligible": false,
+  "errors": [
+    "c2_01_p0_short_eos/post_recovery: max_abs=0.2890625",
+    "c2_01_p0_short_eos/post_recovery: mean_abs=0.04011145234107971",
+    "c2_01_p0_short_eos/post_recovery: runtime checkpoint reported errors",
+    "c2_01_p0_short_eos/next_assistant: max_abs=0.25",
+    "c2_01_p0_short_eos/next_assistant: mean_abs=0.03733900561928749",
+    "c2_01_p0_short_eos/next_assistant: continuation diverges at 8",
+    "c2_01_p0_short_eos/next_assistant: runtime checkpoint reported errors",
+    "record[0]/c2_01_p0_short_eos: runtime case reported errors",
+    "c2_02_clean_short_max/post_recovery: max_abs=0.4375",
+    "c2_02_clean_short_max/post_recovery: mean_abs=0.08021027594804764",
+    "c2_02_clean_short_max/post_recovery: continuation diverges at 18",
+    "c2_02_clean_short_max/post_recovery: runtime checkpoint reported errors",
+    "record[1]/c2_02_clean_short_max: runtime case reported errors",
+    "c2_03_mid_short_cap/post_recovery: max_abs=0.375",
+    "c2_03_mid_short_cap/post_recovery: mean_abs=0.06967122852802277",
+    "c2_03_mid_short_cap/post_recovery: runtime checkpoint reported errors",
+    "record[2]/c2_03_mid_short_cap: runtime case reported errors",
+    "c2_04_tail_short_eos/post_recovery: max_abs=0.26953125",
+    "c2_04_tail_short_eos/post_recovery: mean_abs=0.04408854618668556",
+    "c2_04_tail_short_eos/post_recovery: runtime checkpoint reported errors",
+    "c2_04_tail_short_eos/next_assistant: max_abs=0.46875",
+    "c2_04_tail_short_eos/next_assistant: mean_abs=0.04793452471494675",
+    "c2_04_tail_short_eos/next_assistant: runtime checkpoint reported errors",
+    "record[3]/c2_04_tail_short_eos: runtime case reported errors",
+    "c2_05_pending_short_eos/post_recovery: max_abs=0.5205078125",
+    "c2_05_pending_short_eos/post_recovery: mean_abs=0.09090005606412888",
+    "c2_05_pending_short_eos/post_recovery: runtime checkpoint reported errors",
+    "c2_05_pending_short_eos/next_assistant: max_abs=0.4375",
+    "c2_05_pending_short_eos/next_assistant: mean_abs=0.0594472661614418",
+    "c2_05_pending_short_eos/next_assistant: runtime checkpoint reported errors",
+    "record[4]/c2_05_pending_short_eos: runtime case reported errors",
+    "c2_06_invalidate_short_max/post_recovery: max_abs=0.20703125",
+    "c2_06_invalidate_short_max/post_recovery: mean_abs=0.031204771250486374",
+    "c2_06_invalidate_short_max/post_recovery: runtime checkpoint reported errors",
+    "c2_06_invalidate_short_max/next_assistant: max_abs=0.96875",
+    "c2_06_invalidate_short_max/next_assistant: mean_abs=0.05859549716114998",
+    "c2_06_invalidate_short_max/next_assistant: runtime checkpoint reported errors",
+    "record[5]/c2_06_invalidate_short_max: runtime case reported errors",
+    "c2_07_next_short_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+    "c2_07_next_short_eos/termination_probe: EOS not reached within cap",
+    "c2_07_next_short_eos/termination_probe: EOS phase differs",
+    "c2_07_next_short_eos/termination_probe: runtime probe reported errors",
+    "c2_07_next_short_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+    "c2_07_next_short_eos/termination_probe: EOS not reached within cap",
+    "c2_07_next_short_eos/termination_probe: EOS phase differs",
+    "c2_07_next_short_eos/termination_probe: runtime probe reported errors",
+    "c2_07_next_short_eos/post_recovery: max_abs=0.296875",
+    "c2_07_next_short_eos/post_recovery: mean_abs=0.04196431487798691",
+    "c2_07_next_short_eos/post_recovery: runtime checkpoint reported errors",
+    "c2_07_next_short_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+    "c2_07_next_short_eos/termination_probe: EOS not reached within cap",
+    "c2_07_next_short_eos/termination_probe: EOS phase differs",
+    "c2_07_next_short_eos/termination_probe: runtime probe reported errors",
+    "c2_07_next_short_eos/next_assistant: max_abs=0.390625",
+    "c2_07_next_short_eos/next_assistant: mean_abs=0.04601440578699112",
+    "c2_07_next_short_eos/next_assistant: runtime checkpoint reported errors",
+    "record[6]/c2_07_next_short_eos: runtime case reported errors",
+    "c2_08_second_short_cap/post_recovery: max_abs=0.3125",
+    "c2_08_second_short_cap/post_recovery: mean_abs=0.04074284806847572",
+    "c2_08_second_short_cap/post_recovery: runtime checkpoint reported errors",
+    "c2_08_second_short_cap/next_assistant: max_abs=0.359375",
+    "c2_08_second_short_cap/next_assistant: mean_abs=0.09618189930915833",
+    "c2_08_second_short_cap/next_assistant: runtime checkpoint reported errors",
+    "c2_08_second_short_cap/post_second_recovery: max_abs=0.359375",
+    "c2_08_second_short_cap/post_second_recovery: mean_abs=0.056056395173072815",
+    "c2_08_second_short_cap/post_second_recovery: continuation diverges at 19",
+    "c2_08_second_short_cap/post_second_recovery: runtime checkpoint reported errors",
+    "record[7]/c2_08_second_short_cap: runtime case reported errors",
+    "c2_09_p0_medium_max/post_recovery: max_abs=0.234375",
+    "c2_09_p0_medium_max/post_recovery: mean_abs=0.04674500972032547",
+    "c2_09_p0_medium_max/post_recovery: runtime checkpoint reported errors",
+    "c2_09_p0_medium_max/next_assistant: max_abs=0.46875",
+    "c2_09_p0_medium_max/next_assistant: mean_abs=0.1332019716501236",
+    "c2_09_p0_medium_max/next_assistant: runtime checkpoint reported errors",
+    "record[8]/c2_09_p0_medium_max: runtime case reported errors",
+    "c2_10_clean_medium_eos/post_recovery: max_abs=0.4375",
+    "c2_10_clean_medium_eos/post_recovery: mean_abs=0.09013931453227997",
+    "c2_10_clean_medium_eos/post_recovery: runtime checkpoint reported errors",
+    "record[9]/c2_10_clean_medium_eos: runtime case reported errors",
+    "c2_11_mid_medium_max/post_recovery: max_abs=0.4140625",
+    "c2_11_mid_medium_max/post_recovery: mean_abs=0.15647302567958832",
+    "c2_11_mid_medium_max/post_recovery: runtime checkpoint reported errors",
+    "record[10]/c2_11_mid_medium_max: runtime case reported errors",
+    "c2_12_tail_medium_cap/post_recovery: max_abs=0.28125",
+    "c2_12_tail_medium_cap/post_recovery: mean_abs=0.05569586157798767",
+    "c2_12_tail_medium_cap/post_recovery: runtime checkpoint reported errors",
+    "c2_12_tail_medium_cap/next_assistant: max_abs=0.65625",
+    "c2_12_tail_medium_cap/next_assistant: mean_abs=0.061708640307188034",
+    "c2_12_tail_medium_cap/next_assistant: continuation diverges at 5",
+    "c2_12_tail_medium_cap/next_assistant: runtime checkpoint reported errors",
+    "record[11]/c2_12_tail_medium_cap: runtime case reported errors",
+    "c2_13_pending_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+    "c2_13_pending_medium_eos/termination_probe: EOS not reached within cap",
+    "c2_13_pending_medium_eos/termination_probe: EOS phase differs",
+    "c2_13_pending_medium_eos/termination_probe: runtime probe reported errors",
+    "c2_13_pending_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+    "c2_13_pending_medium_eos/termination_probe: EOS not reached within cap",
+    "c2_13_pending_medium_eos/termination_probe: EOS phase differs",
+    "c2_13_pending_medium_eos/termination_probe: runtime probe reported errors",
+    "c2_13_pending_medium_eos/post_recovery: max_abs=0.21875",
+    "c2_13_pending_medium_eos/post_recovery: mean_abs=0.028527772054076195",
+    "c2_13_pending_medium_eos/post_recovery: continuation diverges at 4",
+    "c2_13_pending_medium_eos/post_recovery: runtime checkpoint reported errors",
+    "c2_13_pending_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+    "c2_13_pending_medium_eos/termination_probe: EOS not reached within cap",
+    "c2_13_pending_medium_eos/termination_probe: EOS phase differs",
+    "c2_13_pending_medium_eos/termination_probe: runtime probe reported errors",
+    "c2_13_pending_medium_eos/next_assistant: max_abs=0.3125",
+    "c2_13_pending_medium_eos/next_assistant: mean_abs=0.05320477485656738",
+    "c2_13_pending_medium_eos/next_assistant: continuation diverges at 25",
+    "c2_13_pending_medium_eos/next_assistant: runtime checkpoint reported errors",
+    "record[12]/c2_13_pending_medium_eos: runtime case reported errors",
+    "c2_14_invalidate_medium_cap/post_recovery: max_abs=0.34375",
+    "c2_14_invalidate_medium_cap/post_recovery: mean_abs=0.05290278047323227",
+    "c2_14_invalidate_medium_cap/post_recovery: runtime checkpoint reported errors",
+    "c2_14_invalidate_medium_cap/next_assistant: max_abs=0.4375",
+    "c2_14_invalidate_medium_cap/next_assistant: mean_abs=0.0495782271027565",
+    "c2_14_invalidate_medium_cap/next_assistant: runtime checkpoint reported errors",
+    "record[13]/c2_14_invalidate_medium_cap: runtime case reported errors",
+    "c2_15_next_medium_max/post_recovery: max_abs=0.2109375",
+    "c2_15_next_medium_max/post_recovery: mean_abs=0.03654494136571884",
+    "c2_15_next_medium_max/post_recovery: runtime checkpoint reported errors",
+    "c2_15_next_medium_max/next_assistant: max_abs=0.3125",
+    "c2_15_next_medium_max/next_assistant: mean_abs=0.04146471247076988",
+    "c2_15_next_medium_max/next_assistant: runtime checkpoint reported errors",
+    "record[14]/c2_15_next_medium_max: runtime case reported errors",
+    "c2_16_second_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+    "c2_16_second_medium_eos/termination_probe: EOS not reached within cap",
+    "c2_16_second_medium_eos/termination_probe: EOS phase differs",
+    "c2_16_second_medium_eos/termination_probe: runtime probe reported errors",
+    "c2_16_second_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+    "c2_16_second_medium_eos/termination_probe: EOS not reached within cap",
+    "c2_16_second_medium_eos/termination_probe: EOS phase differs",
+    "c2_16_second_medium_eos/termination_probe: runtime probe reported errors",
+    "c2_16_second_medium_eos/post_recovery: next-token top1 differs",
+    "c2_16_second_medium_eos/post_recovery: stored top1 equality differs",
+    "c2_16_second_medium_eos/post_recovery: max_abs=0.37664794921875",
+    "c2_16_second_medium_eos/post_recovery: mean_abs=0.0442190058529377",
+    "c2_16_second_medium_eos/post_recovery: continuation diverges at 0",
+    "c2_16_second_medium_eos/post_recovery: runtime checkpoint reported errors",
+    "c2_16_second_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+    "c2_16_second_medium_eos/termination_probe: EOS not reached within cap",
+    "c2_16_second_medium_eos/termination_probe: EOS phase differs",
+    "c2_16_second_medium_eos/termination_probe: runtime probe reported errors",
+    "c2_16_second_medium_eos/next_assistant: max_abs=0.34375",
+    "c2_16_second_medium_eos/next_assistant: mean_abs=0.04242129996418953",
+    "c2_16_second_medium_eos/next_assistant: runtime checkpoint reported errors",
+    "c2_16_second_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+    "c2_16_second_medium_eos/termination_probe: EOS not reached within cap",
+    "c2_16_second_medium_eos/termination_probe: EOS phase differs",
+    "c2_16_second_medium_eos/termination_probe: runtime probe reported errors",
+    "c2_16_second_medium_eos/post_second_recovery: max_abs=0.5625",
+    "c2_16_second_medium_eos/post_second_recovery: mean_abs=0.05617930367588997",
+    "c2_16_second_medium_eos/post_second_recovery: runtime checkpoint reported errors",
+    "record[15]/c2_16_second_medium_eos: runtime case reported errors",
+    "c2_17_p0_long_cap/post_recovery: max_abs=0.15625",
+    "c2_17_p0_long_cap/post_recovery: mean_abs=0.020169302821159363",
+    "c2_17_p0_long_cap/post_recovery: runtime checkpoint reported errors",
+    "c2_17_p0_long_cap/next_assistant: max_abs=0.15625",
+    "c2_17_p0_long_cap/next_assistant: mean_abs=0.02222566306591034",
+    "c2_17_p0_long_cap/next_assistant: runtime checkpoint reported errors",
+    "record[16]/c2_17_p0_long_cap: runtime case reported errors",
+    "c2_18_clean_long_max/post_recovery: max_abs=0.1875",
+    "c2_18_clean_long_max/post_recovery: mean_abs=0.03046274557709694",
+    "c2_18_clean_long_max/post_recovery: runtime checkpoint reported errors",
+    "record[17]/c2_18_clean_long_max: runtime case reported errors",
+    "c2_19_mid_long_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+    "c2_19_mid_long_eos/termination_probe: EOS not reached within cap",
+    "c2_19_mid_long_eos/termination_probe: EOS phase differs",
+    "c2_19_mid_long_eos/termination_probe: runtime probe reported errors",
+    "c2_19_mid_long_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+    "c2_19_mid_long_eos/termination_probe: EOS not reached within cap",
+    "c2_19_mid_long_eos/termination_probe: EOS phase differs",
+    "c2_19_mid_long_eos/termination_probe: runtime probe reported errors",
+    "c2_19_mid_long_eos/post_recovery: max_abs=0.2890625",
+    "c2_19_mid_long_eos/post_recovery: mean_abs=0.04556243494153023",
+    "c2_19_mid_long_eos/post_recovery: continuation diverges at 17",
+    "c2_19_mid_long_eos/post_recovery: runtime checkpoint reported errors",
+    "record[18]/c2_19_mid_long_eos: runtime case reported errors",
+    "c2_20_tail_long_eos/post_recovery: max_abs=0.1953125",
+    "c2_20_tail_long_eos/post_recovery: mean_abs=0.030691541731357574",
+    "c2_20_tail_long_eos/post_recovery: continuation diverges at 17",
+    "c2_20_tail_long_eos/post_recovery: runtime checkpoint reported errors",
+    "c2_20_tail_long_eos/next_assistant: max_abs=0.25",
+    "c2_20_tail_long_eos/next_assistant: mean_abs=0.03292758762836456",
+    "c2_20_tail_long_eos/next_assistant: runtime checkpoint reported errors",
+    "record[19]/c2_20_tail_long_eos: runtime case reported errors",
+    "c2_21_pending_long_max/post_recovery: max_abs=0.25",
+    "c2_21_pending_long_max/post_recovery: mean_abs=0.0843239352107048",
+    "c2_21_pending_long_max/post_recovery: continuation diverges at 5",
+    "c2_21_pending_long_max/post_recovery: runtime checkpoint reported errors",
+    "c2_21_pending_long_max/next_assistant: max_abs=0.25",
+    "c2_21_pending_long_max/next_assistant: mean_abs=0.041502609848976135",
+    "c2_21_pending_long_max/next_assistant: continuation diverges at 14",
+    "c2_21_pending_long_max/next_assistant: runtime checkpoint reported errors",
+    "record[20]/c2_21_pending_long_max: runtime case reported errors",
+    "c2_22_invalidate_long_eos/post_recovery: max_abs=0.265625",
+    "c2_22_invalidate_long_eos/post_recovery: mean_abs=0.044514529407024384",
+    "c2_22_invalidate_long_eos/post_recovery: continuation diverges at 25",
+    "c2_22_invalidate_long_eos/post_recovery: runtime checkpoint reported errors",
+    "c2_22_invalidate_long_eos/next_assistant: max_abs=0.3125",
+    "c2_22_invalidate_long_eos/next_assistant: mean_abs=0.0943751186132431",
+    "c2_22_invalidate_long_eos/next_assistant: runtime checkpoint reported errors",
+    "record[21]/c2_22_invalidate_long_eos: runtime case reported errors",
+    "c2_23_next_long_cap/post_recovery: max_abs=0.21875",
+    "c2_23_next_long_cap/post_recovery: mean_abs=0.040864672511816025",
+    "c2_23_next_long_cap/post_recovery: runtime checkpoint reported errors",
+    "c2_23_next_long_cap/next_assistant: max_abs=0.3046875",
+    "c2_23_next_long_cap/next_assistant: mean_abs=0.044782571494579315",
+    "c2_23_next_long_cap/next_assistant: runtime checkpoint reported errors",
+    "record[22]/c2_23_next_long_cap: runtime case reported errors",
+    "c2_24_second_long_max/post_recovery: max_abs=0.15625",
+    "c2_24_second_long_max/post_recovery: mean_abs=0.02647850662469864",
+    "c2_24_second_long_max/post_recovery: continuation diverges at 2",
+    "c2_24_second_long_max/post_recovery: runtime checkpoint reported errors",
+    "c2_24_second_long_max/next_assistant: next-token top1 differs",
+    "c2_24_second_long_max/next_assistant: stored top1 equality differs",
+    "c2_24_second_long_max/next_assistant: max_abs=0.21875",
+    "c2_24_second_long_max/next_assistant: mean_abs=0.036408569663763046",
+    "c2_24_second_long_max/next_assistant: continuation diverges at 0",
+    "c2_24_second_long_max/next_assistant: runtime checkpoint reported errors",
+    "c2_24_second_long_max/post_second_recovery: max_abs=0.265625",
+    "c2_24_second_long_max/post_second_recovery: mean_abs=0.0494922436773777",
+    "c2_24_second_long_max/post_second_recovery: continuation diverges at 16",
+    "c2_24_second_long_max/post_second_recovery: runtime checkpoint reported errors",
+    "record[23]/c2_24_second_long_max: runtime case reported errors",
+    "summary: runner qualification count differs"
+  ],
+  "failed_indexes": [
+    {
+      "case_id": "c2_01_p0_short_eos",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_01_p0_short_eos/post_recovery: max_abs=0.2890625",
+        "c2_01_p0_short_eos/post_recovery: mean_abs=0.04011145234107971",
+        "c2_01_p0_short_eos/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_01_p0_short_eos",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_01_p0_short_eos/next_assistant: max_abs=0.25",
+        "c2_01_p0_short_eos/next_assistant: mean_abs=0.03733900561928749",
+        "c2_01_p0_short_eos/next_assistant: continuation diverges at 8",
+        "c2_01_p0_short_eos/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_01_p0_short_eos",
+      "checkpoint": null,
+      "errors": [
+        "c2_01_p0_short_eos/post_recovery: max_abs=0.2890625",
+        "c2_01_p0_short_eos/post_recovery: mean_abs=0.04011145234107971",
+        "c2_01_p0_short_eos/post_recovery: runtime checkpoint reported errors",
+        "c2_01_p0_short_eos/next_assistant: max_abs=0.25",
+        "c2_01_p0_short_eos/next_assistant: mean_abs=0.03733900561928749",
+        "c2_01_p0_short_eos/next_assistant: continuation diverges at 8",
+        "c2_01_p0_short_eos/next_assistant: runtime checkpoint reported errors",
+        "record[0]/c2_01_p0_short_eos: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_02_clean_short_max",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_02_clean_short_max/post_recovery: max_abs=0.4375",
+        "c2_02_clean_short_max/post_recovery: mean_abs=0.08021027594804764",
+        "c2_02_clean_short_max/post_recovery: continuation diverges at 18",
+        "c2_02_clean_short_max/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_02_clean_short_max",
+      "checkpoint": null,
+      "errors": [
+        "c2_02_clean_short_max/post_recovery: max_abs=0.4375",
+        "c2_02_clean_short_max/post_recovery: mean_abs=0.08021027594804764",
+        "c2_02_clean_short_max/post_recovery: continuation diverges at 18",
+        "c2_02_clean_short_max/post_recovery: runtime checkpoint reported errors",
+        "record[1]/c2_02_clean_short_max: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_03_mid_short_cap",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_03_mid_short_cap/post_recovery: max_abs=0.375",
+        "c2_03_mid_short_cap/post_recovery: mean_abs=0.06967122852802277",
+        "c2_03_mid_short_cap/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_03_mid_short_cap",
+      "checkpoint": null,
+      "errors": [
+        "c2_03_mid_short_cap/post_recovery: max_abs=0.375",
+        "c2_03_mid_short_cap/post_recovery: mean_abs=0.06967122852802277",
+        "c2_03_mid_short_cap/post_recovery: runtime checkpoint reported errors",
+        "record[2]/c2_03_mid_short_cap: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_04_tail_short_eos",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_04_tail_short_eos/post_recovery: max_abs=0.26953125",
+        "c2_04_tail_short_eos/post_recovery: mean_abs=0.04408854618668556",
+        "c2_04_tail_short_eos/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_04_tail_short_eos",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_04_tail_short_eos/next_assistant: max_abs=0.46875",
+        "c2_04_tail_short_eos/next_assistant: mean_abs=0.04793452471494675",
+        "c2_04_tail_short_eos/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_04_tail_short_eos",
+      "checkpoint": null,
+      "errors": [
+        "c2_04_tail_short_eos/post_recovery: max_abs=0.26953125",
+        "c2_04_tail_short_eos/post_recovery: mean_abs=0.04408854618668556",
+        "c2_04_tail_short_eos/post_recovery: runtime checkpoint reported errors",
+        "c2_04_tail_short_eos/next_assistant: max_abs=0.46875",
+        "c2_04_tail_short_eos/next_assistant: mean_abs=0.04793452471494675",
+        "c2_04_tail_short_eos/next_assistant: runtime checkpoint reported errors",
+        "record[3]/c2_04_tail_short_eos: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_05_pending_short_eos",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_05_pending_short_eos/post_recovery: max_abs=0.5205078125",
+        "c2_05_pending_short_eos/post_recovery: mean_abs=0.09090005606412888",
+        "c2_05_pending_short_eos/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_05_pending_short_eos",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_05_pending_short_eos/next_assistant: max_abs=0.4375",
+        "c2_05_pending_short_eos/next_assistant: mean_abs=0.0594472661614418",
+        "c2_05_pending_short_eos/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_05_pending_short_eos",
+      "checkpoint": null,
+      "errors": [
+        "c2_05_pending_short_eos/post_recovery: max_abs=0.5205078125",
+        "c2_05_pending_short_eos/post_recovery: mean_abs=0.09090005606412888",
+        "c2_05_pending_short_eos/post_recovery: runtime checkpoint reported errors",
+        "c2_05_pending_short_eos/next_assistant: max_abs=0.4375",
+        "c2_05_pending_short_eos/next_assistant: mean_abs=0.0594472661614418",
+        "c2_05_pending_short_eos/next_assistant: runtime checkpoint reported errors",
+        "record[4]/c2_05_pending_short_eos: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_06_invalidate_short_max",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_06_invalidate_short_max/post_recovery: max_abs=0.20703125",
+        "c2_06_invalidate_short_max/post_recovery: mean_abs=0.031204771250486374",
+        "c2_06_invalidate_short_max/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_06_invalidate_short_max",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_06_invalidate_short_max/next_assistant: max_abs=0.96875",
+        "c2_06_invalidate_short_max/next_assistant: mean_abs=0.05859549716114998",
+        "c2_06_invalidate_short_max/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_06_invalidate_short_max",
+      "checkpoint": null,
+      "errors": [
+        "c2_06_invalidate_short_max/post_recovery: max_abs=0.20703125",
+        "c2_06_invalidate_short_max/post_recovery: mean_abs=0.031204771250486374",
+        "c2_06_invalidate_short_max/post_recovery: runtime checkpoint reported errors",
+        "c2_06_invalidate_short_max/next_assistant: max_abs=0.96875",
+        "c2_06_invalidate_short_max/next_assistant: mean_abs=0.05859549716114998",
+        "c2_06_invalidate_short_max/next_assistant: runtime checkpoint reported errors",
+        "record[5]/c2_06_invalidate_short_max: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_07_next_short_eos",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_07_next_short_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_07_next_short_eos/termination_probe: EOS not reached within cap",
+        "c2_07_next_short_eos/termination_probe: EOS phase differs",
+        "c2_07_next_short_eos/termination_probe: runtime probe reported errors",
+        "c2_07_next_short_eos/post_recovery: max_abs=0.296875",
+        "c2_07_next_short_eos/post_recovery: mean_abs=0.04196431487798691",
+        "c2_07_next_short_eos/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_07_next_short_eos",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_07_next_short_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_07_next_short_eos/termination_probe: EOS not reached within cap",
+        "c2_07_next_short_eos/termination_probe: EOS phase differs",
+        "c2_07_next_short_eos/termination_probe: runtime probe reported errors",
+        "c2_07_next_short_eos/next_assistant: max_abs=0.390625",
+        "c2_07_next_short_eos/next_assistant: mean_abs=0.04601440578699112",
+        "c2_07_next_short_eos/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_07_next_short_eos",
+      "checkpoint": null,
+      "errors": [
+        "c2_07_next_short_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_07_next_short_eos/termination_probe: EOS not reached within cap",
+        "c2_07_next_short_eos/termination_probe: EOS phase differs",
+        "c2_07_next_short_eos/termination_probe: runtime probe reported errors",
+        "c2_07_next_short_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_07_next_short_eos/termination_probe: EOS not reached within cap",
+        "c2_07_next_short_eos/termination_probe: EOS phase differs",
+        "c2_07_next_short_eos/termination_probe: runtime probe reported errors",
+        "c2_07_next_short_eos/post_recovery: max_abs=0.296875",
+        "c2_07_next_short_eos/post_recovery: mean_abs=0.04196431487798691",
+        "c2_07_next_short_eos/post_recovery: runtime checkpoint reported errors",
+        "c2_07_next_short_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_07_next_short_eos/termination_probe: EOS not reached within cap",
+        "c2_07_next_short_eos/termination_probe: EOS phase differs",
+        "c2_07_next_short_eos/termination_probe: runtime probe reported errors",
+        "c2_07_next_short_eos/next_assistant: max_abs=0.390625",
+        "c2_07_next_short_eos/next_assistant: mean_abs=0.04601440578699112",
+        "c2_07_next_short_eos/next_assistant: runtime checkpoint reported errors",
+        "record[6]/c2_07_next_short_eos: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_08_second_short_cap",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_08_second_short_cap/post_recovery: max_abs=0.3125",
+        "c2_08_second_short_cap/post_recovery: mean_abs=0.04074284806847572",
+        "c2_08_second_short_cap/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_08_second_short_cap",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_08_second_short_cap/next_assistant: max_abs=0.359375",
+        "c2_08_second_short_cap/next_assistant: mean_abs=0.09618189930915833",
+        "c2_08_second_short_cap/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_08_second_short_cap",
+      "checkpoint": "post_second_recovery",
+      "errors": [
+        "c2_08_second_short_cap/post_second_recovery: max_abs=0.359375",
+        "c2_08_second_short_cap/post_second_recovery: mean_abs=0.056056395173072815",
+        "c2_08_second_short_cap/post_second_recovery: continuation diverges at 19",
+        "c2_08_second_short_cap/post_second_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_08_second_short_cap",
+      "checkpoint": null,
+      "errors": [
+        "c2_08_second_short_cap/post_recovery: max_abs=0.3125",
+        "c2_08_second_short_cap/post_recovery: mean_abs=0.04074284806847572",
+        "c2_08_second_short_cap/post_recovery: runtime checkpoint reported errors",
+        "c2_08_second_short_cap/next_assistant: max_abs=0.359375",
+        "c2_08_second_short_cap/next_assistant: mean_abs=0.09618189930915833",
+        "c2_08_second_short_cap/next_assistant: runtime checkpoint reported errors",
+        "c2_08_second_short_cap/post_second_recovery: max_abs=0.359375",
+        "c2_08_second_short_cap/post_second_recovery: mean_abs=0.056056395173072815",
+        "c2_08_second_short_cap/post_second_recovery: continuation diverges at 19",
+        "c2_08_second_short_cap/post_second_recovery: runtime checkpoint reported errors",
+        "record[7]/c2_08_second_short_cap: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_09_p0_medium_max",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_09_p0_medium_max/post_recovery: max_abs=0.234375",
+        "c2_09_p0_medium_max/post_recovery: mean_abs=0.04674500972032547",
+        "c2_09_p0_medium_max/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_09_p0_medium_max",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_09_p0_medium_max/next_assistant: max_abs=0.46875",
+        "c2_09_p0_medium_max/next_assistant: mean_abs=0.1332019716501236",
+        "c2_09_p0_medium_max/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_09_p0_medium_max",
+      "checkpoint": null,
+      "errors": [
+        "c2_09_p0_medium_max/post_recovery: max_abs=0.234375",
+        "c2_09_p0_medium_max/post_recovery: mean_abs=0.04674500972032547",
+        "c2_09_p0_medium_max/post_recovery: runtime checkpoint reported errors",
+        "c2_09_p0_medium_max/next_assistant: max_abs=0.46875",
+        "c2_09_p0_medium_max/next_assistant: mean_abs=0.1332019716501236",
+        "c2_09_p0_medium_max/next_assistant: runtime checkpoint reported errors",
+        "record[8]/c2_09_p0_medium_max: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_10_clean_medium_eos",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_10_clean_medium_eos/post_recovery: max_abs=0.4375",
+        "c2_10_clean_medium_eos/post_recovery: mean_abs=0.09013931453227997",
+        "c2_10_clean_medium_eos/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_10_clean_medium_eos",
+      "checkpoint": null,
+      "errors": [
+        "c2_10_clean_medium_eos/post_recovery: max_abs=0.4375",
+        "c2_10_clean_medium_eos/post_recovery: mean_abs=0.09013931453227997",
+        "c2_10_clean_medium_eos/post_recovery: runtime checkpoint reported errors",
+        "record[9]/c2_10_clean_medium_eos: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_11_mid_medium_max",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_11_mid_medium_max/post_recovery: max_abs=0.4140625",
+        "c2_11_mid_medium_max/post_recovery: mean_abs=0.15647302567958832",
+        "c2_11_mid_medium_max/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_11_mid_medium_max",
+      "checkpoint": null,
+      "errors": [
+        "c2_11_mid_medium_max/post_recovery: max_abs=0.4140625",
+        "c2_11_mid_medium_max/post_recovery: mean_abs=0.15647302567958832",
+        "c2_11_mid_medium_max/post_recovery: runtime checkpoint reported errors",
+        "record[10]/c2_11_mid_medium_max: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_12_tail_medium_cap",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_12_tail_medium_cap/post_recovery: max_abs=0.28125",
+        "c2_12_tail_medium_cap/post_recovery: mean_abs=0.05569586157798767",
+        "c2_12_tail_medium_cap/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_12_tail_medium_cap",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_12_tail_medium_cap/next_assistant: max_abs=0.65625",
+        "c2_12_tail_medium_cap/next_assistant: mean_abs=0.061708640307188034",
+        "c2_12_tail_medium_cap/next_assistant: continuation diverges at 5",
+        "c2_12_tail_medium_cap/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_12_tail_medium_cap",
+      "checkpoint": null,
+      "errors": [
+        "c2_12_tail_medium_cap/post_recovery: max_abs=0.28125",
+        "c2_12_tail_medium_cap/post_recovery: mean_abs=0.05569586157798767",
+        "c2_12_tail_medium_cap/post_recovery: runtime checkpoint reported errors",
+        "c2_12_tail_medium_cap/next_assistant: max_abs=0.65625",
+        "c2_12_tail_medium_cap/next_assistant: mean_abs=0.061708640307188034",
+        "c2_12_tail_medium_cap/next_assistant: continuation diverges at 5",
+        "c2_12_tail_medium_cap/next_assistant: runtime checkpoint reported errors",
+        "record[11]/c2_12_tail_medium_cap: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_13_pending_medium_eos",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_13_pending_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_13_pending_medium_eos/termination_probe: EOS not reached within cap",
+        "c2_13_pending_medium_eos/termination_probe: EOS phase differs",
+        "c2_13_pending_medium_eos/termination_probe: runtime probe reported errors",
+        "c2_13_pending_medium_eos/post_recovery: max_abs=0.21875",
+        "c2_13_pending_medium_eos/post_recovery: mean_abs=0.028527772054076195",
+        "c2_13_pending_medium_eos/post_recovery: continuation diverges at 4",
+        "c2_13_pending_medium_eos/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_13_pending_medium_eos",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_13_pending_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_13_pending_medium_eos/termination_probe: EOS not reached within cap",
+        "c2_13_pending_medium_eos/termination_probe: EOS phase differs",
+        "c2_13_pending_medium_eos/termination_probe: runtime probe reported errors",
+        "c2_13_pending_medium_eos/next_assistant: max_abs=0.3125",
+        "c2_13_pending_medium_eos/next_assistant: mean_abs=0.05320477485656738",
+        "c2_13_pending_medium_eos/next_assistant: continuation diverges at 25",
+        "c2_13_pending_medium_eos/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_13_pending_medium_eos",
+      "checkpoint": null,
+      "errors": [
+        "c2_13_pending_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_13_pending_medium_eos/termination_probe: EOS not reached within cap",
+        "c2_13_pending_medium_eos/termination_probe: EOS phase differs",
+        "c2_13_pending_medium_eos/termination_probe: runtime probe reported errors",
+        "c2_13_pending_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_13_pending_medium_eos/termination_probe: EOS not reached within cap",
+        "c2_13_pending_medium_eos/termination_probe: EOS phase differs",
+        "c2_13_pending_medium_eos/termination_probe: runtime probe reported errors",
+        "c2_13_pending_medium_eos/post_recovery: max_abs=0.21875",
+        "c2_13_pending_medium_eos/post_recovery: mean_abs=0.028527772054076195",
+        "c2_13_pending_medium_eos/post_recovery: continuation diverges at 4",
+        "c2_13_pending_medium_eos/post_recovery: runtime checkpoint reported errors",
+        "c2_13_pending_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_13_pending_medium_eos/termination_probe: EOS not reached within cap",
+        "c2_13_pending_medium_eos/termination_probe: EOS phase differs",
+        "c2_13_pending_medium_eos/termination_probe: runtime probe reported errors",
+        "c2_13_pending_medium_eos/next_assistant: max_abs=0.3125",
+        "c2_13_pending_medium_eos/next_assistant: mean_abs=0.05320477485656738",
+        "c2_13_pending_medium_eos/next_assistant: continuation diverges at 25",
+        "c2_13_pending_medium_eos/next_assistant: runtime checkpoint reported errors",
+        "record[12]/c2_13_pending_medium_eos: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_14_invalidate_medium_cap",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_14_invalidate_medium_cap/post_recovery: max_abs=0.34375",
+        "c2_14_invalidate_medium_cap/post_recovery: mean_abs=0.05290278047323227",
+        "c2_14_invalidate_medium_cap/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_14_invalidate_medium_cap",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_14_invalidate_medium_cap/next_assistant: max_abs=0.4375",
+        "c2_14_invalidate_medium_cap/next_assistant: mean_abs=0.0495782271027565",
+        "c2_14_invalidate_medium_cap/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_14_invalidate_medium_cap",
+      "checkpoint": null,
+      "errors": [
+        "c2_14_invalidate_medium_cap/post_recovery: max_abs=0.34375",
+        "c2_14_invalidate_medium_cap/post_recovery: mean_abs=0.05290278047323227",
+        "c2_14_invalidate_medium_cap/post_recovery: runtime checkpoint reported errors",
+        "c2_14_invalidate_medium_cap/next_assistant: max_abs=0.4375",
+        "c2_14_invalidate_medium_cap/next_assistant: mean_abs=0.0495782271027565",
+        "c2_14_invalidate_medium_cap/next_assistant: runtime checkpoint reported errors",
+        "record[13]/c2_14_invalidate_medium_cap: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_15_next_medium_max",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_15_next_medium_max/post_recovery: max_abs=0.2109375",
+        "c2_15_next_medium_max/post_recovery: mean_abs=0.03654494136571884",
+        "c2_15_next_medium_max/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_15_next_medium_max",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_15_next_medium_max/next_assistant: max_abs=0.3125",
+        "c2_15_next_medium_max/next_assistant: mean_abs=0.04146471247076988",
+        "c2_15_next_medium_max/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_15_next_medium_max",
+      "checkpoint": null,
+      "errors": [
+        "c2_15_next_medium_max/post_recovery: max_abs=0.2109375",
+        "c2_15_next_medium_max/post_recovery: mean_abs=0.03654494136571884",
+        "c2_15_next_medium_max/post_recovery: runtime checkpoint reported errors",
+        "c2_15_next_medium_max/next_assistant: max_abs=0.3125",
+        "c2_15_next_medium_max/next_assistant: mean_abs=0.04146471247076988",
+        "c2_15_next_medium_max/next_assistant: runtime checkpoint reported errors",
+        "record[14]/c2_15_next_medium_max: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_16_second_medium_eos",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_16_second_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_16_second_medium_eos/termination_probe: EOS not reached within cap",
+        "c2_16_second_medium_eos/termination_probe: EOS phase differs",
+        "c2_16_second_medium_eos/termination_probe: runtime probe reported errors",
+        "c2_16_second_medium_eos/post_recovery: next-token top1 differs",
+        "c2_16_second_medium_eos/post_recovery: stored top1 equality differs",
+        "c2_16_second_medium_eos/post_recovery: max_abs=0.37664794921875",
+        "c2_16_second_medium_eos/post_recovery: mean_abs=0.0442190058529377",
+        "c2_16_second_medium_eos/post_recovery: continuation diverges at 0",
+        "c2_16_second_medium_eos/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_16_second_medium_eos",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_16_second_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_16_second_medium_eos/termination_probe: EOS not reached within cap",
+        "c2_16_second_medium_eos/termination_probe: EOS phase differs",
+        "c2_16_second_medium_eos/termination_probe: runtime probe reported errors",
+        "c2_16_second_medium_eos/next_assistant: max_abs=0.34375",
+        "c2_16_second_medium_eos/next_assistant: mean_abs=0.04242129996418953",
+        "c2_16_second_medium_eos/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_16_second_medium_eos",
+      "checkpoint": "post_second_recovery",
+      "errors": [
+        "c2_16_second_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_16_second_medium_eos/termination_probe: EOS not reached within cap",
+        "c2_16_second_medium_eos/termination_probe: EOS phase differs",
+        "c2_16_second_medium_eos/termination_probe: runtime probe reported errors",
+        "c2_16_second_medium_eos/post_second_recovery: max_abs=0.5625",
+        "c2_16_second_medium_eos/post_second_recovery: mean_abs=0.05617930367588997",
+        "c2_16_second_medium_eos/post_second_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_16_second_medium_eos",
+      "checkpoint": null,
+      "errors": [
+        "c2_16_second_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_16_second_medium_eos/termination_probe: EOS not reached within cap",
+        "c2_16_second_medium_eos/termination_probe: EOS phase differs",
+        "c2_16_second_medium_eos/termination_probe: runtime probe reported errors",
+        "c2_16_second_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_16_second_medium_eos/termination_probe: EOS not reached within cap",
+        "c2_16_second_medium_eos/termination_probe: EOS phase differs",
+        "c2_16_second_medium_eos/termination_probe: runtime probe reported errors",
+        "c2_16_second_medium_eos/post_recovery: next-token top1 differs",
+        "c2_16_second_medium_eos/post_recovery: stored top1 equality differs",
+        "c2_16_second_medium_eos/post_recovery: max_abs=0.37664794921875",
+        "c2_16_second_medium_eos/post_recovery: mean_abs=0.0442190058529377",
+        "c2_16_second_medium_eos/post_recovery: continuation diverges at 0",
+        "c2_16_second_medium_eos/post_recovery: runtime checkpoint reported errors",
+        "c2_16_second_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_16_second_medium_eos/termination_probe: EOS not reached within cap",
+        "c2_16_second_medium_eos/termination_probe: EOS phase differs",
+        "c2_16_second_medium_eos/termination_probe: runtime probe reported errors",
+        "c2_16_second_medium_eos/next_assistant: max_abs=0.34375",
+        "c2_16_second_medium_eos/next_assistant: mean_abs=0.04242129996418953",
+        "c2_16_second_medium_eos/next_assistant: runtime checkpoint reported errors",
+        "c2_16_second_medium_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_16_second_medium_eos/termination_probe: EOS not reached within cap",
+        "c2_16_second_medium_eos/termination_probe: EOS phase differs",
+        "c2_16_second_medium_eos/termination_probe: runtime probe reported errors",
+        "c2_16_second_medium_eos/post_second_recovery: max_abs=0.5625",
+        "c2_16_second_medium_eos/post_second_recovery: mean_abs=0.05617930367588997",
+        "c2_16_second_medium_eos/post_second_recovery: runtime checkpoint reported errors",
+        "record[15]/c2_16_second_medium_eos: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_17_p0_long_cap",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_17_p0_long_cap/post_recovery: max_abs=0.15625",
+        "c2_17_p0_long_cap/post_recovery: mean_abs=0.020169302821159363",
+        "c2_17_p0_long_cap/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_17_p0_long_cap",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_17_p0_long_cap/next_assistant: max_abs=0.15625",
+        "c2_17_p0_long_cap/next_assistant: mean_abs=0.02222566306591034",
+        "c2_17_p0_long_cap/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_17_p0_long_cap",
+      "checkpoint": null,
+      "errors": [
+        "c2_17_p0_long_cap/post_recovery: max_abs=0.15625",
+        "c2_17_p0_long_cap/post_recovery: mean_abs=0.020169302821159363",
+        "c2_17_p0_long_cap/post_recovery: runtime checkpoint reported errors",
+        "c2_17_p0_long_cap/next_assistant: max_abs=0.15625",
+        "c2_17_p0_long_cap/next_assistant: mean_abs=0.02222566306591034",
+        "c2_17_p0_long_cap/next_assistant: runtime checkpoint reported errors",
+        "record[16]/c2_17_p0_long_cap: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_18_clean_long_max",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_18_clean_long_max/post_recovery: max_abs=0.1875",
+        "c2_18_clean_long_max/post_recovery: mean_abs=0.03046274557709694",
+        "c2_18_clean_long_max/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_18_clean_long_max",
+      "checkpoint": null,
+      "errors": [
+        "c2_18_clean_long_max/post_recovery: max_abs=0.1875",
+        "c2_18_clean_long_max/post_recovery: mean_abs=0.03046274557709694",
+        "c2_18_clean_long_max/post_recovery: runtime checkpoint reported errors",
+        "record[17]/c2_18_clean_long_max: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_19_mid_long_eos",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_19_mid_long_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_19_mid_long_eos/termination_probe: EOS not reached within cap",
+        "c2_19_mid_long_eos/termination_probe: EOS phase differs",
+        "c2_19_mid_long_eos/termination_probe: runtime probe reported errors",
+        "c2_19_mid_long_eos/post_recovery: max_abs=0.2890625",
+        "c2_19_mid_long_eos/post_recovery: mean_abs=0.04556243494153023",
+        "c2_19_mid_long_eos/post_recovery: continuation diverges at 17",
+        "c2_19_mid_long_eos/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_19_mid_long_eos",
+      "checkpoint": null,
+      "errors": [
+        "c2_19_mid_long_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_19_mid_long_eos/termination_probe: EOS not reached within cap",
+        "c2_19_mid_long_eos/termination_probe: EOS phase differs",
+        "c2_19_mid_long_eos/termination_probe: runtime probe reported errors",
+        "c2_19_mid_long_eos/termination_probe: observed end reason is 'MAX_TOKENS'",
+        "c2_19_mid_long_eos/termination_probe: EOS not reached within cap",
+        "c2_19_mid_long_eos/termination_probe: EOS phase differs",
+        "c2_19_mid_long_eos/termination_probe: runtime probe reported errors",
+        "c2_19_mid_long_eos/post_recovery: max_abs=0.2890625",
+        "c2_19_mid_long_eos/post_recovery: mean_abs=0.04556243494153023",
+        "c2_19_mid_long_eos/post_recovery: continuation diverges at 17",
+        "c2_19_mid_long_eos/post_recovery: runtime checkpoint reported errors",
+        "record[18]/c2_19_mid_long_eos: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_20_tail_long_eos",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_20_tail_long_eos/post_recovery: max_abs=0.1953125",
+        "c2_20_tail_long_eos/post_recovery: mean_abs=0.030691541731357574",
+        "c2_20_tail_long_eos/post_recovery: continuation diverges at 17",
+        "c2_20_tail_long_eos/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_20_tail_long_eos",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_20_tail_long_eos/next_assistant: max_abs=0.25",
+        "c2_20_tail_long_eos/next_assistant: mean_abs=0.03292758762836456",
+        "c2_20_tail_long_eos/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_20_tail_long_eos",
+      "checkpoint": null,
+      "errors": [
+        "c2_20_tail_long_eos/post_recovery: max_abs=0.1953125",
+        "c2_20_tail_long_eos/post_recovery: mean_abs=0.030691541731357574",
+        "c2_20_tail_long_eos/post_recovery: continuation diverges at 17",
+        "c2_20_tail_long_eos/post_recovery: runtime checkpoint reported errors",
+        "c2_20_tail_long_eos/next_assistant: max_abs=0.25",
+        "c2_20_tail_long_eos/next_assistant: mean_abs=0.03292758762836456",
+        "c2_20_tail_long_eos/next_assistant: runtime checkpoint reported errors",
+        "record[19]/c2_20_tail_long_eos: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_21_pending_long_max",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_21_pending_long_max/post_recovery: max_abs=0.25",
+        "c2_21_pending_long_max/post_recovery: mean_abs=0.0843239352107048",
+        "c2_21_pending_long_max/post_recovery: continuation diverges at 5",
+        "c2_21_pending_long_max/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_21_pending_long_max",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_21_pending_long_max/next_assistant: max_abs=0.25",
+        "c2_21_pending_long_max/next_assistant: mean_abs=0.041502609848976135",
+        "c2_21_pending_long_max/next_assistant: continuation diverges at 14",
+        "c2_21_pending_long_max/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_21_pending_long_max",
+      "checkpoint": null,
+      "errors": [
+        "c2_21_pending_long_max/post_recovery: max_abs=0.25",
+        "c2_21_pending_long_max/post_recovery: mean_abs=0.0843239352107048",
+        "c2_21_pending_long_max/post_recovery: continuation diverges at 5",
+        "c2_21_pending_long_max/post_recovery: runtime checkpoint reported errors",
+        "c2_21_pending_long_max/next_assistant: max_abs=0.25",
+        "c2_21_pending_long_max/next_assistant: mean_abs=0.041502609848976135",
+        "c2_21_pending_long_max/next_assistant: continuation diverges at 14",
+        "c2_21_pending_long_max/next_assistant: runtime checkpoint reported errors",
+        "record[20]/c2_21_pending_long_max: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_22_invalidate_long_eos",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_22_invalidate_long_eos/post_recovery: max_abs=0.265625",
+        "c2_22_invalidate_long_eos/post_recovery: mean_abs=0.044514529407024384",
+        "c2_22_invalidate_long_eos/post_recovery: continuation diverges at 25",
+        "c2_22_invalidate_long_eos/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_22_invalidate_long_eos",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_22_invalidate_long_eos/next_assistant: max_abs=0.3125",
+        "c2_22_invalidate_long_eos/next_assistant: mean_abs=0.0943751186132431",
+        "c2_22_invalidate_long_eos/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_22_invalidate_long_eos",
+      "checkpoint": null,
+      "errors": [
+        "c2_22_invalidate_long_eos/post_recovery: max_abs=0.265625",
+        "c2_22_invalidate_long_eos/post_recovery: mean_abs=0.044514529407024384",
+        "c2_22_invalidate_long_eos/post_recovery: continuation diverges at 25",
+        "c2_22_invalidate_long_eos/post_recovery: runtime checkpoint reported errors",
+        "c2_22_invalidate_long_eos/next_assistant: max_abs=0.3125",
+        "c2_22_invalidate_long_eos/next_assistant: mean_abs=0.0943751186132431",
+        "c2_22_invalidate_long_eos/next_assistant: runtime checkpoint reported errors",
+        "record[21]/c2_22_invalidate_long_eos: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_23_next_long_cap",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_23_next_long_cap/post_recovery: max_abs=0.21875",
+        "c2_23_next_long_cap/post_recovery: mean_abs=0.040864672511816025",
+        "c2_23_next_long_cap/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_23_next_long_cap",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_23_next_long_cap/next_assistant: max_abs=0.3046875",
+        "c2_23_next_long_cap/next_assistant: mean_abs=0.044782571494579315",
+        "c2_23_next_long_cap/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_23_next_long_cap",
+      "checkpoint": null,
+      "errors": [
+        "c2_23_next_long_cap/post_recovery: max_abs=0.21875",
+        "c2_23_next_long_cap/post_recovery: mean_abs=0.040864672511816025",
+        "c2_23_next_long_cap/post_recovery: runtime checkpoint reported errors",
+        "c2_23_next_long_cap/next_assistant: max_abs=0.3046875",
+        "c2_23_next_long_cap/next_assistant: mean_abs=0.044782571494579315",
+        "c2_23_next_long_cap/next_assistant: runtime checkpoint reported errors",
+        "record[22]/c2_23_next_long_cap: runtime case reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_24_second_long_max",
+      "checkpoint": "post_recovery",
+      "errors": [
+        "c2_24_second_long_max/post_recovery: max_abs=0.15625",
+        "c2_24_second_long_max/post_recovery: mean_abs=0.02647850662469864",
+        "c2_24_second_long_max/post_recovery: continuation diverges at 2",
+        "c2_24_second_long_max/post_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_24_second_long_max",
+      "checkpoint": "next_assistant",
+      "errors": [
+        "c2_24_second_long_max/next_assistant: next-token top1 differs",
+        "c2_24_second_long_max/next_assistant: stored top1 equality differs",
+        "c2_24_second_long_max/next_assistant: max_abs=0.21875",
+        "c2_24_second_long_max/next_assistant: mean_abs=0.036408569663763046",
+        "c2_24_second_long_max/next_assistant: continuation diverges at 0",
+        "c2_24_second_long_max/next_assistant: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_24_second_long_max",
+      "checkpoint": "post_second_recovery",
+      "errors": [
+        "c2_24_second_long_max/post_second_recovery: max_abs=0.265625",
+        "c2_24_second_long_max/post_second_recovery: mean_abs=0.0494922436773777",
+        "c2_24_second_long_max/post_second_recovery: continuation diverges at 16",
+        "c2_24_second_long_max/post_second_recovery: runtime checkpoint reported errors"
+      ]
+    },
+    {
+      "case_id": "c2_24_second_long_max",
+      "checkpoint": null,
+      "errors": [
+        "c2_24_second_long_max/post_recovery: max_abs=0.15625",
+        "c2_24_second_long_max/post_recovery: mean_abs=0.02647850662469864",
+        "c2_24_second_long_max/post_recovery: continuation diverges at 2",
+        "c2_24_second_long_max/post_recovery: runtime checkpoint reported errors",
+        "c2_24_second_long_max/next_assistant: next-token top1 differs",
+        "c2_24_second_long_max/next_assistant: stored top1 equality differs",
+        "c2_24_second_long_max/next_assistant: max_abs=0.21875",
+        "c2_24_second_long_max/next_assistant: mean_abs=0.036408569663763046",
+        "c2_24_second_long_max/next_assistant: continuation diverges at 0",
+        "c2_24_second_long_max/next_assistant: runtime checkpoint reported errors",
+        "c2_24_second_long_max/post_second_recovery: max_abs=0.265625",
+        "c2_24_second_long_max/post_second_recovery: mean_abs=0.0494922436773777",
+        "c2_24_second_long_max/post_second_recovery: continuation diverges at 16",
+        "c2_24_second_long_max/post_second_recovery: runtime checkpoint reported errors",
+        "record[23]/c2_24_second_long_max: runtime case reported errors"
+      ]
+    }
+  ],
+  "grid": {
+    "sessions": 1,
+    "statistical_repeats": 0,
+    "cases_expected": 24,
+    "cases_observed": 24,
+    "process_identities": [
+      "pid-10378-1788399408595489786-9d247206ebc54669aa90cf0945e818a5"
+    ],
+    "resume_process_count": 1
+  },
+  "termination_probes": {
+    "required": 24,
+    "observed": 24,
+    "qualified": 20
+  },
+  "thresholds": {
+    "max_abs_logit_diff": 0.1,
+    "mean_abs_logit_diff": 0.01,
+    "top5_min_overlap": 4,
+    "continuation_tokens": 32
+  },
+  "provenance": {
+    "campaign_manifest": {
+      "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/c2_equivalence/c2eq_563dd22a_20260903T013547Z/campaign_manifest.json",
+      "sha256": "f4960a20364de8c4e78bdb51c3accdd02576b5ce61e2375c36bc5831054c9670"
+    },
+    "cases": {
+      "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/c2_equivalence/c2eq_563dd22a_20260903T013547Z/cases.json",
+      "sha256": "acda9afb83ff393d222fc06eb433c1a307dba1eb213fcbbbedfdb860f7500696"
+    },
+    "records": {
+      "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/c2_equivalence/c2eq_563dd22a_20260903T013547Z/records.jsonl",
+      "sha256": "ce0e0724b30dcedb78493bf370f22e982c5a0bb12502a1b541f48aa1c0664b6a"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "completed_at_utc": "2026-09-03T01:40:39.957528+00:00",
+  "status": "FAIL",
+  "acceptance_eligible": false,
+  "sessions": 1,
+  "statistical_repeats": 0,
+  "cases": 24,
+  "expected_formal_cases": 24,
+  "failed_cases": [
+    "c2_01_p0_short_eos",
+    "c2_02_clean_short_max",
+    "c2_03_mid_short_cap",
+    "c2_04_tail_short_eos",
+    "c2_05_pending_short_eos",
+    "c2_06_invalidate_short_max",
+    "c2_07_next_short_eos",
+    "c2_08_second_short_cap",
+    "c2_09_p0_medium_max",
+    "c2_10_clean_medium_eos",
+    "c2_11_mid_medium_max",
+    "c2_12_tail_medium_cap",
+    "c2_13_pending_medium_eos",
+    "c2_14_invalidate_medium_cap",
+    "c2_15_next_medium_max",
+    "c2_16_second_medium_eos",
+    "c2_17_p0_long_cap",
+    "c2_18_clean_long_max",
+    "c2_19_mid_long_eos",
+    "c2_20_tail_long_eos",
+    "c2_21_pending_long_max",
+    "c2_22_invalidate_long_eos",
+    "c2_23_next_long_cap",
+    "c2_24_second_long_max"
+  ],
+  "checkpoint_count": 45,
+  "termination_probes": {
+    "required": 24,
+    "observed": 24,
+    "runner_qualified": 0
+  },
+  "logical_session_id": "s01",
+  "process_identities": [
+    "pid-10378-1788399408595489786-9d247206ebc54669aa90cf0945e818a5"
+  ],
+  "resume_process_count": 1,
+  "campaign_identity_hash": "1f07a2e91bd97e6c3ff5f497d0f017a27321c712c1d27fd2285b82861eba8a36",
+  "campaign_manifest_sha256": "f4960a20364de8c4e78bdb51c3accdd02576b5ce61e2375c36bc5831054c9670"
+}

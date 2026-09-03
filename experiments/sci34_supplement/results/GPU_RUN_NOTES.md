@@ -94,3 +94,42 @@ A1 正式 run 前后 `nvidia-smi` 快照存于 `a1/nvidia_smi_before_formal.txt`
   B@0.92 pooled waste 2.85%、survival 67.0%。九阈值 waste/survival 单调。
 - 全部口径与红线遵守：不把 TTFT_eff 称实际墙钟、不把 endpoint_accept 称最后段到达、
   不把受控文本段称真实音频；结果按 .gitignore 约定验收后 `git add -f` 入库。
+
+## C2 crop/clean-prefill 等价性 campaign（2026-09-03，commit `563dd22`）
+
+按 `c2_equivalence/GPU_HANDOFF.md` 完整执行，run `c2eq_563dd22a_20260903T013547Z`
+（campaign identity `1f07a2e9…`，manifest sha `f4960a20…`）。**结果：rejected（硬门槛未过，工件全留，未 seal）**。
+
+- 环境准备：本机原无 `Qwen/Qwen2.5-0.5B-Instruct` HF 缓存（§2 的 kvcrop/speculative
+  smoke 需要），formal 前一次性经 HF 下载（`HF_HUB_DISABLE_XET=1`）入
+  `/root/autodl-tmp/hfhome`，并以符号链接对齐 `cache_dir=$HF_HOME` 布局；此后全程
+  `HF_HUB_OFFLINE=1` 离线。`uv sync --frozen`，pyproject/uv.lock 前后 hash 不变。
+- 流程：五模块 CLI 核对 → py_compile + 五项 smoke 全 PASS（c2 fake smoke 24 cases
+  `models_loaded=false`）→ 7B/tokenizer 预检（eos==eot==151645，template sha
+  `79320228…`）→ E3 exact `p2_turns.json` 抢救（sha 与 manifest 一致 `a2116b83…`）→
+  pilot（`c2pilot_563dd22a_20260903T013205Z`，3 cases，probe 全合格但 logit 门槛超阈，
+  已预警）→ 冻结 formal manifest → 单进程 formal 24/24 cases（45 checkpoints，
+  24 attempts 无 resume）→ validator `ok=false`（probes 24/24/20，227 errors）→
+  analyzer fail-closed 拒绝生成 → ACCEPTANCE.md 如实 `rejected` → seal 拒绝封存
+  （未写任何状态）→ 回传 tarball（sha
+  `c24f28fcc51ae27c77f9290a797e1ce86ab9a309a95c121e83b60cd71cbeb874`，23MB，目录内
+  74 文件有 `checksums_return.sha256` 清单）。
+- 旧结果保护：186 个 git 跟踪旧结果文件（experiments/results + sci34_supplement/results
+  全量，排除 c2_equivalence）跑前跑后 SHA-256 逐字节一致；论文稿零改动。
+- 关键结果（RTX 3090 / torch 2.8.0+cu128 / sdpa / BF16）：
+  - **通过层 100%**：canonical↔path token IDs exact（45/45）、KV/mask/seq/ledger 状态、
+    assistant 内容账本、unique EOT、role phase、scenario execution 24/24、
+    next-token top-1（45/45）、top-5 overlap（min 4，门槛 ≥4）。
+  - **失败层**：BF16→FP32 logit diff 全部 45/45 checkpoint 超冻结阈（max_abs
+    0.15625–0.96875 > 0.1；mean_abs 0.0202–0.1565 > 0.01；RMS 最高 0.1643）；
+    32-token continuation 30/45 exact（15 个发散，首个发散位 0–25）；
+    termination probe 20/24（4 个 `natural_eos`（c2_07/13/16/19）greedy 在冻结
+    128-token cap 内未 EOS；max_tokens 8/8、eos_at_cap 6/6 全合格）。
+  - 失败定性与建议已写入 ACCEPTANCE §8：(a) probe 未命中属 cap×snapshot 行为，
+    同机重跑不可解；(b) logit 超阈呈系统性（增量 append vs 整段 prefill 的 BF16
+    数值核差异叠加上下文长度放大），是否放宽阈/换环境复核由设计侧决策，本 run 容差未动。
+- 附带归档：E3 抢救件入库 `results/e3_exact_rescue/`（p2_turns.json、E3 manifest、
+  模型身份重哈希 `209f3a9c…`、raw MultiWOZ/builder hash），与 C2 records 分离。
+- 红线遵守：未删任何失败工件/NPZ；未改 24 cases/32 continuation/top-k/BF16 阈值；
+  未改 src/论文“配合结果”；结果（含 pilot 与失败工件）按用户留存规则 `git add -f`
+  入库，tarball 与 E1/E2 轮惯例一致不入 git。
