@@ -1,0 +1,929 @@
+{
+  "schema_version": "e3-analysis/2.0",
+  "analysis_version": "e3-weighting-dedup-v2",
+  "post_review_sensitivity": true,
+  "generated_at_utc": "2026-09-03T10:02:37.962813+00:00",
+  "method": {
+    "effect_direction": "generation minus playback",
+    "estimands": {
+      "label_weighted": "Each eligible fraction label receives equal weight.",
+      "dialogue_weighted": "Each eligible dialogue receives equal weight after averaging its eligible labels.",
+      "unique_semantic_group_weighted": "Each exact target-specific deduplicated semantic group receives equal weight.",
+      "unique_dialogue_weighted": "Each eligible dialogue receives equal weight after averaging its unique semantic groups."
+    },
+    "bootstrap": {
+      "method": "Paired dialogue-cluster percentile bootstrap. Sort (id, trajectory_id) clusters, draw the same number with replacement using numpy.random.default_rng(seed), retain playback/generation pairing and all within-dialogue labels/groups, then recompute each estimand.",
+      "random_generator": "numpy.random.default_rng",
+      "seed": 20260831,
+      "repeats": 10000,
+      "interval": "percentile 95%",
+      "numpy_quantile_method": "linear (NumPy default)"
+    }
+  },
+  "design": {
+    "raw_records": 800,
+    "paired_labels": 400,
+    "raw_dialogues": 100,
+    "judge_records": 1600,
+    "conditions": [
+      "playback",
+      "generation"
+    ],
+    "fractions": [
+      "0.25",
+      "0.5",
+      "0.75",
+      "boundary"
+    ]
+  },
+  "construction_checks": {
+    "playback_records": 400,
+    "playback_local_unheard_empty": 400,
+    "playback_local_reference_positives": 0
+  },
+  "targets": {
+    "fragment": {
+      "target_field": "unheard_text",
+      "eligibility": "nonblank unheard_text",
+      "eligible_labels": 297,
+      "empty_target_labels": 103,
+      "eligible_dialogues": 96,
+      "eligible_labels_by_fraction": {
+        "0.25": 96,
+        "0.5": 80,
+        "0.75": 41,
+        "boundary": 80
+      },
+      "semantic_groups": 169,
+      "duplicate_labels_removed": 128,
+      "semantic_group_size_distribution": {
+        "1": 89,
+        "2": 35,
+        "3": 42,
+        "4": 3
+      },
+      "dedup_key_fields": [
+        "id",
+        "trajectory_id",
+        "playback_history_key",
+        "generation_history_key",
+        "heard_token_end",
+        "sha256_exact_target"
+      ],
+      "group_invariant_fields": [
+        "exact target",
+        "probe_replies by condition",
+        "rule verdict by condition",
+        "judge verdict by condition",
+        "judge prompt_version by condition",
+        "judge parse_success by condition"
+      ],
+      "metrics": {
+        "rule": {
+          "legacy_label_counts": {
+            "eligible_labels_per_condition": 297,
+            "playback_positive": 199,
+            "generation_positive": 189,
+            "positive_difference": -10,
+            "eligible_dialogues": 96,
+            "semantic_groups": 169
+          },
+          "estimands": {
+            "label_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.67003367003367
+                },
+                "generation": {
+                  "rate": 0.6363636363636364
+                }
+              },
+              "generation_minus_playback": -0.03367003367003363,
+              "difference_95_ci": [
+                -0.1048951048951049,
+                0.03401360544217691
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.587248322147651,
+                  0.7534246575342466
+                ],
+                "generation": [
+                  0.5495199489690216,
+                  0.7241379310344828
+                ]
+              }
+            },
+            "dialogue_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.7161458333333334
+                },
+                "generation": {
+                  "rate": 0.6840277777777778
+                }
+              },
+              "generation_minus_playback": -0.03211805555555558,
+              "difference_95_ci": [
+                -0.09548611111111105,
+                0.0277777777777779
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.6397569444444444,
+                  0.7925347222222222
+                ],
+                "generation": [
+                  0.6015625,
+                  0.7630208333333334
+                ]
+              }
+            },
+            "unique_semantic_group_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.7159763313609467
+                },
+                "generation": {
+                  "rate": 0.6863905325443787
+                }
+              },
+              "generation_minus_playback": -0.029585798816568087,
+              "difference_95_ci": [
+                -0.09036144578313243,
+                0.0263335704125176
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.6491228070175439,
+                  0.7826149068322981
+                ],
+                "generation": [
+                  0.6130857762180018,
+                  0.7604790419161677
+                ]
+              }
+            },
+            "unique_dialogue_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.7430555555555555
+                },
+                "generation": {
+                  "rate": 0.7118055555555555
+                }
+              },
+              "generation_minus_playback": -0.03125,
+              "difference_95_ci": [
+                -0.08680555555555547,
+                0.02083333333333326
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.6736111111111112,
+                  0.8107638888888888
+                ],
+                "generation": [
+                  0.6354166666666666,
+                  0.7864583333333334
+                ]
+              }
+            }
+          }
+        },
+        "judge": {
+          "legacy_label_counts": {
+            "eligible_labels_per_condition": 297,
+            "playback_positive": 127,
+            "generation_positive": 121,
+            "positive_difference": -6,
+            "eligible_dialogues": 96,
+            "semantic_groups": 169
+          },
+          "estimands": {
+            "label_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.4276094276094276
+                },
+                "generation": {
+                  "rate": 0.4074074074074074
+                }
+              },
+              "generation_minus_playback": -0.02020202020202022,
+              "difference_95_ci": [
+                -0.10702341137123744,
+                0.06129236054500986
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.3333333333333333,
+                  0.5266720430107525
+                ],
+                "generation": [
+                  0.3118244658567239,
+                  0.5087719298245614
+                ]
+              }
+            },
+            "dialogue_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.4461805555555555
+                },
+                "generation": {
+                  "rate": 0.43315972222222215
+                }
+              },
+              "generation_minus_playback": -0.01302083333333337,
+              "difference_95_ci": [
+                -0.08940972222222221,
+                0.060763888888888895
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.35590277777777773,
+                  0.540798611111111
+                ],
+                "generation": [
+                  0.3385416666666667,
+                  0.5303819444444444
+                ]
+              }
+            },
+            "unique_semantic_group_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.4319526627218935
+                },
+                "generation": {
+                  "rate": 0.4319526627218935
+                }
+              },
+              "generation_minus_playback": 0.0,
+              "difference_95_ci": [
+                -0.07976073619631904,
+                0.07471982758620681
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.34375,
+                  0.5240963855421686
+                ],
+                "generation": [
+                  0.33766233766233766,
+                  0.5314285714285715
+                ]
+              }
+            },
+            "unique_dialogue_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.4513888888888889
+                },
+                "generation": {
+                  "rate": 0.43402777777777773
+                }
+              },
+              "generation_minus_playback": -0.01736111111111116,
+              "difference_95_ci": [
+                -0.09201388888888884,
+                0.053819444444444475
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.3611111111111111,
+                  0.5451388888888888
+                ],
+                "generation": [
+                  0.34027777777777773,
+                  0.53125
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "proxy": {
+      "target_field": "strict_unheard_text",
+      "eligibility": "nonblank strict_unheard_text",
+      "eligible_labels": 380,
+      "empty_target_labels": 20,
+      "eligible_dialogues": 100,
+      "eligible_labels_by_fraction": {
+        "0.25": 100,
+        "0.5": 100,
+        "0.75": 100,
+        "boundary": 80
+      },
+      "semantic_groups": 379,
+      "duplicate_labels_removed": 1,
+      "semantic_group_size_distribution": {
+        "1": 378,
+        "2": 1
+      },
+      "dedup_key_fields": [
+        "id",
+        "trajectory_id",
+        "playback_history_key",
+        "generation_history_key",
+        "sha256_exact_target"
+      ],
+      "group_invariant_fields": [
+        "exact target",
+        "probe_replies by condition",
+        "rule verdict by condition",
+        "judge verdict by condition",
+        "judge prompt_version by condition",
+        "judge parse_success by condition"
+      ],
+      "metrics": {
+        "rule": {
+          "legacy_label_counts": {
+            "eligible_labels_per_condition": 380,
+            "playback_positive": 286,
+            "generation_positive": 280,
+            "positive_difference": -6,
+            "eligible_dialogues": 100,
+            "semantic_groups": 379
+          },
+          "estimands": {
+            "label_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.7526315789473684
+                },
+                "generation": {
+                  "rate": 0.7368421052631579
+                }
+              },
+              "generation_minus_playback": -0.015789473684210575,
+              "difference_95_ci": [
+                -0.060846560846560815,
+                0.0267379679144385
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.688,
+                  0.8136482939632546
+                ],
+                "generation": [
+                  0.6666450777202072,
+                  0.8032021414041453
+                ]
+              }
+            },
+            "dialogue_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.7533333333333333
+                },
+                "generation": {
+                  "rate": 0.7383333333333333
+                }
+              },
+              "generation_minus_playback": -0.015000000000000013,
+              "difference_95_ci": [
+                -0.057499999999999996,
+                0.025000000000000133
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.6899999999999998,
+                  0.8125
+                ],
+                "generation": [
+                  0.67,
+                  0.802520833333333
+                ]
+              }
+            },
+            "unique_semantic_group_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.7519788918205804
+                },
+                "generation": {
+                  "rate": 0.7361477572559367
+                }
+              },
+              "generation_minus_playback": -0.01583113456464369,
+              "difference_95_ci": [
+                -0.06100795755968169,
+                0.026881720430107503
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.6870026525198939,
+                  0.8129875409143702
+                ],
+                "generation": [
+                  0.6657824933687002,
+                  0.8026315789473685
+                ]
+              }
+            },
+            "unique_dialogue_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.7533333333333333
+                },
+                "generation": {
+                  "rate": 0.7383333333333333
+                }
+              },
+              "generation_minus_playback": -0.015000000000000013,
+              "difference_95_ci": [
+                -0.057499999999999996,
+                0.025000000000000133
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.6899999999999998,
+                  0.8125
+                ],
+                "generation": [
+                  0.67,
+                  0.802520833333333
+                ]
+              }
+            }
+          }
+        },
+        "judge": {
+          "legacy_label_counts": {
+            "eligible_labels_per_condition": 380,
+            "playback_positive": 167,
+            "generation_positive": 157,
+            "positive_difference": -10,
+            "eligible_dialogues": 100,
+            "semantic_groups": 379
+          },
+          "estimands": {
+            "label_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.4394736842105263
+                },
+                "generation": {
+                  "rate": 0.4131578947368421
+                }
+              },
+              "generation_minus_playback": -0.02631578947368418,
+              "difference_95_ci": [
+                -0.08571428571428569,
+                0.02902374670184693
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.3576976149569123,
+                  0.52604507526178
+                ],
+                "generation": [
+                  0.32625994694960214,
+                  0.5039169630558582
+                ]
+              }
+            },
+            "dialogue_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.44
+                },
+                "generation": {
+                  "rate": 0.4141666666666666
+                }
+              },
+              "generation_minus_playback": -0.025833333333333375,
+              "difference_95_ci": [
+                -0.08250000000000002,
+                0.026666666666666727
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.35833333333333334,
+                  0.525020833333333
+                ],
+                "generation": [
+                  0.3275,
+                  0.5041666666666665
+                ]
+              }
+            },
+            "unique_semantic_group_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.43799472295514513
+                },
+                "generation": {
+                  "rate": 0.41160949868073876
+                }
+              },
+              "generation_minus_playback": -0.02638522427440637,
+              "difference_95_ci": [
+                -0.08571986607142859,
+                0.02902566626181401
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.3560063604927299,
+                  0.5243276292596944
+                ],
+                "generation": [
+                  0.3243827181930573,
+                  0.502604507526178
+                ]
+              }
+            },
+            "unique_dialogue_weighted": {
+              "conditions": {
+                "playback": {
+                  "rate": 0.44
+                },
+                "generation": {
+                  "rate": 0.4141666666666666
+                }
+              },
+              "generation_minus_playback": -0.025833333333333375,
+              "difference_95_ci": [
+                -0.08250000000000002,
+                0.026666666666666727
+              ],
+              "bootstrap_condition_rate_95_ci": {
+                "playback": [
+                  0.35833333333333334,
+                  0.525020833333333
+                ],
+                "generation": [
+                  0.3275,
+                  0.5041666666666665
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "confusion_tables_rule_vs_judge": {
+    "label_level": {
+      "fragment": {
+        "playback": {
+          "n": 297,
+          "rule_positive_judge_positive": 107,
+          "rule_positive_judge_negative": 92,
+          "rule_negative_judge_positive": 20,
+          "rule_negative_judge_negative": 78,
+          "agreement": 185,
+          "agreement_rate": 0.622895622895623
+        },
+        "generation": {
+          "n": 297,
+          "rule_positive_judge_positive": 99,
+          "rule_positive_judge_negative": 90,
+          "rule_negative_judge_positive": 22,
+          "rule_negative_judge_negative": 86,
+          "agreement": 185,
+          "agreement_rate": 0.622895622895623
+        },
+        "pooled": {
+          "n": 594,
+          "rule_positive_judge_positive": 206,
+          "rule_positive_judge_negative": 182,
+          "rule_negative_judge_positive": 42,
+          "rule_negative_judge_negative": 164,
+          "agreement": 370,
+          "agreement_rate": 0.622895622895623
+        }
+      },
+      "proxy": {
+        "playback": {
+          "n": 380,
+          "rule_positive_judge_positive": 149,
+          "rule_positive_judge_negative": 137,
+          "rule_negative_judge_positive": 18,
+          "rule_negative_judge_negative": 76,
+          "agreement": 225,
+          "agreement_rate": 0.5921052631578947
+        },
+        "generation": {
+          "n": 380,
+          "rule_positive_judge_positive": 137,
+          "rule_positive_judge_negative": 143,
+          "rule_negative_judge_positive": 20,
+          "rule_negative_judge_negative": 80,
+          "agreement": 217,
+          "agreement_rate": 0.5710526315789474
+        },
+        "pooled": {
+          "n": 760,
+          "rule_positive_judge_positive": 286,
+          "rule_positive_judge_negative": 280,
+          "rule_negative_judge_positive": 38,
+          "rule_negative_judge_negative": 156,
+          "agreement": 442,
+          "agreement_rate": 0.5815789473684211
+        }
+      }
+    },
+    "unique_semantic_group_level": {
+      "fragment": {
+        "playback": {
+          "n": 169,
+          "rule_positive_judge_positive": 64,
+          "rule_positive_judge_negative": 57,
+          "rule_negative_judge_positive": 9,
+          "rule_negative_judge_negative": 39,
+          "agreement": 103,
+          "agreement_rate": 0.6094674556213018
+        },
+        "generation": {
+          "n": 169,
+          "rule_positive_judge_positive": 62,
+          "rule_positive_judge_negative": 54,
+          "rule_negative_judge_positive": 11,
+          "rule_negative_judge_negative": 42,
+          "agreement": 104,
+          "agreement_rate": 0.6153846153846154
+        },
+        "pooled": {
+          "n": 338,
+          "rule_positive_judge_positive": 126,
+          "rule_positive_judge_negative": 111,
+          "rule_negative_judge_positive": 20,
+          "rule_negative_judge_negative": 81,
+          "agreement": 207,
+          "agreement_rate": 0.6124260355029586
+        }
+      },
+      "proxy": {
+        "playback": {
+          "n": 379,
+          "rule_positive_judge_positive": 148,
+          "rule_positive_judge_negative": 137,
+          "rule_negative_judge_positive": 18,
+          "rule_negative_judge_negative": 76,
+          "agreement": 224,
+          "agreement_rate": 0.5910290237467019
+        },
+        "generation": {
+          "n": 379,
+          "rule_positive_judge_positive": 136,
+          "rule_positive_judge_negative": 143,
+          "rule_negative_judge_positive": 20,
+          "rule_negative_judge_negative": 80,
+          "agreement": 216,
+          "agreement_rate": 0.5699208443271768
+        },
+        "pooled": {
+          "n": 758,
+          "rule_positive_judge_positive": 284,
+          "rule_positive_judge_negative": 280,
+          "rule_negative_judge_positive": 38,
+          "rule_negative_judge_negative": 156,
+          "agreement": 440,
+          "agreement_rate": 0.5804749340369393
+        }
+      }
+    }
+  },
+  "formal_hard_gates": {
+    "passed": true,
+    "assertions": {
+      "raw_records": {
+        "actual": 800,
+        "expected": 800,
+        "passed": true
+      },
+      "paired_labels": {
+        "actual": 400,
+        "expected": 400,
+        "passed": true
+      },
+      "judge_records": {
+        "actual": 1600,
+        "expected": 1600,
+        "passed": true
+      },
+      "raw_dialogues": {
+        "actual": 100,
+        "expected": 100,
+        "passed": true
+      },
+      "playback_records": {
+        "actual": 400,
+        "expected": 400,
+        "passed": true
+      },
+      "playback_local_unheard_empty": {
+        "actual": 400,
+        "expected": 400,
+        "passed": true
+      },
+      "playback_local_reference_positives": {
+        "actual": 0,
+        "expected": 0,
+        "passed": true
+      },
+      "fragment.eligible_labels": {
+        "actual": 297,
+        "expected": 297,
+        "passed": true
+      },
+      "fragment.eligible_dialogues": {
+        "actual": 96,
+        "expected": 96,
+        "passed": true
+      },
+      "fragment.semantic_groups": {
+        "actual": 169,
+        "expected": 169,
+        "passed": true
+      },
+      "fragment.rule.playback_positive": {
+        "actual": 199,
+        "expected": 199,
+        "passed": true
+      },
+      "fragment.rule.generation_positive": {
+        "actual": 189,
+        "expected": 189,
+        "passed": true
+      },
+      "fragment.rule.positive_difference": {
+        "actual": -10,
+        "expected": -10,
+        "passed": true
+      },
+      "fragment.judge.playback_positive": {
+        "actual": 127,
+        "expected": 127,
+        "passed": true
+      },
+      "fragment.judge.generation_positive": {
+        "actual": 121,
+        "expected": 121,
+        "passed": true
+      },
+      "fragment.judge.positive_difference": {
+        "actual": -6,
+        "expected": -6,
+        "passed": true
+      },
+      "proxy.eligible_labels": {
+        "actual": 380,
+        "expected": 380,
+        "passed": true
+      },
+      "proxy.eligible_dialogues": {
+        "actual": 100,
+        "expected": 100,
+        "passed": true
+      },
+      "proxy.semantic_groups": {
+        "actual": 379,
+        "expected": 379,
+        "passed": true
+      },
+      "proxy.rule.playback_positive": {
+        "actual": 286,
+        "expected": 286,
+        "passed": true
+      },
+      "proxy.rule.generation_positive": {
+        "actual": 280,
+        "expected": 280,
+        "passed": true
+      },
+      "proxy.rule.positive_difference": {
+        "actual": -6,
+        "expected": -6,
+        "passed": true
+      },
+      "proxy.judge.playback_positive": {
+        "actual": 167,
+        "expected": 167,
+        "passed": true
+      },
+      "proxy.judge.generation_positive": {
+        "actual": 157,
+        "expected": 157,
+        "passed": true
+      },
+      "proxy.judge.positive_difference": {
+        "actual": -10,
+        "expected": -10,
+        "passed": true
+      }
+    }
+  },
+  "provenance": {
+    "source_access": "read-only; sources were not rewritten",
+    "parameters": {
+      "analysis_version": "e3-weighting-dedup-v2",
+      "bootstrap_repeats": 10000,
+      "seed": 20260831,
+      "effect_direction": "generation minus playback",
+      "random_generator": "numpy.random.default_rng",
+      "interval": "percentile 95%",
+      "targets": {
+        "fragment": {
+          "eligibility": "nonblank unheard_text",
+          "dedup_key_fields": [
+            "id",
+            "trajectory_id",
+            "playback_history_key",
+            "generation_history_key",
+            "heard_token_end",
+            "sha256_exact_target"
+          ]
+        },
+        "proxy": {
+          "eligibility": "nonblank strict_unheard_text",
+          "dedup_key_fields": [
+            "id",
+            "trajectory_id",
+            "playback_history_key",
+            "generation_history_key",
+            "sha256_exact_target"
+          ]
+        }
+      }
+    },
+    "parameters_sha256": "cbee37c571205b1b00e805950d44e9080f2e57fe64ed777f3bf4c9651623cd89",
+    "analyzer": {
+      "path": "experiments/sci34_supplement/analyze_e3_v2.py",
+      "local_sha256": "14435b0643296d9f5458f8498f5d11bd10bbda1864e4c0060e8cebe619320bfc",
+      "lf_normalized_sha256": "14435b0643296d9f5458f8498f5d11bd10bbda1864e4c0060e8cebe619320bfc",
+      "git_blob_sha1": "eae4b26fbae33c9d9e3d9370b07bcfcf2ea3f7cc",
+      "identity_bytes": "LF-normalized bytes",
+      "line_ending_normalization_applied": false
+    },
+    "source_artifacts": {
+      "e3_records": {
+        "path": "experiments/sci34_supplement/results/e3/sci34_f11ccba_20260901_e3/records.jsonl",
+        "local_sha256": "c9794f80fc8a3b65a03e29b6b2185e593437120220aab0979e418db00e2b3438",
+        "lf_normalized_sha256": "9406ea42d1112b5ad97c94e7e27856946acc79c14dd4ebe5762d0b702fe458e9",
+        "git_blob_sha1": "117837340e030afca03aa2cf2ae0b5fc6199aaee",
+        "identity_bytes": "LF-normalized bytes",
+        "line_ending_normalization_applied": true
+      },
+      "e3_manifest": {
+        "path": "experiments/sci34_supplement/results/e3/sci34_f11ccba_20260901_e3/manifest.json",
+        "local_sha256": "7ea733df71b10ba3384092372bb0284657e43a29f045cdc3588cfbbb78d4291d",
+        "lf_normalized_sha256": "7690f1003109a37c6f216b674ff6df2b71a4bfac98f6992c1eb23b37f98967a4",
+        "git_blob_sha1": "bbe87c6a1a1a610deeb7bbdd889122748b585de5",
+        "identity_bytes": "LF-normalized bytes",
+        "line_ending_normalization_applied": true
+      },
+      "judge_records": {
+        "path": "experiments/sci34_supplement/results/judge/sci34_f11ccba_20260901_judge_v2/judge_records.jsonl",
+        "local_sha256": "28efd520507b19f4c3ede4d3173c36761ea47e0b373f0c7fea04ad447dadd884",
+        "lf_normalized_sha256": "eeb2db2c4ed76ed3d01a0bbce4a4ec8ab8491aa8c09178bd3e4cfb5811945d44",
+        "git_blob_sha1": "957a8d67544aa506e23c924c7cb9b10b543539d3",
+        "identity_bytes": "LF-normalized bytes",
+        "line_ending_normalization_applied": true
+      },
+      "judge_manifest": {
+        "path": "experiments/sci34_supplement/results/judge/sci34_f11ccba_20260901_judge_v2/manifest.json",
+        "local_sha256": "a802dee94c2fa5f69bef514f3f33a23552643440378af1bfeb5ffb89bafbd01d",
+        "lf_normalized_sha256": "f103963a300dc8f668161d1c1147d9c8e0d0f488a8d66ff76f59dee55cbc91c4",
+        "git_blob_sha1": "abc892e6f472e27d3ebae16a1cb8aa075a027980",
+        "identity_bytes": "LF-normalized bytes",
+        "line_ending_normalization_applied": true
+      },
+      "superseded_v1": {
+        "path": "experiments/sci34_supplement/results/e3/sci34_f11ccba_20260901_e3/analysis_metric_specific_eligibility_v1.json",
+        "local_sha256": "b280d4292a0dbb692f71ed34d65b5268f0340bb439063d266b8267fbf4f5afd3",
+        "lf_normalized_sha256": "b280d4292a0dbb692f71ed34d65b5268f0340bb439063d266b8267fbf4f5afd3",
+        "git_blob_sha1": "9f6108c62dfc9313b243074095b2218217ab8b72",
+        "identity_bytes": "LF-normalized bytes",
+        "line_ending_normalization_applied": false
+      }
+    },
+    "manifest_summary": {
+      "e3_run_id": "sci34_f11ccba_20260901_e3",
+      "e3_source_git_commit": "f11ccbadac807e083fc46977ab45288c336361d0",
+      "e3_source_config_hash": "3c60d57594b91ee3fbb96239af0fdf9ee123b20fffa917c86b40c916dd44c2a1",
+      "judge_run_id": "sci34_f11ccba_20260901_judge_v2",
+      "judge_source_git_commit": "ca627c7e525e96635b3ff4b168fe63ece1c33b96",
+      "judge_source_config_hash": "57a54d1ccd7464bb389da2da8cb9e917192b0fd8f8e7ed88bca65248dab3e522",
+      "judge_prompt_version": "specific-reference-v3",
+      "judge_model_identity_hash": "033f608001d19e152db47f66053656f7d59e73870aa6578baa686c25ef5fb627"
+    },
+    "supersedes": {
+      "analysis_version": "metric-specific-eligibility-v1",
+      "artifact": {
+        "path": "experiments/sci34_supplement/results/e3/sci34_f11ccba_20260901_e3/analysis_metric_specific_eligibility_v1.json",
+        "local_sha256": "b280d4292a0dbb692f71ed34d65b5268f0340bb439063d266b8267fbf4f5afd3",
+        "lf_normalized_sha256": "b280d4292a0dbb692f71ed34d65b5268f0340bb439063d266b8267fbf4f5afd3",
+        "git_blob_sha1": "9f6108c62dfc9313b243074095b2218217ab8b72",
+        "identity_bytes": "LF-normalized bytes",
+        "line_ending_normalization_applied": false
+      },
+      "reason": "Adds explicit weighting estimands and exact target-specific semantic deduplication."
+    }
+  },
+  "excluded_records": []
+}
