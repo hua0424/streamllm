@@ -48,7 +48,7 @@ def verify_seal(campaign_dir: Path) -> dict[str, object]:
 
 def _validation_core(payload: dict[str, object]) -> dict[str, object]:
     keys = (
-        "schema_version", "experiment", "campaign_dir", "formal", "ok",
+        "schema_version", "experiment", "protocol_version", "campaign_dir", "formal", "ok",
         "acceptance_eligible", "errors", "failed_indexes", "grid",
         "termination_probes", "thresholds", "provenance",
     )
@@ -57,8 +57,8 @@ def _validation_core(payload: dict[str, object]) -> dict[str, object]:
 
 def _analysis_core(payload: dict[str, object]) -> dict[str, object]:
     keys = (
-        "schema_version", "experiment", "design", "acceptance",
-        "termination_probes", "scenario_execution", "overall", "by_context", "by_scenario",
+        "schema_version", "experiment", "protocol_version", "design", "acceptance",
+        "noise_control", "termination_probes", "scenario_execution", "overall", "by_context", "by_scenario",
         "by_termination", "by_checkpoint", "worst_cases",
         "all_failure_indexes", "provenance", "claim_boundary",
     )
@@ -88,7 +88,7 @@ def create_seal(campaign_dir: Path, *, formal: bool = True) -> Path:
         campaign_dir / "snapshots",
         campaign_dir / "snapshots" / "before",
         campaign_dir / "snapshots" / "after",
-        campaign_dir / "failures",
+        campaign_dir / "checkpoints",
     )
     missing = [str(path) for path in required_files if not path.is_file()]
     missing.extend(str(path) for path in required_dirs if not path.is_dir())
@@ -96,6 +96,8 @@ def create_seal(campaign_dir: Path, *, formal: bool = True) -> Path:
         raise ValueError(f"Refusing to seal incomplete C2 artifacts: {missing}")
     if not any((campaign_dir / "logs").iterdir()):
         raise ValueError("Refusing to seal an empty logs directory")
+    if not any((campaign_dir / "checkpoints").iterdir()):
+        raise ValueError("Refusing to seal without frozen checkpoint logits sidecars")
     if not any((campaign_dir / "snapshots" / "before").iterdir()):
         raise ValueError("Refusing to seal an empty snapshots/before directory")
     if not any((campaign_dir / "snapshots" / "after").iterdir()):

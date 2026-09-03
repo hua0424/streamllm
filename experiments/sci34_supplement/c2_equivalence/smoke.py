@@ -202,6 +202,85 @@ def main() -> None:
         assert "if user_end != role_start:" in canonical_source
         assert "role_start + len(parts.user_to_assistant)" in canonical_source
 
+        # v2: noise-control arm, margins, and frozen per-checkpoint logits sidecars.
+        import numpy as np
+        from experiments.sci34_supplement.c2_equivalence.protocol import PROTOCOL_VERSION
+        from experiments.sci34_supplement.c2_equivalence.validate import _validate_termination_probe
+        from experiments.sci34_supplement.c2_equivalence.canonical_chat import token_ids_hash as _hash
+
+        checkpoint_total = sum(len(record["checkpoints"]) for record in first_records)
+        npz_files = sorted((campaign_dir / "checkpoints").glob("*.npz"))
+        assert len(npz_files) == checkpoint_total
+        assert all(
+            record["protocol_version"] == PROTOCOL_VERSION
+            and record["checkpoint_logits"] == [
+                f"checkpoints/{record['case_id']}.attempt{record['attempt']}.{cp['checkpoint']}.npz"
+                for cp in record["checkpoints"]
+            ]
+            for record in first_records
+        )
+        assert all(
+            isinstance(cp["noise_control"], dict)
+            and cp["noise_control"]["chunk_count"] >= 1
+            and cp["noise_control"]["max_abs"] >= 0.0
+            and cp["logit_gates"]["all_ok"] is True
+            and cp["next_token"]["canonical_top1_top2_margin"] >= 0.0
+            and cp["next_token"]["top1_flip_near_tie"] is False
+            and cp["continuation"]["canonical_steps"][0]["top1"]
+            == cp["next_token"]["canonical_top1"]
+            for record in first_records
+            for cp in record["checkpoints"]
+        )
+        assert all(
+            record["termination_probe"]["genuine_eos"] is True
+            for record in first_records
+            if record["termination"] == "natural_eos"
+        )
+
+        # v2 requalification semantics exercised directly on the probe validator.
+        natural_record = next(
+            record for record in first_records if record["termination"] == "natural_eos"
+        )
+        natural_case = next(
+            case for case in cases if case.id == natural_record["case_id"]
+        )
+        genuine_probe = natural_record["termination_probe"]
+        assert not _validate_termination_probe(genuine_probe, case=natural_case, formal=False)
+        requalified_probe = json.loads(json.dumps(genuine_probe))
+        requalified_probe.update(
+            {
+                "observed_end_reason": "MAX_TOKENS",
+                "eos_step": None,
+                "eos_at_cap": False,
+                "genuine_eos": False,
+                "requalified": True,
+                "role_phase": "ASSISTANT_OPEN",
+                "content_token_ids": [7001] * requalified_probe["cap"],
+            }
+        )
+        requalified_probe["content_token_count"] = len(requalified_probe["content_token_ids"])
+        requalified_probe["content_token_hash"] = _hash(requalified_probe["content_token_ids"])
+        requalified_probe["selected_token_ids"] = list(requalified_probe["content_token_ids"])
+        requalified_probe["selected_token_count"] = len(requalified_probe["selected_token_ids"])
+        requalified_probe["selected_token_hash"] = _hash(requalified_probe["selected_token_ids"])
+        requalified_probe["post_seq_length"] = (
+            requalified_probe["prefix_seq_length"] + requalified_probe["content_token_count"]
+        )
+        assert not _validate_termination_probe(
+            requalified_probe, case=natural_case, formal=False
+        ), "self-consistent requalified probe must qualify"
+        broken_requalified = json.loads(json.dumps(requalified_probe))
+        broken_requalified["role_phase"] = "ASSISTANT_EOT_PENDING"
+        assert _validate_termination_probe(
+            broken_requalified, case=natural_case, formal=False
+        ), "inconsistent requalified probe must fail closed"
+        mixed_probe = json.loads(json.dumps(genuine_probe))
+        mixed_probe["genuine_eos"] = None
+        mixed_probe["requalified"] = None
+        assert _validate_termination_probe(
+            mixed_probe, case=natural_case, formal=False
+        ), "probe that is neither genuine nor requalified must fail closed"
+
         # Complete resume is a no-op and preserves record bytes.
         records_sha = sha256_file(campaign_dir / "records.jsonl")
         run_campaign(
@@ -272,6 +351,50 @@ def main() -> None:
         source_tampered = validate_campaign(source_tamper_dir, formal=False)
         assert not source_tampered["ok"]
         assert any("actual crop/recovery cache" in error for error in source_tampered["errors"])
+
+        npz_tamper_dir = root / "npz-tamper"
+        shutil.copytree(campaign_dir, npz_tamper_dir)
+        (npz_tamper_dir / "checksums.sha256").unlink()
+        first_npz = sorted((npz_tamper_dir / "checkpoints").glob("*.npz"))[0]
+        with np.load(first_npz, allow_pickle=False) as data:
+            arrays = {key: data[key] for key in data.files}
+        arrays["path"] = np.asarray(arrays["path"], dtype=np.float32) + np.float32(5.0)
+        np.savez_compressed(first_npz, **arrays)
+        npz_tampered = validate_campaign(npz_tamper_dir, formal=False)
+        assert not npz_tampered["ok"]
+        assert any(
+            "differs from sidecar recompute" in error for error in npz_tampered["errors"]
+        )
+
+        control_tamper_dir = root / "control-tamper"
+        shutil.copytree(campaign_dir, control_tamper_dir)
+        (control_tamper_dir / "checksums.sha256").unlink()
+        control_records = load_jsonl(control_tamper_dir / "records.jsonl")
+        control_records[0]["checkpoints"][0]["noise_control"]["max_abs"] = 9.9
+        atomic_write_text(
+            control_tamper_dir / "records.jsonl",
+            "".join(json.dumps(row, sort_keys=True) + "\n" for row in control_records),
+        )
+        control_tampered = validate_campaign(control_tamper_dir, formal=False)
+        assert not control_tampered["ok"]
+        assert any(
+            "noise_control.max_abs" in error for error in control_tampered["errors"]
+        )
+
+        steps_tamper_dir = root / "steps-tamper"
+        shutil.copytree(campaign_dir, steps_tamper_dir)
+        (steps_tamper_dir / "checksums.sha256").unlink()
+        steps_records = load_jsonl(steps_tamper_dir / "records.jsonl")
+        steps_records[0]["checkpoints"][0]["continuation"]["canonical_steps"][0]["top1"] = 12345
+        atomic_write_text(
+            steps_tamper_dir / "records.jsonl",
+            "".join(json.dumps(row, sort_keys=True) + "\n" for row in steps_records),
+        )
+        steps_tampered = validate_campaign(steps_tamper_dir, formal=False)
+        assert not steps_tampered["ok"]
+        assert any(
+            "continuation steps disagree" in error for error in steps_tampered["errors"]
+        )
 
         scenario_tamper_dir = root / "scenario-tamper"
         shutil.copytree(campaign_dir, scenario_tamper_dir)
@@ -354,11 +477,13 @@ def main() -> None:
             json.dumps(
                 {
                     "status": "PASS",
+                    "protocol_version": PROTOCOL_VERSION,
                     "models_loaded": False,
                     "network_used": False,
                     "cases": len(cases),
                     "pilot_cases": 3,
                     "formal_like_cases": len(first_records),
+                    "checkpoint_sidecars": len(npz_files),
                     "root": str(root),
                 },
                 ensure_ascii=False,

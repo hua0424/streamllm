@@ -188,7 +188,7 @@ A: 是的，这是预期的。为了提高准确率，流式 ASR 会保留一部
 - 浪费率主定义为 `wasted_tokens / (wasted_tokens + final_tokens)`；
 - 当前状态：formal campaign `e1e2c_b8c758b_20260901T173306Z` 已完成并由 D-017 接受；5000 条 raw records、analysis、validation 与 checksums 已归档。旧 GPU handoff 仅供复现，不再作为当前待办。
 
-二审后的当前唯一正式 GPU 待办是 C2 KV/role 正确性验收，入口为 `experiments/sci34_supplement/c2_equivalence/GPU_HANDOFF.md`。它不重跑 E1/E2，也不支持真实 ASR、在线 TTS、声卡、mouth-to-ear 或生产端到端主张。
+二审后的当前唯一正式 GPU 待办是 C2 KV/role 正确性验收的协议 v2 复跑（v1 run 已 rejected 归档，D-019），入口为 `experiments/sci34_supplement/c2_equivalence/GPU_HANDOFF.md`。它不重跑 E1/E2，也不支持真实 ASR、在线 TTS、声卡、mouth-to-ear 或生产端到端主张。
 
 ## 8. 许可证
 

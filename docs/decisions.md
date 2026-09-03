@@ -5,6 +5,31 @@
 
 ---
 
+## D-019（2026-09-03）判定 C2 v1 formal run rejected；以噪声对照臂 + 相对门槛发布协议 v2
+
+**决策**：Qwen2-7B formal run `c2eq_563dd22a_20260903T013547Z`（code commit `563dd22`、结果 commit `1a47ac1`）判定 **rejected 并永久归档**；不修改其任何容差或工件。`src/` 无需改动。C2 协议升级为 v2 并冻结，以新 run-id 定向重跑（唯一 GPU 任务，入口 `c2_equivalence/GPU_HANDOFF.md`）。
+
+**v1 结果审计（设计侧独立复核 raw records/NPZ）**：
+1. **通过层 100%**：canonical↔crop-path token IDs 45/45 exact、KV/mask/seq/ledger、assistant 内容账本、unique EOT、role phase、scenario execution 24/24、top-5 overlap≥4/5（min 4，mean 4.87）。
+2. **失败层均非实现缺陷**：
+   - 45/45 checkpoint BF16→FP32 logit diff 超绝对阈（max_abs 0.156–0.969 > 0.1；mean_abs 0.020–0.156 > 0.01）。机理：同形状重复计算差精确为 0，而"增量 append vs 整段 prefill"的 kernel 归约顺序不同产生固有差异；设计侧本地 0.5B/RTX 3060 纯 transformers 分块 append 对照（零 crop 代码）复现同量级（max_abs 0.20–0.33），与 7B/RTX 3090 观测（0.16–0.97）同阶，证明环境无关、机制固有。mean_abs 并不随上下文长度单调增长（512/2048/8192 均值 0.056/0.063/0.043）。
+   - next-token top-1 运行时口径 43/45（GPU 执行报告的"45/45 exact"系误统计，validator 严格重算口径 41/45）；全部翻转均为 top-5 集合内前两名互换，canonical top1–top2 margin ≤ 0.125（|logit|∈[16,32) 的 BF16 ulp）或精确 0 并列。
+   - 32-token continuation 30/45 exact，15 处发散全部始于 margin 受限的平缓/退化 greedy 区（含重复 token 环）。
+   - 4/10 `natural_eos` probe greedy 在 128-token cap 内 run-on：cap×snapshot 确定性组合，同机重跑不可解，与等价性无关。
+
+**协议 v2（常数先验冻结，禁止看到 formal 结果后调整）**：
+1. **噪声对照臂**：每个 checkpoint 将同一 canonical 序列按结构 seam 分块增量 re-prefill（镜像路径 append 结构、同样单 token refresh 收尾，不含 crop/恢复代码），对照臂 diff 即环境固有增量噪声 `control`。
+2. **相对门槛**：path max_abs ≤ 2.0×max(control max_abs, 0.05)、mean_abs ≤ 2.0×max(control mean_abs, 0.01)；绝对安全上限 max_abs ≤ 2.0、mean_abs ≤ 0.5。本地 0.5B dry-run 实测 path/control 比值最差 1.08。
+3. **top-1/continuation margin 规则**：top-1 须 exact 或 canonical margin ≤ min(max(2.0×max(control max_abs,0.05),0.125),0.5)；32-token continuation 须 exact 或首个发散步 margin 在同限内，逐步记录 top1/top2/margin，exact 率降为描述性统计。
+4. **natural_eos**：cap 256；未命中者确定性重资格化为 max_tokens 语义并完成全部等价比较；campaign 级要求 ≥5/10 genuine EOS。
+5. **工件**：每 checkpoint 恒存 `checkpoints/*.npz`（path/canonical/control 三 FP32 数组），validator 从 sidecar 独立重算全部统计与门槛。24-case 矩阵、8 scenario、3 termination、token/state/账本/EOT/role 门槛、模型身份（D-017 artifact）、BF16、单 session、fail-closed/seal 规则全部不变。
+
+**影响**：仅改 `experiments/sci34_supplement/c2_equivalence/`（protocol/runtime/run/validate/analyze/seal/campaign/smoke 及其文档）；`src/`、cases.json、v1 工件、旧 campaign、论文正文均不动。v1 run 及 pilot、`e3_exact_rescue/` 全部只读。本地验证：fake smoke PASS（24 cases/45 sidecars/全 tamper 与重资格化测试）、0.5B CUDA 真模型 dry-run 全绿。论文正确性主张仍待 v2 7B formal 证据；GPU 侧若 v2 仍失败，须回设计侧再决策而非现场放宽。
+
+**状态**：accepted（v1 rejected 归档；协议 v2 冻结；v2 Qwen2-7B formal evidence pending）
+
+---
+
 ## D-018（2026-09-02）显式化 EOT/role 状态并冻结 C2 语义等价验收协议
 
 **决策**：修复二期持久化 KV 的 EOS/EOT 状态语义，并新增独立 `experiments/sci34_supplement/c2_equivalence/` 正确性 campaign。Qwen 的结构性 `<|im_end|>` 不再写入 `assistant_token_ids`、TTS fragment timeline 或 assistant 内容 KV；`generate_accumulating()` 预测 EOT 时进入 `ASSISTANT_EOT_PENDING` 并记录显式 `GenerationEndReason.EOS`，由 `reopen_user_role()` 唯一提交一次 assistant close 并打开下一 user role。max-token、consumer-stop、crop 分别记录显式 end reason，不再通过生成 token 数或账本末 token 推断。

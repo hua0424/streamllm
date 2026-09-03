@@ -31,6 +31,8 @@ from experiments.sci34_supplement.c2_equivalence.protocol import (
     FORMAL_CASE_COUNT,
     MAX_TOKENS_PROBE_BUDGET,
     NATURAL_EOS_MAX_NEW_TOKENS,
+    NATURAL_EOS_MIN_GENUINE,
+    PROTOCOL_VERSION,
     ProtocolConfig,
     load_cases,
 )
@@ -78,24 +80,25 @@ def _load_existing(
     return records, completed, attempts
 
 
-def _write_failure_sidecars(
+def _write_checkpoint_sidecars(
     campaign_dir: Path,
     case_id: str,
     attempt: int,
     measurement: dict[str, Any],
 ) -> list[str]:
+    """v2 persists path/canonical/control logits for every checkpoint."""
     saved: list[str] = []
     for checkpoint in measurement.get("checkpoints", []):
-        arrays = checkpoint.pop("_failure_logits", None)
+        arrays = checkpoint.pop("_checkpoint_logits", None)
         if arrays is None:
             continue
         try:
             import numpy as np
         except ImportError as error:
-            raise RuntimeError("Failure logits require numpy for compressed sidecars") from error
-        path = campaign_dir / "failures" / f"{case_id}.attempt{attempt}.{checkpoint['checkpoint']}.npz"
+            raise RuntimeError("Checkpoint logits require numpy for compressed sidecars") from error
+        path = campaign_dir / "checkpoints" / f"{case_id}.attempt{attempt}.{checkpoint['checkpoint']}.npz"
         np.savez_compressed(path, **arrays)
-        saved.append(str(path.relative_to(campaign_dir)))
+        saved.append(path.relative_to(campaign_dir).as_posix())
     return saved
 
 
@@ -128,14 +131,30 @@ def _assert_probe_qualified(probe: Mapping[str, Any], *, termination: str) -> No
     if not common:
         raise RuntimeError(f"termination probe common invariants failed for {termination}")
     if termination == "natural_eos":
-        qualified = (
-            probe.get("mode") == "real_greedy"
-            and probe.get("controlled") is False
-            and probe.get("observed_end_reason") == "EOS"
-            and isinstance(probe.get("eos_step"), int)
-            and 1 <= probe["eos_step"] <= cap
-            and probe.get("role_phase") == "ASSISTANT_EOT_PENDING"
-        )
+        greedy = probe.get("mode") == "real_greedy" and probe.get("controlled") is False
+        genuine = probe.get("genuine_eos")
+        requalified = probe.get("requalified")
+        if genuine is True and requalified is False:
+            qualified = (
+                greedy
+                and probe.get("observed_end_reason") == "EOS"
+                and isinstance(probe.get("eos_step"), int)
+                and 1 <= probe["eos_step"] <= cap
+                and probe.get("role_phase") == "ASSISTANT_EOT_PENDING"
+            )
+        elif requalified is True and genuine is False:
+            # v2: deterministic greedy run-on requalifies to max_tokens semantics.
+            qualified = (
+                greedy
+                and probe.get("observed_end_reason") == "MAX_TOKENS"
+                and probe.get("eos_step") is None
+                and probe.get("eos_at_cap") is False
+                and isinstance(ids, list)
+                and len(ids) == cap
+                and probe.get("role_phase") == "ASSISTANT_OPEN"
+            )
+        else:
+            qualified = False
     elif termination == "eos_at_cap":
         fixture = probe.get("fixture_token_ids")
         qualified = (
@@ -277,9 +296,10 @@ def run_campaign(
                     f"termination_probe: {message}" for message in runner_probe_errors
                 )
                 measurement["passed"] = False
-            sidecars = _write_failure_sidecars(campaign_dir, case.id, attempt, measurement)
+            sidecars = _write_checkpoint_sidecars(campaign_dir, case.id, attempt, measurement)
             record = {
-                "schema_version": 1,
+                "schema_version": 2,
+                "protocol_version": PROTOCOL_VERSION,
                 "experiment": EXPERIMENT,
                 "run_id": manifest["run_id"],
                 "session_id": "s01",
@@ -296,7 +316,7 @@ def run_campaign(
                 "campaign_identity_hash": manifest["identity_hash"],
                 "campaign_manifest_sha256": manifest_sha,
                 "cases_sha256": sha256_file(cases_path),
-                "failure_sidecars": sidecars,
+                "checkpoint_logits": sidecars,
                 **measurement,
             }
             _atomic_append_record(records_path, record)
@@ -369,13 +389,23 @@ def run_campaign(
         and record.get("passed")
         for record in records
     )
+    natural_declared = [
+        record for record in records if record.get("termination") == "natural_eos"
+    ]
+    natural_genuine = sum(
+        bool(record.get("termination_probe", {}).get("genuine_eos"))
+        for record in natural_declared
+    )
+    natural_gate_ok = (not formal) or natural_genuine >= NATURAL_EOS_MIN_GENUINE
+    acceptance_eligible = not failed and natural_gate_ok
     process_ids = sorted({str(record.get("process_start_id")) for record in records})
     atomic_write_json(
         campaign_dir / "summary.json",
         {
             "completed_at_utc": utc_now(),
-            "status": "FAIL" if failed else "PASS",
-            "acceptance_eligible": not failed,
+            "protocol_version": PROTOCOL_VERSION,
+            "status": "FAIL" if (failed or not natural_gate_ok) else "PASS",
+            "acceptance_eligible": acceptance_eligible,
             "sessions": 1,
             "statistical_repeats": 0,
             "cases": len(cases),
@@ -387,6 +417,14 @@ def run_campaign(
                 "observed": sum(isinstance(row.get("termination_probe"), dict) for row in records),
                 "runner_qualified": qualified_probes,
             },
+            "natural_eos_gate": {
+                "declared": len(natural_declared),
+                "genuine": natural_genuine,
+                "requalified": len(natural_declared) - natural_genuine,
+                "min_genuine": NATURAL_EOS_MIN_GENUINE,
+                "applies": formal,
+                "passed": natural_gate_ok,
+            },
             "logical_session_id": "s01",
             "process_identities": process_ids,
             "resume_process_count": len(process_ids),
@@ -397,6 +435,11 @@ def run_campaign(
     if failed:
         raise RuntimeError(
             f"C2 correctness failed for {len(failed)} cases; artifacts retained: {failed}"
+        )
+    if not natural_gate_ok:
+        raise RuntimeError(
+            f"C2 natural-EOS coverage failed: {natural_genuine}/{len(natural_declared)} "
+            f"genuine < {NATURAL_EOS_MIN_GENUINE}; artifacts retained"
         )
     return campaign_dir
 

@@ -1,6 +1,8 @@
-# C2 equivalence GPU 执行交接
+# C2 equivalence GPU 执行交接（协议 v2）
 
 > 实验机唯一操作入口。以下命令按当前已实现 CLI 写成。正式证据固定 24 cases、1 session、无统计重复。任何失败保留目录并停止 acceptance/seal。
+>
+> **v2 背景（D-019）**：v1 run `c2eq_563dd22a_20260903T013547Z` 判定 rejected 并永久归档——token/state 层 100% 等价，但绝对 BF16 logit 阈（0.1/0.01）与 32-token greedy exact 对任何正确实现不可达成（增量 append vs 整段 prefill 的核归约差异），且 4/10 natural_eos greedy 在 128 cap 内 run-on。v2 引入噪声对照臂 + 相对门槛 + margin 感知 + natural_eos cap 256/重资格化，常数全部先验冻结。**本轮所有 v1 目录（`c2eq_563dd22a_*`、`c2pilot_563dd22a_*`、`e3_exact_rescue/`）只读，不得改动。**
 
 ## 0. Exact clean commit、目录与旧结果 guard
 
@@ -15,20 +17,26 @@ git pull --ff-only
 export CODE_COMMIT="$(git rev-parse HEAD)"
 test -z "$(git status --porcelain)" || { git status --short; exit 1; }
 
+# 协议版本预检：必须是 v2
+uv run python - <<'PY'
+from experiments.sci34_supplement.c2_equivalence.protocol import PROTOCOL_VERSION
+assert PROTOCOL_VERSION == 2, PROTOCOL_VERSION
+print("C2 protocol version:", PROTOCOL_VERSION)
+PY
+
 export OUT_ROOT=experiments/sci34_supplement/results/c2_equivalence
-export GUARD=/tmp/c2_equivalence_guard
+export GUARD=/tmp/c2_equivalence_guard_v2
 mkdir -p "$GUARD"
 
-# 旧结果统一内容 guard；不依赖手工维护文件列表。
+# 旧结果统一内容 guard（含 v1 C2 归档 run 与 E3 抢救件，全部只读）。
 git ls-files experiments/results experiments/sci34_supplement/results \
-  | grep -v '^experiments/sci34_supplement/results/c2_equivalence/' \
   | sort > "$GUARD/legacy_paths.txt"
 while IFS= read -r path; do sha256sum "$path"; done < "$GUARD/legacy_paths.txt" \
   > "$GUARD/legacy_before.sha256"
 sha256sum pyproject.toml uv.lock > "$GUARD/env_before.sha256"
 ```
 
-正式前必须先形成包含 C2 与配套 core 修复的 exact clean commit。本交接不授权 commit/push。
+正式前必须先在本地形成包含协议 v2 的 exact clean commit 并推送（设计侧提供 commit；本交接不授权实验机 commit/push）。
 
 ## 1. 严格离线与显式本地模型
 
@@ -69,7 +77,7 @@ uv run python -m experiments.sci34_supplement.smoke
 git diff --check
 ```
 
-`c2_equivalence.smoke` 输出必须明确 `models_loaded=false`、`network_used=false`、24 cases PASS。任一测试失败停止。
+`c2_equivalence.smoke` 输出必须明确 `protocol_version=2`、`models_loaded=false`、`network_used=false`、24 cases PASS、`checkpoint_sidecars=45`。任一测试失败停止。
 
 ## 3. 模型/tokenizer 预检
 
@@ -92,63 +100,9 @@ print("chat_template_sha256", hashlib.sha256(tok.chat_template.encode()).hexdige
 PY
 ```
 
-## 4. E3 exact `p2_turns.json` 抢救（与 C2 分开保存）
+## 4. E3 exact `p2_turns.json` 抢救（v1 轮已完成，本轮默认跳过）
 
-Accepted E3 manifest 记录的输入路径是：
-
-```text
-/root/autodl-tmp/dataA/streamllm/experiments/datasets/processed/p2_turns.json
-```
-
-记录的 SHA-256 是：
-
-```text
-a2116b83b38509e45d641ade17ae1791282729836bdca251aa8aba8aa9248a0c
-```
-
-在原实验机执行；不存在时只记录 missing，不重建后冒充 exact 文件。
-
-```bash
-export E3_RESCUE=/tmp/e3_exact_rescue
-mkdir -p "$E3_RESCUE"
-export E3_TURNS=/root/autodl-tmp/dataA/streamllm/experiments/datasets/processed/p2_turns.json
-export E3_MANIFEST=experiments/sci34_supplement/results/e3/sci34_f11ccba_20260901_e3/manifest.json
-
-sha256sum "$E3_MANIFEST" > "$E3_RESCUE/e3_manifest.sha256"
-if test -f "$E3_TURNS"; then
-  sha256sum "$E3_TURNS" | tee "$E3_RESCUE/p2_turns.sha256"
-  grep -q '^a2116b83b38509e45d641ade17ae1791282729836bdca251aa8aba8aa9248a0c ' \
-    "$E3_RESCUE/p2_turns.sha256"
-  cp -a "$E3_TURNS" "$E3_RESCUE/p2_turns.json"
-else
-  printf 'MISSING exact path: %s\n' "$E3_TURNS" > "$E3_RESCUE/p2_turns.MISSING.txt"
-fi
-
-# 抢救 raw MultiWOZ、builder/provenance；路径以实验机实际情况为准，全部 hash。
-find /root/autodl-tmp/dataA /dataA -type f \
-  \( -path '*/MultiWOZ_2.1/data.json' -o -name 'prepare_multiwoz_data.py' \
-     -o -iname '*p2_turns*provenance*.json' \) -print 2>/dev/null \
-  | sort > "$E3_RESCUE/provenance_paths.txt"
-while IFS= read -r path; do sha256sum "$path"; done < "$E3_RESCUE/provenance_paths.txt" \
-  > "$E3_RESCUE/provenance.sha256"
-
-# 保存 E3 manifest 中的模型 snapshot 路径/identity；若目录仍在则重新 strong-hash。
-cp "$E3_MANIFEST" "$E3_RESCUE/e3_manifest.json"
-uv run python - <<'PY' > "$E3_RESCUE/e3_model_identity.json"
-import json, os
-from pathlib import Path
-from experiments.sci34_supplement.e1e2_confirmatory.strong_identity import strong_model_identity
-manifest=json.load(open(os.environ["E3_MANIFEST"], encoding="utf-8"))
-path=Path(manifest["config"]["model"])
-print(json.dumps({
-  "manifest_model": manifest["config"].get("model_identity"),
-  "current_strong_identity": strong_model_identity(path) if path.is_dir() else None,
-  "status": "rehashed" if path.is_dir() else "snapshot path missing",
-}, indent=2))
-PY
-```
-
-把 `$E3_RESCUE` 与 C2 tarball 一并回传，但不要把它混入 C2 correctness records。
+Accepted E3 输入已在 v1 轮抢救并入库 `results/e3_exact_rescue/`（SHA `a2116b83…` 核验一致）。仅当该目录缺失时按 v1 步骤重做；本轮 guard 已把它纳入只读保护。
 
 ## 5. 独立 integration pilot
 
@@ -181,7 +135,7 @@ uv run python -m experiments.sci34_supplement.c2_equivalence.validate \
   --non-formal
 ```
 
-人工检查 pilot 的 termination probe、token/state/logit/continuation 字段与失败 sidecar 机制。Pilot 只做兼容性/成本预检，**不授予 formal termination 资格**；formal 的每个 case 会重新运行并硬校验自身 probe。若 pilot 已暴露 natural EOS 无法在冻结 128 上限内命中等问题，可提前停止以节省 GPU，但即使 pilot 通过也不能跳过 formal probe。
+人工检查 pilot 的 termination probe（注意 natural_eos cap 现为 256，未命中者 `requalified=true` 且记录自洽）、noise_control/logit_gates/margin 字段与 `checkpoints/*.npz` sidecar 机制（v2 起 45 个 checkpoint 全量保存）。Pilot 只做兼容性/成本预检，**不授予 formal termination 资格**；formal 的每个 case 会重新运行并硬校验自身 probe。参考量级：v2 每 case 约多一次对照臂增量 prefill，v1 formal 全程约 5 分钟，v2 预计 10 分钟内；tarball 约 60–100MB（45×3 个 FP32 logits 数组）。
 
 ## 6. 创建 formal 目录与 before snapshot
 
@@ -248,7 +202,7 @@ CUDA_VISIBLE_DEVICES=0 uv run python -m experiments.sci34_supplement.c2_equivale
 
 Resume 只跳过 `records.jsonl` 中已完整原子落盘的 case。`attempts.jsonl` 保存每次 attempt/process identity。Identity 变化、重复 case、截断 JSONL、模型/code/cases mismatch 均 fail closed。
 
-Runner 对每个 formal case 先做独立 termination probe，再做共享 retained IDs 的 teacher-force equivalence comparison。`natural_eos` 必须真实 greedy 在 128 内 EOS；`max_tokens` 必须真实 greedy 在预算 2 内无 EOS并报告 `MAX_TOKENS`；`eos_at_cap` 是明确 controlled 的 cap=4 token-selection fixture，但内容仍走 production KV append，最终 EOT 必须走 `generate_accumulating` EOS 分支。另对 `crop_pending_eot`/`reply_tail_noop` 在 teacher-force 内容后强制一次 EOT decode 并调用真实 `generate_accumulating(max_new_tokens=1)`：前者截断 crop 必须清除 pending，后者 current-seq no-op 必须保留 pending，再 reopen。任一 probe 或 equivalence correctness failure 都会保存 raw（logit 失败另存 `failures/*.npz`）后非零退出。不要删除失败目录，不要继续 acceptance/seal。
+Runner 对每个 formal case 先做独立 termination probe，再做共享 retained IDs 的 teacher-force equivalence comparison，并为每个 checkpoint 增算 v2 噪声对照臂（canonical 序列按结构 seam 分块增量 prefill，结尾单 token refresh）。`natural_eos` 真实 greedy 在 cap 256 内命中 EOS 记 genuine，未命中则重资格化为 max_tokens 语义（须自洽；campaign 级要求 ≥5/10 genuine）；`max_tokens` 必须真实 greedy 在预算 2 内无 EOS 并报告 `MAX_TOKENS`；`eos_at_cap` 是明确 controlled 的 cap=4 token-selection fixture，但内容仍走 production KV append，最终 EOT 必须走 `generate_accumulating` EOS 分支。另对 `crop_pending_eot`/`reply_tail_noop` 在 teacher-force 内容后强制一次 EOT decode 并调用真实 `generate_accumulating(max_new_tokens=1)`：前者截断 crop 必须清除 pending，后者 current-seq no-op 必须保留 pending，再 reopen。等价门槛为 v2 相对门槛（2× 控制臂噪声 + 绝对安全上限 + 近并列 margin 规则，常数见 EXPERIMENT_PLAN §0）。任一 probe 或 correctness failure 都会保存 raw 与 `checkpoints/*.npz` 后非零退出。不要删除失败目录，不要继续 acceptance/seal。
 
 ## 9. After snapshot 与旧结果 guard
 
@@ -281,7 +235,7 @@ uv run python -m experiments.sci34_supplement.c2_equivalence.validate \
   2>&1 | tee "$RUN_DIR/logs/validation.log"
 ```
 
-必须 `ok=true`、`acceptance_eligible=true`，并且 `termination_probes.required == observed == qualified == 24`。Formal validator 要求 `summary.json` 存在，并从 records 独立核对 case/checkpoint/failed/process/identity/probe 计数与 verdict；同时从 raw token IDs、hash、cap/EOS step、end reason、role phase、EOT ledger/KV 和 scenario execution 标志独立判定资格，不信任 stored pass。任一失败保留目录并停止。
+必须 `ok=true`、`acceptance_eligible=true`，`termination_probes.required == observed == qualified == 24`，且 `termination_probes.natural_eos.genuine >= 5`。Formal validator 要求 `summary.json` 存在并含 `protocol_version=2` 与 natural_eos_gate，从 records 独立核对 case/checkpoint/failed/process/identity/probe 计数与 verdict；**从 `checkpoints/*.npz` 三数组独立重算**全部 logit/control 统计、top-1/top-5/margin 与 v2 相对门槛，同时从 raw token IDs、hash、cap/EOS step、end reason、role phase、EOT ledger/KV 和 scenario execution 标志独立判定资格，不信任 stored pass。任一失败保留目录并停止。
 
 ### 10.2 Analyze
 
@@ -292,7 +246,7 @@ uv run python -m experiments.sci34_supplement.c2_equivalence.analyze \
   2>&1 | tee "$RUN_DIR/logs/analysis_v1.log"
 ```
 
-Analysis 只做描述性汇总，除 context/scenario/termination/checkpoint 外，单独汇总 termination probe 的资格数、observed end reason、mode、cap、内容 token 数、EOS step、EOT 入 KV/ledger 计数；无 bootstrap。Raw checkpoint 的 `continuation_source` 必须全部为 `actual_crop_cache`，且 p0 empty-assistant boundary=1、speculation full invalidation boundary=0。
+Analysis 只做描述性汇总，除 context/scenario/termination/checkpoint 外，单独汇总 termination probe 的资格数（含 genuine/requalified）、observed end reason、mode、cap、内容 token 数、EOS step、EOT 入 KV/ledger 计数，以及 v2 `noise_control`（控制臂噪声量级与 path/control 比值）；无 bootstrap。Raw checkpoint 的 `continuation_source` 必须全部为 `actual_crop_cache`，且 p0 empty-assistant boundary=1、speculation full invalidation boundary=0。
 
 ### 10.3 人工 acceptance
 
@@ -318,7 +272,7 @@ uv run python -m experiments.sci34_supplement.c2_equivalence.seal \
   --campaign-dir "$RUN_DIR" --verify
 ```
 
-`seal --create` 会先要求 campaign/cases/records/summary/attempts/progress/logs/snapshots/failures/validation/analysis/acceptance 全套工件存在且关键目录非空，再直接 formal 重跑 validator/analyzer，并比较 stored validation/analysis 的核心 verdict/provenance；三文件伪造不能封存。`checksums.sha256` 使用相对路径字典序，拒绝覆盖；seal 不包含自身和 tarball。
+`seal --create` 会先要求 campaign/cases/records/summary/attempts/progress/logs/snapshots/checkpoints/validation/analysis/acceptance 全套工件存在且关键目录非空，再直接 formal 重跑 validator/analyzer，并比较 stored validation/analysis 的核心 verdict/provenance；三文件伪造不能封存。`checksums.sha256` 使用相对路径字典序，拒绝覆盖；seal 不包含自身和 tarball。
 
 ### 10.5 Tar
 
@@ -332,14 +286,14 @@ sha256sum "$TARBALL" | tee "${TARBALL}.sha256"
 
 ## 11. 回传与红线
 
-回传：完整 `$RUN_DIR`、tarball、tarball hash、`$E3_RESCUE`。不能只回传 summary/analysis。
+回传：完整 `$RUN_DIR`（含 `checkpoints/` 全量 sidecar）、tarball、tarball hash。不能只回传 summary/analysis。
 
 红线：
 
-1. 不覆盖旧结果、validation、analysis、seal 或 tarball。
+1. 不覆盖旧结果、validation、analysis、seal 或 tarball；v1 归档 run 与 `e3_exact_rescue/` 只读。
 2. 不删除 failed records/attempts/NPZ。
-3. 不修改 24 cases、32 continuation、top-k 或 BF16 `0.1/0.01` 阈值。
+3. 不修改 24 cases、32 continuation、top-k，或 v2 冻结常数（2.0× 比率、0.05/0.01 噪声下限、2.0/0.5 安全上限、0.125 margin 下限、256 cap、≥5 genuine）。绝对不得回退到 v1 的 0.1/0.01 绝对阈。
 4. 不用 pilot/fake smoke 更新论文。
 5. 不把单 snapshot 正确性推广到其他模型/backend/dtype。
 6. 不修改 `src`、其他文档或论文以“配合结果”。
-7. 未经明确授权不 commit/push。
+7. 未经明确授权不 commit/push（结果回传按既有惯例 `git add -f` 入库除外）。

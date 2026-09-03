@@ -179,7 +179,7 @@ def prepare_campaign_directory(
                 "failed_cases": [],
             },
         )
-        (output_dir / "failures").mkdir()
+        (output_dir / "checkpoints").mkdir()
         (output_dir / "logs").mkdir()
     except Exception:
         shutil.rmtree(output_dir, ignore_errors=True)

@@ -25,12 +25,16 @@ from experiments.sci34_supplement.c2_equivalence.protocol import (
     EXPECTED_MODEL_ARCHITECTURE,
     EXPECTED_MODEL_ARTIFACT_HASH,
     EXPECTED_MODEL_TYPE,
+    LOGIT_MAX_ABS_BACKSTOP,
+    LOGIT_MEAN_ABS_BACKSTOP,
     MAX_TOKENS_PROBE_BUDGET,
     NATURAL_EOS_MAX_NEW_TOKENS,
     SYSTEM_PROMPT,
     TERMINATION_PROBE_SCHEMA_VERSION,
     TOP_K,
     CaseSpec,
+    near_tie_margin_limit,
+    noise_limits,
 )
 from experiments.sci34_supplement.e1e2_confirmatory.strong_identity import strong_model_identity
 
@@ -116,18 +120,24 @@ class FakeBackend:
             eos_step = len(content) + 1
             role_phase = "ASSISTANT_EOT_PENDING"
             controlled = False
+            genuine_eos = True
+            requalified = False
         elif case.termination == "eos_at_cap":
             content = list(range(7101, 7101 + cap - 1))
             observed = "EOS"
             eos_step = cap
             role_phase = "ASSISTANT_EOT_PENDING"
             controlled = True
+            genuine_eos = None
+            requalified = None
         else:
             content = list(range(7201, 7201 + cap))
             observed = "MAX_TOKENS"
             eos_step = None
             role_phase = "ASSISTANT_OPEN"
             controlled = False
+            genuine_eos = None
+            requalified = None
         probe_errors: list[str] = []
         scenario_execution = self._fake_scenario_execution(case)
         termination_probe = {
@@ -150,6 +160,8 @@ class FakeBackend:
             "content_token_count": len(content),
             "eos_step": eos_step,
             "eos_at_cap": eos_step == cap,
+            "genuine_eos": genuine_eos,
+            "requalified": requalified,
             "eot_token_id": 2,
             "eot_in_kv": False,
             "eot_in_full_ledger": False,
@@ -183,8 +195,22 @@ class FakeBackend:
                 float(_unit(self.seed, case.id, checkpoint_name, index))
                 for index in range(16)
             ]
-            top5 = sorted(range(len(logits)), key=lambda index: logits[index], reverse=True)[:5]
+            order = sorted(range(len(logits)), key=lambda index: logits[index], reverse=True)
+            top5 = order[:5]
+            canonical_margin = logits[top5[0]] - logits[top5[1]]
             continuation = [top5[0]] * CONTINUATION_TOKENS
+            steps = [
+                {"top1": top5[0], "top2": top5[1], "margin": canonical_margin}
+                for _ in range(CONTINUATION_TOKENS)
+            ]
+            control_stats = {"max_abs": 0.0, "mean_abs": 0.0, "rms": 0.0}
+            limit_max, limit_mean = noise_limits(
+                control_stats["max_abs"], control_stats["mean_abs"]
+            )
+            margin_limit = near_tie_margin_limit(control_stats["max_abs"])
+            seam_positions = sorted(
+                {1, len(tokens) // 2} | ({len(tokens) - 2} if assistant_boundaries else set())
+            )
             phase = "ASSISTANT_OPEN" if checkpoint_name == "next_assistant" else "USER_OPEN"
             state = {
                 "seq_length": len(tokens),
@@ -250,11 +276,34 @@ class FakeBackend:
                         "path_top5": top5,
                         "canonical_top5": top5,
                         "top5_overlap": 5,
+                        "canonical_top1_top2_margin": canonical_margin,
+                        "path_top1_top2_margin": canonical_margin,
+                        "top1_flip_near_tie": False,
+                    },
+                    "noise_control": {
+                        "seam_positions": seam_positions,
+                        "chunk_count": len(seam_positions) + 1,
+                        "max_abs": control_stats["max_abs"],
+                        "mean_abs": control_stats["mean_abs"],
+                        "rms": control_stats["rms"],
                     },
                     "logit_diff_float32": {
                         "max_abs": 0.0,
                         "mean_abs": 0.0,
                         "rms": 0.0,
+                    },
+                    "logit_gates": {
+                        "noise_max_limit": limit_max,
+                        "noise_mean_limit": limit_mean,
+                        "near_tie_margin_limit": margin_limit,
+                        "max_abs_ok": True,
+                        "mean_abs_ok": True,
+                        "backstop_max_ok": True,
+                        "backstop_mean_ok": True,
+                        "top1_ok": True,
+                        "top5_ok": True,
+                        "continuation_ok": True,
+                        "all_ok": True,
                     },
                     "continuation": {
                         "tokens": CONTINUATION_TOKENS,
@@ -267,11 +316,18 @@ class FakeBackend:
                         "canonical_hash": token_ids_hash(continuation),
                         "exact": True,
                         "first_divergence": None,
+                        "canonical_steps": [dict(step) for step in steps],
+                        "path_steps": [dict(step) for step in steps],
                     },
                     "termination_probe": dict(termination_probe),
                     "scenario_execution": dict(scenario_execution),
                     "passed": True,
                     "errors": [],
+                    "_checkpoint_logits": {
+                        "path": logits,
+                        "canonical": list(logits),
+                        "control": list(logits),
+                    },
                 }
             )
         return {
@@ -603,11 +659,24 @@ class TransformersBackend:
         elif selected_ids != content_ids:
             errors.append("selection callback IDs differ from assistant content ledger")
         if case.termination == "natural_eos":
-            if observed != "EOS" or eos_step is None or eos_step > cap:
-                errors.append("natural greedy generation did not reach EOS within frozen cap")
-            if role_phase != "ASSISTANT_EOT_PENDING":
-                errors.append("natural EOS did not leave ASSISTANT_EOT_PENDING")
-        elif case.termination == "eos_at_cap":
+            # v2: a greedy run-on inside the frozen cap is a deterministic cap×snapshot
+            # combination, not an equivalence failure. It requalifies the case to
+            # max_tokens semantics; genuine-EOS coverage is gated at campaign level.
+            genuine = (
+                observed == "EOS"
+                and isinstance(eos_step, int)
+                and 1 <= eos_step <= cap
+                and role_phase == "ASSISTANT_EOT_PENDING"
+            )
+            if genuine:
+                genuine_eos, requalified = True, False
+            else:
+                genuine_eos, requalified = False, True
+                if observed != "MAX_TOKENS" or len(content_ids) != cap or role_phase != "ASSISTANT_OPEN":
+                    errors.append("non-terminating natural greedy left inconsistent probe state")
+        else:
+            genuine_eos, requalified = None, None
+        if case.termination == "eos_at_cap":
             if observed != "EOS" or eos_step != cap:
                 errors.append("controlled EOT was not observed at the final cap step")
             if content_ids != fixture_content_ids:
@@ -641,6 +710,8 @@ class TransformersBackend:
             "content_token_count": len(content_ids),
             "eos_step": eos_step,
             "eos_at_cap": eos_step == cap,
+            "genuine_eos": genuine_eos,
+            "requalified": requalified,
             "eot_token_id": self.parts.eot_token_id,
             "eot_in_kv": eot_in_kv,
             "eot_in_full_ledger": eot_in_kv,
@@ -745,14 +816,117 @@ class TransformersBackend:
             token_ids=ids_list,
         )
 
-    def _continue(self, cache: Any, count: int) -> list[int]:
+    @staticmethod
+    def _seam_positions(canonical: CanonicalSequence) -> list[int]:
+        """Structural seams the path constructed through incremental appends."""
+        seams: set[int] = set()
+        for value in canonical.boundaries.values():
+            if isinstance(value, bool):
+                continue
+            if isinstance(value, int):
+                seams.add(int(value))
+            elif isinstance(value, (list, tuple)):
+                for item in value:
+                    if isinstance(item, bool):
+                        continue
+                    if isinstance(item, int):
+                        seams.add(int(item))
+                    elif isinstance(item, (list, tuple)) and len(item) == 2:
+                        if all(isinstance(end, int) and not isinstance(end, bool) for end in item):
+                            seams.update(int(end) for end in item)
+        seams.update(int(position) for position in canonical.eot_positions)
+        return sorted(seams)
+
+    @staticmethod
+    def _effective_seams(seam_positions: Sequence[int], token_count: int) -> list[int]:
+        """Seams the control prefill actually splits at (inside the body)."""
+        return sorted(
+            {
+                int(position)
+                for position in seam_positions
+                if isinstance(position, int) and not isinstance(position, bool) and 0 < position < token_count - 1
+            }
+        )
+
+    def _chunked_prefill_logits(
+        self, token_ids: Sequence[int], seam_positions: Sequence[int]
+    ) -> tuple[Any, int]:
+        """v2 noise-control arm.
+
+        Re-prefill the canonical checkpoint sequence incrementally in chunks split at
+        the structural seams (no crop, no production recovery), ending with the same
+        one-token refresh forward the cropped path uses for its checkpoint logits.
+        """
+        torch = self.torch
+        ids_list = [int(value) for value in token_ids]
+        if len(ids_list) < 2:
+            raise RuntimeError("Noise control requires at least two tokens")
+        body = ids_list[:-1]
+        seams = sorted(
+            {
+                int(position)
+                for position in seam_positions
+                if isinstance(position, int) and not isinstance(position, bool) and 0 < position < len(body)
+            }
+        )
+        chunks: list[tuple[int, int]] = []
+        previous = 0
+        for seam in seams:
+            if seam > previous:
+                chunks.append((previous, seam))
+                previous = seam
+        if previous < len(body):
+            chunks.append((previous, len(body)))
+        past = None
+        outputs = None
+        for start, end in chunks:
+            chunk = body[start:end]
+            ids = torch.tensor([chunk], dtype=torch.long, device=self.device)
+            mask = torch.ones((1, end), dtype=torch.long, device=self.device)
+            position = torch.arange(start, end, dtype=torch.long, device=self.device).unsqueeze(0)
+            with torch.no_grad():
+                outputs = self.model(
+                    input_ids=ids,
+                    attention_mask=mask,
+                    position_ids=position,
+                    past_key_values=past,
+                    use_cache=True,
+                    return_dict=True,
+                )
+            past = outputs.past_key_values
+        last = torch.tensor([[ids_list[-1]]], dtype=torch.long, device=self.device)
+        full_mask = torch.ones((1, len(ids_list)), dtype=torch.long, device=self.device)
+        final_position = torch.tensor([[len(ids_list) - 1]], dtype=torch.long, device=self.device)
+        with torch.no_grad():
+            outputs = self.model(
+                input_ids=last,
+                attention_mask=full_mask,
+                position_ids=final_position,
+                past_key_values=past,
+                use_cache=True,
+                return_dict=True,
+            )
+        return outputs.logits[:, -1, :], len(chunks) + 1
+
+    def _continue(self, cache: Any, count: int) -> tuple[list[int], list[dict[str, Any]]]:
         torch = self.torch
         result: list[int] = []
+        steps: list[dict[str, Any]] = []
         logits = cache.next_token_logits
         if logits is None:
             raise RuntimeError("Checkpoint lacks next-token logits")
         for _ in range(count):
-            token_id = int(torch.argmax(logits.float(), dim=-1).item())
+            floats = logits.float()
+            top2 = torch.topk(floats, k=2, dim=-1)
+            top1_id = int(top2.indices[0, 0].item())
+            second_id = int(top2.indices[0, 1].item())
+            margin = float((top2.values[0, 0] - top2.values[0, 1]).item())
+            token_id = int(torch.argmax(floats, dim=-1).item())
+            if token_id != top1_id and margin > 0.0:
+                raise RuntimeError("argmax disagrees with topk top1 on non-tied logits")
+            # Under an exact tie argmax and topk may order the tied pair differently;
+            # the recorded step must always name the token actually emitted.
+            steps.append({"top1": token_id, "top2": second_id, "margin": margin})
             result.append(token_id)
             ids = torch.tensor([[token_id]], dtype=torch.long, device=self.device)
             mask = torch.cat(
@@ -777,7 +951,7 @@ class TransformersBackend:
             cache.seq_length = self._seq_length(cache) + 1
             cache.next_token_logits = outputs.logits[:, -1, :]
             logits = cache.next_token_logits
-        return result
+        return result, steps
 
     def _checkpoint(
         self,
@@ -819,9 +993,25 @@ class TransformersBackend:
         # Capture every checkpoint fact before continuation mutates either cache.
         path_logits = path_cache.next_token_logits.float()
         clean_logits = clean_cache.next_token_logits.float()
+        # v2 noise-control arm: incremental seam-chunked prefill of the same canonical
+        # sequence, ending with the same one-token refresh; measures the environment's
+        # intrinsic incremental-append BF16 noise without any crop/recovery code.
+        effective_seams = self._effective_seams(
+            self._seam_positions(canonical), len(canonical.token_ids)
+        )
+        control_logits_tensor, control_chunks = self._chunked_prefill_logits(
+            canonical.token_ids,
+            effective_seams,
+        )
+        control_logits = control_logits_tensor.float()
         difference = (path_logits - clean_logits).abs()
+        control_difference = (control_logits - clean_logits).abs()
         path_top = torch.topk(path_logits, k=TOP_K, dim=-1).indices[0].tolist()
         clean_top = torch.topk(clean_logits, k=TOP_K, dim=-1).indices[0].tolist()
+        path_top2 = torch.topk(path_logits, k=2, dim=-1).values[0]
+        clean_top2 = torch.topk(clean_logits, k=2, dim=-1).values[0]
+        canonical_margin = float((clean_top2[0] - clean_top2[1]).item())
+        path_margin = float((path_top2[0] - path_top2[1]).item())
         all_path_eots = [
             index for index, token in enumerate(path_ids) if token == self.parts.eot_token_id
         ]
@@ -851,17 +1041,56 @@ class TransformersBackend:
         max_abs = float(difference.max().item())
         mean_abs = float(difference.mean().item())
         rms = float(torch.sqrt(torch.mean(difference * difference)).item())
-        failure_logits = {
-            "path": path_logits.detach().cpu().numpy(),
-            "canonical": clean_logits.detach().cpu().numpy(),
+        control_max_abs = float(control_difference.max().item())
+        control_mean_abs = float(control_difference.mean().item())
+        control_rms = float(torch.sqrt(torch.mean(control_difference * control_difference)).item())
+        limit_max, limit_mean = noise_limits(control_max_abs, control_mean_abs)
+        margin_limit = near_tie_margin_limit(control_max_abs)
+        checkpoint_logits = {
+            "path": path_logits.detach().cpu().numpy().astype("float32"),
+            "canonical": clean_logits.detach().cpu().numpy().astype("float32"),
+            "control": control_logits.detach().cpu().numpy().astype("float32"),
         }
 
         # The path continuation must consume the refreshed production crop/recovery
         # cache itself. The clean side alone starts from an empty-cache re-prefill.
-        path_continuation = self._continue(path_cache, CONTINUATION_TOKENS)
-        clean_continuation = self._continue(clean_cache, CONTINUATION_TOKENS)
+        path_continuation, path_steps = self._continue(path_cache, CONTINUATION_TOKENS)
+        clean_continuation, canonical_steps = self._continue(clean_cache, CONTINUATION_TOKENS)
         continuation_divergence = first_mismatch(path_continuation, clean_continuation)
         errors: list[str] = []
+        gates = {
+            "noise_max_limit": limit_max,
+            "noise_mean_limit": limit_mean,
+            "near_tie_margin_limit": margin_limit,
+            "max_abs_ok": max_abs <= limit_max,
+            "mean_abs_ok": mean_abs <= limit_mean,
+            "backstop_max_ok": max_abs <= LOGIT_MAX_ABS_BACKSTOP,
+            "backstop_mean_ok": mean_abs <= LOGIT_MEAN_ABS_BACKSTOP,
+        }
+        top1_exact = int(path_top[0]) == int(clean_top[0])
+        top1_flip_near_tie = (not top1_exact) and canonical_margin <= margin_limit
+        gates["top1_ok"] = top1_exact or top1_flip_near_tie
+        gates["top5_ok"] = top_overlap >= 4
+        continuation_divergence_margin_ok = True
+        if continuation_divergence is not None:
+            divergence_margin = float(
+                canonical_steps[continuation_divergence]["margin"]
+            )
+            continuation_divergence_margin_ok = divergence_margin <= margin_limit
+        gates["continuation_ok"] = (
+            continuation_divergence is None or continuation_divergence_margin_ok
+        )
+        gates["all_ok"] = all(
+            (
+                gates["max_abs_ok"],
+                gates["mean_abs_ok"],
+                gates["backstop_max_ok"],
+                gates["backstop_mean_ok"],
+                gates["top1_ok"],
+                gates["top5_ok"],
+                gates["continuation_ok"],
+            )
+        )
         if mismatch is not None:
             errors.append(f"token mismatch at {mismatch}")
         if not state_path["lengths_exact"] or not state_path["assistant_content_span_exact"]:
@@ -870,16 +1099,30 @@ class TransformersBackend:
             errors.append("role phase mismatch")
         if not unique_eot_ok:
             errors.append("assistant EOT positions differ")
-        if int(path_top[0]) != int(clean_top[0]):
-            errors.append("next-token top1 differs")
-        if top_overlap < 4:
+        if not top1_exact and not top1_flip_near_tie:
+            errors.append(
+                f"next-token top1 differs at canonical margin {canonical_margin:.8g} "
+                f"above near-tie limit {margin_limit:.8g}"
+            )
+        if not gates["top5_ok"]:
             errors.append(f"top5 overlap {top_overlap}/5")
-        if max_abs > 0.1:
-            errors.append(f"max_abs logit diff {max_abs:.8g} exceeds 0.1")
-        if mean_abs > 0.01:
-            errors.append(f"mean_abs logit diff {mean_abs:.8g} exceeds 0.01")
-        if continuation_divergence is not None:
-            errors.append(f"continuation diverges at {continuation_divergence}")
+        if not gates["max_abs_ok"]:
+            errors.append(
+                f"max_abs logit diff {max_abs:.8g} exceeds noise-relative limit {limit_max:.8g}"
+            )
+        if not gates["mean_abs_ok"]:
+            errors.append(
+                f"mean_abs logit diff {mean_abs:.8g} exceeds noise-relative limit {limit_mean:.8g}"
+            )
+        if not gates["backstop_max_ok"]:
+            errors.append(f"max_abs logit diff {max_abs:.8g} exceeds absolute backstop {LOGIT_MAX_ABS_BACKSTOP}")
+        if not gates["backstop_mean_ok"]:
+            errors.append(f"mean_abs logit diff {mean_abs:.8g} exceeds absolute backstop {LOGIT_MEAN_ABS_BACKSTOP}")
+        if continuation_divergence is not None and not continuation_divergence_margin_ok:
+            errors.append(
+                f"continuation diverges at {continuation_divergence} with canonical margin "
+                f"{canonical_steps[continuation_divergence]['margin']:.8g} above near-tie limit {margin_limit:.8g}"
+            )
         return {
             "checkpoint": name,
             "canonical": canonical.to_dict(include_ids=True),
@@ -909,16 +1152,27 @@ class TransformersBackend:
             "next_token": {
                 "path_top1": int(path_top[0]),
                 "canonical_top1": int(clean_top[0]),
-                "top1_exact": int(path_top[0]) == int(clean_top[0]),
+                "top1_exact": top1_exact,
                 "path_top5": [int(value) for value in path_top],
                 "canonical_top5": [int(value) for value in clean_top],
                 "top5_overlap": top_overlap,
+                "canonical_top1_top2_margin": canonical_margin,
+                "path_top1_top2_margin": path_margin,
+                "top1_flip_near_tie": top1_flip_near_tie,
+            },
+            "noise_control": {
+                "seam_positions": effective_seams,
+                "chunk_count": control_chunks,
+                "max_abs": control_max_abs,
+                "mean_abs": control_mean_abs,
+                "rms": control_rms,
             },
             "logit_diff_float32": {
                 "max_abs": max_abs,
                 "mean_abs": mean_abs,
                 "rms": rms,
             },
+            "logit_gates": gates,
             "continuation": {
                 "tokens": CONTINUATION_TOKENS,
                 "continuation_source": "actual_crop_cache",
@@ -930,10 +1184,12 @@ class TransformersBackend:
                 "canonical_hash": token_ids_hash(clean_continuation),
                 "exact": continuation_divergence is None,
                 "first_divergence": continuation_divergence,
+                "canonical_steps": canonical_steps,
+                "path_steps": path_steps,
             },
             "passed": not errors,
             "errors": errors,
-            "_failure_logits": failure_logits if errors else None,
+            "_checkpoint_logits": checkpoint_logits,
         }
 
     def _build_recovery(

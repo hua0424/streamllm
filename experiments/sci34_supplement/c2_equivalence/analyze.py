@@ -22,6 +22,13 @@ def _group_summary(records: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
     mean_values = [float(item["logit_diff_float32"]["mean_abs"]) for item in checkpoints]
     rms_values = [float(item["logit_diff_float32"]["rms"]) for item in checkpoints]
     overlaps = [int(item["next_token"]["top5_overlap"]) for item in checkpoints]
+    control_max = [float(item["noise_control"]["max_abs"]) for item in checkpoints]
+    control_mean = [float(item["noise_control"]["mean_abs"]) for item in checkpoints]
+    ratios = [
+        float(item["logit_diff_float32"]["max_abs"]) / max(control, 1e-12)
+        for item, control in zip(checkpoints, control_max)
+    ]
+    flips = [item for item in checkpoints if item["next_token"].get("top1_flip_near_tie")]
     return {
         "cases": len(rows),
         "checkpoints": len(checkpoints),
@@ -35,6 +42,7 @@ def _group_summary(records: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
             sum(bool(item.get("next_token", {}).get("top1_exact")) for item in checkpoints)
             / len(checkpoints) if checkpoints else None
         ),
+        "top1_near_tie_flips": len(flips),
         "continuation_exact_rate": (
             sum(bool(item.get("continuation", {}).get("exact")) for item in checkpoints)
             / len(checkpoints) if checkpoints else None
@@ -49,6 +57,12 @@ def _group_summary(records: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
             "mean_abs_worst": max(mean_values) if mean_values else None,
             "mean_abs_across_checkpoints": mean(mean_values) if mean_values else None,
             "rms_worst": max(rms_values) if rms_values else None,
+        },
+        "noise_control": {
+            "max_abs_worst": max(control_max) if control_max else None,
+            "max_abs_median": sorted(control_max)[len(control_max) // 2] if control_max else None,
+            "mean_abs_worst": max(control_mean) if control_mean else None,
+            "path_over_control_ratio_worst": max(ratios) if ratios else None,
         },
     }
 
@@ -86,6 +100,14 @@ def build_analysis(campaign_dir: Path, *, formal: bool = True) -> dict[str, Any]
                     "max_abs": float(checkpoint["logit_diff_float32"]["max_abs"]),
                     "mean_abs": float(checkpoint["logit_diff_float32"]["mean_abs"]),
                     "rms": float(checkpoint["logit_diff_float32"]["rms"]),
+                    "control_max_abs": float(checkpoint["noise_control"]["max_abs"]),
+                    "control_mean_abs": float(checkpoint["noise_control"]["mean_abs"]),
+                    "noise_max_limit": float(checkpoint["logit_gates"]["noise_max_limit"]),
+                    "near_tie_margin_limit": float(checkpoint["logit_gates"]["near_tie_margin_limit"]),
+                    "canonical_top1_top2_margin": float(
+                        checkpoint["next_token"]["canonical_top1_top2_margin"]
+                    ),
+                    "top1_flip_near_tie": bool(checkpoint["next_token"].get("top1_flip_near_tie")),
                     "top5_overlap": int(checkpoint["next_token"]["top5_overlap"]),
                     "first_token_mismatch": checkpoint.get("first_token_mismatch"),
                     "first_continuation_divergence": checkpoint.get("continuation", {}).get("first_divergence"),
@@ -104,6 +126,8 @@ def build_analysis(campaign_dir: Path, *, formal: bool = True) -> dict[str, Any]
         termination_summary[label] = {
             "cases": len(grouped),
             "qualified": sum(bool(probe.get("passed")) for probe in grouped),
+            "genuine_eos": sum(bool(probe.get("genuine_eos")) for probe in grouped),
+            "requalified": sum(bool(probe.get("requalified")) for probe in grouped),
             "observed_end_reasons": dict(sorted({
                 reason: sum(probe.get("observed_end_reason") == reason for probe in grouped)
                 for reason in {str(probe.get("observed_end_reason")) for probe in grouped}
@@ -123,6 +147,7 @@ def build_analysis(campaign_dir: Path, *, formal: bool = True) -> dict[str, Any]
     return {
         "schema_version": ANALYSIS_SCHEMA_VERSION,
         "experiment": "c2_equivalence",
+        "protocol_version": 2,
         "created_at_utc": utc_now(),
         "design": {
             "sessions": 1,
@@ -130,6 +155,10 @@ def build_analysis(campaign_dir: Path, *, formal: bool = True) -> dict[str, Any]
             "descriptive_only": True,
             "bootstrap": None,
             "comparison": "independent termination qualification plus retained-token crop/recovery versus canonical token-ID clean re-prefill",
+            "noise_control_arm": (
+                "canonical sequence re-prefilled incrementally at structural seams versus single-shot; "
+                "crop-path deviation is gated relative to this measured intrinsic BF16 noise"
+            ),
         },
         "acceptance": {
             "passed": True,
@@ -137,6 +166,14 @@ def build_analysis(campaign_dir: Path, *, formal: bool = True) -> dict[str, Any]
             "failed_checkpoint_count": 0,
             "failed_termination_probe_count": 0,
             "failed_indexes": failed_indexes,
+        },
+        "noise_control": {
+            "arm": "canonical_ids_boundary_seam_chunked_prefill",
+            "note": (
+                "path/control ratio near 1 with token/state exactness indicates the crop/recovery "
+                "path adds no numerical deviation beyond intrinsic incremental-append BF16 noise"
+            ),
+            **(_group_summary(records)["noise_control"] if records else {}),
         },
         "termination_probes": {
             "cases": len(termination_probes),
@@ -183,8 +220,11 @@ def build_analysis(campaign_dir: Path, *, formal: bool = True) -> dict[str, Any]
             "analyzer": {"path": str(Path(__file__).resolve()), "sha256": sha256_file(Path(__file__).resolve())},
         },
         "claim_boundary": (
-            "Evidence is limited to deterministic Qwen2-7B BF16 model-state equivalence under the "
-            "frozen cases and implementation; it is not a latency, quality, cross-model, or production claim."
+            "Evidence is limited to deterministic Qwen2-7B BF16 model-state equivalence under the frozen "
+            "cases and implementation: token/state ledgers are exact, and logit distributions agree within "
+            "the environment's intrinsic incremental-append BF16 noise as measured by the frozen control arm "
+            "(near-tie top-1 flips and greedy-rollout divergences are allowed only at bounded margins). It is "
+            "not a latency, quality, cross-model, or production claim."
         ),
     }
 

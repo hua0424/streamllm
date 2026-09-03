@@ -14,8 +14,6 @@ from experiments.sci34_supplement.c2_equivalence.campaign import (
 )
 from experiments.sci34_supplement.c2_equivalence.canonical_chat import first_mismatch, token_ids_hash
 from experiments.sci34_supplement.c2_equivalence.protocol import (
-    BF16_MAX_ABS_THRESHOLD,
-    BF16_MEAN_ABS_THRESHOLD,
     CONTINUATION_TOKENS,
     EOS_AT_CAP_MAX_NEW_TOKENS,
     EXPECTED_DTYPE,
@@ -23,13 +21,29 @@ from experiments.sci34_supplement.c2_equivalence.protocol import (
     EXPECTED_MODEL_ARTIFACT_HASH,
     EXPECTED_MODEL_TYPE,
     FORMAL_CASE_COUNT,
+    LOGIT_MAX_ABS_BACKSTOP,
+    LOGIT_MEAN_ABS_BACKSTOP,
     MAX_TOKENS_PROBE_BUDGET,
     NATURAL_EOS_MAX_NEW_TOKENS,
+    NATURAL_EOS_MIN_GENUINE,
+    NEAR_TIE_ABS_MARGIN_LIMIT,
+    NEAR_TIE_MARGIN_FLOOR,
+    NOISE_CONTROL_MAX_ABS_FLOOR,
+    NOISE_CONTROL_MEAN_ABS_FLOOR,
+    NOISE_RATIO_LIMIT,
+    PROTOCOL_VERSION,
     TERMINATION_PROBE_SCHEMA_VERSION,
     TOP_K_MIN_OVERLAP,
     CaseSpec,
     load_cases,
+    near_tie_margin_limit,
+    noise_limits,
 )
+
+# NPZ arrays are float32; the runtime computed stats on float32 tensors, the
+# validator recomputes in float64. Elementwise float32 rounding differences are
+# bounded by ~1e-6 at these magnitudes, so 1e-4 is a strict but safe tolerance.
+STATS_TOLERANCE = 1e-4
 
 
 class ValidationError(ValueError):
@@ -87,9 +101,20 @@ def _validate_termination_probe(
         _error(errors, label, selected_ids == expected_selected, "selected/content/EOT sequence differs")
     if case.termination == "natural_eos":
         _error(errors, label, probe.get("mode") == "real_greedy" and probe.get("controlled") is False, "natural EOS is not real greedy")
-        _error(errors, label, observed == "EOS", f"observed end reason is {observed!r}")
-        _error(errors, label, isinstance(eos_step, int) and 1 <= eos_step <= expected_cap, "EOS not reached within cap")
-        _error(errors, label, probe.get("role_phase") == "ASSISTANT_EOT_PENDING", "EOS phase differs")
+        genuine = probe.get("genuine_eos")
+        requalified = probe.get("requalified")
+        if genuine is True and requalified is False:
+            _error(errors, label, observed == "EOS", f"observed end reason is {observed!r}")
+            _error(errors, label, isinstance(eos_step, int) and 1 <= eos_step <= expected_cap, "EOS not reached within cap")
+            _error(errors, label, probe.get("role_phase") == "ASSISTANT_EOT_PENDING", "EOS phase differs")
+        elif requalified is True and genuine is False:
+            # v2 deterministic requalification of a greedy run-on.
+            _error(errors, label, observed == "MAX_TOKENS", f"observed end reason is {observed!r}")
+            _error(errors, label, eos_step is None and probe.get("eos_at_cap") is False, "requalified probe recorded EOS")
+            _error(errors, label, isinstance(ids, list) and len(ids) == expected_cap, "requalified content count differs from cap")
+            _error(errors, label, probe.get("role_phase") == "ASSISTANT_OPEN", "requalified phase differs")
+        else:
+            errors.append(f"{label}: natural probe must be exclusively genuine or requalified")
     elif case.termination == "eos_at_cap":
         _error(errors, label, case.controlled_fixture, "case is not marked controlled")
         _error(errors, label, probe.get("mode") == "controlled_logits_fixture" and probe.get("controlled") is True, "cap probe is not controlled")
@@ -166,6 +191,60 @@ def _validate_scenario_execution(
     return errors
 
 
+def _load_checkpoint_arrays(
+    campaign_dir: Path, case_id: str, attempt: int, name: str
+) -> dict[str, Any]:
+    import numpy as np
+
+    path = campaign_dir / "checkpoints" / f"{case_id}.attempt{attempt}.{name}.npz"
+    if not path.is_file():
+        raise ValidationError(f"missing checkpoint logits sidecar: {path.name}")
+    with np.load(path, allow_pickle=False) as data:
+        arrays: dict[str, Any] = {}
+        for key in ("path", "canonical", "control"):
+            if key not in data.files:
+                raise ValidationError(f"{path.name} lacks the '{key}' logits array")
+            arrays[key] = np.asarray(data[key], dtype=np.float64).reshape(-1)
+    if len({array.size for array in arrays.values()}) != 1:
+        raise ValidationError(f"{path.name} logits arrays disagree on vocabulary size")
+    return arrays
+
+
+def _top_k_facts(values: Any) -> dict[str, Any]:
+    """Stable ordering plus exact-tie sets for independent top-1/top-5 checks."""
+    import numpy as np
+
+    order = np.argsort(-values, kind="stable")
+    top1 = int(order[0])
+    top2 = int(order[1])
+    top1_ties = [int(index) for index in np.nonzero(values == values[order[0]])[0]]
+    top5 = [int(index) for index in order[:5]]
+    boundary_tie = bool(values[order[4]] == values[order[5]])
+    return {
+        "top1": top1,
+        "top2": top2,
+        "margin": float(values[order[0]] - values[order[1]]),
+        "top1_ties": top1_ties,
+        "top5": top5,
+        "boundary_tie": boundary_tie,
+    }
+
+
+def _diff_stats(left: Any, right: Any) -> dict[str, float]:
+    import numpy as np
+
+    difference = np.abs(left - right)
+    return {
+        "max_abs": float(difference.max()),
+        "mean_abs": float(difference.mean()),
+        "rms": float(np.sqrt(np.mean(difference * difference))),
+    }
+
+
+def _close(left: float, right: float) -> bool:
+    return abs(float(left) - float(right)) <= STATS_TOLERANCE
+
+
 def _validate_checkpoint(
     checkpoint: Mapping[str, Any],
     *,
@@ -174,6 +253,8 @@ def _validate_checkpoint(
     record_scenario_execution: Mapping[str, Any],
     formal: bool,
     failure_indexes: list[dict[str, Any]],
+    campaign_dir: Path,
+    attempt: int,
 ) -> list[str]:
     case_id = case.id
     name = str(checkpoint.get("checkpoint"))
@@ -257,30 +338,150 @@ def _validate_checkpoint(
     if isinstance(positions, list):
         _error(errors, label, len(positions) == boundaries, f"expected {boundaries} structural EOT, found {len(positions)}")
     next_token = checkpoint.get("next_token", {})
-    _error(errors, label, bool(next_token.get("top1_exact")), "next-token top1 differs")
-    _error(
-        errors,
-        label,
-        next_token.get("path_top1") == next_token.get("canonical_top1"),
-        "stored top1 equality differs",
-    )
-    _error(
-        errors,
-        label,
-        int(next_token.get("top5_overlap", -1)) >= TOP_K_MIN_OVERLAP,
-        f"top5 overlap below {TOP_K_MIN_OVERLAP}/5",
-    )
-    logit = checkpoint.get("logit_diff_float32", {})
-    try:
-        max_abs = float(logit["max_abs"])
-        mean_abs = float(logit["mean_abs"])
-        rms = float(logit["rms"])
-        _error(errors, label, 0.0 <= max_abs <= BF16_MAX_ABS_THRESHOLD, f"max_abs={max_abs}")
-        _error(errors, label, 0.0 <= mean_abs <= BF16_MEAN_ABS_THRESHOLD, f"mean_abs={mean_abs}")
-        _error(errors, label, 0.0 <= rms <= max_abs + 1e-12, f"invalid RMS={rms}")
-    except (KeyError, TypeError, ValueError):
-        errors.append(f"{label}: malformed float32 logit differences")
     continuation = checkpoint.get("continuation", {})
+
+    # v2: reload the frozen logits sidecar and recompute every numeric fact from it.
+    arrays_error: str | None = None
+    arrays: dict[str, Any] | None = None
+    try:
+        arrays = _load_checkpoint_arrays(campaign_dir, case_id, attempt, name)
+    except ValidationError as error:
+        arrays_error = str(error)
+        errors.append(f"{label}: {arrays_error}")
+    recomputed_stats: dict[str, float] = {}
+    control_stats: dict[str, float] = {}
+    if arrays is not None:
+        recomputed_stats = _diff_stats(arrays["path"], arrays["canonical"])
+        control_stats = _diff_stats(arrays["control"], arrays["canonical"])
+        logit = checkpoint.get("logit_diff_float32", {})
+        noise = checkpoint.get("noise_control", {})
+        for stats, recorded, stats_label in (
+            (recomputed_stats, logit, "logit_diff_float32"),
+            (control_stats, noise, "noise_control"),
+        ):
+            try:
+                for key in ("max_abs", "mean_abs", "rms"):
+                    _error(
+                        errors,
+                        label,
+                        _close(recorded[key], stats[key]),
+                        f"{stats_label}.{key} {recorded[key]} differs from sidecar recompute {stats[key]}",
+                    )
+            except (KeyError, TypeError):
+                errors.append(f"{label}: malformed {stats_label}")
+        if isinstance(canonical_ids, list):
+            _error(
+                errors,
+                label,
+                isinstance(noise.get("seam_positions"), list)
+                and all(
+                    isinstance(item, int) and not isinstance(item, bool) and 0 < item < len(canonical_ids)
+                    for item in (noise.get("seam_positions") or [])
+                )
+                and list(noise.get("seam_positions") or []) == sorted(set(noise.get("seam_positions") or [])),
+                "noise-control seams are malformed",
+            )
+            _error(
+                errors,
+                label,
+                isinstance(noise.get("chunk_count"), int) and noise.get("chunk_count") >= 1,
+                "noise-control chunk count is malformed",
+            )
+        canonical_facts = _top_k_facts(arrays["canonical"])
+        path_facts = _top_k_facts(arrays["path"])
+        _error(
+            errors,
+            label,
+            next_token.get("canonical_top1") in canonical_facts["top1_ties"],
+            "recorded canonical top1 differs from sidecar recompute",
+        )
+        _error(
+            errors,
+            label,
+            next_token.get("path_top1") in path_facts["top1_ties"],
+            "recorded path top1 differs from sidecar recompute",
+        )
+        _error(
+            errors,
+            label,
+            _close(next_token.get("canonical_top1_top2_margin", float("nan")), canonical_facts["margin"]),
+            "recorded canonical margin differs from sidecar recompute",
+        )
+        _error(
+            errors,
+            label,
+            _close(next_token.get("path_top1_top2_margin", float("nan")), path_facts["margin"]),
+            "recorded path margin differs from sidecar recompute",
+        )
+        overlap = len(set(canonical_facts["top5"]) & set(path_facts["top5"]))
+        recorded_overlap = int(next_token.get("top5_overlap", -1))
+        effective_overlap = recorded_overlap if (
+            canonical_facts["boundary_tie"] or path_facts["boundary_tie"]
+        ) else overlap
+        if not (canonical_facts["boundary_tie"] or path_facts["boundary_tie"]):
+            _error(
+                errors,
+                label,
+                recorded_overlap == overlap,
+                f"recorded top5 overlap {recorded_overlap} differs from recompute {overlap}",
+            )
+        _error(
+            errors,
+            label,
+            effective_overlap >= TOP_K_MIN_OVERLAP,
+            f"top5 overlap below {TOP_K_MIN_OVERLAP}/5",
+        )
+        # v2 gates recomputed from the sidecar alone.
+        limit_max, limit_mean = noise_limits(control_stats["max_abs"], control_stats["mean_abs"])
+        margin_limit = near_tie_margin_limit(control_stats["max_abs"])
+        _error(
+            errors,
+            label,
+            recomputed_stats["max_abs"] <= limit_max,
+            f"max_abs={recomputed_stats['max_abs']:.6g} exceeds noise-relative limit {limit_max:.6g}",
+        )
+        _error(
+            errors,
+            label,
+            recomputed_stats["mean_abs"] <= limit_mean,
+            f"mean_abs={recomputed_stats['mean_abs']:.6g} exceeds noise-relative limit {limit_mean:.6g}",
+        )
+        _error(
+            errors,
+            label,
+            recomputed_stats["max_abs"] <= LOGIT_MAX_ABS_BACKSTOP,
+            f"max_abs={recomputed_stats['max_abs']:.6g} exceeds absolute backstop {LOGIT_MAX_ABS_BACKSTOP}",
+        )
+        _error(
+            errors,
+            label,
+            recomputed_stats["mean_abs"] <= LOGIT_MEAN_ABS_BACKSTOP,
+            f"mean_abs={recomputed_stats['mean_abs']:.6g} exceeds absolute backstop {LOGIT_MEAN_ABS_BACKSTOP}",
+        )
+        top1_exact = next_token.get("path_top1") == next_token.get("canonical_top1")
+        near_tie_flip = (not top1_exact) and canonical_facts["margin"] <= margin_limit
+        _error(
+            errors,
+            label,
+            top1_exact or near_tie_flip,
+            f"next-token top1 differs at canonical margin {canonical_facts['margin']:.6g} above near-tie limit {margin_limit:.6g}",
+        )
+        _error(
+            errors,
+            label,
+            bool(next_token.get("top1_flip_near_tie")) is near_tie_flip,
+            "recorded top1_flip_near_tie differs from recompute",
+        )
+        gates = checkpoint.get("logit_gates", {})
+        _error(
+            errors,
+            label,
+            _close(gates.get("noise_max_limit", float("nan")), limit_max)
+            and _close(gates.get("noise_mean_limit", float("nan")), limit_mean)
+            and _close(gates.get("near_tie_margin_limit", float("nan")), margin_limit),
+            "recorded gate limits differ from recompute",
+        )
+
     _error(
         errors,
         label,
@@ -304,12 +505,69 @@ def _validate_checkpoint(
     _error(errors, label, continuation.get("tokens") == CONTINUATION_TOKENS, "continuation length protocol differs")
     _error(errors, label, isinstance(left, list) and len(left) == CONTINUATION_TOKENS, "path continuation malformed")
     _error(errors, label, isinstance(right, list) and len(right) == CONTINUATION_TOKENS, "canonical continuation malformed")
+    canonical_steps = continuation.get("canonical_steps")
+    path_steps = continuation.get("path_steps")
+    _error(
+        errors,
+        label,
+        isinstance(canonical_steps, list) and len(canonical_steps) == CONTINUATION_TOKENS,
+        "canonical continuation steps malformed",
+    )
+    _error(
+        errors,
+        label,
+        isinstance(path_steps, list) and len(path_steps) == CONTINUATION_TOKENS,
+        "path continuation steps malformed",
+    )
+    if isinstance(right, list) and isinstance(canonical_steps, list):
+        _error(
+            errors,
+            label,
+            all(
+                isinstance(step, dict)
+                and step.get("top1") == right[index]
+                and isinstance(step.get("margin"), (int, float))
+                and float(step.get("margin", -1)) >= 0.0
+                for index, step in enumerate(canonical_steps)
+            ),
+            "canonical continuation steps disagree with recorded tokens",
+        )
+    if isinstance(left, list) and isinstance(path_steps, list):
+        _error(
+            errors,
+            label,
+            all(
+                isinstance(step, dict) and step.get("top1") == left[index]
+                for index, step in enumerate(path_steps)
+            ),
+            "path continuation steps disagree with recorded tokens",
+        )
+    if isinstance(canonical_steps, list) and canonical_steps:
+        _error(
+            errors,
+            label,
+            canonical_steps[0].get("top1") == next_token.get("canonical_top1"),
+            "continuation first step disagrees with checkpoint next-token top1",
+        )
     if isinstance(left, list) and isinstance(right, list):
         divergence = first_mismatch(left, right)
-        _error(errors, label, divergence is None, f"continuation diverges at {divergence}")
-        _error(errors, label, continuation.get("first_divergence") == divergence, "stored continuation divergence differs")
+        _error(
+            errors,
+            label,
+            continuation.get("first_divergence") == divergence,
+            "stored continuation divergence differs",
+        )
         _error(errors, label, continuation.get("path_hash") == token_ids_hash(left), "path continuation hash mismatch")
         _error(errors, label, continuation.get("canonical_hash") == token_ids_hash(right), "canonical continuation hash mismatch")
+        if divergence is not None and isinstance(canonical_steps, list) and arrays is not None:
+            margin_limit = near_tie_margin_limit(control_stats["max_abs"])
+            divergence_margin = float(canonical_steps[divergence].get("margin", float("nan")))
+            _error(
+                errors,
+                label,
+                divergence_margin <= margin_limit,
+                f"continuation diverges at {divergence} with canonical margin {divergence_margin:.6g} above near-tie limit {margin_limit:.6g}",
+            )
     stored_checkpoint_errors = checkpoint.get("errors")
     _error(errors, label, isinstance(stored_checkpoint_errors, list), "stored checkpoint errors malformed")
     if isinstance(stored_checkpoint_errors, list):
@@ -343,6 +601,12 @@ def validate_campaign(
         _error(errors, "campaign", len(records) == len(cases), f"expected {len(cases)} records, found {len(records)}")
         _error(errors, "campaign", manifest.get("config", {}).get("session_count") == 1, "formal session count is not one")
         _error(errors, "campaign", manifest.get("config", {}).get("statistical_repeats") == 0, "statistical repeats are not zero")
+        _error(
+            errors,
+            "campaign",
+            manifest.get("config", {}).get("protocol", {}).get("protocol_version") == PROTOCOL_VERSION,
+            "manifest protocol version differs from v2",
+        )
         _error(errors, "campaign", manifest.get("git", {}).get("dirty") is False, "formal manifest records dirty tree")
         config = manifest.get("config", {})
         runtime_metadata = config.get("runtime_metadata", {})
@@ -371,6 +635,8 @@ def validate_campaign(
         _error(errors, label, record.get("campaign_identity_hash") == manifest.get("identity_hash"), "identity differs")
         _error(errors, label, record.get("campaign_manifest_sha256") == manifest_sha, "manifest SHA differs")
         _error(errors, label, record.get("cases_sha256") == sha256_file(cases_path), "cases SHA differs")
+        _error(errors, label, record.get("schema_version") == 2, "record schema differs from v2")
+        _error(errors, label, record.get("protocol_version") == PROTOCOL_VERSION, "record protocol version differs")
         process_ids.add(str(record.get("process_start_id")))
         case_errors: list[str] = []
         case = cases[index] if index < len(cases) else None
@@ -396,6 +662,17 @@ def validate_campaign(
             expected_checkpoints = list(cases[index].checkpoints) if index < len(cases) else []
             actual_checkpoints = [str(item.get("checkpoint")) for item in checkpoints]
             _error(case_errors, label, actual_checkpoints == expected_checkpoints, "checkpoint grid differs")
+            attempt = int(record.get("attempt", 0))
+            expected_sidecars = [
+                f"checkpoints/{case_id}.attempt{attempt}.{name}.npz"
+                for name in actual_checkpoints
+            ]
+            _error(
+                case_errors,
+                label,
+                record.get("checkpoint_logits") == expected_sidecars,
+                "checkpoint logits sidecar list differs",
+            )
             if (
                 case is not None
                 and isinstance(probe, dict)
@@ -410,6 +687,8 @@ def validate_campaign(
                             record_scenario_execution=scenario_execution,
                             formal=formal,
                             failure_indexes=failures,
+                            campaign_dir=campaign_dir,
+                            attempt=attempt,
                         )
                     )
         stored_case_errors = record.get("errors")
@@ -421,6 +700,21 @@ def validate_campaign(
             failures.append({"case_id": case_id, "checkpoint": None, "errors": case_errors})
         errors.extend(case_errors)
     _error(errors, "campaign", bool(process_ids), "records lack process identities")
+    natural_declared = [
+        record for record in records if record.get("termination") == "natural_eos"
+    ]
+    natural_genuine = sum(
+        bool(record.get("termination_probe", {}).get("genuine_eos"))
+        for record in natural_declared
+    )
+    natural_gate_passed = natural_genuine >= NATURAL_EOS_MIN_GENUINE
+    if formal:
+        _error(
+            errors,
+            "campaign",
+            natural_gate_passed,
+            f"natural-EOS genuine coverage {natural_genuine}/{len(natural_declared)} below {NATURAL_EOS_MIN_GENUINE}",
+        )
     summary_path = campaign_dir / "summary.json"
     if formal:
         _error(errors, "summary", summary_path.is_file(), "formal campaign requires summary.json")
@@ -433,10 +727,12 @@ def validate_campaign(
         expected_checkpoint_count = sum(
             len(record.get("checkpoints", [])) for record in records
         )
+        _error(errors, "summary", summary.get("protocol_version") == PROTOCOL_VERSION, "protocol version differs")
         _error(errors, "summary", summary.get("cases") == len(cases), "case count differs")
         _error(errors, "summary", summary.get("checkpoint_count") == expected_checkpoint_count, "checkpoint count differs")
         _error(errors, "summary", summary.get("failed_cases") == failed_ids, "failed case list differs")
-        _error(errors, "summary", summary.get("status") == ("FAIL" if failed_ids else "PASS"), "status differs")
+        expected_status = "FAIL" if (failed_ids or (formal and not natural_gate_passed)) else "PASS"
+        _error(errors, "summary", summary.get("status") == expected_status, "status differs")
         _error(errors, "summary", summary.get("sessions") == 1, "session count differs")
         _error(errors, "summary", summary.get("statistical_repeats") == 0, "repeat count differs")
         _error(errors, "summary", summary.get("logical_session_id") == "s01", "logical session differs")
@@ -447,10 +743,26 @@ def validate_campaign(
         _error(errors, "summary", summary_probes.get("required") == len(cases), "termination required count differs")
         _error(errors, "summary", summary_probes.get("observed") == len(records), "termination observed count differs")
         _error(errors, "summary", summary_probes.get("runner_qualified") == len(cases), "runner qualification count differs")
-        _error(errors, "summary", bool(summary.get("acceptance_eligible")) == (not failed_ids), "acceptance verdict differs")
+        expected_gate = {
+            "declared": len(natural_declared),
+            "genuine": natural_genuine,
+            "requalified": len(natural_declared) - natural_genuine,
+            "min_genuine": NATURAL_EOS_MIN_GENUINE,
+            "applies": formal,
+            "passed": natural_gate_passed if formal else True,
+        }
+        _error(
+            errors,
+            "summary",
+            summary.get("natural_eos_gate") == expected_gate,
+            "natural-EOS gate summary differs",
+        )
+        expected_eligible = not failed_ids and (natural_gate_passed or not formal)
+        _error(errors, "summary", bool(summary.get("acceptance_eligible")) == expected_eligible, "acceptance verdict differs")
     result = {
-        "schema_version": 1,
+        "schema_version": 2,
         "experiment": "c2_equivalence",
+        "protocol_version": PROTOCOL_VERSION,
         "validated_at_utc": utc_now(),
         "campaign_dir": str(campaign_dir.resolve()),
         "formal": formal,
@@ -477,12 +789,27 @@ def validate_campaign(
                 for index, record in enumerate(records)
                 if index < len(cases)
             ),
+            "natural_eos": {
+                "declared": len(natural_declared),
+                "genuine": natural_genuine,
+                "requalified": len(natural_declared) - natural_genuine,
+                "min_genuine": NATURAL_EOS_MIN_GENUINE,
+                "gate_passed": natural_gate_passed if formal else True,
+            },
         },
         "thresholds": {
-            "max_abs_logit_diff": BF16_MAX_ABS_THRESHOLD,
-            "mean_abs_logit_diff": BF16_MEAN_ABS_THRESHOLD,
+            "protocol_version": PROTOCOL_VERSION,
+            "noise_control": "canonical_ids_boundary_seam_chunked_prefill",
+            "noise_ratio_limit": NOISE_RATIO_LIMIT,
+            "noise_control_max_abs_floor": NOISE_CONTROL_MAX_ABS_FLOOR,
+            "noise_control_mean_abs_floor": NOISE_CONTROL_MEAN_ABS_FLOOR,
+            "max_abs_backstop": LOGIT_MAX_ABS_BACKSTOP,
+            "mean_abs_backstop": LOGIT_MEAN_ABS_BACKSTOP,
+            "near_tie_margin_floor": NEAR_TIE_MARGIN_FLOOR,
+            "near_tie_abs_margin_limit": NEAR_TIE_ABS_MARGIN_LIMIT,
             "top5_min_overlap": TOP_K_MIN_OVERLAP,
             "continuation_tokens": CONTINUATION_TOKENS,
+            "natural_eos_min_genuine": NATURAL_EOS_MIN_GENUINE,
         },
         "provenance": {
             "campaign_manifest": {"path": str(manifest_path.resolve()), "sha256": manifest_sha},

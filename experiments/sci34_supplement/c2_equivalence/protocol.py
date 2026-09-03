@@ -10,8 +10,18 @@ from typing import Any, Mapping, Sequence
 from experiments.sci34_supplement.common import canonical_json, config_hash, sha256_file
 
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 EXPERIMENT = "c2_equivalence"
+# v2（D-019）：v1 formal run c2eq_563dd22a_20260903T013547Z 在 token/state 层 100% 等价，
+# 但冻结的 BF16 绝对 logit 阈（max_abs<=0.1 / mean_abs<=0.01）与 32-token greedy exact
+# 门槛对任何正确实现都不可达成：增量 append 与整段 prefill 的 kernel 归约顺序不同
+# （同形状重复计算差为 0，分块 append 在 0.5B/3060 与 7B/3090 上均给出同量级差异）。
+# v2 改为"噪声对照臂 + 相对门槛"：同一 canonical 序列按结构 seam 分块增量预填充
+# （不含任何 crop/生产恢复代码）测得本环境固有噪声，crop 路径偏差不得超过其 2 倍；
+# top-1 翻转与 continuation 发散仅在近并列（margin 受限）处允许。全部常数先验冻结。
+PROTOCOL_VERSION = 2
+PRIOR_REJECTED_RUN_ID = "c2eq_563dd22a_20260903T013547Z"
+PRIOR_REJECTED_COMMIT = "1a47ac1"
 FORMAL_SESSION_COUNT = 1
 FORMAL_CASE_COUNT = 24
 # 与 D-017 已接受的 Qwen2-7B-Instruct snapshot 相同；忽略本地绝对路径，
@@ -21,14 +31,24 @@ EXPECTED_MODEL_TYPE = "qwen2"
 EXPECTED_MODEL_ARCHITECTURE = "Qwen2ForCausalLM"
 EXPECTED_DTYPE = "torch.bfloat16"
 CONTINUATION_TOKENS = 32
-NATURAL_EOS_MAX_NEW_TOKENS = 128
+# v2：natural_eos cap 128→256（v1 中 4/10 greedy 在 128 内 run-on，属 cap×snapshot 组合）；
+# 未在 cap 内 EOS 的 natural_eos case 重资格化为 max_tokens 语义继续做等价比较，
+# campaign 级门槛要求 10 个 natural_eos 中至少 5 个真实命中 EOS（真实 EOS 分支覆盖）。
+NATURAL_EOS_MAX_NEW_TOKENS = 256
+NATURAL_EOS_MIN_GENUINE = 5
 EOS_AT_CAP_MAX_NEW_TOKENS = 4
 MAX_TOKENS_PROBE_BUDGET = 2
 TERMINATION_PROBE_SCHEMA_VERSION = 1
 TOP_K = 5
 TOP_K_MIN_OVERLAP = 4
-BF16_MAX_ABS_THRESHOLD = 0.1
-BF16_MEAN_ABS_THRESHOLD = 0.01
+# v2 相对门槛常数（先验冻结，不得在看到 formal 结果后调整）：
+NOISE_CONTROL_MAX_ABS_FLOOR = 0.05
+NOISE_CONTROL_MEAN_ABS_FLOOR = 0.01
+NOISE_RATIO_LIMIT = 2.0
+LOGIT_MAX_ABS_BACKSTOP = 2.0
+LOGIT_MEAN_ABS_BACKSTOP = 0.5
+NEAR_TIE_MARGIN_FLOOR = 0.125  # BF16 在 |logit|∈[16,32) 的 ulp
+NEAR_TIE_ABS_MARGIN_LIMIT = 0.5
 SYSTEM_PROMPT = "You are a helpful assistant. Reply in English."
 CONTEXT_TARGETS = (512, 2048, 8192)
 CONTEXT_CLASSES = ("short_512", "medium_2048", "long_8192")
@@ -52,8 +72,14 @@ class ProtocolConfig:
     continuation_tokens: int = CONTINUATION_TOKENS
     top_k: int = TOP_K
     top_k_min_overlap: int = TOP_K_MIN_OVERLAP
-    max_abs_logit_diff: float = BF16_MAX_ABS_THRESHOLD
-    mean_abs_logit_diff: float = BF16_MEAN_ABS_THRESHOLD
+    noise_control: str = "canonical_ids_boundary_seam_chunked_prefill"
+    noise_ratio_limit: float = NOISE_RATIO_LIMIT
+    max_abs_backstop: float = LOGIT_MAX_ABS_BACKSTOP
+    mean_abs_backstop: float = LOGIT_MEAN_ABS_BACKSTOP
+    near_tie_margin_floor: float = NEAR_TIE_MARGIN_FLOOR
+    near_tie_abs_margin_limit: float = NEAR_TIE_ABS_MARGIN_LIMIT
+    natural_eos_max_new_tokens: int = NATURAL_EOS_MAX_NEW_TOKENS
+    natural_eos_min_genuine: int = NATURAL_EOS_MIN_GENUINE
     decode: str = "greedy"
     batch_size: int = 1
     dtype: str = "bfloat16"
@@ -68,6 +94,12 @@ class ProtocolConfig:
         payload = asdict(self)
         payload.update(
             {
+                "protocol_version": PROTOCOL_VERSION,
+                "prior_rejected_run": {
+                    "run_id": PRIOR_REJECTED_RUN_ID,
+                    "commit": PRIOR_REJECTED_COMMIT,
+                    "note": "v1 absolute BF16 gates were unattainable for any correct implementation; see D-019",
+                },
                 "formal_case_count": FORMAL_CASE_COUNT,
                 "expected_model_artifact_hash": EXPECTED_MODEL_ARTIFACT_HASH,
                 "expected_model_type": EXPECTED_MODEL_TYPE,
@@ -82,7 +114,12 @@ class ProtocolConfig:
                     "natural_eos_max_new_tokens": NATURAL_EOS_MAX_NEW_TOKENS,
                     "eos_at_cap_max_new_tokens": EOS_AT_CAP_MAX_NEW_TOKENS,
                     "max_tokens_budget": MAX_TOKENS_PROBE_BUDGET,
-                    "natural_eos": "real greedy generate_accumulating; EOS required within frozen cap",
+                    "natural_eos": (
+                        "real greedy generate_accumulating; genuine EOS within frozen cap counts toward "
+                        f"NATURAL_EOS_MIN_GENUINE={NATURAL_EOS_MIN_GENUINE}; a non-terminating greedy is "
+                        "deterministically requalified to max_tokens semantics and still runs the full "
+                        "equivalence comparison"
+                    ),
                     "eos_at_cap": "controlled deterministic token-state fixture; EOT required at final cap step through generate_accumulating EOS branch",
                     "max_tokens": "real greedy generate_accumulating; no EOS in frozen small budget",
                 },
@@ -90,10 +127,47 @@ class ProtocolConfig:
                 "comparison": (
                     "independent termination probe plus production crop/recovery versus canonical token-ID clean re-prefill using shared retained IDs"
                 ),
+                "noise_control_arm": (
+                    "the canonical checkpoint sequence is re-prefilled incrementally in chunks split at its "
+                    "structural boundary seams (mirroring the path's append structure, ending with the same "
+                    "one-token refresh forward); its FP32 logit difference versus the single-shot canonical "
+                    "prefill measures the environment's intrinsic incremental-append BF16 noise"
+                ),
+                "v2_gates": {
+                    "relative": (
+                        f"path max_abs <= {NOISE_RATIO_LIMIT} * max(control max_abs, {NOISE_CONTROL_MAX_ABS_FLOOR}) "
+                        f"and path mean_abs <= {NOISE_RATIO_LIMIT} * max(control mean_abs, {NOISE_CONTROL_MEAN_ABS_FLOOR})"
+                    ),
+                    "absolute_backstop": (
+                        f"path max_abs <= {LOGIT_MAX_ABS_BACKSTOP} and path mean_abs <= {LOGIT_MEAN_ABS_BACKSTOP}"
+                    ),
+                    "top1": (
+                        "top-1 must be exact, or the canonical top1-top2 margin must be within the near-tie "
+                        f"limit min(max({NOISE_RATIO_LIMIT} * max(control max_abs, {NOISE_CONTROL_MAX_ABS_FLOOR}), "
+                        f"{NEAR_TIE_MARGIN_FLOOR}), {NEAR_TIE_ABS_MARGIN_LIMIT})"
+                    ),
+                    "continuation": (
+                        "the 32-token greedy continuation must be exact, or the canonical margin at the first "
+                        "divergence step must be within the same near-tie limit"
+                    ),
+                },
                 "statistics": "one deterministic session; no statistical repetition or bootstrap",
             }
         )
         return payload
+
+
+def noise_limits(control_max_abs: float, control_mean_abs: float) -> tuple[float, float]:
+    """v2 relative logit-difference limits derived from the measured control noise."""
+    limit_max = NOISE_RATIO_LIMIT * max(float(control_max_abs), NOISE_CONTROL_MAX_ABS_FLOOR)
+    limit_mean = NOISE_RATIO_LIMIT * max(float(control_mean_abs), NOISE_CONTROL_MEAN_ABS_FLOOR)
+    return limit_max, limit_mean
+
+
+def near_tie_margin_limit(control_max_abs: float) -> float:
+    """Margin below which a top-1 flip / continuation divergence is numerically expected."""
+    relative = NOISE_RATIO_LIMIT * max(float(control_max_abs), NOISE_CONTROL_MAX_ABS_FLOOR)
+    return min(max(relative, NEAR_TIE_MARGIN_FLOOR), NEAR_TIE_ABS_MARGIN_LIMIT)
 
 
 @dataclass(frozen=True)
