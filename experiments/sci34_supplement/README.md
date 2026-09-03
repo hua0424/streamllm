@@ -41,7 +41,7 @@ Resume 时会比较 config hash 与输入 SHA-256。不一致时拒绝续跑，�
 
 已接受的 P1 v2 结果位于 `results/async_bargein/sci34_dc52978_20260901_async_prepared_v2/`。GPU 实验员按约定用 `git add -f` 将默认忽略的正式结果、日志和环境快照纳入 commit `ee1dcc7`；该操作只增加版本化审计副本，不改变实验数据或协议。
 
-C-E1/E2 formal `e1e2c_b8c758b_20260901T173306Z` 已完成并由 D-017 接受。C2 v1/v2 run 均已按冻结门槛 rejected 并归档（两轮 token/state/EOT 45/45 正向；clean-prefill 数值对照受不同 forward 拓扑混杂，不能归因 crop）。当前唯一 GPU 待办为 D-021 exact-only v3 crop-integrity addendum，输出使用 `results/c2_crop_integrity/<run_id>/`，直接配对 production crop 与同一 pre-crop K/V 的独立切片 oracle；所有 v1/v2、E3 rescue 与旧 campaign 只读。
+C-E1/E2 formal `e1e2c_b8c758b_20260901T173306Z` 已完成并由 D-017 接受。C2 v1/v2 run 按冻结门槛 rejected 并归档（token/state/EOT 正向；clean-prefill 数值对照不构成 crop oracle）；D-023 已接受 v3 run `c2crop_82103004_20260903T080512Z`（24/27 全 bitwise/exact、seal 通过）。当前无无条件 GPU 待办，进入论文统一修订；所有实验工件与 E3 rescue 只读。
 
 ## 快速入口
 

@@ -5,6 +5,24 @@
 
 ---
 
+## D-023（2026-09-03）接受并封存 C2 v3 crop-integrity 正式证据
+
+**决策**：正式接受 run `c2crop_82103004_20260903T080512Z`（code commit `82103004637dce8f98688f4a685d33ebee363a3b`、结果 commit `7d50624`、manifest SHA-256 `d8c3db4d…d4bc2`）作为 D-018 EOS/EOT/role 修复后的 crop-integrity 正确性证据。24/24 ordered cases、27/27 ordered crop events 全部 exact，validation `ok=true/acceptance_eligible=true/errors=[]`，analysis accepted、ACCEPTANCE 含独立 `Status: accepted`，30-file seal 验证通过（seal SHA-256 `e0997d41…f4a9`）。C2 v1/v2 verdict 不变，均保留 rejected 描述性证据。
+
+**设计侧独立复核**：从 raw `records.jsonl` 与 Git blob 重算 24/27 网格、record content hash、308 次第一轮 tokenwise production append、3 份第二轮逐-token ledger、27 个 wrong-length negative control、3 个 no-op crop、60 个 recovery steps及全部 28 层 K/V manifest/aggregate hash。所有 event 的 pre-crop retained prefix、production post-crop 与独立 clone-oracle 三方逐层 shape/dtype/device/hash exact；所有层 `shape[-2]==keep`；crop 后 mask/token/seq/KV exact；recovery 每步 production/direct-oracle 的 K/V/logits/mask/ledger/retained prefix 与 operation-derived role/end/content state exact；unique EOT 与 final canonical ledger exact。381 个既有结果文件 before/after guard 完全一致。模型/环境身份为 accepted Qwen2-7B artifact `fae2ece1…`、Qwen2ForCausalLM/Qwen2、BF16、SDPA、严格离线、clean commit；v2 只作 provenance 且无 runtime dependency。
+
+**封存复核注意**：Windows checkout 会因 `core.autocrlf` 把结果文本转为 CRLF，直接对工作树跑 byte-level cases/seal 校验会误报。Git blob 30/30 与 seal 匹配；在 `core.autocrlf=false` 的 LF 保留临时 clone 中，formal validator 复跑得到 `ok=true/errors=0/cases=24/events=27/all_exact=true`，seal verify 得 `files=30/ok=true/seal_sha256=e0997d41…f4a9`。后续复核必须使用 LF 保留 checkout、Git blob 或原 tarball，不得把 CRLF 工作树误报解释为工件损坏。
+
+**允许主张**：仅限冻结 Qwen2-7B snapshot、BF16/SDPA/Transformers backend 与 24-case/27-event v3 网格：production `crop_to_token` 保留的 K/V 前缀与 crop 前前缀及独立切片 oracle 逐张量 bitwise exact；以相同 token-ID chunk 恢复后的 K/V、logits、mask、token ledger 与 role/end 状态 exact 一致。
+
+**禁止主张**：不得声称 clean re-prefill 数值等价、v2 通过、跨模型/dtype/backend/硬件普适、真实 ASR/TTS/声卡/用户实际听到边界、生产端到端正确性、时延或质量提升。论文必须透明说明 v1/v2 rejected 的数值对照及 v3 为直接 crop-integrity addendum，不把 v3 改写为 clean-reprefill equivalence。
+
+**影响**：C2 正确性 GPU 阻塞解除，无需再跑 C2 或重跑 E1/E2/E3/A1/P1。下一阶段进入二审统一论文修订：插入 v3 限定证据，同时完成 E1/E2 crossed analysis、E3 weighting/unique-boundary sensitivity、事件命名、C-E1 implementation-path 限定、贡献层级和 artifact/literature 完善。
+
+**状态**：accepted（正式证据已验收封存；GPU 补实验阶段结束）
+
+---
+
 ## D-022（2026-09-03）新 user 内容推进时清除陈旧 CROPPED end reason
 
 **问题与证据**：C2 v3 8-case 7B pilot `c2crop_pilot_b2c6f22b_20260903T064135Z`（结果 commit `91ea218`）按规程在 formal 前停止。7/8 cases、c2_08 second crop 和全部 K/V/logit/mask/token exact 门通过；唯一失败为 `speculation_full_invalidation`：crop 到 assistant role 起点后 production 正确进入 `USER_OPEN + CROPPED`，但紧接着 `prefill_user_text()` 成功追加新用户内容后仍残留 `CROPPED`，直到 `open_assistant_role()` 才清为 `NONE`。这是 8 个状态字段中的唯一差异，K/V、logits、mask、ledger 仍 bitwise exact。

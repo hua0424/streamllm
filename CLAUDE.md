@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **两期工作**：
 - **一期（已完成，`main` 分支）**：流式 ASR + LLM KV cache 增量预填充，打破"TTFT 随语音长度线性增长"。一期代码集中在 `src/asr/`、`src/llm/`、`src/run_test_simple.py`（四线程流水线）。
-- **二期（既有 campaign 已完成，C2 v3 addendum 待 7B 验收，`paper2` 分支）**：播放感知的 KV 缓存管理 + barge-in（打断）。既有 E1/E2/E3/A1/P1 结果已归档，不得无条件重跑；D-018 已修复 EOS/EOT 与角色状态。C2 v1/v2 formal 均按各自冻结数值门槛 rejected 并保留；两轮均给出 45/45 token/state/EOT 正向证据，但 clean-prefill 数值对照受 BF16 不同 forward 拓扑混杂，不能据此判 crop bug或声称数值等价。D-021 新增 exact-only v3 crop-integrity addendum（24 cases/27 events，production crop vs 同 pre-crop K/V 独立切片 oracle）；7B pilot 按 D-022 暴露并修复 invalidation 后 `prefill_user_text` 残留 CROPPED 的生产状态缺陷，v3 协议不变，正式 Qwen2-7B evidence pending。论文稿在 `paper2/`；GPU 结果验收前不统一改正文。开始二期任务前必读 `docs/paper2_context.md`、`docs/decisions.md` 和 `docs/handoff.md`（当前唯一 GPU 断点）。
+- **二期（既有 campaign 与 C2 v3 正确性验收均完成，进入论文统一修订，`paper2` 分支）**：播放感知的 KV 缓存管理 + barge-in（打断）。E1/E2/E3/A1/P1 与 C2 v1/v2/v3 工件均已归档，不得无条件重跑。D-018/D-022 修复 EOS/EOT、role 与陈旧 end-reason 状态；C2 v1/v2 按各自 clean-prefill 数值门槛 rejected 并作为描述性证据保留；D-023 正式接受 v3 exact-only crop-integrity run `c2crop_82103004_20260903T080512Z`（24/24 cases、27/27 events、production crop/matched recovery 全 bitwise/exact，seal 通过）。当前没有无条件 GPU 待办；下一阶段按二审意见统一改论文。开始二期任务前必读 `docs/paper2_context.md`、`docs/decisions.md` 和 `docs/handoff.md`（当前论文修订断点）。
 
 ## 环境与命令
 

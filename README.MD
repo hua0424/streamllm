@@ -188,7 +188,7 @@ A: 是的，这是预期的。为了提高准确率，流式 ASR 会保留一部
 - 浪费率主定义为 `wasted_tokens / (wasted_tokens + final_tokens)`；
 - 当前状态：formal campaign `e1e2c_b8c758b_20260901T173306Z` 已完成并由 D-017 接受；5000 条 raw records、analysis、validation 与 checksums 已归档。旧 GPU handoff 仅供复现，不再作为当前待办。
 
-二审后的当前唯一正式 GPU 待办是 C2 protocol v3 exact-only crop-integrity addendum（C2 v1/v2 已按各自门槛 rejected 归档，D-021），入口为 `experiments/sci34_supplement/c2_crop_integrity/GPU_HANDOFF.md`。它直接验证 production crop 的 retained K/V 与独立切片 oracle bitwise exact，不重跑 E1/E2，也不支持 clean-prefill 数值等价、真实 ASR/TTS/声卡、mouth-to-ear 或生产端到端主张。
+C2 v3 exact-only crop-integrity run `c2crop_82103004_20260903T080512Z` 已由 D-023 正式接受并封存（24/24 cases、27/27 events，production crop retained K/V 与独立切片 oracle、matched recovery 全 bitwise/exact）。C2 v1/v2 保持 rejected 描述性证据；当前无无条件 GPU 待办，进入论文统一修订。该证据不支持 clean-prefill 数值等价、真实 ASR/TTS/声卡、mouth-to-ear 或生产端到端主张。
 
 ## 8. 许可证
 
