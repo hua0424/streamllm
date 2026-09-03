@@ -1,0 +1,9 @@
+{
+  "updated_at_utc": "2026-09-03T04:07:57.427444+00:00",
+  "status": "complete",
+  "completed_cases": 3,
+  "expected_cases": 3,
+  "failed_cases": [],
+  "last_case": "c2_03_mid_short_cap",
+  "process_start_id": "pid-47578-1788408463475767099-1aa6ecef2884496da8db0f5af42a933e"
+}

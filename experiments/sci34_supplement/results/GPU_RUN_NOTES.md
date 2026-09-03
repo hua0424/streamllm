@@ -175,3 +175,36 @@ A1 正式 run 前后 `nvidia-smi` 快照存于 `a1/nvidia_smi_before_formal.txt`
   限 2×0.3125=0.625），noise_control 臂与 checkpoints sidecar 落盘正常。
 - 工件：pilot 目录全留（含 checkpoints/ sidecar 与失败 record）；工作树零改动
   （未修任何代码）；本轮不产生 formal/tarball/ACCEPTANCE。
+
+## C2 v2 formal（2026-09-03，commit `5c56b01`，修复后正式轮）
+
+设计侧修复探针分支（`else:`→`elif case.termination == "max_tokens":`，另补 smoke
+genuine 覆盖）后按 v2 `GPU_HANDOFF.md` 重跑全程，run `c2eq_5c56b014_20260903T040829Z`
+（identity `165c91f9…`，manifest sha `7a636016…`，content hash `b7d8a474…`）。
+**结果：rejected——21/24 cases 通过，3 个 checkpoint 边际超过 v2 噪声相对门槛**。
+
+- 流程：§0–§4 复跑全绿（protocol v2 预检、guard 289 文件含 v1 归档只读、冻结离线、
+  五项 smoke、模型预检、E3 抢救确认已归档跳过）→ 新 pilot
+  `c2pilot_5c56b014_20260903T040650Z` 3/3 通过（genuine c2_01 零错误，修复生效）→
+  冻结 formal manifest → 单进程 formal 24/24 落盘（约 6 分钟，无中断/resume）→
+  validator `ok=false`（10 errors，从 checkpoints/*.npz 三数组独立重算一致）→
+  analyzer fail-closed 拒绝 → ACCEPTANCE 如实 `rejected`（全部计数独立重算填写，
+  遵守模板填写纪律）→ seal 拒绝（未写状态）→ 回传 tarball
+  （sha `b70ee32347d3b0064384d1191e3d7f5dd90f4fd2da2a39d4fa6115e266420593`，34MB，
+  74 文件 `checksums_return.sha256`）。
+- 旧结果保护：289 文件跑前跑后 SHA-256 一致（v1 归档 run 与 e3_exact_rescue 零改动）。
+- 通过层（独立重算）：termination probe 24/24（natural_eos 6 genuine/4 requalified，
+  ≥5 门槛达成；eos_at_cap 6/6 @step4；max_tokens 8/8 @budget2）；token IDs 45/45 exact；
+  KV/mask/seq/ledger、assistant 账本、unique EOT 45/45；scenario 24/24；
+  top-1 运行时口径 43/45（2 个 near-tie 翻转均在 margin 限内）；top-5 min 4/5；
+  continuation 规则 45/45（30 完全 exact，15 个发散点 margin 0–0.25 ≤ 各自限 0.125–0.5）；
+  绝对安全上限（max≤2.0/mean≤0.5）45/45。
+- **失败项（3/45 checkpoint，均为 2.0× 噪声相对倍数边际超阈）**：
+  `c2_06_invalidate_short_max/next_assistant`（path max_abs 0.96875 vs 限 0.8125，
+  比值 2.38）；`c2_10_clean_medium_eos/post_recovery`（mean_abs 0.09014 vs 限 0.07626，
+  比值 2.36）；`c2_21_pending_long_max/post_recovery`（mean_abs 0.08432 vs 限 0.06407，
+  比值 2.63）。失败 sidecar 与 45 个 checkpoint NPZ（path/canonical/control 三数组）
+  全量保留。
+- 定性建议（ACCEPTANCE §8）：其余结构层与绝对上限全过，失败仅集中在 2.0× 相对倍数；
+  0.5B dry-run 参考比值 1.08 而本机 7B 长上下文更高。是否调整倍数须新协议版本冻结，
+  本 run 常数未动。

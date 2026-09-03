@@ -1,0 +1,964 @@
+{
+  "schema_version": 1,
+  "experiment": "c2_equivalence",
+  "run_id": "c2eq_5c56b014_20260903T040829Z",
+  "created_at_utc": "2026-09-03T04:08:55.866943+00:00",
+  "git": {
+    "commit": "5c56b0144c822e4a05ba4eeec167684363e8828e",
+    "branch": "paper2",
+    "dirty": false,
+    "status_paths": [],
+    "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "config_hash": "1761b26aa3600b9c9efb5a67aa77528f3a1693054afd3a720a3952cb55689b4a",
+  "config": {
+    "run_id": "c2eq_5c56b014_20260903T040829Z",
+    "formal": true,
+    "session_count": 1,
+    "statistical_repeats": 0,
+    "runtime": "transformers",
+    "device": "cuda:0",
+    "seed": 20260902,
+    "protocol": {
+      "sessions": 1,
+      "continuation_tokens": 32,
+      "top_k": 5,
+      "top_k_min_overlap": 4,
+      "noise_control": "canonical_ids_boundary_seam_chunked_prefill",
+      "noise_ratio_limit": 2.0,
+      "max_abs_backstop": 2.0,
+      "mean_abs_backstop": 0.5,
+      "near_tie_margin_floor": 0.125,
+      "near_tie_abs_margin_limit": 0.5,
+      "natural_eos_max_new_tokens": 256,
+      "natural_eos_min_genuine": 5,
+      "decode": "greedy",
+      "batch_size": 1,
+      "dtype": "bfloat16",
+      "system_prompt": "You are a helpful assistant. Reply in English.",
+      "protocol_version": 2,
+      "prior_rejected_run": {
+        "run_id": "c2eq_563dd22a_20260903T013547Z",
+        "commit": "1a47ac1",
+        "note": "v1 absolute BF16 gates were unattainable for any correct implementation; see D-019"
+      },
+      "formal_case_count": 24,
+      "expected_model_artifact_hash": "fae2ece10b76512237cf28957f98e7b0d2c609455a173031e3bd16b3dff7c5ab",
+      "expected_model_type": "qwen2",
+      "expected_model_architecture": "Qwen2ForCausalLM",
+      "expected_dtype": "torch.bfloat16",
+      "context_targets": [
+        512,
+        2048,
+        8192
+      ],
+      "context_classes": [
+        "short_512",
+        "medium_2048",
+        "long_8192"
+      ],
+      "scenarios": [
+        "full_rollback_p0",
+        "clean_fragment_boundary",
+        "mid_fragment_snap_end",
+        "reply_tail_noop",
+        "crop_pending_eot",
+        "speculation_full_invalidation",
+        "next_user_next_assistant",
+        "second_crop_later_turn"
+      ],
+      "terminations": [
+        "natural_eos",
+        "eos_at_cap",
+        "max_tokens"
+      ],
+      "termination_probe": {
+        "schema_version": 1,
+        "natural_eos_max_new_tokens": 256,
+        "eos_at_cap_max_new_tokens": 4,
+        "max_tokens_budget": 2,
+        "natural_eos": "real greedy generate_accumulating; genuine EOS within frozen cap counts toward NATURAL_EOS_MIN_GENUINE=5; a non-terminating greedy is deterministically requalified to max_tokens semantics and still runs the full equivalence comparison",
+        "eos_at_cap": "controlled deterministic token-state fixture; EOT required at final cap step through generate_accumulating EOS branch",
+        "max_tokens": "real greedy generate_accumulating; no EOS in frozen small budget"
+      },
+      "checkpoints": [
+        "post_recovery",
+        "next_assistant",
+        "post_second_recovery"
+      ],
+      "comparison": "independent termination probe plus production crop/recovery versus canonical token-ID clean re-prefill using shared retained IDs",
+      "noise_control_arm": "the canonical checkpoint sequence is re-prefilled incrementally in chunks split at its structural boundary seams (mirroring the path's append structure, ending with the same one-token refresh forward); its FP32 logit difference versus the single-shot canonical prefill measures the environment's intrinsic incremental-append BF16 noise",
+      "v2_gates": {
+        "relative": "path max_abs <= 2.0 * max(control max_abs, 0.05) and path mean_abs <= 2.0 * max(control mean_abs, 0.01)",
+        "absolute_backstop": "path max_abs <= 2.0 and path mean_abs <= 0.5",
+        "top1": "top-1 must be exact, or the canonical top1-top2 margin must be within the near-tie limit min(max(2.0 * max(control max_abs, 0.05), 0.125), 0.5)",
+        "continuation": "the 32-token greedy continuation must be exact, or the canonical margin at the first divergence step must be within the same near-tie limit"
+      },
+      "statistics": "one deterministic session; no statistical repetition or bootstrap"
+    },
+    "protocol_identity": {
+      "schema_version": 3,
+      "experiment": "c2_equivalence",
+      "protocol": {
+        "sessions": 1,
+        "continuation_tokens": 32,
+        "top_k": 5,
+        "top_k_min_overlap": 4,
+        "noise_control": "canonical_ids_boundary_seam_chunked_prefill",
+        "noise_ratio_limit": 2.0,
+        "max_abs_backstop": 2.0,
+        "mean_abs_backstop": 0.5,
+        "near_tie_margin_floor": 0.125,
+        "near_tie_abs_margin_limit": 0.5,
+        "natural_eos_max_new_tokens": 256,
+        "natural_eos_min_genuine": 5,
+        "decode": "greedy",
+        "batch_size": 1,
+        "dtype": "bfloat16",
+        "system_prompt": "You are a helpful assistant. Reply in English.",
+        "protocol_version": 2,
+        "prior_rejected_run": {
+          "run_id": "c2eq_563dd22a_20260903T013547Z",
+          "commit": "1a47ac1",
+          "note": "v1 absolute BF16 gates were unattainable for any correct implementation; see D-019"
+        },
+        "formal_case_count": 24,
+        "expected_model_artifact_hash": "fae2ece10b76512237cf28957f98e7b0d2c609455a173031e3bd16b3dff7c5ab",
+        "expected_model_type": "qwen2",
+        "expected_model_architecture": "Qwen2ForCausalLM",
+        "expected_dtype": "torch.bfloat16",
+        "context_targets": [
+          512,
+          2048,
+          8192
+        ],
+        "context_classes": [
+          "short_512",
+          "medium_2048",
+          "long_8192"
+        ],
+        "scenarios": [
+          "full_rollback_p0",
+          "clean_fragment_boundary",
+          "mid_fragment_snap_end",
+          "reply_tail_noop",
+          "crop_pending_eot",
+          "speculation_full_invalidation",
+          "next_user_next_assistant",
+          "second_crop_later_turn"
+        ],
+        "terminations": [
+          "natural_eos",
+          "eos_at_cap",
+          "max_tokens"
+        ],
+        "termination_probe": {
+          "schema_version": 1,
+          "natural_eos_max_new_tokens": 256,
+          "eos_at_cap_max_new_tokens": 4,
+          "max_tokens_budget": 2,
+          "natural_eos": "real greedy generate_accumulating; genuine EOS within frozen cap counts toward NATURAL_EOS_MIN_GENUINE=5; a non-terminating greedy is deterministically requalified to max_tokens semantics and still runs the full equivalence comparison",
+          "eos_at_cap": "controlled deterministic token-state fixture; EOT required at final cap step through generate_accumulating EOS branch",
+          "max_tokens": "real greedy generate_accumulating; no EOS in frozen small budget"
+        },
+        "checkpoints": [
+          "post_recovery",
+          "next_assistant",
+          "post_second_recovery"
+        ],
+        "comparison": "independent termination probe plus production crop/recovery versus canonical token-ID clean re-prefill using shared retained IDs",
+        "noise_control_arm": "the canonical checkpoint sequence is re-prefilled incrementally in chunks split at its structural boundary seams (mirroring the path's append structure, ending with the same one-token refresh forward); its FP32 logit difference versus the single-shot canonical prefill measures the environment's intrinsic incremental-append BF16 noise",
+        "v2_gates": {
+          "relative": "path max_abs <= 2.0 * max(control max_abs, 0.05) and path mean_abs <= 2.0 * max(control mean_abs, 0.01)",
+          "absolute_backstop": "path max_abs <= 2.0 and path mean_abs <= 0.5",
+          "top1": "top-1 must be exact, or the canonical top1-top2 margin must be within the near-tie limit min(max(2.0 * max(control max_abs, 0.05), 0.125), 0.5)",
+          "continuation": "the 32-token greedy continuation must be exact, or the canonical margin at the first divergence step must be within the same near-tie limit"
+        },
+        "statistics": "one deterministic session; no statistical repetition or bootstrap"
+      },
+      "cases": {
+        "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/c2_equivalence/cases.json",
+        "sha256": "acda9afb83ff393d222fc06eb433c1a307dba1eb213fcbbbedfdb860f7500696"
+      },
+      "identity_hash": "3c0c9b77f34f560e14ef642ceebb1577bbe0a38ec5708af9a363a2717469708c"
+    },
+    "code_identity": {
+      "files": [
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/protocol.py",
+          "sha256": "84469e9271e4b249297bf62426c36e3b57afbfde105e1ff6cfbc3435cc9dc91b",
+          "size": 16613
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/canonical_chat.py",
+          "sha256": "f264706a9f1af29b87284496535771db2493f1c39c7712f6a175a73cd00699bc",
+          "size": 12627
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/runtime.py",
+          "sha256": "1d0c1bdf516a9fc70f91f1ec26c15a71331bec05226d263af5947ccd89f28099",
+          "size": 69932
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/campaign.py",
+          "sha256": "0bd026ce256ac6af95356b2b1b8ee72f7620cacb891cb213b3bbf21f533d6c2e",
+          "size": 8689
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/run.py",
+          "sha256": "f0460ef9ca4e54a4eaa7bafbde0ff4e901920cb2dff3a7d24915a4644c23f478",
+          "size": 20655
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/validate.py",
+          "sha256": "32c0de9f0f1ad88ef4a9a9528ff1447170961404434315703b515681905fd72c",
+          "size": 44651
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/analyze.py",
+          "sha256": "8d5c271818d3a65c9f21fa394c82e7865c4af63393403f4a1cdc869f4bb74dba",
+          "size": 12395
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/seal.py",
+          "sha256": "d2b9eb4e38a05853a12e19545316b049c3a3b8d9337e4683f0c36b1d42dc79e4",
+          "size": 6657
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/smoke.py",
+          "sha256": "11c74ff82cda0743b5ba4ca7acb93ad41d25ae256e46b277a9e4d6938a6a0aa5",
+          "size": 28334
+        },
+        {
+          "path": "experiments/sci34_supplement/common.py",
+          "sha256": "cc26ff1247fdad3ae1270f7542f4b5ab72a7de5a992f63e039ad46c05800afc0",
+          "size": 12390
+        },
+        {
+          "path": "experiments/sci34_supplement/e1e2_confirmatory/strong_identity.py",
+          "sha256": "18923b844ccdd36ac1c57d89703db89a309cb7949fda187d638ee08678897346",
+          "size": 2166
+        },
+        {
+          "path": "src/llm/stream_llm_inference.py",
+          "sha256": "a57ca5080306de3e728cb71a77fd2f41013e97178c2dbedfd35df9338f3f0518",
+          "size": 43976
+        },
+        {
+          "path": "src/dialogue/orchestrator.py",
+          "sha256": "6af232b74c745a5f949464b8c9a966b87068ea5b57868a3c69fc57f2f0ef056f",
+          "size": 25300
+        },
+        {
+          "path": "src/dialogue/timeline.py",
+          "sha256": "2243f087d73879a1ad7cc3a29564beabfee119f8f51b95f537d01dca3d22df99",
+          "size": 17578
+        }
+      ],
+      "identity_hash": "ceff55c721293e21c2ac209cc7e059b25103e0302c8a671ca78e70fe261e63c9"
+    },
+    "model_identity": {
+      "schema_version": 1,
+      "resolved_path": "/root/autodl-tmp/dataA/models/Qwen2-7B-Instruct",
+      "revision": null,
+      "file_count": 15,
+      "total_bytes": 15242797993,
+      "files": [
+        {
+          "path": ".gitattributes",
+          "size": 1519,
+          "sha256": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361"
+        },
+        {
+          "path": "LICENSE",
+          "size": 11344,
+          "sha256": "c156170b718ec29139d3653d40ed1986fd92fb7e0959b5c71f3c48f62e6636f4"
+        },
+        {
+          "path": "README.md",
+          "size": 6577,
+          "sha256": "174c5a5d83d0f9670e0b96df86f2dddb2de5ab958f885653525b3d2c977f24b5"
+        },
+        {
+          "path": "config.json",
+          "size": 663,
+          "sha256": "8b9a4f6c0acf4854a2d301616d4203039c3d7972cb0a557dae98686b6c3ae4b2"
+        },
+        {
+          "path": "configuration.json",
+          "size": 48,
+          "sha256": "a78221ae93dd8977b26fcd1d106fa5ad7e7f1fd3a7d93bfd9d6fba5ed00ec4d2"
+        },
+        {
+          "path": "generation_config.json",
+          "size": 243,
+          "sha256": "3a8f9087e486054c8a4a08dae2e5a3ba62e23da212b5b8c08bc42cb983c3459f"
+        },
+        {
+          "path": "merges.txt",
+          "size": 1671839,
+          "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3"
+        },
+        {
+          "path": "model-00001-of-00004.safetensors",
+          "size": 3945426872,
+          "sha256": "26d9919262ccd063fcdfd926763fe9025ef1e3073767aaa8c83a375d7c5140c4"
+        },
+        {
+          "path": "model-00002-of-00004.safetensors",
+          "size": 3864726352,
+          "sha256": "f5bb99fdadcac55c2c176497ec99f088a1764e78ed986fa4a0d45d12426ef0fa"
+        },
+        {
+          "path": "model-00003-of-00004.safetensors",
+          "size": 3864726408,
+          "sha256": "0b749a4446d7cda007d5e7bd9f908849d08d89867192d4c039dc167e9ab5a02e"
+        },
+        {
+          "path": "model-00004-of-00004.safetensors",
+          "size": 3556392240,
+          "sha256": "da724bb7d3c3512eb371aa6caa5bcc08d78bda84f94e00ae9a9b2124e3e9c62f"
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "size": 27752,
+          "sha256": "f00d17cbf433746c391ad43948613e373aa51222dbee3b0db61ffff59a74bb1a"
+        },
+        {
+          "path": "tokenizer.json",
+          "size": 7028015,
+          "sha256": "f7c9b2dba4a296b1aa76c16a34b8225c0c118978400d4bb66bff0902d702f5b8"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "size": 1288,
+          "sha256": "be21acaf90e7f449b7282fdef7b06516a0102476e86cbc2108e18ac071f9cc9c"
+        },
+        {
+          "path": "vocab.json",
+          "size": 2776833,
+          "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+        }
+      ],
+      "content_identity_hash": "209f3a9cbccde56fb9ed39fca06a86b11c1aa0ebf721d897baab708d6cab2133"
+    },
+    "runtime_metadata": {
+      "resolved_dtype": "torch.bfloat16",
+      "model_type": "qwen2",
+      "architectures": [
+        "Qwen2ForCausalLM"
+      ],
+      "accepted_model_artifact_hash": "fae2ece10b76512237cf28957f98e7b0d2c609455a173031e3bd16b3dff7c5ab",
+      "attention_backend": "sdpa",
+      "tokenizer_class": "Qwen2TokenizerFast",
+      "chat_template_sha256": "793202280c0910ab26bc6eb57c8212c2417324c6d8c4efd0d10d59092ab3e3eb",
+      "eos_token_id": 151645,
+      "eot_token_id": 151645,
+      "pad_token_id": 151643,
+      "model_max_position_embeddings": 32768
+    },
+    "strict_offline": true,
+    "hf_hub_offline": "1",
+    "transformers_offline": "1",
+    "hf_token_empty": true,
+    "hugging_face_hub_token_empty": true,
+    "campaign_identity": {
+      "schema_version": 1,
+      "experiment": "c2_equivalence",
+      "runtime": "transformers",
+      "device": "cuda:0",
+      "protocol_identity": {
+        "schema_version": 3,
+        "experiment": "c2_equivalence",
+        "protocol": {
+          "sessions": 1,
+          "continuation_tokens": 32,
+          "top_k": 5,
+          "top_k_min_overlap": 4,
+          "noise_control": "canonical_ids_boundary_seam_chunked_prefill",
+          "noise_ratio_limit": 2.0,
+          "max_abs_backstop": 2.0,
+          "mean_abs_backstop": 0.5,
+          "near_tie_margin_floor": 0.125,
+          "near_tie_abs_margin_limit": 0.5,
+          "natural_eos_max_new_tokens": 256,
+          "natural_eos_min_genuine": 5,
+          "decode": "greedy",
+          "batch_size": 1,
+          "dtype": "bfloat16",
+          "system_prompt": "You are a helpful assistant. Reply in English.",
+          "protocol_version": 2,
+          "prior_rejected_run": {
+            "run_id": "c2eq_563dd22a_20260903T013547Z",
+            "commit": "1a47ac1",
+            "note": "v1 absolute BF16 gates were unattainable for any correct implementation; see D-019"
+          },
+          "formal_case_count": 24,
+          "expected_model_artifact_hash": "fae2ece10b76512237cf28957f98e7b0d2c609455a173031e3bd16b3dff7c5ab",
+          "expected_model_type": "qwen2",
+          "expected_model_architecture": "Qwen2ForCausalLM",
+          "expected_dtype": "torch.bfloat16",
+          "context_targets": [
+            512,
+            2048,
+            8192
+          ],
+          "context_classes": [
+            "short_512",
+            "medium_2048",
+            "long_8192"
+          ],
+          "scenarios": [
+            "full_rollback_p0",
+            "clean_fragment_boundary",
+            "mid_fragment_snap_end",
+            "reply_tail_noop",
+            "crop_pending_eot",
+            "speculation_full_invalidation",
+            "next_user_next_assistant",
+            "second_crop_later_turn"
+          ],
+          "terminations": [
+            "natural_eos",
+            "eos_at_cap",
+            "max_tokens"
+          ],
+          "termination_probe": {
+            "schema_version": 1,
+            "natural_eos_max_new_tokens": 256,
+            "eos_at_cap_max_new_tokens": 4,
+            "max_tokens_budget": 2,
+            "natural_eos": "real greedy generate_accumulating; genuine EOS within frozen cap counts toward NATURAL_EOS_MIN_GENUINE=5; a non-terminating greedy is deterministically requalified to max_tokens semantics and still runs the full equivalence comparison",
+            "eos_at_cap": "controlled deterministic token-state fixture; EOT required at final cap step through generate_accumulating EOS branch",
+            "max_tokens": "real greedy generate_accumulating; no EOS in frozen small budget"
+          },
+          "checkpoints": [
+            "post_recovery",
+            "next_assistant",
+            "post_second_recovery"
+          ],
+          "comparison": "independent termination probe plus production crop/recovery versus canonical token-ID clean re-prefill using shared retained IDs",
+          "noise_control_arm": "the canonical checkpoint sequence is re-prefilled incrementally in chunks split at its structural boundary seams (mirroring the path's append structure, ending with the same one-token refresh forward); its FP32 logit difference versus the single-shot canonical prefill measures the environment's intrinsic incremental-append BF16 noise",
+          "v2_gates": {
+            "relative": "path max_abs <= 2.0 * max(control max_abs, 0.05) and path mean_abs <= 2.0 * max(control mean_abs, 0.01)",
+            "absolute_backstop": "path max_abs <= 2.0 and path mean_abs <= 0.5",
+            "top1": "top-1 must be exact, or the canonical top1-top2 margin must be within the near-tie limit min(max(2.0 * max(control max_abs, 0.05), 0.125), 0.5)",
+            "continuation": "the 32-token greedy continuation must be exact, or the canonical margin at the first divergence step must be within the same near-tie limit"
+          },
+          "statistics": "one deterministic session; no statistical repetition or bootstrap"
+        },
+        "cases": {
+          "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/c2_equivalence/cases.json",
+          "sha256": "acda9afb83ff393d222fc06eb433c1a307dba1eb213fcbbbedfdb860f7500696"
+        },
+        "identity_hash": "3c0c9b77f34f560e14ef642ceebb1577bbe0a38ec5708af9a363a2717469708c"
+      },
+      "code_identity": {
+        "files": [
+          {
+            "path": "experiments/sci34_supplement/c2_equivalence/protocol.py",
+            "sha256": "84469e9271e4b249297bf62426c36e3b57afbfde105e1ff6cfbc3435cc9dc91b",
+            "size": 16613
+          },
+          {
+            "path": "experiments/sci34_supplement/c2_equivalence/canonical_chat.py",
+            "sha256": "f264706a9f1af29b87284496535771db2493f1c39c7712f6a175a73cd00699bc",
+            "size": 12627
+          },
+          {
+            "path": "experiments/sci34_supplement/c2_equivalence/runtime.py",
+            "sha256": "1d0c1bdf516a9fc70f91f1ec26c15a71331bec05226d263af5947ccd89f28099",
+            "size": 69932
+          },
+          {
+            "path": "experiments/sci34_supplement/c2_equivalence/campaign.py",
+            "sha256": "0bd026ce256ac6af95356b2b1b8ee72f7620cacb891cb213b3bbf21f533d6c2e",
+            "size": 8689
+          },
+          {
+            "path": "experiments/sci34_supplement/c2_equivalence/run.py",
+            "sha256": "f0460ef9ca4e54a4eaa7bafbde0ff4e901920cb2dff3a7d24915a4644c23f478",
+            "size": 20655
+          },
+          {
+            "path": "experiments/sci34_supplement/c2_equivalence/validate.py",
+            "sha256": "32c0de9f0f1ad88ef4a9a9528ff1447170961404434315703b515681905fd72c",
+            "size": 44651
+          },
+          {
+            "path": "experiments/sci34_supplement/c2_equivalence/analyze.py",
+            "sha256": "8d5c271818d3a65c9f21fa394c82e7865c4af63393403f4a1cdc869f4bb74dba",
+            "size": 12395
+          },
+          {
+            "path": "experiments/sci34_supplement/c2_equivalence/seal.py",
+            "sha256": "d2b9eb4e38a05853a12e19545316b049c3a3b8d9337e4683f0c36b1d42dc79e4",
+            "size": 6657
+          },
+          {
+            "path": "experiments/sci34_supplement/c2_equivalence/smoke.py",
+            "sha256": "11c74ff82cda0743b5ba4ca7acb93ad41d25ae256e46b277a9e4d6938a6a0aa5",
+            "size": 28334
+          },
+          {
+            "path": "experiments/sci34_supplement/common.py",
+            "sha256": "cc26ff1247fdad3ae1270f7542f4b5ab72a7de5a992f63e039ad46c05800afc0",
+            "size": 12390
+          },
+          {
+            "path": "experiments/sci34_supplement/e1e2_confirmatory/strong_identity.py",
+            "sha256": "18923b844ccdd36ac1c57d89703db89a309cb7949fda187d638ee08678897346",
+            "size": 2166
+          },
+          {
+            "path": "src/llm/stream_llm_inference.py",
+            "sha256": "a57ca5080306de3e728cb71a77fd2f41013e97178c2dbedfd35df9338f3f0518",
+            "size": 43976
+          },
+          {
+            "path": "src/dialogue/orchestrator.py",
+            "sha256": "6af232b74c745a5f949464b8c9a966b87068ea5b57868a3c69fc57f2f0ef056f",
+            "size": 25300
+          },
+          {
+            "path": "src/dialogue/timeline.py",
+            "sha256": "2243f087d73879a1ad7cc3a29564beabfee119f8f51b95f537d01dca3d22df99",
+            "size": 17578
+          }
+        ],
+        "identity_hash": "ceff55c721293e21c2ac209cc7e059b25103e0302c8a671ca78e70fe261e63c9"
+      },
+      "model_identity": {
+        "schema_version": 1,
+        "resolved_path": "/root/autodl-tmp/dataA/models/Qwen2-7B-Instruct",
+        "revision": null,
+        "file_count": 15,
+        "total_bytes": 15242797993,
+        "files": [
+          {
+            "path": ".gitattributes",
+            "size": 1519,
+            "sha256": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361"
+          },
+          {
+            "path": "LICENSE",
+            "size": 11344,
+            "sha256": "c156170b718ec29139d3653d40ed1986fd92fb7e0959b5c71f3c48f62e6636f4"
+          },
+          {
+            "path": "README.md",
+            "size": 6577,
+            "sha256": "174c5a5d83d0f9670e0b96df86f2dddb2de5ab958f885653525b3d2c977f24b5"
+          },
+          {
+            "path": "config.json",
+            "size": 663,
+            "sha256": "8b9a4f6c0acf4854a2d301616d4203039c3d7972cb0a557dae98686b6c3ae4b2"
+          },
+          {
+            "path": "configuration.json",
+            "size": 48,
+            "sha256": "a78221ae93dd8977b26fcd1d106fa5ad7e7f1fd3a7d93bfd9d6fba5ed00ec4d2"
+          },
+          {
+            "path": "generation_config.json",
+            "size": 243,
+            "sha256": "3a8f9087e486054c8a4a08dae2e5a3ba62e23da212b5b8c08bc42cb983c3459f"
+          },
+          {
+            "path": "merges.txt",
+            "size": 1671839,
+            "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3"
+          },
+          {
+            "path": "model-00001-of-00004.safetensors",
+            "size": 3945426872,
+            "sha256": "26d9919262ccd063fcdfd926763fe9025ef1e3073767aaa8c83a375d7c5140c4"
+          },
+          {
+            "path": "model-00002-of-00004.safetensors",
+            "size": 3864726352,
+            "sha256": "f5bb99fdadcac55c2c176497ec99f088a1764e78ed986fa4a0d45d12426ef0fa"
+          },
+          {
+            "path": "model-00003-of-00004.safetensors",
+            "size": 3864726408,
+            "sha256": "0b749a4446d7cda007d5e7bd9f908849d08d89867192d4c039dc167e9ab5a02e"
+          },
+          {
+            "path": "model-00004-of-00004.safetensors",
+            "size": 3556392240,
+            "sha256": "da724bb7d3c3512eb371aa6caa5bcc08d78bda84f94e00ae9a9b2124e3e9c62f"
+          },
+          {
+            "path": "model.safetensors.index.json",
+            "size": 27752,
+            "sha256": "f00d17cbf433746c391ad43948613e373aa51222dbee3b0db61ffff59a74bb1a"
+          },
+          {
+            "path": "tokenizer.json",
+            "size": 7028015,
+            "sha256": "f7c9b2dba4a296b1aa76c16a34b8225c0c118978400d4bb66bff0902d702f5b8"
+          },
+          {
+            "path": "tokenizer_config.json",
+            "size": 1288,
+            "sha256": "be21acaf90e7f449b7282fdef7b06516a0102476e86cbc2108e18ac071f9cc9c"
+          },
+          {
+            "path": "vocab.json",
+            "size": 2776833,
+            "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+          }
+        ],
+        "content_identity_hash": "209f3a9cbccde56fb9ed39fca06a86b11c1aa0ebf721d897baab708d6cab2133"
+      },
+      "runtime_metadata": {
+        "resolved_dtype": "torch.bfloat16",
+        "model_type": "qwen2",
+        "architectures": [
+          "Qwen2ForCausalLM"
+        ],
+        "accepted_model_artifact_hash": "fae2ece10b76512237cf28957f98e7b0d2c609455a173031e3bd16b3dff7c5ab",
+        "attention_backend": "sdpa",
+        "tokenizer_class": "Qwen2TokenizerFast",
+        "chat_template_sha256": "793202280c0910ab26bc6eb57c8212c2417324c6d8c4efd0d10d59092ab3e3eb",
+        "eos_token_id": 151645,
+        "eot_token_id": 151645,
+        "pad_token_id": 151643,
+        "model_max_position_embeddings": 32768
+      },
+      "identity_hash": "165c91f98c734a2cdbaa63ce534047c6bfb40db034ca87c5ee5c8b9b7f8176dd"
+    }
+  },
+  "input": {
+    "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/c2_equivalence/cases.json",
+    "sha256": "acda9afb83ff393d222fc06eb433c1a307dba1eb213fcbbbedfdb860f7500696",
+    "sample_count": 24,
+    "sample_ids": [
+      "c2_01_p0_short_eos",
+      "c2_02_clean_short_max",
+      "c2_03_mid_short_cap",
+      "c2_04_tail_short_eos",
+      "c2_05_pending_short_eos",
+      "c2_06_invalidate_short_max",
+      "c2_07_next_short_eos",
+      "c2_08_second_short_cap",
+      "c2_09_p0_medium_max",
+      "c2_10_clean_medium_eos",
+      "c2_11_mid_medium_max",
+      "c2_12_tail_medium_cap",
+      "c2_13_pending_medium_eos",
+      "c2_14_invalidate_medium_cap",
+      "c2_15_next_medium_max",
+      "c2_16_second_medium_eos",
+      "c2_17_p0_long_cap",
+      "c2_18_clean_long_max",
+      "c2_19_mid_long_eos",
+      "c2_20_tail_long_eos",
+      "c2_21_pending_long_max",
+      "c2_22_invalidate_long_eos",
+      "c2_23_next_long_cap",
+      "c2_24_second_long_max"
+    ]
+  },
+  "environment": {
+    "python": "3.10.18 (main, Oct  7 2025, 15:34:08) [Clang 20.1.4 ]",
+    "platform": "Linux-5.15.0-136-generic-x86_64-with-glibc2.35",
+    "machine": "x86_64",
+    "processor": "x86_64",
+    "perf_counter": {
+      "implementation": "clock_gettime(CLOCK_MONOTONIC)",
+      "monotonic": true,
+      "adjustable": false,
+      "resolution": 1e-09
+    },
+    "numpy": "1.26.4",
+    "scipy": "1.15.3",
+    "torch": "2.8.0+cu128",
+    "cuda_runtime": "12.8",
+    "cudnn": 91002,
+    "cuda_available": true,
+    "gpus": [
+      "NVIDIA GeForce RTX 3090"
+    ],
+    "transformers": "4.57.1"
+  },
+  "uv_lock_sha256": "7b76c69de3b04f10d270215206b892cebaf372fe2107a4a76cb6e12436cc2fd1",
+  "extra": {
+    "manifest_kind": "immutable_c2_campaign",
+    "cases_count": 24,
+    "pilot_or_formal": "formal"
+  },
+  "campaign_manifest_schema_version": 1,
+  "campaign_identity": {
+    "schema_version": 1,
+    "experiment": "c2_equivalence",
+    "runtime": "transformers",
+    "device": "cuda:0",
+    "protocol_identity": {
+      "schema_version": 3,
+      "experiment": "c2_equivalence",
+      "protocol": {
+        "sessions": 1,
+        "continuation_tokens": 32,
+        "top_k": 5,
+        "top_k_min_overlap": 4,
+        "noise_control": "canonical_ids_boundary_seam_chunked_prefill",
+        "noise_ratio_limit": 2.0,
+        "max_abs_backstop": 2.0,
+        "mean_abs_backstop": 0.5,
+        "near_tie_margin_floor": 0.125,
+        "near_tie_abs_margin_limit": 0.5,
+        "natural_eos_max_new_tokens": 256,
+        "natural_eos_min_genuine": 5,
+        "decode": "greedy",
+        "batch_size": 1,
+        "dtype": "bfloat16",
+        "system_prompt": "You are a helpful assistant. Reply in English.",
+        "protocol_version": 2,
+        "prior_rejected_run": {
+          "run_id": "c2eq_563dd22a_20260903T013547Z",
+          "commit": "1a47ac1",
+          "note": "v1 absolute BF16 gates were unattainable for any correct implementation; see D-019"
+        },
+        "formal_case_count": 24,
+        "expected_model_artifact_hash": "fae2ece10b76512237cf28957f98e7b0d2c609455a173031e3bd16b3dff7c5ab",
+        "expected_model_type": "qwen2",
+        "expected_model_architecture": "Qwen2ForCausalLM",
+        "expected_dtype": "torch.bfloat16",
+        "context_targets": [
+          512,
+          2048,
+          8192
+        ],
+        "context_classes": [
+          "short_512",
+          "medium_2048",
+          "long_8192"
+        ],
+        "scenarios": [
+          "full_rollback_p0",
+          "clean_fragment_boundary",
+          "mid_fragment_snap_end",
+          "reply_tail_noop",
+          "crop_pending_eot",
+          "speculation_full_invalidation",
+          "next_user_next_assistant",
+          "second_crop_later_turn"
+        ],
+        "terminations": [
+          "natural_eos",
+          "eos_at_cap",
+          "max_tokens"
+        ],
+        "termination_probe": {
+          "schema_version": 1,
+          "natural_eos_max_new_tokens": 256,
+          "eos_at_cap_max_new_tokens": 4,
+          "max_tokens_budget": 2,
+          "natural_eos": "real greedy generate_accumulating; genuine EOS within frozen cap counts toward NATURAL_EOS_MIN_GENUINE=5; a non-terminating greedy is deterministically requalified to max_tokens semantics and still runs the full equivalence comparison",
+          "eos_at_cap": "controlled deterministic token-state fixture; EOT required at final cap step through generate_accumulating EOS branch",
+          "max_tokens": "real greedy generate_accumulating; no EOS in frozen small budget"
+        },
+        "checkpoints": [
+          "post_recovery",
+          "next_assistant",
+          "post_second_recovery"
+        ],
+        "comparison": "independent termination probe plus production crop/recovery versus canonical token-ID clean re-prefill using shared retained IDs",
+        "noise_control_arm": "the canonical checkpoint sequence is re-prefilled incrementally in chunks split at its structural boundary seams (mirroring the path's append structure, ending with the same one-token refresh forward); its FP32 logit difference versus the single-shot canonical prefill measures the environment's intrinsic incremental-append BF16 noise",
+        "v2_gates": {
+          "relative": "path max_abs <= 2.0 * max(control max_abs, 0.05) and path mean_abs <= 2.0 * max(control mean_abs, 0.01)",
+          "absolute_backstop": "path max_abs <= 2.0 and path mean_abs <= 0.5",
+          "top1": "top-1 must be exact, or the canonical top1-top2 margin must be within the near-tie limit min(max(2.0 * max(control max_abs, 0.05), 0.125), 0.5)",
+          "continuation": "the 32-token greedy continuation must be exact, or the canonical margin at the first divergence step must be within the same near-tie limit"
+        },
+        "statistics": "one deterministic session; no statistical repetition or bootstrap"
+      },
+      "cases": {
+        "path": "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/c2_equivalence/cases.json",
+        "sha256": "acda9afb83ff393d222fc06eb433c1a307dba1eb213fcbbbedfdb860f7500696"
+      },
+      "identity_hash": "3c0c9b77f34f560e14ef642ceebb1577bbe0a38ec5708af9a363a2717469708c"
+    },
+    "code_identity": {
+      "files": [
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/protocol.py",
+          "sha256": "84469e9271e4b249297bf62426c36e3b57afbfde105e1ff6cfbc3435cc9dc91b",
+          "size": 16613
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/canonical_chat.py",
+          "sha256": "f264706a9f1af29b87284496535771db2493f1c39c7712f6a175a73cd00699bc",
+          "size": 12627
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/runtime.py",
+          "sha256": "1d0c1bdf516a9fc70f91f1ec26c15a71331bec05226d263af5947ccd89f28099",
+          "size": 69932
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/campaign.py",
+          "sha256": "0bd026ce256ac6af95356b2b1b8ee72f7620cacb891cb213b3bbf21f533d6c2e",
+          "size": 8689
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/run.py",
+          "sha256": "f0460ef9ca4e54a4eaa7bafbde0ff4e901920cb2dff3a7d24915a4644c23f478",
+          "size": 20655
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/validate.py",
+          "sha256": "32c0de9f0f1ad88ef4a9a9528ff1447170961404434315703b515681905fd72c",
+          "size": 44651
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/analyze.py",
+          "sha256": "8d5c271818d3a65c9f21fa394c82e7865c4af63393403f4a1cdc869f4bb74dba",
+          "size": 12395
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/seal.py",
+          "sha256": "d2b9eb4e38a05853a12e19545316b049c3a3b8d9337e4683f0c36b1d42dc79e4",
+          "size": 6657
+        },
+        {
+          "path": "experiments/sci34_supplement/c2_equivalence/smoke.py",
+          "sha256": "11c74ff82cda0743b5ba4ca7acb93ad41d25ae256e46b277a9e4d6938a6a0aa5",
+          "size": 28334
+        },
+        {
+          "path": "experiments/sci34_supplement/common.py",
+          "sha256": "cc26ff1247fdad3ae1270f7542f4b5ab72a7de5a992f63e039ad46c05800afc0",
+          "size": 12390
+        },
+        {
+          "path": "experiments/sci34_supplement/e1e2_confirmatory/strong_identity.py",
+          "sha256": "18923b844ccdd36ac1c57d89703db89a309cb7949fda187d638ee08678897346",
+          "size": 2166
+        },
+        {
+          "path": "src/llm/stream_llm_inference.py",
+          "sha256": "a57ca5080306de3e728cb71a77fd2f41013e97178c2dbedfd35df9338f3f0518",
+          "size": 43976
+        },
+        {
+          "path": "src/dialogue/orchestrator.py",
+          "sha256": "6af232b74c745a5f949464b8c9a966b87068ea5b57868a3c69fc57f2f0ef056f",
+          "size": 25300
+        },
+        {
+          "path": "src/dialogue/timeline.py",
+          "sha256": "2243f087d73879a1ad7cc3a29564beabfee119f8f51b95f537d01dca3d22df99",
+          "size": 17578
+        }
+      ],
+      "identity_hash": "ceff55c721293e21c2ac209cc7e059b25103e0302c8a671ca78e70fe261e63c9"
+    },
+    "model_identity": {
+      "schema_version": 1,
+      "resolved_path": "/root/autodl-tmp/dataA/models/Qwen2-7B-Instruct",
+      "revision": null,
+      "file_count": 15,
+      "total_bytes": 15242797993,
+      "files": [
+        {
+          "path": ".gitattributes",
+          "size": 1519,
+          "sha256": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361"
+        },
+        {
+          "path": "LICENSE",
+          "size": 11344,
+          "sha256": "c156170b718ec29139d3653d40ed1986fd92fb7e0959b5c71f3c48f62e6636f4"
+        },
+        {
+          "path": "README.md",
+          "size": 6577,
+          "sha256": "174c5a5d83d0f9670e0b96df86f2dddb2de5ab958f885653525b3d2c977f24b5"
+        },
+        {
+          "path": "config.json",
+          "size": 663,
+          "sha256": "8b9a4f6c0acf4854a2d301616d4203039c3d7972cb0a557dae98686b6c3ae4b2"
+        },
+        {
+          "path": "configuration.json",
+          "size": 48,
+          "sha256": "a78221ae93dd8977b26fcd1d106fa5ad7e7f1fd3a7d93bfd9d6fba5ed00ec4d2"
+        },
+        {
+          "path": "generation_config.json",
+          "size": 243,
+          "sha256": "3a8f9087e486054c8a4a08dae2e5a3ba62e23da212b5b8c08bc42cb983c3459f"
+        },
+        {
+          "path": "merges.txt",
+          "size": 1671839,
+          "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3"
+        },
+        {
+          "path": "model-00001-of-00004.safetensors",
+          "size": 3945426872,
+          "sha256": "26d9919262ccd063fcdfd926763fe9025ef1e3073767aaa8c83a375d7c5140c4"
+        },
+        {
+          "path": "model-00002-of-00004.safetensors",
+          "size": 3864726352,
+          "sha256": "f5bb99fdadcac55c2c176497ec99f088a1764e78ed986fa4a0d45d12426ef0fa"
+        },
+        {
+          "path": "model-00003-of-00004.safetensors",
+          "size": 3864726408,
+          "sha256": "0b749a4446d7cda007d5e7bd9f908849d08d89867192d4c039dc167e9ab5a02e"
+        },
+        {
+          "path": "model-00004-of-00004.safetensors",
+          "size": 3556392240,
+          "sha256": "da724bb7d3c3512eb371aa6caa5bcc08d78bda84f94e00ae9a9b2124e3e9c62f"
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "size": 27752,
+          "sha256": "f00d17cbf433746c391ad43948613e373aa51222dbee3b0db61ffff59a74bb1a"
+        },
+        {
+          "path": "tokenizer.json",
+          "size": 7028015,
+          "sha256": "f7c9b2dba4a296b1aa76c16a34b8225c0c118978400d4bb66bff0902d702f5b8"
+        },
+        {
+          "path": "tokenizer_config.json",
+          "size": 1288,
+          "sha256": "be21acaf90e7f449b7282fdef7b06516a0102476e86cbc2108e18ac071f9cc9c"
+        },
+        {
+          "path": "vocab.json",
+          "size": 2776833,
+          "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"
+        }
+      ],
+      "content_identity_hash": "209f3a9cbccde56fb9ed39fca06a86b11c1aa0ebf721d897baab708d6cab2133"
+    },
+    "runtime_metadata": {
+      "resolved_dtype": "torch.bfloat16",
+      "model_type": "qwen2",
+      "architectures": [
+        "Qwen2ForCausalLM"
+      ],
+      "accepted_model_artifact_hash": "fae2ece10b76512237cf28957f98e7b0d2c609455a173031e3bd16b3dff7c5ab",
+      "attention_backend": "sdpa",
+      "tokenizer_class": "Qwen2TokenizerFast",
+      "chat_template_sha256": "793202280c0910ab26bc6eb57c8212c2417324c6d8c4efd0d10d59092ab3e3eb",
+      "eos_token_id": 151645,
+      "eot_token_id": 151645,
+      "pad_token_id": 151643,
+      "model_max_position_embeddings": 32768
+    },
+    "identity_hash": "165c91f98c734a2cdbaa63ce534047c6bfb40db034ca87c5ee5c8b9b7f8176dd"
+  },
+  "identity_hash": "165c91f98c734a2cdbaa63ce534047c6bfb40db034ca87c5ee5c8b9b7f8176dd",
+  "manifest_content_hash": "b7d8a4747a348f14f016d4dff8f3322dedd4677989df537fda415d65094ddefe"
+}

@@ -1,0 +1,36 @@
+{
+  "completed_at_utc": "2026-09-03T04:14:37.179859+00:00",
+  "protocol_version": 2,
+  "status": "FAIL",
+  "acceptance_eligible": false,
+  "sessions": 1,
+  "statistical_repeats": 0,
+  "cases": 24,
+  "expected_formal_cases": 24,
+  "failed_cases": [
+    "c2_06_invalidate_short_max",
+    "c2_10_clean_medium_eos",
+    "c2_21_pending_long_max"
+  ],
+  "checkpoint_count": 45,
+  "termination_probes": {
+    "required": 24,
+    "observed": 24,
+    "runner_qualified": 21
+  },
+  "natural_eos_gate": {
+    "declared": 10,
+    "genuine": 6,
+    "requalified": 4,
+    "min_genuine": 5,
+    "applies": true,
+    "passed": true
+  },
+  "logical_session_id": "s01",
+  "process_identities": [
+    "pid-48291-1788408567427447242-e34758f9a04c41fbabada03876f4799a"
+  ],
+  "resume_process_count": 1,
+  "campaign_identity_hash": "165c91f98c734a2cdbaa63ce534047c6bfb40db034ca87c5ee5c8b9b7f8176dd",
+  "campaign_manifest_sha256": "7a636016c7959566f47303fb47c3da7c68775bda08b12abc6df59ed192ef178d"
+}

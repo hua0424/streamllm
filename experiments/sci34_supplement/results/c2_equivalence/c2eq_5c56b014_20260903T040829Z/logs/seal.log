@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/root/.local/share/uv/python/cpython-3.10.18-linux-x86_64-gnu/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/root/.local/share/uv/python/cpython-3.10.18-linux-x86_64-gnu/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/c2_equivalence/seal.py", line 155, in <module>
+    main()
+  File "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/c2_equivalence/seal.py", line 149, in main
+    print(create_seal(args.campaign_dir, formal=True))
+  File "/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/c2_equivalence/seal.py", line 96, in create_seal
+    raise ValueError(f"Refusing to seal incomplete C2 artifacts: {missing}")
+ValueError: Refusing to seal incomplete C2 artifacts: ['/root/autodl-tmp/dataA/streamllm/experiments/sci34_supplement/results/c2_equivalence/c2eq_5c56b014_20260903T040829Z/analysis_v1.json']

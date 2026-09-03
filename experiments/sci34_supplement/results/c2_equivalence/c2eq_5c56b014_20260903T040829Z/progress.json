@@ -1,0 +1,13 @@
+{
+  "updated_at_utc": "2026-09-03T04:14:37.179571+00:00",
+  "status": "failed-preserved",
+  "completed_cases": 24,
+  "expected_cases": 24,
+  "failed_cases": [
+    "c2_06_invalidate_short_max",
+    "c2_10_clean_medium_eos",
+    "c2_21_pending_long_max"
+  ],
+  "last_case": "c2_24_second_long_max",
+  "process_start_id": "pid-48291-1788408567427447242-e34758f9a04c41fbabada03876f4799a"
+}
