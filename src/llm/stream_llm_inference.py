@@ -741,6 +741,7 @@ class StreamLLMInference:
         if cache.role_phase != self.RolePhase.USER_OPEN:
             raise RuntimeError(f"prefill_user_text 需要 USER_OPEN，当前为 {cache.role_phase.value}")
         self._prefill_text_p2(cache, text)
+        cache.generation_end_reason = self.GenerationEndReason.NONE
         self._assert_accum_consistent(cache)
         return cache
 

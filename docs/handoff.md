@@ -14,6 +14,7 @@
 - C2 v2 run `c2eq_5c56b014_20260903T040829Z` 保持 rejected：24/24 probe、45/45 token/state/EOT/scenario、top-k/近并列行为均符合预期，但预注册的单控制 2× raw-logit 比值仅 42/45。
 - 不能把 2.0× 事后放宽到 2.7×。独立审计确认 v2 control 与 production forward/chunk 拓扑不匹配，且三项失败分别由无预测意义的尾部 token 极值或 softmax 不变的常数偏移主导，不能归因于 crop。
 - v3 改为直接、无经验容差地回答“crop 是否改变已保留 KV”：从同一个 pre-crop cache 出发，production `crop_to_token` 与独立 K/V prefix clone oracle 配对，全部要求 bitwise/exact。
+- 7B v3 pilot `c2crop_pilot_b2c6f22b_20260903T064135Z`（`91ea218`）7/8 cases 通过并验证 K/V exact；唯一暴露生产状态缺陷：invalidation crop 后 `prefill_user_text` 残留陈旧 `CROPPED`。D-022 已修生产 API（新 user 内容成功追加后清为 `NONE`）并加真实 seam 回归；v3 协议不变。
 
 ## v3 冻结设计
 
@@ -42,7 +43,7 @@ experiments/sci34_supplement/c2_crop_integrity/GPU_HANDOFF.md
 
 该文档包含 exact clean commit、`uv sync --frozen`、严格离线、本地 Qwen2-7B、全部旧结果 SHA guard、五项 smoke、8-case pilot、before/after snapshot、不可变 manifest、case 原子 resume、validate→analyze→acceptance→seal→tar 与防覆盖规则。
 
-预计低于或接近 v2 的约 6 分钟 formal：v3 不跑 256-token termination 和双 32-token continuation，但增加短 assistant 的逐-token forward 与 KV hash。
+GPU 侧使用修复 commit，从 handoff §3 的 8-case pilot 重新开始；pilot 不可 resume/复用旧目录，因为 code identity 已变化。预计低于或接近 v2 的约 6 分钟 formal：v3 不跑 256-token termination 和双 32-token continuation，但增加短 assistant 的逐-token forward 与 KV hash。
 
 ## 允许的最终主张
 

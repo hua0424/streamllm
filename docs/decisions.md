@@ -5,6 +5,18 @@
 
 ---
 
+## D-022（2026-09-03）新 user 内容推进时清除陈旧 CROPPED end reason
+
+**问题与证据**：C2 v3 8-case 7B pilot `c2crop_pilot_b2c6f22b_20260903T064135Z`（结果 commit `91ea218`）按规程在 formal 前停止。7/8 cases、c2_08 second crop 和全部 K/V/logit/mask/token exact 门通过；唯一失败为 `speculation_full_invalidation`：crop 到 assistant role 起点后 production 正确进入 `USER_OPEN + CROPPED`，但紧接着 `prefill_user_text()` 成功追加新用户内容后仍残留 `CROPPED`，直到 `open_assistant_role()` 才清为 `NONE`。这是 8 个状态字段中的唯一差异，K/V、logits、mask、ledger 仍 bitwise exact。
+
+**决策**：`GenerationEndReason` 是当前生成/截断阶段状态，不是永久事件日志。`CROPPED` 在 crop 后、任何新内容推进前必须可见；一旦 `prefill_user_text()` 成功追加新 user 内容，当前状态已进入新的用户输入阶段，旧 crop 终因必须重置为 `NONE`。因此修生产侧而非放宽 v3 oracle：`prefill_user_text()` 在成功 `_prefill_text_p2()` 后设置 `generation_end_reason=NONE`，与 `reopen_user_role()`、`open_assistant_role()`、`prefill_assistant_text()` 的推进语义一致；orchestrator 在追加 user segment 后新增 fail-closed 断言。
+
+**测试与影响**：先在真实 `run_kvcrop_test` seam 加 `invalidation crop → prefill_user_text` 断言，修复前稳定复现 GPU 同一失败，修复后 PASS；`run_speculative_test`、timeline、v3 fake full workflow 全绿。0.5B CUDA 直接复跑 c2_06：crop 后 `USER_OPEN+CROPPED` 保留，prefill_user_text 后 `USER_OPEN+NONE`，open_assistant 后 `ASSISTANT_OPEN+NONE`，两步 K/V/logits/mask/token 与 oracle 均 bitwise exact。既有 orchestrator/E1E2 在生成结束时已把 end reason 快照到独立 candidate，A1/P1 recovery 原本经 reopen 清零；该修复不改变 token、KV、logits、计时窗口或既有结果，无需重跑 E1/E2/E3/A1/P1。v3 protocol/cases/exact gates 不变，不 bump 版本；修复 commit 后 GPU 从 §3 pilot 重跑。
+
+**状态**：accepted（生产状态修复完成；Qwen2-7B v3 formal evidence pending）
+
+---
+
 ## D-021（2026-09-03）保持 C2 v2 rejected；新增 exact-only v3 crop-integrity addendum
 
 **v2 审计结论**：Qwen2-7B run `c2eq_5c56b014_20260903T040829Z`（code `5c56b01`、结果 `8d9b863`）按冻结协议正确判定 **rejected**：24/24 termination probe、45/45 token/state/账本/EOT/scenario、43/45 top-1（两次均为近并列）、45/45 continuation margin 规则及绝对安全上限全过，但单控制 2× 相对门槛仅 42/45。不得把 2.0 事后放宽到 2.7，也不得把 v2 改判通过。

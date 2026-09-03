@@ -148,6 +148,12 @@ def main():
     _check("rollback 终因=CROPPED",
            acc.generation_end_reason == llm.GenerationEndReason.CROPPED)
     _consistent(llm, acc, "after-rollback")
+    llm.prefill_user_text(acc, "继续补充原用户请求。")
+    _check("invalidation 后新 user 内容清除陈旧 CROPPED 终因",
+           acc.generation_end_reason == llm.GenerationEndReason.NONE)
+    _check("追加 user 内容后仍为 USER_OPEN",
+           acc.role_phase == llm.RolePhase.USER_OPEN)
+    _consistent(llm, acc, "after-invalidation-user-text")
 
     # ---- S5 assistant 文本 prefill 与消费者提前停止 ----
     logger.info("S5 assistant prefill + consumer stop")

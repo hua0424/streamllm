@@ -381,6 +381,8 @@ class DialogueOrchestrator:
                 self._started = True
             else:
                 self.llm.prefill_user_text(self.acc, seg)
+                if self.acc.generation_end_reason != self.llm.GenerationEndReason.NONE:
+                    raise AssertionError("追加 user 内容后不得保留上一轮生成/截断终因")
             accum_text += seg
             # 软触发评估（含最后一段——真实系统中"存活的推测"正是最后一个 final 片段
             # 触发、其后无新语音的那次，推测计算被静音检测窗掩盖；确定性模拟等价处理）。
