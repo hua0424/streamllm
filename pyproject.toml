@@ -1,8 +1,8 @@
 [project]
 name = "streamllm"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
+description = "Research artifact for low-latency cascaded spoken dialogue using streaming ASR, incremental LLM KV caching, and playback-aware barge-in"
+readme = "README.MD"
 requires-python = ">=3.10"
 dependencies = [
     "accelerate>=1.10.0",

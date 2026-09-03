@@ -10,11 +10,25 @@ experiments/sci34_supplement/results/e1e2_confirmatory/<campaign_id>/
 
 ## 当前状态
 
-- 协议、GPU handoff、holdout/TEN builder、campaign manifest、runner、analyzer、validator 和无模型 smoke：**代码已实现**；
-- 本地 confirmatory smoke：已可直接运行；
-- GPU holdout、真实 TEN cache、pilot、5 个 formal session：**待 GPU 执行**；
-- 正式数字：尚无；
-- 论文更新：冻结，直到实际主指标、analysis、validation 与 acceptance 全部通过。
+> 以下为 2026-09-03 的 post-run 状态。最初的 pre-run 状态可由 Git 历史恢复；冻结设计与预注册口径仍保留在 `EXPERIMENT_PLAN.md` §1–§13，不作追溯改写。
+
+- formal campaign `e1e2c_b8c758b_20260901T173306Z` 已于代码 commit `b8c758bd8e97e519f041ac047d4f6c5f85697bc7` 完成，并在结果 commit `62508dc79a8843e5dbe58677750f2c22010a1e44` 入库；
+- 5 个独立 formal session 共 5000 条 records，`validation.json` 为 `ok=true`，`analysis_v1.json`、`ACCEPTANCE.md` 与 72 文件历史 `checksums.sha256` 已归档，设计侧由 D-017 接受；
+- 无条件 GPU 重跑已关闭；`GPU_HANDOFF.md` 仅供独立复现，禁止覆盖 accepted 目录；
+- accepted 主结果与边界见 [`paper2/e1e2_confirmatory_acceptance_2026-09-02.md`](../../../paper2/e1e2_confirmatory_acceptance_2026-09-02.md)，全仓 campaign 矩阵见 [`REPRODUCIBILITY.md`](../../../REPRODUCIBILITY.md)。
+
+### v2 交叉/乘积 bootstrap 复分析状态（2026-09-03，post-run）
+
+Accepted campaign 已新增只读派生工件 `analysis_v2.json` 与 `analysis_v2.sha256`；未修改 raw、`validation.json`、`analysis_v1.json`、`ACCEPTANCE.md` 或历史 `checksums.sha256`。当前 analyzer/result 尚未提交，因此其 Git code/result commit 为 `not recorded`，待本批改动由作者提交后补足。
+
+- analyzer：`analyze_v2.py`，`schema_version=2`，`analysis_version=crossed-product-bootstrap-v2`；
+- 正式设计：完整 5 session × 100 global dialogue × 10 condition 网格；固定 `random.Random(20260901)`、10,000 repeats、percentile 95%；每次独立有放回抽 5 个 session 与 100 个全局 dialogue，以笛卡尔积权重 `m_s*n_d` 保留条件配对；
+- candidate selection/compute readiness（raw alias `arrival_to_first_token_ready_ns`）：E1 A−B@0.92 = **−34.687728 ms**，95% CI **[−35.442098, −33.953509]**；E2 never−B@0.92 = **−0.033492 ms**，95% CI **[−0.638608, 0.614945]**；该事件不是 generator/production deliverability；
+- `TTFT_eff` synchronous-oracle lower bound：E1 A−B@0.92 = **17.436697 ms**，95% CI **[14.407946, 20.323448]**；E2 never−B@0.92 = **20.803658 ms**，95% CI **[17.849195, 23.645048]**；
+- B@0.92 pooled waste = **0.028527**，95% CI **[0.011239, 0.047345]**；survival = **0.670**，95% CI **[0.580, 0.760]**；
+- output identity：A/B@0.92 full output **280/500**、first token **465/500**、44/100 unique dialogues 有任一 mismatch；B@0.92/never full output 与 first token 均 **500/500**。这些诊断不筛选任何主时延记录；
+- v2 point estimates 与 v1 全部精确兼容（最大绝对差 0）；`analysis_v2.json` SHA-256 = `9bce6db5d93c1faccb4069b295df32ce5ee0778899b31ac6be17526bfb644456`；
+- Windows checkout 的 CRLF 本地 hash 与 formal LF identity 同时记录，正式 provenance 绑定 normalized-LF SHA-256。
 
 ## 设计口径
 
@@ -50,6 +64,7 @@ uv run python -m experiments.sci34_supplement.e1e2_confirmatory.trigger_cache --
 uv run python -m experiments.sci34_supplement.e1e2_confirmatory.campaign --help
 uv run python -m experiments.sci34_supplement.e1e2_confirmatory.run_session --help
 uv run python -m experiments.sci34_supplement.e1e2_confirmatory.analyze --help
+uv run python -m experiments.sci34_supplement.e1e2_confirmatory.analyze_v2 --help
 uv run python -m experiments.sci34_supplement.e1e2_confirmatory.validate --help
 ```
 

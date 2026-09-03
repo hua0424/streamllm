@@ -492,7 +492,7 @@ for sentence_chunk in generate_sentences(
 
 **环境现状**：正式 run `c2crop_82103004_20260903T080512Z` 的 24/27、28 层 K/V、60 recovery steps 与全部 negative controls 已在 GPU 和设计侧独立复核通过。Windows checkout 因 `core.autocrlf` 会改变 byte-level hash；复核 seal/cases 必须用 LF 保留 clone、Git blob 或原 tarball（见 `docs/handoff.md`）。
 
-**下一个里程碑（D-023 后）**：按二审意见统一修改论文与补 versioned 离线重分析：crossed E1/E2 analysis、E3 weighting/sensitivity、事件命名、C-E1 implementation-path 限定、贡献层级、novelty search、artifact/declarations，并把 v3 accepted 证据按严格边界写入方法/实验/讨论。不得称 clean re-prefill 数值等价或 v2 通过。C2 v1/v2/v3、P1 v2、固定轨迹 E3、联合 A1、确认性 E1/E2 均不重跑。
+**当前里程碑（D-024 后）**：二审科学内容修订与两项 versioned 离线 reanalysis 已完成；最终 re-review 为 13 resolved、4 partial、0 unresolved，当前窄定位无科学技术 Major blocker。下一步由作者确认 public/anonymous URL、release/DOI、LICENSE/权利、E3 派生数据再分发、伦理/consent、funding、COI、作者/CRediT/AI disclosure；在可访问环境补检索导出与 2026 preprint 状态；选定目标期刊后从权威 Markdown 生成压缩投稿稿。不得称 clean re-prefill 数值等价或 v2 通过。所有 accepted/rejected 工件均不重跑。
 
 ---
 

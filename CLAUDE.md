@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **两期工作**：
 - **一期（已完成，`main` 分支）**：流式 ASR + LLM KV cache 增量预填充，打破"TTFT 随语音长度线性增长"。一期代码集中在 `src/asr/`、`src/llm/`、`src/run_test_simple.py`（四线程流水线）。
-- **二期（既有 campaign 与 C2 v3 正确性验收均完成，进入论文统一修订，`paper2` 分支）**：播放感知的 KV 缓存管理 + barge-in（打断）。E1/E2/E3/A1/P1 与 C2 v1/v2/v3 工件均已归档，不得无条件重跑。D-018/D-022 修复 EOS/EOT、role 与陈旧 end-reason 状态；C2 v1/v2 按各自 clean-prefill 数值门槛 rejected 并作为描述性证据保留；D-023 正式接受 v3 exact-only crop-integrity run `c2crop_82103004_20260903T080512Z`（24/24 cases、27/27 events、production crop/matched recovery 全 bitwise/exact，seal 通过）。当前没有无条件 GPU 待办；下一阶段按二审意见统一改论文。开始二期任务前必读 `docs/paper2_context.md`、`docs/decisions.md` 和 `docs/handoff.md`（当前论文修订断点）。
+- **二期（既有 campaign、C2 v3 与二审科学内容修订均完成，`paper2` 分支）**：播放感知的 KV 缓存管理 + barge-in（打断）。E1/E2/E3/A1/P1 与 C2 v1/v2/v3 工件均已保存，不得无条件重跑。D-023 接受 v3 exact-only crop-integrity；D-024 完成 crossed E1/E2、E3 weighting/dedup、贡献层级、术语、novelty 和 artifact 修订，最终 re-review 为 13 resolved/4 partial/0 unresolved、无科学技术 Major blocker。当前无 GPU 待办；剩余为作者确认 public URL/DOI、LICENSE/权利、伦理/consent、funding、COI、作者/CRediT/AI disclosure，在可访问环境补检索导出，并按目标期刊生成压缩稿。开始二期任务前必读 `docs/paper2_context.md`、`docs/decisions.md` 和 `docs/handoff.md`。
 
 ## 环境与命令
 

@@ -176,20 +176,29 @@ A: 可以在 `.env` 或 `config.py` 中调整 `VAD_THRESHOLD` (默认 0.5) 和 `
 **Q: ASR 识别结果在流式输出时会变化？**
 A: 是的，这是预期的。为了提高准确率，流式 ASR 会保留一部分音频上下文（Context），当前的输出可能会在接收到更多音频后被修正（如果使用了更复杂的输出策略）。但在本项目的简单实现中，我们主要关注**确定的**输出片段如何尽快送入 LLM。
 
-## 7. 二期 E1/E2 确认性 campaign
+## 7. 二期可复现性与当前状态
+
+- Paper 2 accepted/rejected campaign 权威矩阵、运行身份、哈希、环境与 analysis-only 命令：[`REPRODUCIBILITY.md`](REPRODUCIBILITY.md)
+- accepted C2 v3 crop-integrity：[`experiments/sci34_supplement/results/c2_crop_integrity/c2crop_82103004_20260903T080512Z/`](experiments/sci34_supplement/results/c2_crop_integrity/c2crop_82103004_20260903T080512Z/)
+- accepted E3 精确输入抢救件及跨平台校验：[`experiments/sci34_supplement/results/e3_exact_rescue/README.md`](experiments/sci34_supplement/results/e3_exact_rescue/README.md)
+- 投稿声明待确认项：[`paper2/declarations.md`](paper2/declarations.md)
+
+**GPU 状态（2026-09-03）**：当前无无条件 GPU 待办。E1/E2、E3、A1、P1 v2 与 C2 v3 已归档；C2 v1/v2 按冻结门槛 rejected 并保留审计工件，不应重跑来覆盖。E1/E2 crossed `analysis_v2` 已作为 versioned、只读 CPU reanalysis 生成，未改 accepted raw/analysis_v1；其 analyzer/result commit 仍待本批改动提交后才有 Git provenance。
+
+## 8. 二期 E1/E2 确认性 campaign
 
 `paper2` 分支的 `experiments/sci34_supplement/e1e2_confirmatory/` 已实现独立的受控文本段确认性 harness：
 
-- CLI：`holdout_builder`、`trigger_cache`、`campaign`、`run_session`、`analyze`、`validate`；
+- CLI：`holdout_builder`、`trigger_cache`、`campaign`、`run_session`、`analyze`、`analyze_v2`、`validate`；
 - 无模型验证：`uv run python -m experiments.sci34_supplement.e1e2_confirmatory.smoke`；
 - 协议：新的 100 条 disjoint MultiWOZ holdout、B@0.92 预冻结、Qwen2-7B greedy、TEN 只读 cache、不可变 campaign manifest、5 个强制共享 manifest 的独立进程（session-index 0..4）；
 - accepted E3 排除源固定为 `experiments/sci34_supplement/results/e3/sci34_f11ccba_20260901_e3/manifest.json`；
 - Raw records 已保存最后一段到达、首个最终 token 准备及其差值；analyzer 以 arrival-to-ready 为实际受控墙钟主指标；同步 oracle 的 `endpoint_accept` 不等于最后段到达，`TTFT_eff` 仅为候选准备后的时延的乐观下界（推测收益的上界）；
 - 浪费率主定义为 `wasted_tokens / (wasted_tokens + final_tokens)`；
-- 当前状态：formal campaign `e1e2c_b8c758b_20260901T173306Z` 已完成并由 D-017 接受；5000 条 raw records、analysis、validation 与 checksums 已归档。旧 GPU handoff 仅供复现，不再作为当前待办。
+- 当前状态：formal campaign `e1e2c_b8c758b_20260901T173306Z` 已完成并由 D-017 接受；5000 条 raw records、`analysis_v1`、validation 与历史 checksums 已归档；post-run crossed/product-bootstrap `analysis_v2` 已 versioned 生成并单独给出 SHA-256，不覆盖上述工件。旧 GPU handoff 仅供复现，不再作为当前待办。
 
 C2 v3 exact-only crop-integrity run `c2crop_82103004_20260903T080512Z` 已由 D-023 正式接受并封存（24/24 cases、27/27 events，production crop retained K/V 与独立切片 oracle、matched recovery 全 bitwise/exact）。C2 v1/v2 保持 rejected 描述性证据；当前无无条件 GPU 待办，进入论文统一修订。该证据不支持 clean-prefill 数值等价、真实 ASR/TTS/声卡、mouth-to-ear 或生产端到端主张。
 
-## 8. 许可证
+## 9. 许可证与发布状态
 
-本项目采用 MIT 许可证。
+仓库当前没有根 `LICENSE` 文件，法律权利人和许可证选择尚未确认，因此不能宣称本仓库采用 MIT 或其他许可证。该事项是公开发布/投稿前的作者确认阻塞项；在确认前不要创建许可证文件。详见 [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) 与 [`paper2/declarations.md`](paper2/declarations.md)。

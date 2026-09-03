@@ -1,6 +1,6 @@
 # 二期论文统一修订交接（C2 v3 已正式接受）
 
-> GPU 补实验阶段已结束。当前没有待执行的无条件 GPU 任务。下一阶段是按第二次审稿意见统一修改论文；既有 E1/E2/E3/A1/P1 与 C2 v1/v2/v3 工件全部只读，不得重跑或覆盖。
+> GPU 补实验与第二次审稿意见的科学内容修订均已结束。当前没有待执行的无条件 GPU 任务；既有 E1/E2/E3/A1/P1 与 C2 v1/v2/v3 工件全部只读，不得重跑或覆盖。下一断点是作者确认投稿元数据、完成可访问环境下的检索导出，并在选定目标期刊后生成压缩投稿稿。
 
 **更新时间**：2026-09-03
 
@@ -36,9 +36,9 @@
 
 C2 v1/v2 必须透明保留为 rejected 描述性证据：两轮均支持 token/state/EOT 正确性，但不同 forward topology 下的 BF16 clean-prefill 数值比较不构成 crop 的可识别 oracle。v3 是 direct crop-integrity addendum，不得包装成 v2 clean-reprefill 结论。
 
-## 三、下一阶段统一论文修订
+## 三、已完成的二审统一论文修订
 
-以 `paper2/thesis_draft.md` 和分章 Markdown 为权威源，按二审意见集中处理：
+以下项目已在 D-024 中完成并由最终 re-review 核对：
 
 1. **C2 贡献重构**：把 exact crop-integrity、显式 EOT/role state 与 playback-aware retention 提升为主要技术贡献；C1 timing characterization 降为支持性结果；C3/A2 降为 exploratory/negative extension。
 2. **E1/E2 crossed reanalysis**：用 session × dialogue crossed/product bootstrap 生成 versioned `analysis_v2`，不得覆盖 accepted raw/analysis_v1。审核阶段估计的区间仅作核对，最终数值从正式 raw 重算。
@@ -48,7 +48,9 @@ C2 v1/v2 必须透明保留为 rejected 描述性证据：两轮均支持 token/
 6. **播放边界术语**：始终区分 software playback cursor、device-presented audio 与 acoustically heard content；将保留边界称为 TTS-fragment-level software boundary。
 7. **novelty search**：完成可复现的 targeted/scoping literature search，并收窄 novelty 语言。
 8. **artifact 完成**：LICENSE、release/tag、exact E3 input（已在 `results/e3_exact_rescue/`）、references、declarations、复现说明。
-9. **全文同步**：先改权威分章/摘要，再合并 `thesis_draft.md`，最后同步 IEEE 衍生稿与图表。避免局部改稿造成口径分裂。
+9. **全文同步**：摘要与权威分章已同步，`thesis_draft.md` 已确定性重建；图 6-1～6-3 已重画并通过视觉验收。旧 IEEE 衍生稿没有增量修补，待目标期刊确定后从当前权威稿重新生成。
+
+最终 re-review：CF/MF 共 17 项中 13 项 resolved、4 项 partial、0 项 unresolved；当前窄定位下没有科学技术 Major blocker。Partial 项分别是：不恢复 clean-reprefill equivalence 主张；受访问限制的检索导出待补；公开 release/LICENSE/declarations 待作者确认；参考文献待按目标期刊样式导出。
 
 ## 四、只读实验工件
 
@@ -78,7 +80,7 @@ Windows 的 `core.autocrlf` 会把结果文本转成 CRLF，直接在普通 Wind
 ## 六、关键文档
 
 - 二审意见：`paper2/review/sci_q3_q4_full_review_2026-09-02.md`
-- 决策：`docs/decisions.md` D-018～D-023
+- 决策：`docs/decisions.md` D-018～D-024
 - C2 v3 plan：`experiments/sci34_supplement/c2_crop_integrity/EXPERIMENT_PLAN.md`
 - C2 v3 accepted artifacts：`experiments/sci34_supplement/results/c2_crop_integrity/c2crop_82103004_20260903T080512Z/`
 - GPU 执行日志：`experiments/sci34_supplement/results/GPU_RUN_NOTES.md`

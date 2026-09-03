@@ -1,50 +1,80 @@
 # 第二章 相关工作
 
-围绕低延迟语音交互和用户打断，相关工作可分为三类：商用与工程系统中的播放感知历史管理，学术界的流式语音对话与打断处理，以及 LLM 推理层的 KV 缓存操作。本章首先承认已经建立的工程实践，再说明本文在公开级联实现中的具体位置。
+本文相关工作横跨五个相邻问题：播放条件下的会话历史截断、流式与增量语音对话、用户打断与话轮控制、话轮结束前的候选响应计算，以及 KV 缓存裁剪与前缀复用。高层播放感知历史原则和缓存裁剪原语均已有先例；本章据此界定本文跨层实现的范围，而不以单一组件的新颖性立论。
 
-## 2.1 商用与工程系统中的打断—上下文管理
+## 2.1 播放条件下的 transcript 与 session-history 截断
 
-当用户在系统播报期间开始说话时，已生成但尚未完整播放的 assistant 回复应如何进入历史，是多轮语音交互中的基础状态管理问题。如果全部生成文本均被视为已传达内容，后续 LLM 可能依据用户未知的信息继续推理。
+OpenAI Realtime API 的 `conversation.item.truncate` 允许客户端提交 `audio_end_ms`，从会话条目中移除未播放音频及其对应 transcript[1]。Azure Voice Live 的 `auto_truncate` 在播放期间检测到用户语音后更新上一轮响应和 session context；其公开文档明确说明截断估算采用实时播放速度假设[2]。LiveKit Agents 也提供截断被打断 transcript/history、使消息状态与 spoken output 相匹配的框架语义[3]。这些资料共同表明，按播放进度修正会话历史是既有工程实践，而非本文提出的新原则。
 
-“对话历史应反映用户实际听到的内容”并非本文首次提出。OpenAI Realtime API 提供 `conversation.item.truncate` 事件，客户端可上报 `audio_end_ms`，服务端据此删除未播放音频及其对应文本[1]。Azure Voice Live 提供 `auto_truncate` 能力，在播放期间检测到用户说话时更新上一轮回复和会话上下文[2]。开源框架 LiveKit Agents 则仅将实际播出的转写提交到历史，并以 `interrupted=True` 标记被打断消息[3]。这些系统均实现了播放感知的历史管理。
+公开接口语义不能揭示闭源服务的内部推理架构。OpenAI 和 Azure 是否采用级联模型、如何表示 token span、是否原地裁剪 KV，均不能从其文档推断。LiveKit 公开框架层消息处理，但其相关资料不公开 transformer KV、attention mask、token ledger 与 role/EOT state 的联合恢复。因此，本文与这些系统的区别是公开研究对象和证据层级，而不是声称商业或开源框架“没有”某项未公开内部机制。
 
-本文与上述实践的差异不在“是否实现播放感知历史”，而在公开机制和研究对象。OpenAI 与 Azure 的服务端实现未公开；LiveKit 已公开框架层的消息处理，但不直接暴露 LLM 推理内部的 KV 状态。本文研究如何在开源级联栈中建立播放采样到 token 区间的显式关联，并在保留历史 KV 计算的同时完成缓存裁剪和角色边界恢复。由于商业系统的内部架构和截断实现不可见，本文只依据公开文档比较接口语义，不推断其内部是否采用级联模型或何种缓存机制。
+上述系统使用的播放概念也不完全等同于物理听觉测量。Azure 的实时播放速度假设和 OpenAI 的客户端 `audio_end_ms` 都属于接口或软件时序语义；设备缓冲和声学传播仍需独立测量。本文同样只观测 software-consumed-sample cursor，并将其映射为 TTS-fragment-level software retention boundary。该操作不提供 device-presented samples 或 acoustically heard content 的真值。
 
-## 2.2 流式语音对话与打断处理
+## 2.2 流式语音对话、提前计算与打断控制
 
-级联式低延迟研究主要通过提前触发、增量推理和流式输出减少等待。LTS-VoiceAgent[4]采用动态语义触发与增量推理降低响应延迟，其 Pause-and-Repair 评测针对用户输入端的自我修正，而非依据 TTS 播放位置修正 LLM 历史。RelayS2S[5]采用双路系统，以快速语音到语音路径生成候选前缀，并由较慢的级联路径续写和验证；它与本文均利用“提前计算换响应时间”的思想，但不处理由播放位置驱动的 KV 回滚。Schwarz 等提出 Personalized Predictive ASR[18]，从部分语音对应的 ASR 假设预测完整话语，并提前执行和缓存下游响应生成；最终识别结果确认预测后再采用缓存回复。该工作的研究对象是输入触发时机和预取成本，而非被打断回复的上下文状态。
+流式级联研究通常通过语义触发、增量推理或输入预测缩短等待。LTS-VoiceAgent 使用 semantic triggering 和 incremental reasoning 组织 Listen–Think–Speak 流程[4]。RelayS2S 采用双路径 response-level candidate prefix 与验证/续写机制[5]。Personalized Predictive ASR 从 partial ASR 预测完整输入，并预取下游响应；最终识别结果确认预测后采用缓存结果[18]。三者均构成“在输入最终确认前进行下游计算”的先例，但研究信号位于用户输入或候选响应侧，未公开由 assistant 播放游标触发的 token/KV 历史修正。
 
-在端到端全双工方向，Moshi[6]以并行音频与文本流建模重叠发言，避免了独立 TTS 阶段造成的一部分生成—合成错位。不过，网络传输、播放缓冲和设备输出仍可能使模型产出进度与用户实际听到的位置不同，因此端到端帧同步是显著减弱而非无条件消除播放差异。
+本文的 supporting C1 与这类工作共享 compute-before-commit 思路，但术语和结论范围更窄。本文 speculation 指 pre-end-of-turn candidate-response generation with invalidation，不是固定 prompt 上由 draft model 与 target model 协作的 speculative decoding。`first_token_ready` 是 first-candidate-token selection/candidate compute-readiness；同步 harness 的 `endpoint_accept` 是 post-candidate oracle acceptance。该实验刻画候选存活、wasted tokens 和 oracle TTFT_eff 乐观下界，不证明 production consumer delivery、TTS admission 或 acoustic output 得到改善。
 
-打断检测研究关注何时停止系统输出。FireRedChat[7]利用个性化流式 VAD 减少误触发，并在确认打断后暂停 TTS。该类工作主要位于检测和时序控制层；本文则假定打断事件已经到达，进一步研究停播后应保留哪些历史状态。二者在完整系统中是互补关系。
+打断检测研究主要回答何时停止系统输出。FireRedChat 使用 streaming/personalized VAD 与 interruption control，并在确认打断后控制 TTS[7]。这种检测与本文的状态修正互补：前者产生或确认 interruption event，后者在事件到达后决定 software-fragment prefix 及相关模型状态如何保留。将两者区分可避免把“检测到打断”误写为“完成了多轮历史修复”。
 
-## 2.3 LLM 推理与 KV 缓存操作
+端到端全双工系统提供另一类架构参照。Moshi 通过并行 speech/text streams 支持重叠交互[6]。这种同步建模减少级联 ASR、LLM 和独立 TTS 之间的部分中间错位，但并不据此证明模型流位置、设备呈现位置和声学听觉位置恒等。网络、应用队列、音频 API 和设备缓冲仍可能形成交付差异，因此端到端与级联设计不能仅凭架构标签完成听觉边界比较。
 
-KV 缓存保存历史 token 的键值状态，以避免自回归生成中的重复计算。Hugging Face Transformers 提供 `DynamicCache` 等抽象，其 `crop` 操作能够缩短缓存序列[8]。vLLM 的 PagedAttention 将 KV 缓存组织为可非连续存储的固定大小块，以按需分配和 copy-on-write 改善服务吞吐与显存利用[19]；SGLang 的 RadixAttention 使用 radix tree 管理并复用跨调用的公共 token 前缀[20]。这些机制主要服务于内存管理、吞吐和前缀共享，而不是直接由外部播放信号确定对话历史裁剪点。
+## 2.3 KV 缓存裁剪、前缀复用与跨轮状态
 
-IntentKV[9]面向文本 Agent 的跨轮 KV 剪枝，Speculative Interaction Agents[10]处理异步工具调用中的推测结果作废。它们说明 KV 状态可以随外部控制逻辑调整，但其触发信号来自文本意图或工具状态，不涉及音频播放采样、TTS 文本片段和对话角色恢复。
+自回归 transformer 的 KV cache 保存历史 token 的中间状态，以免每一步重复计算完整前缀。Hugging Face Transformers 提供 `DynamicCache` 及 `crop` 操作，可将缓存缩短至指定序列长度[8]。因此，KV crop primitive 本身不是本文创新。
 
-依据截至本文检索日期的公开资料，尚未发现同时满足“开源级联语音栈、播放位置驱动、显式 KV 裁剪、对话角色边界恢复和可复算评测”这些条件的系统。该结论受检索范围限制，不等同于对所有未公开系统的否定。
+PagedAttention 将 KV cache 组织为非连续固定大小块，并通过按需分配与 copy-on-write 改善 serving memory efficiency[19]。SGLang 的 RadixAttention 以 radix tree 管理可跨请求复用的公共 token 前缀[20]。这些方法建立了 KV 内存管理和 prefix reuse 的重要先例，其优化目标主要是吞吐、内存利用或公共前缀共享，而非依据外部 software playback cursor 选择被打断 assistant 的对话提交边界。
 
-## 2.4 差异对比与本文定位
+IntentKV 处理 text-agent 的 cross-turn intent-aware KV pruning[9]；Speculative Interaction Agents 研究异步工具调用中的推测结果和作废控制[10]。这些工作表明，跨轮 KV 或推测状态可以受外部控制逻辑影响，但其信号来自文本意图或工具状态，不涉及 software-consumed samples、TTS fragment、assistant content span 与 chat role/EOT state 的联合恢复。
 
-表 2-1 按公开资料区分架构可见性、截断依据、上下文处理层次和实现开放程度，避免把闭源状态误写为某种已知架构。
+本文的技术对象因而不是一种新的缓存数据结构，而是跨层状态合同。游标查询先给出 TTS 片段级软件保留边界，再定位 assistant token span；KV crop 必须与 attention mask、完整 token ledger、assistant content ledger、position 和 role/end state 同步。C2 v3 进一步以 independent slicing oracle 检查每层 K/V 的 direct crop integrity，并在 identical token-ID chunks 下检查 matched-recovery determinism。该证据只覆盖受测 snapshot/backend；它不建立 clean-reprefill numerical equivalence，也不能替代在线音频或跨引擎验证。
 
-**表 2-1　本文与相关系统在打断—上下文管理上的差异**
+## 2.4 Targeted Public-Source Novelty Scan
 
-| 系统或工作 | 公开的截断依据 | 播放感知 | 公开的上下文处理层次 | 公开架构类型 | 实现可见性 |
-|---|---|---|---|---|---|
-| OpenAI Realtime API[1] | 客户端上报 `audio_end_ms` | 是 | 受管理的音频与文本条目 | 未公开 | 接口公开、服务端闭源 |
-| Azure Voice Live[2] | 服务端自动截断，公开文档采用播放时序假设 | 是 | 会话上下文条目 | 未公开 | 接口公开、服务端闭源 |
-| LiveKit Agents[3] | 实际播出的转写 | 是 | 消息与转写层 | 框架级 | 框架开源，非 KV 操作 |
-| RelayS2S[5] | 不以打断位置裁剪历史 | 否 | — | 混合双路 | 公开论文 |
-| LTS-VoiceAgent[4] | 不涉及播放期历史裁剪 | 否 | — | 级联 | 公开论文 |
-| FireRedChat[7] | 检测后暂停 TTS | 检测层 | 未公开 LLM 历史修正 | 级联 | 部分公开 |
-| Moshi[6] | 帧同步交互 | 架构内隐式 | 无独立 TTS 文本历史裁剪 | 端到端 | 开源 |
-| **本文** | **播放采样经片段记录反查到 token** | **是** | **显式 KV 裁剪与角色恢复** | **级联** | **研究代码与结果公开保存** |
+### 2.4.1 范围、来源与查询族
 
-本文的定位由此限定为：实现并分析公开级联栈中的播放感知 KV 状态管理。与商业服务相比，本文提供可检视的数据结构、缓存不变式和实验记录；与流式语音研究相比，本文把关注点从“何时开始或停止说话”扩展到“停止后如何修正多轮推理状态”；与通用 KV 优化相比，本文以播放位置作为外部状态信号。
+为评估组合式贡献，本文于 2026-09-03 截止开展 targeted public-source scan，而非 systematic review 或 patent search。目标问题是：公开资料是否同时披露 cascaded ASR→LLM→TTS、software-consumed-sample cursor、cursor→TTS fragment→assistant token span mapping、interruption 后的 in-place KV crop、attention mask/token ledger/role/EOT recovery，以及可复算 crop-integrity/recovery evidence。
 
-## 2.5 本章小结
+检索渠道包括 Google Scholar 或等价跨出版商索引、arXiv、ACL Anthology、ISCA Archive/Interspeech、ACM Digital Library、IEEE Xplore、NeurIPS Proceedings、DOI/Crossref 与出版商元数据页，以及 OpenAI、Microsoft Azure、LiveKit、Hugging Face 和 GitHub 的第一方资料。查询分为五族：
 
-本章说明，播放感知历史管理已是既有工程实践，本文不主张其高层原则的原创性。公开文献中与本文最接近的工作分别覆盖提前触发、打断检测、端到端全双工或通用 KV 操作，但未公开把播放采样、TTS 文本片段和 LLM KV 裁剪连成一体的级联机制。下一章将区分物理播放位置和片段级保留边界，并据此形式化状态修正与评测指标。
+1. cascaded/streaming spoken dialogue、ASR–LLM–TTS 与 latency；
+2. barge-in、interruption、turn-taking、endpointing 与 history/context；
+3. predictive/speculative response generation、partial ASR 与 before-end-of-turn computation；
+4. KV cache crop/truncate/rollback、`DynamicCache.crop`、chunked prefill 与 prefix reuse；
+5. playback/listening-aware history、`audio_end_ms`、`conversation.item.truncate`、`auto_truncate` 和 playback/audio cursor。
+
+纳入资料至少涉及上述一个相邻机制，并具有 DOI、官方出版页、官方预印本或第一方 URL。排除项包括纯 draft-target speculative decoding、与对话或 rollback 无关的通用 KV 压缩、只处理 echo cancellation 的 barge-in、仅停止音频却未说明历史语义的播放 API、可由第一方来源替代的二手博客，以及根据营销材料猜测闭源内部架构的陈述。Snowballing 起点包括 Predictive ASR、LTS-VoiceAgent、RelayS2S、FireRedChat、Moshi、OpenAI/Azure/LiveKit truncation 文档、PagedAttention、SGLang 和 Transformers DynamicCache。
+
+本轮检索存在可复查性限制。2026-05-21 的既有 22-source novelty 核查保留了来源与逐项结论，但未保存完整原始查询日志、逐库结果数、去重和逐条排除记录。2026-09-03 补查冻结了查询族，但 Google、ACL、ACM、部分 arXiv/官方页面等渠道出现 reCAPTCHA、超时、403 或工具访问限制；这些渠道不能据此记为“零结果”。因此，下述结论只是在所报告公开来源中的限定性非识别。
+
+### 2.4.2 最近邻与组合边界
+
+**表 2-1　公开最近邻与本文组合机制的边界**
+
+| 来源 | 公开建立的相邻机制 | 未由公开资料共同建立的本文组合要素 |
+|---|---|---|
+| OpenAI Realtime API[1] | 客户端以 `audio_end_ms` 截断音频与对应 transcript | 未公开 cascaded stack、assistant token span、KV crop 或 role recovery |
+| Azure Voice Live[2] | `auto_truncate` 在播放期打断后更新 session context；采用实时播放速度假设 | 未公开内部 token/KV 实现；不能推断设备或声学精度 |
+| LiveKit Agents[3] | interrupted transcript/history 与 spoken output 对齐的框架语义 | 未公开 transformer KV、mask、ledger 与 role-state recovery |
+| LTS-VoiceAgent[4] | semantic triggering 与 incremental reasoning | 未公开 playback-cursor-driven KV correction |
+| RelayS2S[5] | response-level candidate prefix 与验证/续写 | 所审阅公开资料未报告 interruption 后的 playback-history repair |
+| Predictive ASR[18] | partial-ASR prediction 与 downstream response prefetch | 所审阅公开资料未报告被打断 assistant 的保留边界修正 |
+| FireRedChat[7] | streaming/personalized VAD 与 interruption control | 主要回答何时停止，未公开停止后的 KV/role repair |
+| Moshi[6] | speech/text stream 下的全双工重叠交互 | 不能据此推出 device/acoustic delivery 与 model stream 恒等 |
+| Transformers DynamicCache[8] | cache abstraction 与 crop primitive | 不提供 cursor→fragment→token 映射或对话状态证据 |
+| PagedAttention[19] / SGLang[20] | KV memory management、prefix sharing/reuse | 所审阅公开资料未以 software playback cursor 选择 assistant commit boundary |
+| IntentKV[9] | text-agent cross-turn intent-aware KV pruning | 控制信号不是 speech delivery，未覆盖 TTS/role recovery |
+| 本文 | software cursor→TTS fragment→assistant token span→in-place KV crop→explicit role/EOT recovery | 证据限于受测软件边界、模型 snapshot/backend 与受控实验 |
+
+截至 2026-09-03，在所报告的公开来源范围内，未识别到一个可检视的级联实现同时公开上述完整状态路径，并提供可复算 direct state-integrity 与 latency artifacts。该陈述不是“全球首次”，也不否认未发表、闭源或因索引访问受限而未收录的系统。完整查询式、来源状态、纳排规则和逐项最近邻说明见 `docs/novelty_search_2026-09-03.md`。
+
+## 2.5 本文定位
+
+相关工作支持三层贡献定位。第一，C2 是核心机制：其增量位于软件游标、TTS 片段、assistant token span、KV/mask/ledger/position 与 role/EOT state 的公开联结及 direct-integrity evidence，而不在 playback-history 原则或 KV crop primitive。第二，C1 是 supporting characterization：它报告 candidate selection/compute-readiness、post-candidate oracle acceptance、survival 与 wasted-token 工作点，不声称 speculative decoding 或 production latency improvement。第三，C3 是 exploratory extension：三种历史自然化实现及其受混杂负结果不构成策略优越性证据。
+
+这一定位也限定了可推广性。当前证据适用于 software-consumed-sample cursor 和 TTS-fragment boundary，不适用于 device-presented 或 acoustically heard truth；C2 v3 适用于受测 Qwen2-7B snapshot/backend，不适用于 clean-reprefill equivalence 或跨引擎正确性；C1/E3 适用于同步受控 harness 与冻结 detector/judge 条件，不适用于真实异步语音闭环或 HCI 效果。
+
+## 2.6 本章小结
+
+播放条件下的 transcript/session-history truncation、输入结束前的下游计算、打断检测、KV crop 和 prefix reuse 均有公开先例。本文不将这些单项重新包装为原创，而聚焦其间尚未在本次公开检索中共同识别的实现契约：由 software-consumed-sample cursor 选择 TTS-fragment-level assistant prefix，原地裁剪 KV，并同步恢复 mask、token、position 与 role/EOT state。下一章据此形式化软件边界、状态不变式和分层评测指标。

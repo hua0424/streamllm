@@ -2,8 +2,9 @@
 
 数据一律从 experiments/results/ 或 experiments/sci34_supplement/results/ 的
 审计结果读取，禁止硬编码实验数字（图内数值均为运行时计算/读取）。
-图 6-2/6-3 自 D-017 起改读确认性 campaign e1e2c 的 analysis_v1.json
-（C-E1/C-E2 双口径：实际墙钟主指标 + oracle TTFT_eff 时延乐观下界）。
+图 6-1 读取 E3 weighting/dedup analysis v2 的 label-weighted 主 estimand；
+图 6-2/6-3 读取确认性 campaign 的 crossed/product-bootstrap analysis_v2.json
+（C-E1/C-E2：candidate selection/compute readiness + oracle TTFT_eff 时延乐观下界）。
 
 用法（项目根目录）：
     uv run python -m experiments.scripts.plot_figures          # 中文版（学位论文），全部四图
@@ -29,7 +30,7 @@ E3_ANALYSIS = (
     SUPPLEMENT_RESULTS
     / "e3"
     / "sci34_f11ccba_20260901_e3"
-    / "analysis_metric_specific_eligibility_v1.json"
+    / "analysis_weighting_dedup_v2.json"
 )
 A1_ANALYSIS = (
     SUPPLEMENT_RESULTS
@@ -41,7 +42,7 @@ E1E2C_ANALYSIS = (
     SUPPLEMENT_RESULTS
     / "e1e2_confirmatory"
     / "e1e2c_b8c758b_20260901T173306Z"
-    / "analysis_v1.json"
+    / "analysis_v2.json"
 )
 FIGDIR = ROOT / "paper2" / "figures"
 
@@ -53,28 +54,28 @@ _ZH = {
     "f1_xlabel": "共同目标与检测器",
     "f1_ylabel": "引用率差值（generation - playback，百分点）",
     "f1_labels": ["片段目标\n词面检测", "片段目标\nLLM 裁判", "近似目标\n词面检测", "近似目标\nLLM 裁判"],
-    "f1_note": "对话聚类 bootstrap 95% CI；全部跨越零线\nplayback 条件本地完整未听文本 400/400 为空（构造检查）",
-    "f2_title_a": "（a）oracle 口径：TTFT$_{eff}$ 时延乐观下界",
-    "f2_title_b": "（b）实际墙钟主指标",
+    "f1_note": "label-weighted 点估计及匹配的对话聚类 bootstrap 95% CI；全部跨零\n片段 297 labels / 96 dialogues / 169 unique groups；代理 380 / 100 / 379",
+    "f2_title_a": "（a）同步 oracle：TTFT$_{eff}$ 乐观下界",
+    "f2_title_b": "（b）内部候选计算就绪",
     "f2_xlabel": "推测浪费率 ρ（%，pooled）",
     "f2_ylabel_a": "TTFT$_{eff}$ 均值（ms）",
-    "f2_ylabel_b": "最后段到达→首 token\n就绪均值（ms）",
+    "f2_ylabel_b": "最后段到达→首候选 token\n选择/计算就绪均值（ms）",
     "f2_leg_pts": "推测工作点（θ 扫描）",
     "f2_leg_sent": "永不推测（保守极限）",
     "f2_sent": "永不推测",
     "f2_hl": "θ=0.92\n确认工作点",
-    "f2_flat": "全条件平坦 {lo:.1f}–{hi:.1f} ms",
-    "f2_note": "（a）为 oracle 时延乐观下界（推测收益上界），（b）为实际墙钟主指标（最后段到达→首 token 就绪）；\n"
-               "同批九条件（8 阈值 + 永不推测），每点 n={n}（{sess} session × {dial} 对话）。",
-    "f3_title_a": "（a）实际墙钟：最后段到达→首 token 就绪",
+    "f2_flat": "九个 B-path 条件均值\n{lo:.1f}–{hi:.1f} ms",
+    "f2_note": "（a）为同步 oracle 时延乐观下界（推测收益上界），（b）为内部 candidate selection/readiness；\n"
+               "8 个阈值 + never；每点 {dial} 条唯一话语 × {sess} 个技术 session = {n} 个交叉观测。",
+    "f3_title_a": "（a）最后段到达→候选选择/计算就绪",
     "f3_title_b": "（b）oracle TTFT$_{eff}$：时延乐观下界",
     "f3_ylabel": "延迟（ms）",
     "f3_label_a": "系统 A\n一次性全量预填充",
-    "f3_label_b": "B-ours\nθ=0.92 推测",
+    "f3_label_b": "B@0.92\n增量推测路径",
     "f3_bar_note": "均值 {mean:.2f}\n中位 {med:.2f}",
     "f3_diff": "配对差 A-B：{diff:+.2f} ms\n95% CI [{lo:.2f}, {hi:.2f}]",
-    "f3_note": "同批配对（n={n}）：（a）为实际墙钟主指标（B 更慢）；（b）为同步 oracle 端点下的乐观下界（推测收益上界，B 更低）。\n"
-               "两种口径度量不同对象，不可相加、不可混称。",
+    "f3_note": "同批 {n} 个 session×utterance 配对：（a）为内部 candidate selection/readiness（B 更慢）；\n"
+               "（b）为同步 oracle 乐观下界。C-E1 是非 token-equivalent implementation-path comparison。",
     "f4_leg_pre": "重新预填充（放弃 KV 复用）",
     "f4_leg_recover": "联合 crop + 角色恢复（单次同步窗口）",
     "f4_leg_crop": "KV 裁剪操作（crop-only）",
@@ -87,30 +88,30 @@ _EN = {
     "f1_xlabel": "Shared target and detector",
     "f1_ylabel": "Reference-rate difference (generation − playback, pp)",
     "f1_labels": ["fragment\nlexical", "fragment\nLLM judge", "proxy\nlexical", "proxy\nLLM judge"],
-    "f1_note": "Dialogue-cluster bootstrap 95% CIs; all cross zero\nLocal complete-unheard text is empty in 400/400 playback cases (construction check)",
-    "f2_title_a": "(a) Oracle view: TTFT$_{eff}$ optimistic latency lower bound",
-    "f2_title_b": "(b) Wall-clock primary metric",
+    "f1_note": "Label-weighted estimates with matched dialogue-cluster bootstrap 95% CIs; all cross zero\nFragment: 297 labels / 96 dialogues / 169 unique groups; proxy: 380 / 100 / 379",
+    "f2_title_a": "(a) Synchronous oracle: optimistic TTFT$_{eff}$ lower bound",
+    "f2_title_b": "(b) Internal candidate compute readiness",
     "f2_xlabel": "Speculation waste rate ρ (%, pooled)",
     "f2_ylabel_a": "Mean TTFT$_{eff}$ (ms)",
-    "f2_ylabel_b": "Arrival → first token ready\nmean (ms)",
+    "f2_ylabel_b": "Arrival → first-candidate-token\nselection/readiness mean (ms)",
     "f2_leg_pts": "speculative working points (θ sweep)",
     "f2_leg_sent": "never speculate (conservative limit)",
     "f2_sent": "never",
     "f2_hl": "θ=0.92\nconfirmatory point",
-    "f2_flat": "flat across conditions, {lo:.1f}–{hi:.1f} ms",
-    "f2_note": "(a) Oracle latency optimistic lower bound (= upper bound of speculation benefit); "
-               "(b) actual wall-clock primary metric (last-segment arrival → first token ready).\n"
-               "Nine conditions (8 thresholds + never), n={n} each ({sess} sessions × {dial} dialogues).",
-    "f3_title_a": "(a) Wall clock: arrival → first token ready",
+    "f2_flat": "nine B-path condition means\n{lo:.1f}–{hi:.1f} ms",
+    "f2_note": "(a) Synchronous-oracle optimistic lower bound (= upper bound of speculation benefit); "
+               "(b) internal candidate selection/readiness.\n"
+               "Eight thresholds + never; {dial} unique utterances × {sess} technical sessions = {n} crossed observations.",
+    "f3_title_a": "(a) Arrival → candidate selection/readiness",
     "f3_title_b": "(b) Oracle TTFT$_{eff}$: optimistic latency lower bound",
     "f3_ylabel": "Latency (ms)",
     "f3_label_a": "System A\none-shot full prefill",
-    "f3_label_b": "B-ours\nθ=0.92 speculative",
+    "f3_label_b": "B@0.92\nincremental speculative path",
     "f3_bar_note": "mean {mean:.2f}\nmedian {med:.2f}",
     "f3_diff": "Paired A-B: {diff:+.2f} ms\n95% CI [{lo:.2f}, {hi:.2f}]",
-    "f3_note": "Same paired batch (n={n}): (a) wall-clock primary metric (B slower); "
-               "(b) optimistic lower bound under the synchronous oracle endpoint (upper bound of speculation benefit, B lower).\n"
-               "The two views measure different objects and must not be added or conflated.",
+    "f3_note": "Same {n} session×utterance pairs: (a) internal candidate selection/readiness (B slower); "
+               "(b) synchronous-oracle optimistic lower bound.\n"
+               "C-E1 is a non-token-equivalent implementation-path comparison.",
     "f4_leg_pre": "re-prefill (no KV reuse)",
     "f4_leg_recover": "joint crop + role recovery (one synchronized window)",
     "f4_leg_crop": "KV crop operation only",
@@ -175,26 +176,29 @@ def fig6_1():
     with open(E3_ANALYSIS, encoding="utf-8") as f:
         data = json.load(f)
 
-    metric_names = ["rule_fragment", "judge_fragment", "rule_proxy", "judge_proxy"]
-    expected_pairs = [297, 297, 380, 380]
+    metric_specs = [
+        ("fragment", "rule", 297),
+        ("fragment", "judge", 297),
+        ("proxy", "rule", 380),
+        ("proxy", "judge", 380),
+    ]
     effects = []
     lows = []
     highs = []
-    for name, expected in zip(metric_names, expected_pairs):
-        metric = data["metrics"][name]
-        bootstrap = metric["dialogue_cluster_bootstrap"]
-        pairs = metric["mcnemar"]["pairs"]
-        assert pairs == expected, f"{name}: expected {expected} eligible pairs, got {pairs}"
-        effect = 100.0 * bootstrap["generation_minus_playback"]
-        low, high = [100.0 * value for value in bootstrap["difference_95_ci"]]
+    for target, detector, expected in metric_specs:
+        target_data = data["targets"][target]
+        assert target_data["eligible_labels"] == expected
+        estimand = target_data["metrics"][detector]["estimands"]["label_weighted"]
+        effect = 100.0 * estimand["generation_minus_playback"]
+        low, high = [100.0 * value for value in estimand["difference_95_ci"]]
         effects.append(effect)
         lows.append(low)
         highs.append(high)
     assert all(low <= 0 <= high for low, high in zip(lows, highs))
-    assert data["construction_checks"]["playback_local_unheard_empty"]
-    print(f"[fig6-1] fixed-trajectory effects (pp): {effects}; all cluster CIs cross zero ✓")
+    assert data["construction_checks"]["playback_local_unheard_empty"] == 400
+    print(f"[fig6-1] label-weighted fixed-trajectory effects (pp): {effects}; all cluster CIs cross zero ✓")
 
-    y = list(range(len(metric_names)))
+    y = list(range(len(metric_specs)))
     colors = [C_SKY, C_ORANGE, C_BLUE, C_VERMI]
     xerr = [
         [effect - low for effect, low in zip(effects, lows)],
@@ -218,7 +222,7 @@ def fig6_1():
             zorder=3,
         )
         ax.annotate(
-            f"{effect:+.1f} pp (n={expected_pairs[index]})",
+            f"{effect:+.1f} pp (n={metric_specs[index][2]})",
             (effect, index),
             textcoords="offset points",
             xytext=(7, 7),
@@ -262,7 +266,7 @@ def fig6_2():
         return cs[c]["ttft_eff_ms_oracle_latency_lower_bound"]["mean"]
 
     def wall(c):
-        return cs[c]["arrival_to_first_token_ready_ms_primary"]
+        return cs[c]["candidate_selection_compute_readiness_ms"]["summary"]
 
     # 运行时复核验收结论：浪费率随 θ 非增、oracle 均值非降、墙钟全条件平坦
     assert all(waste(a) >= waste(b) - 1e-9 for a, b in zip(thresholds, thresholds[1:]))
@@ -365,7 +369,7 @@ def fig6_2():
     fig.text(
         0.075, 0.015,
         L["f2_note"].format(
-            n=n, sess=data["design"]["sessions"], dial=data["design"]["dialogues_per_session"]
+            n=n, sess=data["design"]["sessions"], dial=data["design"]["global_dialogues"]
         ),
         fontsize=8.2, va="bottom", ha="left", color=G_DARK,
     )
@@ -378,28 +382,31 @@ def fig6_3():
     with open(E1E2C_ANALYSIS, encoding="utf-8") as f:
         data = json.load(f)
     cs = data["condition_summaries"]
-    cond_a, cond_b = data["design"]["e1_pair"]
-    assert cond_a == "system_a_full_prefill"
-    assert cond_b == data["design"]["confirmatory_condition"]
-    n = data["e1"]["primary_paired"]["n"]
+    cond_a = "system_a_full_prefill"
+    cond_b = data["design"]["confirmatory_condition"]
+    n = data["paired_estimands"]["e1"][
+        "candidate_compute_readiness_system_a_minus_b092_ms"
+    ]["paired_distribution"]["n"]
     assert n == cs[cond_a]["n"] == cs[cond_b]["n"]
 
-    a_wall = cs[cond_a]["arrival_to_first_token_ready_ms_primary"]
-    b_wall = cs[cond_b]["arrival_to_first_token_ready_ms_primary"]
+    a_wall = cs[cond_a]["candidate_selection_compute_readiness_ms"]["summary"]
+    b_wall = cs[cond_b]["candidate_selection_compute_readiness_ms"]["summary"]
     a_orc = cs[cond_a]["ttft_eff_ms_oracle_latency_lower_bound"]
     b_orc = cs[cond_b]["ttft_eff_ms_oracle_latency_lower_bound"]
     # System A 无推测：oracle 口径与墙钟口径是同一观测量
     assert abs(a_wall["mean"] - a_orc["mean"]) < 1e-6
 
-    diff_wall = data["e1"]["primary_paired"]["absolute_difference_ms_a_minus_b"]["mean"]
+    diff_wall = data["paired_estimands"]["e1"][
+        "candidate_compute_readiness_system_a_minus_b092_ms"
+    ]["point_estimate_mean"]
     ci_wall = data["bootstrap"]["ci"][
-        "e1_primary_mean_arrival_to_ready_difference_ms_system_a_minus_b092"
+        "e1_candidate_compute_readiness_mean_difference_ms_system_a_minus_b092"
     ]
-    diff_orc = data["e1"]["oracle_ttft_eff_latency_lower_bound_paired"][
-        "absolute_difference_ms_a_minus_b"
-    ]["mean"]
+    diff_orc = data["paired_estimands"]["e1"][
+        "ttft_eff_oracle_lower_bound_system_a_minus_b092_ms"
+    ]["point_estimate_mean"]
     ci_orc = data["bootstrap"]["ci"][
-        "e1_oracle_mean_ttft_eff_difference_ms_system_a_minus_b092"
+        "e1_ttft_eff_oracle_lower_bound_mean_difference_ms_system_a_minus_b092"
     ]
     assert diff_wall < 0 < diff_orc
     assert ci_wall["upper"] < 0 < ci_orc["lower"]

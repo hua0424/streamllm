@@ -5,6 +5,22 @@
 
 ---
 
+## D-024（2026-09-03）完成二审统一修订并冻结两项离线 analysis v2
+
+**决策**：在 D-023 解除 GPU 阻塞后，不再新增或重跑实验；从 accepted raw 工件生成两个不覆盖历史分析的 versioned 离线结果，并以 `docs/paper2_revision_evidence_2026-09-03.md` 作为全文唯一数值/主张合同，统一修改权威摘要、第一至八章、参考文献、实验图和合并稿。
+
+**E1/E2 crossed reanalysis**：新增 `e1e2_confirmatory/analyze_v2.py` 与 `analysis_v2.json`（SHA-256 `9bce6db5…4456`）。设计明确为 100 unique utterances × 5 process sessions 的 crossed panel；10,000 次 product bootstrap 独立重采样全局 session 与 dialogue 后取笛卡尔积。正式差值/95% CI：C-E1 candidate readiness A−B@0.92 = −34.6877 ms [−35.4421, −33.9535]；C-E2 never−B = −0.03349 ms [−0.63861, 0.61494]；oracle 下界分别 +17.4367 ms [14.4079, 20.3234] 与 +20.8037 ms [17.8492, 23.6450]；B@0.92 pooled waste 2.8527% [1.1239%,4.7345%]，survival 67% [58%,76%]。A/B 完整 token 280/500、首 token 465/500、44/100 unique utterances 分岔，故 C-E1 只作 implementation-path comparison；B@0.92/never 500/500 exact。
+
+**E3 weighting/dedup reanalysis**：新增 `analyze_e3_v2.py` 与 `analysis_weighting_dedup_v2.json`（SHA-256 `5776db23…0366`）。主表采用 label-weighted 点估计及匹配的 dialogue-cluster bootstrap：fragment rule −3.37 pp [−10.49,3.40]、fragment judge −2.02 pp [−10.70,6.13]、proxy rule −1.58 pp [−6.08,2.67]、proxy judge −2.63 pp [−8.57,2.90]。同时报告 dialogue-weighted 与 target-specific exact semantic-boundary sensitivity：fragment 297 labels/96 dialogues→169 groups（judge 0.00 pp [−7.98,7.47]），proxy 380/100→379 groups。全部结果仅为 fixed-detector-conditioned dialogue-sampling uncertainty，不支持优效、等效、非劣、伤害或无效应主张。
+
+**全文修订**：C2 成为唯一核心贡献，C1 降为 candidate-selection/oracle/waste 支持性刻画，C3 为受混杂探索性负扩展；统一 software-consumed cursor、TTS-fragment retention、device-presented/acoustically-heard 分层；`first_token_ready` 改称内部 candidate selection/compute-readiness，first-deliverable/consumer 仅作同步 harness diagnostic；C2 v1/v2 保持 rejected，v3 仅主张 direct crop integrity/matched recovery exactness；RQ1–RQ5 在第一、六、七、八章一一对齐。图 6-1～6-3 改读两份 analysis v2 并重画中英文版本，视觉验收通过；`thesis_draft.md` 由 10 个权威源确定性重建。
+
+**novelty/artifact**：新增 dated targeted public-source scan，承认 OpenAI/Azure/LiveKit 高层 prior art 与 KV crop primitive prior art；因 Google/ACL/ACM/arXiv 部分渠道访问受限，只作 scoped non-identification，不称 systematic/exhaustive/global first。新增 `REPRODUCIBILITY.md`、E3 exact-rescue README 与 declarations draft。公开 URL/DOI、LICENSE/权利人、派生数据再分发、伦理/consent、funding、COI、作者/CRediT 与 AI disclosure 必须由作者/机构确认，不由仓库推断。
+
+**状态**：accepted（技术与论文实证修订完成；待作者补投稿元数据、选择目标期刊格式并提交本批 commit）
+
+---
+
 ## D-023（2026-09-03）接受并封存 C2 v3 crop-integrity 正式证据
 
 **决策**：正式接受 run `c2crop_82103004_20260903T080512Z`（code commit `82103004637dce8f98688f4a685d33ebee363a3b`、结果 commit `7d50624`、manifest SHA-256 `d8c3db4d…d4bc2`）作为 D-018 EOS/EOT/role 修复后的 crop-integrity 正确性证据。24/24 ordered cases、27/27 ordered crop events 全部 exact，validation `ok=true/acceptance_eligible=true/errors=[]`，analysis accepted、ACCEPTANCE 含独立 `Status: accepted`，30-file seal 验证通过（seal SHA-256 `e0997d41…f4a9`）。C2 v1/v2 verdict 不变，均保留 rejected 描述性证据。

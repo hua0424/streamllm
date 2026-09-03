@@ -1,10 +1,10 @@
 # 第二篇论文大纲
 
-**建议题目**：播放感知的级联式流式语音对话上下文管理
+**建议题目**：级联式语音对话中软件播放游标与 TTS 片段驱动的 KV 状态修正
 
-**English title**: Playback-Aware Context Management for Cascaded Streaming Spoken Dialogue
+**English title**: Software-Playback-Cursor and TTS-Fragment–Driven KV-State Correction for Cascaded Spoken Dialogue
 
-**论文定位**：工程与系统型硕士论文。高层原则“对话历史应反映用户实际听到的内容”已有商用服务和开源框架实践；本文的贡献边界是公开级联栈中的播放位置关联、显式 KV 状态修正、角色恢复和受控量化评测。
+**论文定位**：工程与系统型硕士论文。OpenAI、Azure 和 LiveKit 已建立 playback-conditioned transcript/session-history truncation 的高层先例，KV crop 亦是既有原语；本文的核心贡献边界是公开级联栈中的 software-consumed-sample cursor→TTS fragment→assistant token span→KV crop→mask/token/position/role/EOT recovery 及其受控 exact evidence。C1 仅作 candidate compute-readiness、oracle acceptance 与 waste 的支持性刻画，C3 为受混杂的探索性负扩展。
 
 **权威正文源**：`abstract.md`、`chapter1_introduction.md` 至 `chapter8_conclusion.md`、`references.md`。`thesis_draft.md` 由 `uv run python -m experiments.scripts.build_thesis_draft` 自动合并；中英文 IEEE 稿为后续衍生版本，不应反向覆盖分章源稿。
 
@@ -19,16 +19,16 @@
 - 将研究范围收窄到公开级联实现中的显式 KV 状态管理
 
 ### 1.2 研究问题与挑战
-- 核心问题一：播放采样、音频块、TTS 文本片段和 token 区间的关联与反查
-- 核心问题二：KV、掩码、token 账本、位置编码和角色边界的合法恢复
-- 扩展问题一：单一推测阈值下的计算浪费—有效 TTFT 权衡
-- 扩展问题二：被打断历史的标记与自然化
+- 核心问题一：software-consumed-sample cursor、音频块、TTS 文本片段和 assistant token span 的关联与反查
+- 核心问题二：KV、mask、token ledger、position 和 role/EOT state 的合法恢复
+- 支持性问题：candidate selection/compute-readiness、post-candidate oracle acceptance 与 wasted-token 工作点
+- 探索性问题：当前受混杂运行中三种历史实现的描述性表现
 
 ### 1.3 本文工作与贡献
-- C1：可作废的推测生成调度；oracle 接受语义下的首 token 提前就绪为收益上界，墙钟收益取决于真实端点是否晚于触发；同步 harness 中到达→就绪不优于一次性 prefill；在线门控未实证
-- C2：片段关联时间轴、KV 裁剪和角色恢复；核心贡献
-- C3：三种历史策略；报告受混杂的探索性负结果
-- 可检视研究工件；避免无条件“首个”“完全可复现”主张
+- C2（核心）：software cursor→TTS fragment→assistant token span→KV crop→mask/token/position/role/EOT recovery；以 v3 direct crop-integrity 与 matched-recovery exact evidence 验收，且不声称 clean-reprefill equivalence
+- C1（支持）：pre-end-of-turn candidate-response generation with invalidation；区分 readiness、oracle acceptance 与同步 diagnostics，不声称 speculative decoding 或 production deliverability 改善
+- C3（探索）：三种历史自然化实现及受独立生成混杂的负结果，不作策略因果比较
+- 可检视研究工件；novelty 只作截至 2026-09-03 的 scoped public-source non-identification，不作 global-first 主张
 
 ### 1.4 论文组织结构
 
@@ -52,9 +52,10 @@
 - IntentKV、Speculative Interaction Agents
 - 播放信号驱动的显式 KV 修正与角色恢复
 
-### 2.4 差异表与本文定位
-- 列拆为截断依据、播放感知、上下文层次、公开架构和实现可见性
-- novelty 陈述限定检索范围和时间
+### 2.4 Targeted public-source novelty scan 与本文定位
+- 截止日期 2026-09-03；报告数据库/第一方渠道、五组查询族、纳排规则、snowballing 起点与访问限制
+- 最近邻矩阵承认 OpenAI/Azure/LiveKit 高层先例、response-level speculation/输入侧预取和 KV crop/prefix-reuse prior art
+- novelty 仅表述为报告公开来源范围内未识别完整软件状态路径，不作系统综述、专利检索或全球首次声明
 
 ---
 
@@ -143,44 +144,55 @@
 ## 第六章 实验与结果分析
 
 ### 6.1 研究问题与实验设置
-- RQ1 一致性；RQ2 推测浪费—双口径延迟权衡；RQ3 组合系统双口径响应延迟；RQ4 KV 复用与 prepared-state 软件打断控制路径；RQ5 历史策略
+- RQ1：software cursor→TTS fragment→assistant token state boundary；RQ2：direct KV crop 与 matched recovery correctness；RQ3：candidate-readiness/oracle/waste；RQ4：三种历史实现的描述性表现
+- 结果按证据对象组织：固定轨迹 E3；C-E2 supporting characterization；C-E1 implementation-path comparison；C2 v3 exact correctness；A1/P1 latency boundary；A2 exploratory result
 - 旧 E2 清除 fixture；固定轨迹 E3 独立使用 100 条纯 MultiWOZ，不与旧 E3 合并
 - 确认性 E1/E2（C-E1/C-E2）为第四个独立 campaign：5 独立进程×100 条新 holdout（与旧 E1/E2/E3 零交集）、greedy、TEN 置信度离线回放；旧 E1/E2 明确标为探索性旧 campaign
 - 墙钟实测、oracle 下界、微基准、画像建模和构造性结果分类
 - 明确同步推测、40-token E3 上限和无真实 ASR 闭环
 
-### 6.2 RQ1：固定轨迹历史一致性（E3）
-- 100 条对话、400 配对场景、800 条条件记录；共享首轮轨迹/时间轴/注入位置，greedy probes，40-token 上限
-- dialogue-cluster bootstrap 为主要不确定性结果；exact McNemar 仅作描述性补充
-- 片段目标 n=297：规则 67.0% vs 63.6%，裁判 42.8% vs 40.7%；CI 均跨零
-- 修正代理资格 n=380：规则 75.3% vs 73.7%，裁判 43.9% vs 41.3%；CI 均跨零
-- 四个小点估计均与预设方向相反且不显著；不作优效/等效/非劣/伤害主张
-- playback 局部完整未播放文本 400/400 为空仅是构造检查；0.5/boundary 片段目标重复
-- 无人类双标；LLM judge v3 为单模型单提示词代理
+### 6.2 固定轨迹 E3：detector-conditioned information reproduction
+- 100 dialogues、400 `(dialogue,injection_label)` pairs、800 condition records；共享首轮 trajectory/timeline/injection，40-token cap
+- 主分析为 label-weighted point estimate + 同 estimand 的 dialogue-cluster bootstrap
+- Fragment/rule：−3.37 pp [−10.49, 3.40]；fragment/judge：−2.02 pp [−10.70, 6.13]
+- Proxy/rule：−1.58 pp [−6.08, 2.67]；proxy/judge：−2.63 pp [−8.57, 2.90]
+- target-specific unique-semantic-boundary sensitivity：fragment 297 labels→169 groups，rule −2.96 pp、judge 0.00 pp；proxy 380 labels→379 groups，结果近似不变
+- 所有结果不支持 superiority/equivalence/noninferiority/harm/absence-of-effect；CI 不含 detector、prompt/model 或 human-perception error
+- automated proxy agreement 不称 human validation
 
-### 6.3 RQ2：推测浪费—双口径延迟权衡（C-E2/E2/A3）
-- 确认性 campaign 九条件（八阈值＋不推测），每点配对 n=500；表 6-3 报告九点
-- 实际墙钟 arrival→ready：B@0.92 与不推测差 −0.03 ms（CI [−0.55, +0.51]），九条件均平坦于约 62 ms
-- B@0.92 pooled waste 2.85%（CI [0.020, 0.037]）、survival 67.0%（CI [0.628, 0.712]）、就绪 token 中位 12、候选首 token 领先端点中位 291 ms
-- oracle 上界：never−B +20.80 ms（CI [19.50, 22.10]）；未存活 on-demand 31.09 ms ≈ never oracle 31.06 ms
-- 旧 E2 九点为探索性旧 campaign 审计引用（0.92 预冻结来源）；不称连续 Pareto 前沿
+### 6.3 C-E2：candidate-readiness、oracle acceptance 与 waste
+- crossed design：100 unique utterances × 5 process sessions；每条件 500 observations；crossed/product bootstrap 10,000 repeats
+- B@0.92 与 B-never 的 output tokens/text 500/500 一致，支持 token-consistent B-path comparison
+- never−B@0.92 arrival→candidate-selection：−0.03349 ms [−0.63861, 0.61494]
+- B@0.92 pooled waste 2.8527% [1.1239%, 4.7345%]；survival 67.0% [58.0%, 76.0%]
+- oracle TTFT_eff lower bound，never−B@0.92：+20.8037 ms [17.8492, 23.6450]
+- 291 ms 只称 candidate-first-selection→post-candidate oracle-acceptance 的同步程序内部间隔；不称自然端点 lead
+- first-deliverable/consumer markers 只作同步 harness diagnostics，不作 production deliverability headline
 
-### 6.4 RQ3：组合系统双口径响应延迟（C-E1/E1）
-- 确认性配对 n=500；表 6-4 报告 C-E1 配对结果
-- 实际墙钟 arrival→ready：System A 27.70 ms vs B@0.92 62.38 ms；A−B −34.69 ms（CI [−35.30, −34.11]），B 更慢
-- 机制：A＝单次批量 prefill＋首 token；B＝最后段增量 prefill＋assistant role 注入＋首 token（≈两次串行前向），短文本下单次前向固定开销主导
-- oracle 口径：A−B +17.44 ms（CI [16.12, 18.75]），为推测收益上界，适用条件是真实端点晚于触发
-- 旧 E1 的 0.581/27.407 ms 与 mouth-to-ear 画像建模降级为探索性旧 campaign 审计引用
+### 6.4 C-E1：implementation-path comparison
+- 同一 crossed design；不得把 500 observations 当作 500 个独立内容样本
+- System A vs B@0.92：full output tokens 280/500、first token 465/500；44/100 unique utterances 至少一次 full-output mismatch
+- arrival→candidate-selection，A−B@0.92：−34.6877 ms [−35.4421, −33.9535]
+- oracle TTFT_eff lower bound，A−B@0.92：+17.4367 ms [14.4079, 20.3234]
+- 差异混合 full-string vs segment-wise tokenization、forward topology/shape、role boundary、kernel 与 Python scheduling；不归因于纯 incremental-prefill effect
+- 不按 280 个 matched outputs 过滤主延迟，避免 post-treatment selection
 
-### 6.5 RQ4：KV 状态复用与软件打断控制路径
+### 6.5 C2：exact correctness、KV 状态复用与软件控制路径
 
-#### 6.5.1 A1：KV 复用联合微基准
+#### 6.5.1 C2 v3：Direct crop-integrity addendum
+- accepted run `c2crop_82103004_20260903T080512Z`；24/24 cases、27/27 crop events、3 no-op、60 recovery steps、27/27 wrong-length negative controls
+- 28 层 K/V：pre-crop retained prefix = production post-crop = independent slicing oracle，逐层 shape/dtype/device/hash 与 runtime `torch.equal` exact
+- identical token-ID chunks 下 K/V、logits、mask、token ledger、retained prefix 与 role/end/content state exact
+- 只支持 tested snapshot/backend 下 direct crop integrity 与 matched-recovery determinism；不支持 clean-reprefill numerical equivalence、32-token continuation、跨模型/backend/hardware 或 online-audio correctness
+- v1/v2 clean-reprefill protocols 均 rejected；v2 42/45 numerical gates 且 control topology 不匹配；v3 不改变旧 verdict
+
+#### 6.5.2 A1：KV 复用联合微基准
 - 表 6-5：256–8192 token；warmup=5，repeats=50；设备同步的同一区间联合计时
 - 联合中位数 31.054–48.315 ms，IQR 0.635–3.099 ms
 - 重新预填充中位数 / 联合路径中位数 = 2.254–40.620
 - 不是播放器链路
 
-#### 6.5.2 P1：Prepared-state 软件打断控制路径
+#### 6.5.3 P1：Prepared-state 软件打断控制路径
 - run `sci34_dc52978_20260901_async_prepared_v2`；代码 `dc52978`；结果 `ee1dcc7`
 - 3 长度 × 3 位置 × 20 = 180；120 片段内、60 边界；180/180 精确目标、零软件采样泄漏
 - 播放前 setup 原始 40.499–1722.228 ms、单元中位数 41.208–1717.110 ms，明确排除
@@ -188,12 +200,12 @@
 - 两个 stop 累计区间嵌套；组件与累计端点不相加；不与 A1 池化或相减；不声称上下文无关
 - 仅 headless 墙钟节拍软件播放器/模型状态；不代表声卡、声学/用户所听、在线 TTS、真实并发或生产端到端
 
-### 6.6 RQ5：历史策略（A2）
+### 6.6 C3：探索性历史实现（A2）
 - 描述性评分与重写耗时
-- 仅 33/100 三策略 heard_text 相同，明确独立生成混杂
+- 仅 33/100 三策略 fragment-retention compatibility alias 相同，明确独立生成混杂
 - 作为探索性负结果，不作因果比较
 
-### 6.7 按 RQ 汇总结论与适用边界
+### 6.7 按证据对象汇总结论与适用边界
 
 ---
 
@@ -205,7 +217,7 @@
 
 ### 7.2 效度威胁
 - 构念效度：边界代理、词面规则、单一 judge v3、无人类双标
-- 内部效度：旧 E1/E2 口径 artifact（user_end 记录在同步推测完成后，oracle 误作墙钟）已由确认性 campaign 修正；两串行前向机制解释九点平坦的 arrival→ready；同步时序、40-token 上限、0.5/boundary 重复、A2 条件轨迹不一致
+- 内部效度：旧 E1/E2 口径 artifact（user_end 记录在同步推测完成后，oracle 误作墙钟）已由确认性 campaign 修正；C-E1 是包含 tokenization、forward topology/shape、role boundary、kernel 与 Python scheduling 的 implementation-path comparison；同步时序、40-token cap、重复 semantic boundary 与 A2 条件轨迹不一致
 - 外部效度：单模型、双 3090、英文任务型对话、四个 campaign 不池化
 - 结论效度：cluster bootstrap 主、McNemar 描述；不显著不等于等效/非劣，负点估计不等于伤害；oracle 上界收益不得表述为墙钟改善；P1 v1 协议失败只作审计，v2 当前有效但限于软件控制路径
 
@@ -219,8 +231,9 @@
 ## 第八章 总结与展望
 
 ### 8.1 全文总结
-- 按 C1/C2/C3 分别总结“证据与边界”
-- C2 的状态机制、A1 模型侧计算结果和 P1 prepared-state 软件控制路径结果成立；固定轨迹 E3 未检出预设方向语义收益；C1 为双口径结论（oracle 上界收益＋同步 harness 中到达→就绪不优于一次性 prefill）；C3 为受混杂的探索性负结果
+- 按 C2（核心）、C1（支持）、C3（探索）的证据成熟度总结
+- C2 v3 支持 tested snapshot/backend 下 direct crop integrity 与 matched-recovery determinism，但 v1/v2 clean-reprefill verdict 仍 rejected；A1/P1 只支持各自冻结的软件/模型协议
+- E3 不支持 superiority/equivalence/noninferiority/harm/absence-of-effect；C1 只支持 candidate-readiness/oracle/waste characterization；C3 为受混杂的探索性负结果
 
 ### 8.2 后续工作
 - P1 v2 已完成；后续接入真实声卡/声学停播、在线异步 TTS、真实 ASR/LLM/TTS/播放器并发与生产控制闭环

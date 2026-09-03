@@ -2,27 +2,40 @@
 
 ## 8.1 全文总结
 
-本文研究级联式流式语音对话系统在用户打断后的上下文状态管理。已有商业服务和开源框架已经实践“历史反映用户所听内容”的原则；本文的工作重点，是在公开级联栈中把播放位置与显式 KV 状态操作连接起来，并说明这一机制的测量边界。
+本文研究级联式流式语音对话系统在打断后的上下文状态管理，并将证据范围限定为 software-cursor-conditioned、TTS-fragment-level runtime/prototype。OpenAI、Azure 和 LiveKit 等系统已公开 playback-conditioned history truncation 的高层实践，KV crop 与 prefix reuse 也不是本文原创；本文的工作重点是把 software-consumed-sample cursor、TTS 文本片段、assistant token span、KV cache、attention mask、token ledger、position、role 和 EOT 状态连接为可审计合同。
 
-围绕该目标，本文完成三项工作。C1 使用话轮检测置信度和单一推测阈值启动可作废的提前生成，以可控 token 浪费换取 oracle 接受语义下的首 token 提前就绪（收益上界）；在同步受控 harness 的实际墙钟口径下，最后段到达→首 token 就绪不优于一次性 prefill，其墙钟收益取决于真实端点是否晚于触发，尚未在在线异步部署中验证。C2 建立以 TTS 文本片段为主轴的采样—音频块—token 关联时间轴，并实现 KV、注意力掩码和 assistant token 账本的同步裁剪，以及裁剪后的角色边界恢复。它是本文的核心机制。C3 实现朴素保留、打断标记和轻量重写三种历史策略；现有结果未显示重写收益，且 A2 仍受到独立生成差异的混杂，因此被保留为探索性负结果。
+贡献层级如下。**C2 是核心贡献**：实现 software cursor→fragment→token→KV crop→role/EOT recovery，并以 C2 v3 direct crop-integrity addendum 检验状态完整性。**C1 是支持性贡献**：对 pre-end-of-turn candidate-response generation with invalidation 的 candidate-selection/compute-readiness、同步 oracle acceptance 与 wasted-token 工作点进行受控刻画，不把其解释为 production deliverability 改善。**C3 是探索性扩展**：实现朴素、标记和重写三种历史处理方式；当前 A2 只提供受混杂描述性结果。
 
-固定轨迹 E3 使用 100 条纯 MultiWOZ 对话和 400 个配对场景，使 playback 与 generation 条件共享同一条被打断回复、片段时间轴和注入位置，首轮及 probes 均限制为最多 40 token。片段目标非空的 297 个场景中，规则检测率为 67.0% 与 63.6%，LLM 裁判率为 42.8% 与 40.7%；generation−playback 的 dialogue-cluster 95% 区间分别为 [−9.5, 2.8] 和 [−8.9, 6.1] 个百分点。按代理目标自身非空性修正后，n=380 的规则率为 75.3% 与 73.7%，裁判率为 43.9% 与 41.3%，区间分别为 [−5.75, 2.50] 和 [−8.25, 2.67] 个百分点。四个小点估计均与预设假设方向相反，配对检验均不显著；现有数据不支持优效、等效、非劣或伤害主张。另有 400/400 的 playback 局部完整未播放文本为空，这是与语义效果分开的构造检查。
+C2 v3 正式 run `c2crop_82103004_20260903T080512Z` 覆盖 24/24 cases、27/27 crop events、3 个 no-op、60 个 recovery steps、308 个逐 token production append 和 27/27 wrong-length negative control。在冻结 Qwen2-7B snapshot、BF16/SDPA/Transformers backend 下，28 层 K/V 的 crop 前 retained prefix、production post-crop 与独立 slicing oracle 逐张量 bitwise exact；匹配 token-ID chunks 恢复后的 K/V、logits、attention mask、token ledger 与 role/end/content state 亦 exact。该结论只涉及 direct crop integrity 与 matched-recovery determinism，不涉及 clean re-prefill numerical equivalence、32-token continuation、跨模型/后端/硬件或在线音频系统正确性。v1/v2 clean-reprefill 协议均保持 rejected；v3 不改变其 verdict。
 
-E1/E2 的正式证据来自第四个独立 campaign——确认性受控文本段实验（5 个独立进程 × 100 条新 holdout 话语，与旧 E1/E2/E3 零交集，配对 n=500），结论按双口径表述。实际墙钟口径（最后段到达→首 token 就绪）下，System A 为 27.70 ms、B@0.92 为 62.38 ms，配对差 A−B = −34.69 ms（95% CI [−35.30, −34.11]）：同步 harness 中推测使到达—就绪慢于一次性 prefill。机制在于 A 的关键路径是单次批量 prefill＋首 token 采样，而 B 需依次完成最后段增量 prefill、assistant 角色注入和首 token 采样（≈两次串行前向），短文本下单次前向固定开销主导；C-E2 中 B@0.92 与不推测的到达—就绪差为 −0.03 ms（CI [−0.55, +0.51]），九个条件的到达—就绪均平坦于约 62 ms。oracle 接受口径（时延乐观下界/推测收益上界）下，C-E1 的 A−B = +17.44 ms（CI [16.12, 18.75]），C-E2 的 never−B = +20.80 ms（CI [19.50, 22.10]）；B@0.92 的 pooled token 浪费为 2.85%（CI [0.020, 0.037]），推测存活率 67.0%（CI [0.628, 0.712]），就绪 token 中位数为 12，候选首 token 领先端点中位 291 ms，未存活场景的按需生成 31.09 ms 与不推测的 oracle 均值 31.06 ms 一致。该上界的适用条件是用户在触发后继续说话、真实端点晚于同步端点。旧 E1/E2 的 48.3→12.1 ms 与 0.581 ms 属探索性旧 campaign 的口径 artifact（user_end 记录在同步推测完成后，oracle 被误作墙钟），已被确认性实验修正，仅保留为审计引用；其 mouth-to-ear 也只是计算时间与六句 TTS 画像的组合建模。旧 E2 的阈值 0.92 仍是本次预冻结的候选来源。
+固定轨迹 E3 的 label-weighted 主表包含片段目标 297 个标签/96 条对话，以及代理目标 380 个标签/100 条对话。generation−playback 的四项效应与 95% dialogue-cluster CI 分别为：片段规则 −3.37 pp [−10.49, 3.40]、片段自动裁判 −2.02 pp [−10.70, 6.13]、代理规则 −1.58 pp [−6.08, 2.67]、代理自动裁判 −2.63 pp [−8.57, 2.90]。精确去重后，片段目标为 169 个语义组、代理目标为 379 个语义组；片段自动裁判的 unique-group effect 为 0.00 pp [−7.98, 7.47]。这些结果仅是 fixed-detector-conditioned information-reproduction rate；区间不含检测器、提示词、模型变化或人类感知误差，不能确定方向性优势或差异不存在。规则与裁判的一致数只描述 automated-proxy agreement。
 
-联合 A1 在 256–8192 token 上使用 5 次预热和 50 次重复，在设备同步包围的同一计时区间内执行 crop 与角色恢复。六个长度的联合中位数依次为 31.616、31.852、31.054、31.519、36.903 和 48.315 ms，IQR 为 2.356、2.162、3.099、1.197、0.635 和 0.928 ms；重新预填充中位数与联合路径中位数之比为 2.254、4.124、7.707、15.020、25.453 和 40.620。该结果只量化模型侧联合路径，不包含播放器停播、时间轴查询、通信和并发调度，不能解释为完整打断响应。
+确认性 E1/E2 采用 100 条唯一话语×5 个独立进程 session 的交叉设计；每条件 500 个观测，正式区间由 crossed/product bootstrap 得到。C-E2 中 `never − B@0.92` 的 candidate-readiness 差值为 −0.03 ms [−0.64, 0.61]，oracle TTFT_eff 下界差值为 +20.80 ms [17.85, 23.65]；B@0.92 pooled waste 为 2.85% [1.12%, 4.73%]，survival 为 67% [58%, 76%]。同步 harness 中 B@0.92 的 first-deliverable 和 consumer marker 均值为 257.58 与 265.57 ms，只是程序执行顺序诊断，不代表生产可交付性。
 
-独立 P1 v2 在 512、2048、8192 token 与 0.25、0.50、0.75 三个播放位置上各运行 20 次，共 180 条正式记录，其中 120 条为片段内、60 条为片段边界。180/180 次 stop request 与 acknowledgement 精确命中目标软件采样位置，且零软件采样泄漏。软件停播确认、stop 后设备同步、时间轴反查、stop→crop 和 stop→角色恢复的单元中位数范围依次为 0.055–0.062、0.167–0.176、0.47–0.50、2.44–2.53 和 78.6–80.8 ms；相应最大的单元 P95 约为 0.077、0.352、0.94、3.492 和 86.1 ms。播放前准备态耗时被单独记录并排除。两个 stop 累计区间彼此嵌套，组件中位数与累计端点不能相加；实验只代表 headless 墙钟节拍软件播放器和模型状态，不代表声卡、声学停播、用户实际听到边界、在线 TTS、真实模块并发或生产端到端打断。
+C-E1 是 implementation-path comparison：System A 与 B@0.92 的 candidate-readiness 均值为 27.70 与 62.38 ms，A−B 为 −34.69 ms [−35.44, −33.95]；oracle 下界 A−B 为 +17.44 ms [14.41, 20.32]。两路径完整输出 token 仅 280/500 相同，首 token 为 465/500 相同，长度/EOS/max-token 状态为 495/500 相同，44/100 条唯一话语出现完整输出不一致；B@0.92 与 B-never 则为 500/500 相同。因此差值混合 tokenization、forward topology/shape、role boundary、kernel 和 Python scheduling，不能归因于单一额外 forward 或视为纯 incremental-prefill effect。
 
-旧 E1/E2/A2、固定轨迹 E3/联合 A1、prepared-state P1 v2 和确认性 E1/E2 属于四个独立 campaign。四者均使用同型号双 RTX 3090，但 CPU、OS 或调度环境并不相同；本文不池化绝对时间，也不通过 A1 与 P1 相减解释控制开销。综上，本文最稳健的结果是：播放位置可以被实现为可检查的片段级 KV 状态操作；固定轨迹语义评测没有检出预设方向上的收益；在直接同步的模型侧微基准中，联合 KV 恢复路径低于重新预填充；在 prepared-state 软件控制路径中，目标命中、零软件采样泄漏和各嵌套恢复端点得到受控测量；推测调度在 oracle 接受口径下以 2.85% pooled 浪费换取 67.0% 场景接受前已有就绪候选的提前就绪（收益上界，候选首 token 领先端点中位 291 ms），而在同步受控 harness 的实际墙钟口径下，最后段到达→首 token 就绪不优于一次性 prefill，九个条件的到达—就绪平坦于约 62 ms。真实交互自然度、在线 TTS/并发尾延迟、真实端点晚于触发条件下的推测收益和更细物理播放边界仍需进一步验证。
+联合 A1 在固定 operation order、固定移除 32-token suffix、5 次预热和每点 50 次重复下，256–8192 token 的 joint crop+role 中位数为 31.054–48.315 ms，IQR 为 0.635–3.099 ms，重新预填充/联合路径中位数比为 2.254–40.620。P1 v2 的 9 个单元各含 20 次记录，software stop→crop 与 stop→role 的单元中位数分别为 2.44–2.53 和 78.6–80.8 ms；P95 仅为 empirical/descriptive order statistic。两组结果都不代表 device/acoustic stop、用户实际接收边界或生产端到端 barge-in。
 
-## 8.2 后续工作
+RQ5 的描述性结果为：朴素、重写和标记实现的连贯性均值分别为 3.76、3.62 和 3.29；重写均值耗时 639 ms。由于三条件历史和下一轮生成不一致，这些数值不支持策略因果比较，也不证明重写延迟已被真实用户发言完全隐藏。
 
-1. **真实异步音频与生产控制闭环。** prepared-state P1 v2 已完成 headless 软件播放控制路径测量；下一步接入真实流式 ASR、在线异步 TTS、音频队列、声卡和播放器，联合测量打断检测、声学停播、时间轴查询、KV 裁剪和角色恢复，并让下一 ASR 文本段与推测解码真实竞争。
-2. **固定轨迹的 A2 因果对照。** 为三种历史自然化策略缓存同一 assistant token 流、断句结果和打断点，使用固定解码或成对随机种子，避免首轮与下一轮生成差异混入处理效应。
-3. **更细播放边界。** 利用 TTS 的词级 duration、音素对齐或强制对齐建立更接近物理真值的 $\widetilde H(p)$，比较片段、词和 token 粒度的边际收益与实现成本。
-4. **独立人工评测。** 在随机盲抽样上使用至少两名标注员，分别测量未播放信息引用、语义保真、连贯性和真实音频感知；报告标注员一致性和置信区间。
-5. **跨语种、跨模型和跨引擎复验。** 扩展到中文任务型与开放域对话，测试不同主模型、TTS、话轮检测器和服务端推理引擎，并为每次运行归档数据哈希、模型 revision、随机状态和原始重复计时。
-6. **播放位置估计对比。** 在拥塞、变速和缓冲变化条件下，比较播放器实测采样位置与实时速度假设的边界误差，完成尚未实施的 E4。
+综上，本文最稳健的结论是：在冻结模型和后端下，software cursor 驱动的片段级保留可以被落实为具有 bitwise crop integrity 和 matched-recovery exactness 的 KV/role 状态操作；支持性实验进一步给出了固定协议的模型侧成本、headless 软件控制路径时延及候选生成的浪费—oracle-readiness 工作点。本文未测 device-presented samples、acoustically heard content、真实异步音频闭环或 HCI 效果，因而不对生产时延、声学边界或交互自然度作超出证据的结论。
 
-一期工作关注用户话轮结束前的增量预填充，本文进一步研究系统播报被打断后的状态修正。两项工作共同说明，级联架构可以通过细粒度状态管理改变特定延迟与上下文状态；但能否改善整体交互自然度，仍需真实用户和音频闭环实验，而不能由本文现有代理指标直接推出。
+## 8.2 可选后续工作
+
+现有 C2 v3、E1/E2 crossed analysis、E3 weighting/dedup、A1 和 P1 证据已经满足本文收窄后的结论边界，**无需新增 GPU 工作作为当前提交阻塞**。若资源与目标期刊定位允许，可进一步开展以下研究。
+
+1. **真实异步音频与设备/声学边界。** 接入在线 ASR、TTS、bounded audio queue、设备时钟或 loopback 波形，统一记录 stop request、device stop、acoustic stop、timeline query、KV crop 和 role recovery。
+2. **固定轨迹 A2。** 缓存同一 assistant token 流、断句和打断点，并固定下一轮解码或成对随机种子，以形成可识别的策略比较。
+3. **人工与 HCI 评测。** 使用盲法双标或直接用户实验测量特定信息复现、自然度、信任和主观交互质量，并报告标注一致性与不确定性。
+4. **边界粒度与系统迁移。** 比较片段、词、音素和 token 级对齐，并在不同语言、主模型、TTS、chat template、dtype、attention backend 和推理引擎上重新验证状态合同。
+5. **时延分布扩展。** 对 A1 随机化 operation order、覆盖多种 crop length；增加 P1 重复并在真实并发条件下估计稳定的高分位数。
+
+## 8.3 工件可用性与投稿声明
+
+实验工件、accepted/rejected campaign 状态、run ID、代码与结果 commit、hash、复算入口及主张边界的权威索引见仓库根目录 `REPRODUCIBILITY.md`。accepted E3 processed input 保存在 `experiments/sci34_supplement/results/e3_exact_rescue/p2_turns.json`；模型权重与原始 MultiWOZ 数据不在仓库中再分发，第三方资产受各自许可与访问条款约束。C2 v3、固定轨迹 E3、联合 A1、P1 v2 和确认性 E1/E2 工件均已在当前研究仓库中保存并以 run/hash 关联；C2 v1/v2 保持 rejected 状态。公共不可变 release/DOI 仍需作者在投稿前提供。
+
+投稿声明草稿见 `paper2/declarations.md`，在以下事项由作者确认前不得改写为已完成、`none` 或 `not applicable`：公开数据与代码 URL/DOI、immutable release/tag 与访问日期；E3 派生数据再分发许可；仓库权利人和 LICENSE；第三方 notices；伦理审查或豁免、参与者与 consent；funding；每位作者的 competing interests；作者名单、顺序、CRediT 角色与 accountability；生成式 AI/自动化工具披露。以上均保留 **AUTHOR CONFIRM** 边界，不从 Git 元数据、实验内容或本稿推断。
+
+## 8.4 结语
+
+本项目一期内部实现关注用户话轮期间的增量预填充，本文则把研究重点推进到系统播报被打断后的显式状态修正。结果表明，可复查的 software cursor—fragment—token—KV/role 合同能够在受控环境中实现并验证；其向真实设备、声学听觉和用户体验的推广仍需对应层级的直接证据。

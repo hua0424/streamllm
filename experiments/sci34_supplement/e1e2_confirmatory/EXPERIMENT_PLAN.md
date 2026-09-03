@@ -236,3 +236,27 @@ experiments/sci34_supplement/results/e1e2_confirmatory/<campaign_id>/
 - 论文数字：仍冻结。
 
 完整、可复制的正式命令只维护在 [GPU_HANDOFF.md](GPU_HANDOFF.md)。
+
+## 14. v2 post-run：交叉/乘积 bootstrap 复分析（2026-09-03）
+
+§1–§13 原样保留为 pre-run protocol 与 v1 历史。accepted source campaign `e1e2c_b8c758b_20260901T173306Z` 现已完成 versioned v2 离线复分析；原始 records、`validation.json`、`analysis_v1.json`、`ACCEPTANCE.md` 与 `checksums.sha256` 均未修改。
+
+### 14.1 冻结方法
+
+`analyze_v2.py` 使用 `schema_version=2`、`analysis_version=crossed-product-bootstrap-v2`。正式参数固定为 5 sessions、100 global dialogues、10,000 repeats、seed `20260901`。每个 replicate 在排序后的 ID 上用同一 `random.Random(20260901)` 流：先有放回抽 5 个 session，再有放回抽 100 个全局 dialogue；原始 `(session, dialogue)` cell 的权重为两个边际 multiplicity 的乘积 `m_s*n_d`，其 10 个条件共享该权重，因此保持 paired estimand。区间为 percentile 95%，沿用 `analyze.py` 的线性分位数插值。点估计始终使用未加权完整 5×100 网格。
+
+该方法 supersede v1 的“抽 session 后在各抽中 session 内嵌套抽 dialogue”区间估计，但不更改 v1 点估计。B 条件 waste 每次 replicate 计算 weighted numerator / weighted denominator 的 ratio-of-sums，不平均 utterance ratios；survival 使用同一 product weights。
+
+### 14.2 正式结果与诊断
+
+- candidate selection/compute readiness（raw alias `arrival_to_first_token_ready_ns`，非 generator/production deliverability）：E1 System A−B@0.92 **−34.687728 ms**，95% CI **[−35.442098, −33.953509]**；E2 never−B@0.92 **−0.033492 ms**，95% CI **[−0.638608, 0.614945]**；
+- `TTFT_eff` synchronous-oracle latency lower bound：E1 A−B@0.92 **17.436697 ms**，95% CI **[14.407946, 20.323448]**；E2 never−B@0.92 **20.803658 ms**，95% CI **[17.849195, 23.645048]**；
+- B@0.92 pooled waste **0.028527**，95% CI **[0.011239, 0.047345]**；survival **0.670**，95% CI **[0.580, 0.760]**；
+- A/B@0.92：full output exact **280/500**，first token exact **465/500**，44/100 unique dialogues 有任一 mismatch；各 session 均为 44/100，比较签名及两侧输出均 100/100 dialogues 跨 session 不变；
+- B@0.92/never：full output、first token、长度、EOS、max-token、文本全部 **500/500 exact/agreement**；
+- output identity 仅作 implementation-path 诊断，不过滤主时延；consumer/yield marker 仅称 harness diagnostic，不称 production deliverability；
+- 四个配对效应均提供 per-session 与 leave-one-session-out sensitivity；所有条件均补充 arrival→candidate readiness、arrival→endpoint、arrival/endpoint→first-deliverable event、arrival/endpoint→consumer marker 的派生事件汇总；
+- v2 point estimates 与 v1 对应值最大绝对差为 0；正式 source provenance 绑定 repo-relative path + normalized-LF SHA-256，并另存 Windows CRLF local hash；
+- 输出：campaign root `analysis_v2.json`、`analysis_v2.sha256`；analysis SHA-256 为 `9bce6db5d93c1faccb4069b295df32ce5ee0778899b31ac6be17526bfb644456`。
+
+验证已完成：`py_compile`、`analyze_v2 --self-test`、formal generation 与不依赖 analyzer 的独立 10,000-repeat sanity extraction 全部通过。self-test 覆盖 crossed≠nested、配对、product weight sum、ratio-of-sums、空输出 identity、reproducibility 以及 missing/duplicate/malformed/timing fail-closed。

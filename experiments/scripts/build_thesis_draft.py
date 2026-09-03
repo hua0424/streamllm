@@ -21,10 +21,10 @@ SOURCES = [
     "chapter8_conclusion.md",
     "references.md",
 ]
-HEADER = """# 播放感知的级联式流式语音对话上下文管理
+HEADER = """# 级联式语音对话中软件播放游标与 TTS 片段驱动的 KV 状态修正
 
 > 全文合并草稿（自动生成，勿直接编辑；请修改分章 Markdown 后重新合并）。
-> 本文件已于 2026-09-01 依据固定轨迹 E3、联合计时 A1、prepared-state P1 v2 与补实验审计结果更新。
+> 本文件已于 2026-09-03 依据 crossed E1/E2 analysis v2、E3 weighting/dedup analysis v2、accepted C2 v3 及二审意见统一更新。
 """
 SEPARATOR = "\n---\n\n"
 
