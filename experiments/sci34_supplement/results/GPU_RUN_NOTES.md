@@ -208,3 +208,36 @@ genuine 覆盖）后按 v2 `GPU_HANDOFF.md` 重跑全程，run `c2eq_5c56b014_20
 - 定性建议（ACCEPTANCE §8）：其余结构层与绝对上限全过，失败仅集中在 2.0× 相对倍数；
   0.5B dry-run 参考比值 1.08 而本机 7B 长上下文更高。是否调整倍数须新协议版本冻结，
   本 run 常数未动。
+
+## C2 v3 crop-integrity pilot 阻塞（2026-09-03，commit `b2c6f22`，**formal 未启动**）
+
+按 v3 `c2_crop_integrity/GPU_HANDOFF.md` 执行至 §3 pilot 后提前停止：pilot 8 cases /
+9 crop events 中 7 cases 全部 exact 通过（含 c2_08 第二次 crop），仅
+`c2_06_invalidate_short_max`（speculation_full_invalidation）失败，formal 按规程不启动。
+
+- 已完成：§0 预检 PASS（PROTOCOL_VERSION=3、24/27、PRIOR_V2_RUN_ID 与 cases
+  byte-copy sha 校验全过；guard 375 文件含 C2 v1/v2 全工件只读）→ §1 冻结离线 →
+  §2 五 CLI + v3 smoke（`protocol_version=3`、27 events、wrong_keep/layer_hash/
+  duplicate_eot_ledger/missing_event 四类 tamper 全检出）+ 四核心 smoke + 模型预检。
+- **失败定位（唯一差异字段）**：c2_06 的 recovery_check[0]（`prefill_user_text`，
+  invalidation crop 后首个恢复操作）中 production `generation_end_reason='CROPPED'`
+  vs oracle 期望 `'NONE'`；其余全部字段（role_phase=USER_OPEN、seq/mask/KV/ledger=514、
+  assistant 计数）及该 event 的 K/V/logits/mask bitwise 比较、crop 保留前缀三方
+  （pre-crop prefix / 独立切片 oracle / production）exact、negative control 检出
+  **全部通过**。recovery_check[1]（`open_assistant_role`）state_exact=True。
+- **根因**：生产语义 `crop_to_token` 置 `CROPPED`（stream_llm_inference.py:619）；
+  `reopen_user_role`/`open_assistant_role`/`prefill_assistant_text` 均重置 NONE，
+  唯 `prefill_user_text`（:742）不重置。`speculation_full_invalidation` 是唯一不经
+  reopen、直接 `prefill_user_text` 的恢复路径，故 `CROPPED` 残留到
+  `open_assistant_role` 才清除；v3 oracle `_expected_state`（runtime.py:633）期望
+  任何恢复操作后即 NONE。其余 7 个 pilot case 恢复均先经 reopen（重置 NONE）故通过；
+  fake smoke 的 prefill/open 实现不走生产 role/end 状态机，无法捕获。
+- **formal 影响面（确定性）**：24 cases 中 3 个 invalidation case（c2_06/c2_14/c2_22，
+  三个 context 档各一）将同样失败；其余 21 cases 预计通过。
+- **决策归属设计侧（两种修法，均非实验机可现场实施）**：
+  (a) 生产侧：`prefill_user_text` 追加 `generation_end_reason=NONE` 重置
+  （与其他恢复 API 对齐，属 src 语义变更，需设计侧评审对 E2/E3 等既有结论无影响）；
+  (b) 协议侧：v3 oracle 对 invalidation 路径的 `prefill_user_text` 一步放行残留
+  `CROPPED`（期望态放宽，属协议修订需 bump 版本）。红线 3 禁止现场改任一侧配合结果。
+- 工件：pilot 目录全留（`results/c2_crop_integrity/c2crop_pilot_b2c6f22b_20260903T064135Z/`，
+  自 /tmp 移入归档）；工作树零改动；本轮不产生 formal/tarball/ACCEPTANCE。

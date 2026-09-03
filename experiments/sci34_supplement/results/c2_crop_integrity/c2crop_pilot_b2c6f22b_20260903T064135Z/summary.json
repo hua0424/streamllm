@@ -1,0 +1,35 @@
+{
+  "completed_at_utc": "2026-09-03T06:42:38.062970+00:00",
+  "protocol_version": 3,
+  "status": "FAIL",
+  "acceptance_eligible": false,
+  "sessions": 1,
+  "statistical_repeats": 0,
+  "cases": 8,
+  "expected_cases": 8,
+  "crop_events": 9,
+  "expected_crop_events": 9,
+  "expected_formal_cases": 24,
+  "expected_formal_crop_events": 27,
+  "failed_cases": [
+    "c2_06_invalidate_short_max"
+  ],
+  "termination_probe_reruns": 0,
+  "prior_v2_run_id": "c2eq_5c56b014_20260903T040829Z",
+  "negative_control": {
+    "kind": "wrong_keep_length_manifest",
+    "disposable": true,
+    "correct_keep_length": 4,
+    "wrong_keep_length": 3,
+    "detected": true,
+    "positive_control_metadata": {
+      "wrong_crop_length_would_be_detected": true,
+      "mechanism": "shape and aggregate manifest mismatch"
+    }
+  },
+  "process_identities": [
+    "pid-80879-1788417747777382305-216fa8ba944d47e9b1c936a423daaba2"
+  ],
+  "campaign_identity_hash": "c34fb9d5de9d38629f9863dc2d0d2a0520d04a08c6aefc6bc7f377ade8dfd014",
+  "campaign_manifest_sha256": "cd128fe5d87d55957f7e978fe77531272939a2931ed2f44f89a9926151dccf3d"
+}
