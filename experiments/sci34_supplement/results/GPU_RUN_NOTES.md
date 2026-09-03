@@ -133,3 +133,45 @@ A1 正式 run 前后 `nvidia-smi` 快照存于 `a1/nvidia_smi_before_formal.txt`
 - 红线遵守：未删任何失败工件/NPZ；未改 24 cases/32 continuation/top-k/BF16 阈值；
   未改 src/论文“配合结果”；结果（含 pilot 与失败工件）按用户留存规则 `git add -f`
   入库，tarball 与 E1/E2 轮惯例一致不入 git。
+
+## C2 v2 pilot 阻塞（2026-09-03，commit `a501df4`，**formal 未启动**）
+
+按 v2 `GPU_HANDOFF.md` 执行至 §5 pilot 后提前停止：pilot 暴露 v2 探针检查的确定性
+实现缺陷，formal 必然批量失败，按 pilot 预检定位与“失败停止”规则不进入 formal。
+
+- 已完成：§0 协议预检（PROTOCOL_VERSION==2）+ guard 279 文件（含 v1 归档 93 文件
+  只读）→ §1 冻结离线（pyproject/uv.lock hash 一致）→ §2 五模块 CLI + 五项 smoke
+  全 PASS（c2 smoke `protocol_version=2`、`checkpoint_sidecars=45`）→ §3 模型预检
+  （eos==eot==151645，template `79320228…`）→ §4 E3 抢救确认已归档跳过。
+- pilot：`c2pilot_a501df43_20260903T033106Z`（identity `5dcb0773…`）。3 cases 中
+  c2_02/c2_03 通过；**c2_01（natural_eos，genuine）失败**。
+- **缺陷定位**：`runtime.py` `_termination_probe` 末尾的检查分支
+  （`if case.termination == "eos_at_cap": … else: <max-token 检查>`）——该 `else`
+  同时捕获 `natural_eos`。genuine natural_eos（observed=EOS、role_phase=
+  ASSISTANT_EOT_PENDING、content<cap）与 max-token 断言（MAX_TOKENS/ASSISTANT_OPEN/
+  content==cap）必然互斥，于是每个 genuine case 都被记 3 条
+  “small-budget/MAX_TOKENS/ASSISTANT_OPEN”错误并 `passed=false`；runner
+  `_assert_probe_qualified`（run.py:128 `not probe.errors`）随即抛出
+  “common invariants failed”。而 run.py:137-144 与 validate.py:106-109 的语义
+  正确（genuine → 期望 EOS+EOT_PENDING），即 runtime 与 runner/validator/spec 三方
+  中仅 runtime 一处分支写反。fake smoke 不产生 genuine EOS，故 24-case smoke 无法
+  捕获。
+- pilot 证据（c2_01 probe 摘录）：`{declared: natural_eos, mode: real_greedy,
+  cap: 256, observed_end_reason: EOS, eos_step: 21, genuine_eos: true,
+  requalified: false, role_phase: ASSISTANT_EOT_PENDING, content_token_count: 20,
+  errors: [3 条 max-token 错误], passed: false}`。
+- **formal 影响面（确定性）**：v1 同模型同 seed 下 10 个 natural_eos case 中 6 个
+  在 ≤128 即 EOS（21/8/20/111/98/80，均 ≤256 → v2 全为 genuine）；另 4 个 128 内
+  run-on 在 cap 256 下可能转 genuine。故 formal 至少 6/24、至多 10/24 case 必然
+  probe 失败；且 campaign 级 `natural_eos_min_genuine≥5` 与“每个 genuine case 都
+  失败”不可同时满足——协议在当前代码下不可通过。
+- **建议修复方向（未实施，代码由设计侧提供）**：runtime.py 该处 `else:` 应改为
+  仅对 `max_tokens` 声明执行（如 `elif case.termination == "max_tokens":`）；
+  natural_eos 的 genuine/requalified 两条路径已分别在 665-674 与 675-676 自洽校验。
+  修复后 genuine 探针 0 错误、requalified 保持 675-676 一致性检查。
+- v2 等价门槛本身在 pilot 已验证工作正常：3 cases 全部 checkpoint
+  `logit_gates.all_ok=true`（相对噪声限 + 绝对安全上限 + margin + backstop +
+  continuation 全过；例：c2_01 post_recovery path max_abs 0.289 vs 对照噪声 0.3125，
+  限 2×0.3125=0.625），noise_control 臂与 checkpoints sidecar 落盘正常。
+- 工件：pilot 目录全留（含 checkpoints/ sidecar 与失败 record）；工作树零改动
+  （未修任何代码）；本轮不产生 formal/tarball/ACCEPTANCE。

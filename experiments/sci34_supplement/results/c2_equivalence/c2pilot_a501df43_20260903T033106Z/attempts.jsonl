@@ -1,0 +1,3 @@
+{"attempt": 1, "case_id": "c2_01_p0_short_eos", "completed_ns": 19957340943146059, "passed": false, "pid": 37761, "process_start_id": "pid-37761-1788406321089665678-fdda93899b244339a825de0833d36eab", "started_ns": 19957333174192174, "status": "completed"}
+{"attempt": 1, "case_id": "c2_02_clean_short_max", "completed_ns": 19957344150564522, "passed": true, "pid": 37761, "process_start_id": "pid-37761-1788406321089665678-fdda93899b244339a825de0833d36eab", "started_ns": 19957340945480992, "status": "completed"}
+{"attempt": 1, "case_id": "c2_03_mid_short_cap", "completed_ns": 19957347389193780, "passed": true, "pid": 37761, "process_start_id": "pid-37761-1788406321089665678-fdda93899b244339a825de0833d36eab", "started_ns": 19957344153276864, "status": "completed"}

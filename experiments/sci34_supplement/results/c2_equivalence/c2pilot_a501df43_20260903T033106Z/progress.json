@@ -1,0 +1,11 @@
+{
+  "updated_at_utc": "2026-09-03T03:32:15.307741+00:00",
+  "status": "failed-preserved",
+  "completed_cases": 3,
+  "expected_cases": 3,
+  "failed_cases": [
+    "c2_01_p0_short_eos"
+  ],
+  "last_case": "c2_03_mid_short_cap",
+  "process_start_id": "pid-37761-1788406321089665678-fdda93899b244339a825de0833d36eab"
+}
