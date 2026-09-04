@@ -5,6 +5,18 @@
 
 ---
 
+## D-025（2026-09-04）落实内部初稿审阅并以 C2→E3→C1→C3 重组论文
+
+**决策**：接受 `paper2/review/paper2_internal_draft_review_2026-09-04.md` 的定位与报告意见，在不新增或重跑实验、不改 accepted/rejected verdict 的前提下，修改权威摘要与第一至八章。采用标题“级联式语音对话打断中的上下文状态修正：从软件播放游标和 TTS 片段到 KV 与角色恢复”；将研究问题与第六章顺序调整为 C2 核心→E3 downstream 支持→C-E2/C-E1 supporting characterization→A2 exploratory description。
+
+**口径收束**：C2 抽象为 external-progress-conditioned joint prefix-state repair 的四层合同，并只主张 direct crop integrity 与同一 accepted run 内的 within-run matched-arm recovery exactness；v1/v2 保持 rejected。E1/E2 改称同步分段文本 harness 中的 pre-oracle-acceptance candidate generation、endpoint candidate availability 和 pooled discarded-token ratio；C-E1 保持非 token-equivalent implementation-path comparison。E3 将“semantic group”更正为 target-specific exact-key grouping/deduplication，补齐 label-weighted estimand、dialogue/exact-key sensitivity 与 rule/judge 操作定义；A2 不再称负结果。
+
+**篇幅与工件**：第五、七、八章下沉重复的 run/hash/CRLF/项目管理信息，保留 `REPRODUCIBILITY.md` 稳定入口和紧凑环境表；英文摘要压至 296 词。`thesis_draft.md` 由 10 个权威源确定性重建并通过 `--check`，参考文献 [1]–[21] 均被正文引用。当前结论边界不需要新 GPU、声学或 HCI 实验。
+
+**状态**：accepted（论文内部审阅修订完成；作者/机构/目标期刊声明仍按既有边界待确认）
+
+---
+
 ## D-024（2026-09-03）完成二审统一修订并冻结两项离线 analysis v2
 
 **决策**：在 D-023 解除 GPU 阻塞后，不再新增或重跑实验；从 accepted raw 工件生成两个不覆盖历史分析的 versioned 离线结果，并以 `docs/paper2_revision_evidence_2026-09-03.md` 作为全文唯一数值/主张合同，统一修改权威摘要、第一至八章、参考文献、实验图和合并稿。

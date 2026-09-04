@@ -14,7 +14,7 @@ OpenAI Realtime API 的 `conversation.item.truncate` 允许客户端提交 `audi
 
 流式级联研究通常通过语义触发、增量推理或输入预测缩短等待。LTS-VoiceAgent 使用 semantic triggering 和 incremental reasoning 组织 Listen–Think–Speak 流程[4]。RelayS2S 采用双路径 response-level candidate prefix 与验证/续写机制[5]。Personalized Predictive ASR 从 partial ASR 预测完整输入，并预取下游响应；最终识别结果确认预测后采用缓存结果[18]。三者均构成“在输入最终确认前进行下游计算”的先例，但研究信号位于用户输入或候选响应侧，未公开由 assistant 播放游标触发的 token/KV 历史修正。
 
-本文的 supporting C1 与这类工作共享 compute-before-commit 思路，但术语和结论范围更窄。本文 speculation 指 pre-end-of-turn candidate-response generation with invalidation，不是固定 prompt 上由 draft model 与 target model 协作的 speculative decoding。`first_token_ready` 是 first-candidate-token selection/candidate compute-readiness；同步 harness 的 `endpoint_accept` 是 post-candidate oracle acceptance。该实验刻画候选存活、wasted tokens 和 oracle TTFT_eff 乐观下界，不证明 production consumer delivery、TTS admission 或 acoustic output 得到改善。
+本文的 supporting C1 与这类工作共享 compute-before-commit 思路，但术语和结论范围更窄。确认性实证对象是同步分段文本 harness 中的 **pre-oracle-acceptance candidate generation with invalidation**，而不是固定 prompt 上由 draft model 与 target model 协作的 speculative decoding，也不识别候选是否在真实 end of speech 之前就绪。`first_token_ready` 是 first-candidate-token selection/candidate compute-readiness；`endpoint_accept` 是候选处理后的同步 oracle acceptance。该实验刻画接受时候选可用率、pooled discarded-token ratio 和 oracle $\mathrm{TTFT}_{\mathrm{eff}}$ 乐观下界，不证明 production consumer delivery、TTS admission 或 acoustic output 得到改善。
 
 打断检测研究主要回答何时停止系统输出。FireRedChat 使用 streaming/personalized VAD 与 interruption control，并在确认打断后控制 TTS[7]。这种检测与本文的状态修正互补：前者产生或确认 interruption event，后者在事件到达后决定 software-fragment prefix 及相关模型状态如何保留。将两者区分可避免把“检测到打断”误写为“完成了多轮历史修复”。
 
@@ -28,7 +28,7 @@ PagedAttention 将 KV cache 组织为非连续固定大小块，并通过按需�
 
 IntentKV 处理 text-agent 的 cross-turn intent-aware KV pruning[9]；Speculative Interaction Agents 研究异步工具调用中的推测结果和作废控制[10]。这些工作表明，跨轮 KV 或推测状态可以受外部控制逻辑影响，但其信号来自文本意图或工具状态，不涉及 software-consumed samples、TTS fragment、assistant content span 与 chat role/EOT state 的联合恢复。
 
-本文的技术对象因而不是一种新的缓存数据结构，而是跨层状态合同。游标查询先给出 TTS 片段级软件保留边界，再定位 assistant token span；KV crop 必须与 attention mask、完整 token ledger、assistant content ledger、position 和 role/end state 同步。C2 v3 进一步以 independent slicing oracle 检查每层 K/V 的 direct crop integrity，并在 identical token-ID chunks 下检查 matched-recovery determinism。该证据只覆盖受测 snapshot/backend；它不建立 clean-reprefill numerical equivalence，也不能替代在线音频或跨引擎验证。
+本文的技术对象因而不是一种新的缓存数据结构，而是**外部进度条件下的联合前缀状态修正合同**。该合同包含四层：软件游标经 TTS 片段解析为合法 assistant commit boundary；KV、attention mask、完整 token ledger、assistant content span、position 和 role/EOT 构成联合状态；crop 与 close/reopen 必须保持联合不变式；direct slicing oracle、wrong-length negative control 和 matched recovery 提供可证伪检查。C2 v3 检验的仅是每层 K/V 的 direct crop integrity，以及同一 accepted run 内从匹配保留状态出发、接收相同 token-ID chunks 与操作序列时的 matched-arm recovery exactness。该证据只覆盖受测 snapshot/backend，不建立 clean-reprefill numerical equivalence，也不能替代在线音频或跨引擎验证。
 
 ## 2.4 Targeted Public-Source Novelty Scan
 
@@ -71,7 +71,7 @@ IntentKV 处理 text-agent 的 cross-turn intent-aware KV pruning[9]；Speculati
 
 ## 2.5 本文定位
 
-相关工作支持三层贡献定位。第一，C2 是核心机制：其增量位于软件游标、TTS 片段、assistant token span、KV/mask/ledger/position 与 role/EOT state 的公开联结及 direct-integrity evidence，而不在 playback-history 原则或 KV crop primitive。第二，C1 是 supporting characterization：它报告 candidate selection/compute-readiness、post-candidate oracle acceptance、survival 与 wasted-token 工作点，不声称 speculative decoding 或 production latency improvement。第三，C3 是 exploratory extension：三种历史自然化实现及其受混杂负结果不构成策略优越性证据。
+相关工作支持分层而非并列的贡献定位。第一，C2 是唯一核心机制，其增量位于外部软件进度、合法提交边界、联合模型状态、角色/EOT 转换和 exact gates 的公开联结，而不在 playback-history 原则或 KV crop primitive。固定轨迹 E3 是 C2 的 downstream 支持性证据，只估计冻结检测器条件下的信息复现。第二，C1 是 supporting characterization：C-E2 报告 token-consistent B 路径内的 candidate selection/compute-readiness、同步 oracle acceptance、endpoint candidate availability 与 pooled discarded-token 工作点；C-E1 审计非 token-equivalent implementation paths，不声称 speculative decoding 或 production latency improvement。第三，C3 是 exploratory extension：A2 对三种历史自然化实现作受混杂的描述，不构成策略优越、负向或零效应证据。
 
 这一定位也限定了可推广性。当前证据适用于 software-consumed-sample cursor 和 TTS-fragment boundary，不适用于 device-presented 或 acoustically heard truth；C2 v3 适用于受测 Qwen2-7B snapshot/backend，不适用于 clean-reprefill equivalence 或跨引擎正确性；C1/E3 适用于同步受控 harness 与冻结 detector/judge 条件，不适用于真实异步语音闭环或 HCI 效果。
 

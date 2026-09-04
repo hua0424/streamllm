@@ -132,7 +132,7 @@ $$
 A=I[a_0:a_1].
 $$
 
-`RolePhase` 至少区分 user role 已打开、assistant role 已打开以及 `ASSISTANT_EOT_PENDING`。`GenerationEndReason` 显式记录 `NONE`、`EOS`、`MAX_TOKENS`、`CONSUMER_STOP` 或 `CROPPED`，不能再由生成长度或账本末 token 反推。
+当前受测适配器的 `RolePhase` 完整状态集合为 `USER_OPEN`、`ASSISTANT_OPEN` 和 `ASSISTANT_EOT_PENDING`。`GenerationEndReason` 显式记录 `NONE`、`EOS`、`MAX_TOKENS`、`CONSUMER_STOP` 或 `CROPPED`，不能再由生成长度或账本末 token 反推。
 
 当生成器选择结构性 EOT 时，该 EOT 只触发 `ASSISTANT_EOT_PENDING` 并把结束原因置为 `EOS`：它不进入 $A$、TTS 时间轴，也不作为 assistant 内容 token forward 进 $\mathcal{K}$。随后 `reopen_user_role()` 是提交 assistant close 的唯一入口；它恰好一次把模板推导出的结构性 EOT 与 user-open token 写入全局 ledger $I$ 和 KV。由此，预测 EOT 与结构 close 不会重复注入，同时结构 token 始终不计入 assistant 内容 span。
 
@@ -204,33 +204,44 @@ $$
 
 $L_{\mathrm{stop\to crop}}$ 已嵌套包含软件停播确认、播放器确认后的 CUDA/GPU 同步、$\Phi$ 查询和同步 KV 裁剪；$L_{\mathrm{stop\to role}}$ 又嵌套包含前者及角色恢复。各区间中位数不能相加，P1 与另一 campaign 的 A1 也不能通过相减解释系统开销。P1 只覆盖 9 个 cell、每 cell 20 次的 headless 软件路径；其 P95 是经验性、描述性的 order statistic，主要由每 cell 的一至两个上尾观测决定，不是生产 SLO。
 
-### 3.4.2 一致性指标
+### 3.4.2 固定检测器条件下的信息复现指标
 
-设固定首轮生成轨迹中 playback 片段边界之后、generation 条件额外保留的差异文本为 $W$，其后两轮回复集合为 $R$。固定轨迹 E3 在两种历史条件下使用完全相同的 $W$，并记录后续回复是否复现其中的信息。本文采用两种目标口径。
+设固定首轮生成轨迹中 playback 片段边界之后、generation 条件额外保留的差异文本为 $W$，其后两轮回复集合为 $R$。固定轨迹 E3 在两种历史条件下使用完全相同的 $W$，并记录后续回复是否复现其中的信息。每条对话设置 0.25、0.50、0.75 和 fragment boundary 四个软件游标注入位置，形成 `(dialogue, injection position)` 单元。本文采用两种目标口径。
 
 - **片段目标（fragment）**：$W_{\mathrm{frag}}$ 为片段级 software-cursor 端点之后的共享差异文本。只有当该目标非空时，配对记录才进入片段目标分析。
-- **字符比例—空白边界近似目标（proxy）**：$W_{\mathrm{proxy}}$ 将式（3-4）的命中片段文本尾部与 $W_{\mathrm{frag}}$ 拼接。该口径纳入片段内代理尾部，但不是设备或声学边界；其分析资格必须依据 $W_{\mathrm{proxy}}$ 自身是否非空确定。
+- **字符比例—空白边界近似目标（proxy）**：$W_{\mathrm{proxy}}$ 将式（3-4）的命中片段文本尾部与 $W_{\mathrm{frag}}$ 拼接。该口径纳入片段内代理尾部，但不是设备或声学边界；其分析资格依据 $W_{\mathrm{proxy}}$ 自身是否非空确定。
 
-引用判定使用固定词面规则与固定 `specific-reference-v3` Mistral judge。E3 的 estimand 是**固定检测器条件下的信息复现率**，不是人类语义真值或 HCI 效果。区间只表示在冻结规则、裁判、目标、轨迹、提示词与 40-token cap 条件下的 dialogue-sampling uncertainty，不包含检测器误差、提示词/模型变动或人类感知误差。
+fragment/proxy 与 lexical rule/`specific-reference-v3` judge 组成四个并列冻结的 target×detector 操作化单元。label-weighted 主 estimand 在每个单元内对所有 eligible `(dialogue, injection position)` 等权；dialogue-weighted 敏感性分析先在每条有效对话内平均，再对对话等权。target-specific exact-key 敏感性分析按 `id`、`trajectory_id`、playback/generation `history_key`、目标文本 SHA-256，以及 fragment 口径下的 `heard_token_end` 构造精确键并压缩重复权重；它不是语义相似性聚类或人工判重。
 
-同时，本文区分“software-cursor 条件是否写入局部完整游标外文本”这一结构合规问题和“共享差异文本是否在后续回复中复现”这一代理后果。前者是可由边界和文本长度直接检查的构造性性质；后者只能由固定规则或模型代理估计。结构检查不得与语义代理分析的分母合并。
+两种自动检测器的操作定义如下。
+
+| 项目 | 词面规则 | `specific-reference-v3` judge |
+|---|---|---|
+| 输入 | 目标文本 $W$ 与两轮回复合并文本 | `TARGET` 与以分隔符合并的两轮 `REPLY` |
+| 判据 | 从目标抽取数字、首字母大写且长度不少于 3 的非停用词，以及长度不少于 5 的非停用内容词；任一词边界命中，或长度不少于 6 的长词子串命中，即判阳性 | 判断 `REPLY` 是否使用、重复或引用 `TARGET` 中的具体信息；一般主题重合不计 |
+| 输出 | 布尔值 | greedy 解码首行 `YES`/`NO`；格式不合格时仅追加格式提醒并有界重试一次 |
+| 条件信息 | 规则不接收 playback/generation 标签 | prompt 不提供 condition identity |
+
+E3 的 estimand 因而是**固定检测器条件下的信息复现率**，不是人类语义真值或 HCI 效果。区间只表示在冻结规则、裁判、目标、轨迹、提示词与 40-token cap 条件下的 dialogue-sampling uncertainty，不包含检测器误差、提示词/模型变动或人类感知误差。
+
+同时，本文区分“software-cursor 条件是否写入局部完整游标外文本”这一结构合规问题和“共享差异文本是否在后续回复中复现”这一代理后果。前者是可由边界和文本长度直接检查的构造性性质；后者只能由固定规则或模型代理估计。结构检查不得与代理分析的分母合并。
 
 ### 3.4.3 效率指标
 
-推测浪费率定义为
+pooled discarded-token ratio 定义为
 
 $$
 \rho=\frac{\sum\text{作废的候选 token 数}}
 {\sum\text{作废的候选 token 数}+\sum\text{最终生成 token 数}}. \tag{3-9}
 $$
 
-式（3-9）的 pooled 口径与确认性 E1/E2 campaign 的正式 estimand 相同。八个数值阈值和一个 never-speculate 对照构成九个 B-path 工作点：
+式（3-9）只按 token 数刻画未被采用的候选工作量，不等同于 FLOPs、GPU 时间、能耗、显存带宽或硬件利用率意义上的计算浪费。该 ratio-of-sums 在每个 bootstrap replicate 内重新计算。八个数值阈值和一个 never-speculate 对照构成九个 B-path 工作点：
 
 $$
 \bigl(\rho(\theta),\mathrm{TTFT}_{\mathrm{eff}}(\theta)\bigr).
 $$
 
-阈值降低通常提高候选生成覆盖率，也可能增加作废计算。第六章同时报告各工作点的到达—首候选选择延迟与候选存活率；有限个测试点只能支持受控工作点刻画，不自动构成连续或严格单调的 Pareto 前沿。
+阈值降低通常提高候选生成覆盖率，也可能增加作废 token。第六章同时报告各工作点的到达—首候选选择延迟与**接受时候选可用率**：分子是 oracle 接受时存在可用候选的 condition records，分母是该条件的全部 records，而不是给定候选已经启动后的条件存活概率。有限个测试点只能支持受控工作点刻画，不自动构成连续或严格单调的 Pareto 前沿。
 
 KV 复用收益通过“重新预填充耗时中位数 / 同一计时区间联合执行 crop 与角色恢复的耗时中位数”描述。该比值只适用于 A1 的固定顺序和固定 32-token suffix 协议。本文以联合路径为主要分母，并把 crop-only、role-only 作为局部诊断；不以两个独立中位数之和替代联合路径中位数。
 
@@ -242,13 +253,13 @@ C-E1 比较一次性 full-string tokenization/full-prefill 的 System A 与 segm
 
 ### 3.4.5 指标与实验对应关系
 
-| 研究问题 | 主要指标 | 实验 |
+| 研究问题 | 主要指标或 gate | 实验 |
 |---|---|---|
-| 固定轨迹下两种历史边界的固定检测器条件信息复现率有何差异 | 片段目标、字符比例—空白边界近似目标 | E3 |
-| 推测阈值如何影响候选计算与 oracle 响应下界 | $\rho$、$L_{\mathrm{arr}\to\mathrm{cand}}$、候选存活率、$\mathrm{TTFT}_{\mathrm{eff}}$ | E2（同时作为 A3） |
-| 两条非 token-equivalent 实现路径在受控文本输入下的指标有何差异 | $L_{\mathrm{arr}\to\mathrm{cand}}$、诊断 markers、$\mathrm{TTFT}_{\mathrm{eff}}$、建模 mouth-to-ear | E1 |
-| KV 状态复用及软件控制路径的时延表现如何 | A1 固定协议下联合 crop+角色恢复/重新预填充耗时；P1 软件 stop 确认、反查及累计恢复端点 | A1、P1 |
-| 当前探索性运行中三种历史处理实现的表现如何 | 连贯性评分、重写耗时 | A2 |
+| RQ1：外部软件进度驱动的联合前缀状态修正是否满足受测性质，其协议成本如何 | direct crop integrity、within-run matched-arm recovery exactness；联合 crop+角色恢复与重新预填充耗时；软件 stop 与恢复端点 | C2 v3、A1、P1 |
+| RQ2：固定轨迹下两种历史边界的固定检测器条件信息复现率有何差异 | fragment/proxy × rule/judge；label-weighted 主 estimand 与 dialogue/exact-key 敏感性 | E3 |
+| RQ3：阈值如何影响同步 oracle 接受前候选的工作点 | $\rho$、$L_{\mathrm{arr}\to\mathrm{cand}}$、接受时候选可用率、$\mathrm{TTFT}_{\mathrm{eff}}$ | C-E2 |
+| RQ4：两条非 token-equivalent 实现路径有何差异 | $L_{\mathrm{arr}\to\mathrm{cand}}$、诊断 markers、$\mathrm{TTFT}_{\mathrm{eff}}$ | C-E1 |
+| RQ5：当前探索性运行中三种历史处理实现的描述性表现如何 | 连贯性评分、重写耗时 | A2 |
 
 ## 3.5 本章小结
 

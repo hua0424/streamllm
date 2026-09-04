@@ -21,10 +21,10 @@ SOURCES = [
     "chapter8_conclusion.md",
     "references.md",
 ]
-HEADER = """# 级联式语音对话中软件播放游标与 TTS 片段驱动的 KV 状态修正
+HEADER = """# 级联式语音对话打断中的上下文状态修正：从软件播放游标和 TTS 片段到 KV 与角色恢复
 
 > 全文合并草稿（自动生成，勿直接编辑；请修改分章 Markdown 后重新合并）。
-> 本文件已于 2026-09-03 依据 crossed E1/E2 analysis v2、E3 weighting/dedup analysis v2、accepted C2 v3 及二审意见统一更新。
+> 本文件依据 crossed E1/E2 analysis v2、E3 weighting/dedup analysis v2、accepted C2 v3 及内部审阅意见统一更新。
 """
 SEPARATOR = "\n---\n\n"
 

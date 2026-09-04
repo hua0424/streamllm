@@ -8,7 +8,7 @@
 
 **图 4-1　系统总体架构。** 输入侧以稳定 ASR 文本段驱动增量预填充和候选生成；输出侧将内容 token 流切分为 TTS 文本片段并登记音频块；打断侧依据 software-consumed-sample cursor 查询片段级保留边界，执行 KV 裁剪和角色恢复，并可选用历史自然化策略。
 
-系统遵循两项设计原则。第一，打断后的历史按软件游标对应的 TTS 片段边界保留；这一高层思想已有工程先例，本文的核心是把 software cursor、片段、assistant token span、KV、mask、token ledger、position、role 与 EOT 状态组成可检查的跨层契约。第二，话轮结束前生成的候选必须可作废、可计量并可由阈值调节。本文的 speculation 是 **pre-end-of-turn candidate-response generation with invalidation**，不是 draft-target speculative decoding。
+系统遵循两项设计原则。第一，打断后的历史按软件游标对应的 TTS 片段边界保留；这一高层思想已有工程先例，本文的核心是把 software cursor、片段、assistant token span、KV、mask、token ledger、position、role 与 EOT 状态组成可检查的跨层合同。第二，尚未提交的候选必须可作废、可计量并可由阈值调节。其架构目标是在自然话轮确认前预计算候选，但本文确认性实证仅识别同步分段文本 harness 中的 **pre-oracle-acceptance candidate generation with invalidation**，不是 draft-target speculative decoding，也不证明真实 end-of-speech 前就绪。
 
 这里的 playback-aware 不表示设备或声学观测。本文只取得软件播放器消费的采样游标；设备已呈现采样和用户声学上听到的内容需要设备时钟、loopback 或其他物理测量，均未由本方法实例化。
 
@@ -22,7 +22,7 @@ $$
 c_i=\operatorname{conf}(u_1\cdots u_i)\in[0,1],
 $$
 
-并以单一推测阈值 $\theta$ 控制话轮结束前的候选响应生成。当 $c_i\geq\theta$ 时，系统冻结推测前状态快照，打开 assistant role，并预生成不超过预算 $B$ 的候选内容 token。$B$ 限制单次误触发的计算成本。
+并以单一推测阈值 $\theta$ 控制候选响应生成。当 $c_i\geq\theta$ 时，系统冻结候选前状态快照，打开 assistant role，并预生成不超过预算 $B$ 的候选内容 token。$B$ 限制单次误触发的计算成本。在线系统可在自然端点确认前执行这一机制；本文实验则由后续同步 oracle 事件决定采用或作废。
 
 首个候选 token 被选择时触发内部回调；回调位于 token selection 之后、cache-update forward 与 generator yield 之前。因此该事件只表示 first-candidate-token selection / candidate compute-readiness，不表示 token 已获准交付、consumer 已观察、TTS 已接纳或已经产生声学输出。
 
@@ -43,7 +43,7 @@ $$
 
 **图 4-2　推测—作废状态机。** 新文本段到达会使先前候选作废并恢复至推测前 `USER_OPEN` 状态；真值话轮终点在候选处理之后执行 oracle acceptance。首候选选择、oracle 接受、诊断 deliverable marker 和 consumer marker 是不同事件。
 
-八个数值阈值加一个 never-speculate 对照得到九个有限工作点。它们描述同步受控 harness 中的候选计算、oracle 响应下界、存活率与浪费率，不预设曲线严格单调，也不证明异步在线系统的可交付时延改善。
+八个数值阈值加一个 never-speculate 对照得到九个有限工作点。它们描述同步受控 harness 中的候选计算、oracle 响应下界、接受时候选可用率与 pooled discarded-token ratio，不预设曲线严格单调，也不证明异步在线系统的可交付时延改善。
 
 ## 4.3 软件游标驱动的 KV 缓存管理
 
@@ -118,7 +118,7 @@ KV 是连续 token 状态，role 信息由 chat template 特殊 token 表达。�
 
 `reopen_user_role()` 是唯一的 close commit：它在 `ASSISTANT_OPEN`（因 crop/consumer stop/max-token 而结束）或 `ASSISTANT_EOT_PENDING`（生成器预测 EOT）状态下，恰好一次预填充模板推导出的 assistant-close 与 user-open 结构 token。由于预测 EOT 尚未进入 KV，这一路径不会产生重复 EOT。结构串进入全局 ledger、mask 和 KV，但不进入 assistant 内容 ledger。完成后进入 `USER_OPEN`，end reason 重置为 `NONE`。
 
-`GenerationEndReason` 是阶段状态而非永久日志。crop 后的 `CROPPED` 必须在新内容推进前可见；成功的 `prefill_user_text()`、`prefill_assistant_text()`、`open_assistant_role()` 或规范 reopen 会根据新阶段重置状态，其中 D-022 特别要求 user 内容一旦成功追加就清除陈旧 `CROPPED`。编排器另保存候选结束原因快照，避免为了保留审计信息而污染当前运行状态。
+`GenerationEndReason` 是阶段状态而非永久日志。crop 后的 `CROPPED` 必须在新内容推进前可见；成功的 `prefill_user_text()`、`prefill_assistant_text()`、`open_assistant_role()` 或规范 reopen 会根据新阶段重置状态。特别地，user 内容一旦成功追加就清除陈旧 `CROPPED`。编排器另保存候选结束原因快照，避免为了保留审计信息而污染当前运行状态。
 
 ![图 4-4](figures/fig4_4.png)
 
@@ -126,17 +126,17 @@ KV 是连续 token 状态，role 信息由 chat template 特殊 token 表达。�
 
 ### 4.3.4 C2 v3 direct crop-integrity 验证方法
 
-C2 的正式正确性方法采用 protocol v3 exact-only addendum，而不是 clean re-prefill 对照。固定 Qwen2-7B snapshot、BF16、SDPA 与 Transformers backend，设置 24 个 ordered cases，覆盖 512/2048/8192 token context、$p=0$、片段边界、中段吸附、reply tail、pending EOT、推测全作废、下一轮与第二次 crop。24 个 case 共产生 27 个 ordered crop events，其中包含 3 个 no-op event；冻结 assistant fixture 共 308 个内容 token，必须全部经 `generate_accumulating` 的 production 路径逐 token append，每个 token 对应一次受控 `_prefill_ids_p2` forward。
+C2 的正式 direct crop-integrity 与 within-run matched-arm recovery 验证采用 protocol v3 exact-only addendum，而不是 clean re-prefill 对照。固定 Qwen2-7B snapshot、BF16、SDPA 与 Transformers backend，设置 24 个 ordered cases，覆盖 512/2048/8192 token context、$p=0$、片段边界、中段吸附、reply tail、pending EOT、推测全作废、下一轮与第二次 crop。24 个 case 共产生 27 个 ordered crop events，其中包含 3 个 no-op event；冻结 assistant fixture 共 308 个内容 token，必须全部经 `generate_accumulating` 的 production 路径逐 token append，每个 token 对应一次受控 `_prefill_ids_p2` forward。
 
 每个 crop event 设三方 exact 比较：
 
 1. **pre-crop retained prefix**：crop 前从 production K/V 取得目标长度前缀的逐层 manifest；
 2. **production post-crop**：唯一调用生产 `crop_to_token()` 后的状态；
-3. **independent slicing oracle**：从 crop 前 snapshot 独立 clone，并按推导出的 keep length 逐层切片，不调用生产 crop 接口。
+3. **production-interface-independent slicing oracle**：从同一 crop 前 snapshot clone，并按推导出的 keep length 逐层切片；它不调用生产 crop 接口，但不是外部团队或不同实现栈的独立复现。
 
 三方逐层比较 K/V 的 shape、dtype、device、SHA-256 和 runtime `torch.equal`，并要求 keep length、mask、完整 token ledger、sequence length 与 KV length exact。wrong-length disposable negative control 必须对每个 event 被拒绝，以证明 gate 能检测错误保留长度。
 
-crop 后，production arm 与 direct oracle 接收完全相同的 token-ID chunks，执行 60 个 matched-recovery steps。每一步要求 K/V、logits、mask、完整 token ledger、retained-prefix hashes，以及由操作序列独立推导的 role/end/content state bitwise/exact 一致。该设计验证的是受测 snapshot/backend 下的 direct crop integrity 与 matched-recovery determinism。
+crop 后，production arm 与 direct oracle 接收完全相同的 token-ID chunks，执行 60 个 matched-recovery steps。每一步要求 K/V、logits、mask、完整 token ledger、retained-prefix hashes，以及由操作序列独立推导的 role/end/content state bitwise/exact 一致。本文将 **within-run matched-arm recovery exactness** 定义为：同一 accepted run 内，两臂从精确匹配的保留状态出发，接受相同 token-ID chunks 与相同操作序列后逐步保持上述状态一致。它不表示跨进程、跨设备或相对 clean re-prefill 的 determinism。
 
 v1/v2 采用 canonical clean re-prefill 对照，均按冻结门槛 rejected。v2 虽然 24/24 termination probe 和 45/45 token/state/EOT/scenario gate 通过，但单控制的 2× numerical gate 仅 42/45。进一步审查发现 control 按语义 seam 分块并强制末 token 单独 forward，而 production 初始 context 和 role/content append 使用不同 forward topology，故该 control 不能识别三项数值失败来自 crop 还是拓扑差异。v3 没有把门槛事后放宽，也没有改判 v1/v2；它改问可由 exact slicing oracle 识别的问题。因此，v3 **不声称** crop+role 与 clean re-prefill 的数值、logit 或 continuation 等价，也不支持跨模型、dtype、backend、硬件、在线音频或生产端到端正确性。
 
@@ -152,7 +152,7 @@ v1/v2 采用 canonical clean re-prefill 对照，均按冻结门槛 rejected。v
 
 - **朴素策略**：直接保留片段级 assistant 前缀。
 - **标记策略**：在保留前缀后追加省略号等打断标记。它不调用额外模型，但仍产生少量 tokenization 和预填充开销。
-- **重写策略**：使用 Qwen3-0.6B 将保留前缀自然收束，并在提示词中要求不新增事实。该要求是设计约束而非形式保证；KV 需要回退到本轮 assistant 起点，再预填充重写文本。
+- **重写策略**：使用 Qwen3-0.6B[16] 将保留前缀自然收束，并在提示词中要求不新增事实。该要求是设计约束而非形式保证；KV 需要回退到本轮 assistant 起点，再预填充重写文本。
 
 重写可以在下一轮用户输入期间异步执行，因此具有隐藏部分延迟的潜力；当前实现和实验未测量真实重叠比例。现有 A2 为三种策略分别重新采样首轮和下一轮回复，未隔离策略效应，所以研究问题仅描述当前探索性运行的连贯性分数与重写耗时，不回答“是否改善”。
 
@@ -162,8 +162,8 @@ v1/v2 采用 canonical clean re-prefill 对照，均按冻结门槛 rejected。v
 
 C-E1 的两条实现路径不是 token-equivalent：System A 对完整字符串一次 tokenization 并 full prefill；System B 对文本段分别 tokenization 并 incremental prefill。故 C-E1 估计整体 implementation-path difference，混合 tokenization、forward topology/shape、role boundary、kernel 与 Python scheduling，不能隔离纯增量预填充效应。正式输出检查只用于披露路径差异，不能据此过滤主延迟记录。C-E2 在相同 B path 内比较 B@0.92 与 never-speculate，输出 token 序列一致，因此具有更强的路径内可比性。
 
-固定轨迹 E3 使用 label-weighted estimand 与同一口径的 dialogue-cluster bootstrap，并另报 dialogue-weighted 与 unique-semantic-boundary sensitivity。它量化固定检测器条件下的信息复现率，不支持 superiority、equivalence、noninferiority、harm、absence-of-effect 或人类感知结论。
+固定轨迹 E3 使用 label-weighted estimand 与同一口径的 dialogue-cluster bootstrap，并另报 dialogue-weighted 与 target-specific exact-key deduplication sensitivity。四个注入位置为 0.25、0.50、0.75 和 fragment boundary；fragment/proxy 分别按目标字段非空确定资格。词面规则提取数字、首字母大写词和长度不少于 5 的非停用内容词；`specific-reference-v3` judge 对合并的两轮回复作 greedy `YES`/`NO` 判断，输入不暴露条件标签。二者均为冻结自动操作化而非人类 reference standard。E3 量化固定检测器条件下的信息复现率，不支持 superiority、equivalence、noninferiority、harm、absence-of-effect 或人类感知结论。
 
 ## 4.6 本章小结
 
-本章将辅助 C1 限定为话轮结束前候选生成的 selection/compute-readiness、post-candidate oracle acceptance 与浪费工作点刻画；把核心 C2 定义为 software cursor→TTS fragment→assistant token span→KV/mask/ledger/position/role/EOT 的状态契约。方法强制时间轴生产者顺序、不接受乱序写入；使用完整 token ledger、显式 `RolePhase` 和 `GenerationEndReason`；由 `ASSISTANT_EOT_PENDING` 与唯一 close commit 消除重复 EOT。C2 v3 以 24 cases、27 crop events 的三方 exact slicing 与 matched recovery 验证 direct crop integrity，不将已 rejected 的 clean-reprefill 协议改写为通过。最后，本章把 E1/E2 交叉重复、C-E1 非 token-equivalent 实现路径、A1/P1 协议边界及 A2 探索性定位纳入方法合同。
+本章将辅助 C1 限定为同步分段文本 harness 中 oracle 接受前候选生成的 selection/compute-readiness、post-candidate oracle acceptance 与 discarded-token 工作点刻画；把核心 C2 定义为 software cursor→TTS fragment→assistant token span→KV/mask/ledger/position/role/EOT 的状态合同。方法强制时间轴生产者顺序、不接受乱序写入；使用完整 token ledger、显式 `RolePhase` 和 `GenerationEndReason`；由 `ASSISTANT_EOT_PENDING` 与唯一 close commit 消除重复 EOT。C2 v3 以 24 cases、27 crop events 的三方 exact slicing 与 matched recovery 验证 direct crop integrity，不将已 rejected 的 clean-reprefill 协议改写为通过。最后，本章把 E1/E2 交叉重复、C-E1 非 token-equivalent 实现路径、A1/P1 协议边界及 A2 探索性定位纳入方法合同。

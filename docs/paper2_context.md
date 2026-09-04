@@ -426,6 +426,7 @@ for sentence_chunk in generate_sentences(
 
 | 日期 | 里程碑 | 产出 |
 |---|---|---|
+| 2026-09-04 | **内部初稿审阅意见落实（D-025）** | 标题改为“级联式语音对话打断中的上下文状态修正：从软件播放游标和 TTS 片段到 KV 与角色恢复”；RQ 与第六章按 C2→E3→C-E2→C-E1→A2 重组；C2 收窄为 direct crop integrity 与 within-run matched-arm recovery exactness，E1/E2/E3/A2 术语闭合；英文摘要 296 词；合并稿由权威源重建并通过一致性检查。无新增 GPU 实验。 |
 | 2026-05-21 | 一期代码审查完成 | Q1-Q8 全部回答，明确二期改造点与陷阱 |
 | 2026-05-21 | 技术选型完整收口 | 软触发选 TEN Turn Detection、重写选 Qwen3-0.6B、KV 走 DynamicCache.crop |
 | 2026-05-21 | 硬件与部署架构确定 | 验证机 5070 Ti / 实验机 3090×2，三 LLM 独立部署，分卡布局见 §3.6 |
