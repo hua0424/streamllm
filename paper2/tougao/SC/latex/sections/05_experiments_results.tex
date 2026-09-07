@@ -1,0 +1,131 @@
+\section{Experimental methodology and results}
+\label{sec:experiments}
+
+\subsection{Evidence hierarchy and environment}
+
+The evaluation follows the evidence hierarchy in Table~\ref{tab:evidence}. C2 is the core correctness study. A1 and P1 bound model-side repair cost and the prepared-state software control path. E3 probes a downstream automated outcome. C-E2 and C-E1 characterize candidate generation in a separate synchronous harness, while A2 is exploratory. These campaigns have different states and timing boundaries; their absolute times are neither pooled nor subtracted across campaigns.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Evidence hierarchy and measurement boundary.}
+\label{tab:evidence}
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+Study & Role & Principal limitation \\
+\midrule
+C2 v3 & Direct crop and recovery correctness & One snapshot/backend; no clean re-prefill \\
+A1/P1 & Fixed-protocol cost and software path & No device or acoustic stopping \\
+E3 & Automated downstream probe & No human reference standard \\
+C-E2 & Token-consistent candidate characterization & Synchronous oracle \\
+C-E1 & Whole implementation-path audit & Paths not token-equivalent \\
+A2 & Exploratory history naturalization & Generation trajectories confounded \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Data were derived from MultiWOZ 2.1 \citep{eric2020MultiWOZ21}. The principal model was Qwen2-7B-Instruct \citep{yang2024Qwen2}; TEN Turn Detection supplied turn confidence \citep{tenFramework2025TurnDetection}; Mistral-7B-Instruct-v0.3 supplied the E3 automated judgments \citep{jiang2023Mistral7B,mistralAI2024Mistral7BInstructV03}; a six-sentence CosyVoice2-0.5B profile parameterized deterministic Mock-TTS durations \citep{du2024CosyVoice2}; and Qwen3-0.6B was used by the exploratory rewriter \citep{yang2025Qwen3}. The implementation reused Whisper-based ASR \citep{radford2023RobustSpeechRecognition} and stream2sentence version 1.0.0 for output segmentation \citep{beigel2026Stream2Sentence}.
+
+The frozen runtime used Python 3.10.18, PyTorch 2.8.0+cu128, Transformers 4.57.1, CUDA 12.8, and cuDNN 9.10.2 on RTX 3090 GPUs with 24~GB memory. C2 used BF16 and SDPA. Confirmatory C-E1/C-E2 used two GPUs; other campaigns followed their own manifests.
+
+\subsection{C2 exact correctness}
+
+C2 v1 and v2 retain their rejected verdicts. The v2 structural checks passed, but its numerical gate passed only 42/45 comparisons and its clean-reprefill control did not match the production forward topology. It could therefore establish neither crop attribution nor clean-reprefill equivalence. C2 v3 posed the narrower, identifiable same-snapshot slicing and matched-recovery questions.
+
+\begin{table}[t]
+\centering
+\small
+\caption{C2 v3 exact-gate coverage.}
+\label{tab:c2}
+\begin{tabularx}{\linewidth}{@{}Yr@{}}
+\toprule
+Check & Result \\
+\midrule
+Cases / crop events & 24/24; 27/27 \\
+Production assistant append & 308 tokens \\
+K/V layers compared & 28 \\
+Recovery steps & 60/60 \\
+Wrong-length controls detected & 27/27 \\
+No-op crops & 3/3 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+For all 27 crop events, the retained pre-crop K/V prefix, production post-crop K/V, and slicing-oracle K/V agreed across 28 layers in shape, dtype, device, hash, and runtime \texttt{torch.equal}. The independently derived keep length, mask, global ledger, sequence length, and K/V length were exact. Across 60 recovery steps, matched arms remained exact in K/V, logits, mask, ledger, retained-prefix hash, and role/end/content state. All wrong-length controls were detected.
+
+These results support direct crop integrity and within-run matched-arm recovery exactness for the tested configuration. They do not revise the rejected v1/v2 verdicts and do not establish clean-reprefill numerical equivalence, continuation equivalence, cross-process or cross-device determinism, or end-to-end production correctness.
+
+\subsection{Fixed-protocol repair cost and software path}
+
+A1 compared synchronized joint crop-plus-role repair with complete re-prefill over 256--8192-token contexts. Each length used five warm-ups and 50 recorded repetitions, fixed operation order, and removal of a fixed 32-token suffix. Table~\ref{tab:a1} and Figure~\ref{fig:a1} show that joint-repair medians ranged from 31.054 to 48.315~ms. The median re-prefill-to-repair ratio increased from $2.254\times$ at 256 tokens to $40.620\times$ at 8192 tokens. This is a latency microbenchmark, not a state-equivalence test.
+
+\begin{table*}[t]
+\centering
+\small
+\caption{A1 synchronized repair microbenchmark; 50 repetitions per length.}
+\label{tab:a1}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrr@{}}
+\toprule
+Context length & 256 & 512 & 1024 & 2048 & 4096 & 8192 \\
+\midrule
+Joint median (ms) & 31.616 & 31.852 & 31.054 & 31.519 & 36.903 & 48.315 \\
+Joint IQR (ms) & 2.356 & 2.162 & 3.099 & 1.197 & 0.635 & 0.928 \\
+Re-prefill/joint & $2.254\times$ & $4.124\times$ & $7.707\times$ & $15.020\times$ & $25.453\times$ & $40.620\times$ \\
+\bottomrule
+\end{tabular*}
+\end{table*}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.82\linewidth,height=0.39\textheight,keepaspectratio]{Figure_5_cost_microbenchmark.pdf}
+\caption{A1 joint repair and re-prefill microbenchmark. Error bars show interquartile ranges across 50 repetitions.}
+\label{fig:a1}
+\end{figure}
+
+P1 crossed three context lengths (512, 2048, and 8192 tokens) with three cursor proportions (0.25, 0.50, and 0.75) and 20 repetitions per cell, for 180 prepared-state headless records. All 180 requests and acknowledgements reached the intended software cursor. A zero leaked-sample count means only that the software counter did not advance after acknowledgement. Cell medians were 0.055--0.062~ms for stop acknowledgement, 0.167--0.176~ms for post-acknowledgement GPU synchronization, 0.47--0.50~ms for timeline lookup, 2.44--2.53~ms from stop to crop completion, and 78.6--80.8~ms from stop to role recovery. The latter intervals are nested. With $n=20$ per cell, empirical P95 values are descriptive, not service-level objectives. Neither A1 nor P1 includes device/acoustic stopping, online TTS cancellation, or a complete concurrent barge-in path.
+
+\subsection{Downstream fixed-trajectory probe}
+
+E3 contained 100 dialogues, 400 paired dialogue--injection-position units, 800 condition records, and 1600 judge records. Each assistant trajectory was generated once; software-cursor and generation-retention conditions shared that trajectory, its fragment timeline, and four injection positions (0.25, 0.50, 0.75, and a fragment boundary). Fragment and character-ratio proxy targets were separately eligible when their respective target strings were non-empty. The fragment analysis contained 297 eligible labels from 96 dialogues; the proxy analysis contained 380 labels from all 100 dialogues. Eligibility and uncertainty are therefore target-specific rather than based on 400 independent observations.
+
+The primary estimand assigned equal weight to each eligible dialogue--position label and computed generation minus software-cursor retention. Confidence intervals used 10,000 paired dialogue-cluster bootstrap repetitions. A dialogue-weighted sensitivity first averaged within dialogue. Target-specific exact-key deduplication combined dialogue and trajectory identities, both history keys, and an exact target hash; the fragment key also included the retained token endpoint. It is not semantic clustering.
+
+The lexical detector matched numbers, selected capitalized terms, and non-stopword content terms. The \texttt{specific-reference-v3} Mistral judge received the target and two delimiter-joined replies without condition identity, and greedily produced a strict YES/NO decision. Neither detector is a human reference standard. The intervals quantify dialogue-sampling uncertainty conditional on the frozen trajectories, targets, detectors, prompts, and 40-token response cap; they do not include detector error or model/prompt variation.
+
+\begin{table}[t]
+\centering
+\small
+\caption{E3 label-weighted information-reproduction rates. The effect is generation minus software-cursor retention.}
+\label{tab:e3}
+\begin{tabularx}{\linewidth}{@{}llccY@{}}
+\toprule
+Target & Detector & Cursor rate & Generation rate & Effect [95\% cluster CI] (pp) \\
+\midrule
+Fragment & Lexical & 67.00\% (199/297) & 63.64\% (189/297) & $-3.37$ [$-10.49$, 3.40] \\
+Fragment & Judge & 42.76\% (127/297) & 40.74\% (121/297) & $-2.02$ [$-10.70$, 6.13] \\
+Proxy & Lexical & 75.26\% (286/380) & 73.68\% (280/380) & $-1.58$ [$-6.08$, 2.67] \\
+Proxy & Judge & 43.95\% (167/380) & 41.32\% (157/380) & $-2.63$ [$-8.57$, 2.90] \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Figure~\ref{fig:e3} shows the four label-weighted main-analysis estimates and intervals. Sensitivity results are summarized below. Exact-key deduplication reduced 297 fragment labels to 169 groups and 380 proxy labels to 379 groups. Dialogue weighting yielded effects from $-3.21$ to $-1.30$ percentage points; exact-key effects ranged from $-2.96$ to 0.00 percentage points. All corresponding intervals crossed zero. The four primary estimates therefore establish neither advantage nor harm, and they do not establish equivalence, non-inferiority, absence of a difference, or human-semantic effects.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth,height=0.34\textheight,keepaspectratio]{Figure_6_e3_intervals.pdf}
+\caption{E3 generation-minus-software-cursor effects. Four points and their 95\% dialogue-cluster confidence intervals show the label-weighted main analysis only.}
+\label{fig:e3}
+\end{figure}
+
+\subsection{Candidate-generation characterization}
+
+Confirmatory C-E1/C-E2 used 100 unique holdout utterances, five independently initialized process sessions, and ten conditions. Each condition contained 500 session--utterance observations, but the content sampling unit remained 100 utterances. Formal inference used 10,000 crossed/product bootstrap repetitions by independently resampling sessions and utterances and evaluating their Cartesian-product multiplicities.
+
+The harness delivered pre-segmented text synchronously. It excluded real audio, ASR wall-clock time, online turn-detector computation, TTS, playback, and a sound card. \texttt{first\_token\_ready} followed candidate-token selection but preceded cache-update completion and generator yield, so it is reported as candidate selection/readiness. \texttt{endpoint\_accept} was a post-candidate synchronous oracle, not a natural endpoint detector. The effective-TTFT quantity is therefore an optimistic oracle lower bound.
+
+C-E2 compared the token-consistent B@0.92 and never-trigger paths. Candidate selection/readiness remained between 62.0 and 62.4~ms across all nine B-path points. At B@0.92, candidate availability at oracle acceptance was 67\% (335/500), with crossed 95\% CI [58\%, 76\%], and the pooled discarded-token ratio was 2.85\% [1.12\%, 4.73\%]. The latter is a ratio of token counts, not FLOPs, GPU time, energy, or bandwidth. Relative to never trigger, the readiness difference (never minus B@0.92) was $-0.03$~ms [$-0.64$, 0.61], while the oracle-latency lower-bound difference was $+20.80$~ms [17.85, 23.65]. Across the nine discrete points, lower thresholds increased candidate availability and the pooled discarded-token ratio, while arrival-to-candidate readiness remained between 62.0 and 62.4~ms. These findings characterize generation before synchronous oracle acceptance; they do not show readiness before real end of speech.
+
+C-E1 compared full-string tokenization/full prefill with segment-wise tokenization/incremental forward. The readiness means were 27.70 and 62.38~ms, respectively, giving an A-minus-B difference of $-34.69$~ms [$-35.44$, $-33.95$]. Oracle lower-bound means were 27.70 and 10.26~ms, for $+17.44$~ms [14.41, 20.32]. Complete token outputs matched in only 280/500 pairs and diverged for at least one session in 44/100 utterances. The contrast therefore combines tokenization, forward topology/shape, role boundaries, kernels, and Python scheduling. It cannot identify an incremental-prefill effect, and selecting only output-matched pairs would be post-treatment selection.
+
+Finally, A2 generated 100 records per naturalization implementation. Mean automated coherence scores were 3.76 for naive retention, 3.62 for lightweight rewriting, and 3.29 for interruption marking. Rewriting took 639~ms on average (median 670~ms; interpolated P90 approximately 935~ms; maximum 1165~ms). Because the conditions regenerated both initial and subsequent responses and shared compatible retained text in only 33/100 dialogues, these values do not estimate a strategy effect. They are exploratory descriptions, not negative or null results.

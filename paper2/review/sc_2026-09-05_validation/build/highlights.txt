@@ -1,0 +1,5 @@
+A software cursor resolves a legal assistant-token commit boundary.
+KV, mask, token, position, role, and EOT state are repaired jointly.
+All 27 production crops matched direct layer-wise prefix slicing exactly.
+Matched recovery remained exact across 60 steps in the accepted run.
+Fixed-protocol repair avoided long-context re-prefill costs.

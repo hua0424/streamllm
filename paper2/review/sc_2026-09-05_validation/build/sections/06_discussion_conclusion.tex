@@ -1,0 +1,51 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{A joint state contract rather than a new crop primitive}
+
+The contribution is not playback-conditioned history truncation as a general principle or KV cropping as an isolated operation. Both have precedents. The contribution is an external-progress-conditioned joint prefix-state contract that specifies how an observed software playback position becomes a legal language-model commit boundary and how every prefix-dependent representation is repaired at that boundary.
+
+C2 provides direct evidence for the state-repair part of this contract at the tested fixture-defined boundaries, rather than for the complete speech-to-playback mapping. Under the frozen configuration, every production crop retained exactly the same 28-layer K/V prefix as direct slicing of its own pre-crop snapshot, all known wrong-length perturbations were detected, and matched subsequent operations preserved exact agreement within the accepted run. The evidence goes beyond checking cache length because it covers masks, token ledgers, assistant-content span, role phase, end reason, positions, and post-crop logits. It remains narrower than a clean reconstruction test. The v1/v2 protocols were not reinterpreted after failure; their forward-topology mismatch prevents attribution of their numerical differences to cropping. C2 v3 instead answers an identifiable same-snapshot integrity question.
+
+The most important implication is that transcript correction and cache correction cannot be separated. Text-only truncation can leave discarded content accessible through K/V state, while tensor-only cropping can leave masks, positions, role structure, or audit ledgers at an incompatible endpoint. Structural EOT requires particular care: treating a predicted EOT as assistant content and later adding another close marker silently changes the serialized conversation. Pending structural state and a unique close commit prevent that duplication.
+
+\subsection{Supporting results and their limits}
+
+A1 shows why retaining a validated prefix can be useful under its fixed protocol. Joint crop and role repair remained in a comparatively narrow time range as context grew, whereas re-prefill increased sufficiently for the median ratio to reach $40.620\times$ at 8192 tokens. The result is not an equivalence proof, and operation order and suffix length were fixed. P1 likewise describes a prepared-state headless path. Its software acknowledgement and crop endpoints do not include TTS cancellation, sound-card buffers, or acoustic stopping. Neither campaign supports a production end-to-end latency claim.
+
+E3 tested whether the selected boundary was followed by detectable information-reproduction differences under fixed automated measurements. All four generation-minus-software-cursor point estimates were negative, but their confidence intervals crossed zero and no substantive margin was prespecified. The result supports neither benefit nor harm and cannot establish equivalence or non-inferiority. Fragment targets depend on TTS segmentation; proxy targets add a character-ratio approximation; the lexical rule and single-model judge operationalize different constructs. Exact-key deduplication removes repeated key weights rather than identifying semantic duplicates. E3 is thus a bounded downstream diagnostic, not evidence of perceived coherence, trust, or dialogue quality.
+
+C-E2 separates candidate computation from acceptance. Its readiness contrast was near zero, whereas its synchronous-oracle lower-bound contrast was positive because an already existing candidate was assigned no post-acceptance wait. Candidate availability of 335/500 uses all condition records as its denominator, not only launched candidates. The discarded-token ratio measures token counts, not compute, energy, or memory traffic. C-E1 is still less isolating because its paths were not token-equivalent. Its timing contrast cannot be attributed to incremental prefill.
+
+The exploratory A2 scores combine different first replies, segmentation boundaries, and subsequent generations. They do not estimate the effect of naive retention, marking, or rewriting. Potential overlap between rewriting and user speech also remains an architectural possibility rather than a measured latency reduction.
+
+\subsection{Threats to validity}
+
+\subsubsection{Construct validity}
+
+The software cursor is not a device sample clock or a measurement of acoustic reception. Application queues, audio APIs, operating-system scheduling, drivers, device buffers, and propagation can separate the three boundaries. Consequently, P1's zero leaked software samples cannot be interpreted as zero device-level or acoustic leakage.
+
+The E3 targets and detectors are proxies. Without blinded human annotation or a user study, they do not measure perceived semantic fidelity, naturalness, conversational success, or trust. The synchronous candidate harness likewise measures program events rather than a natural end of speech.
+
+\subsubsection{Internal and conclusion validity}
+
+C2's exact gate covers a finite deterministic grid and is not an operational error-rate estimate. A1 fixes operation order and crop length. P1 has 20 observations per cell, so empirical P95 depends on one or two upper-tail values. E1/E2 reuse 100 utterances across five process sessions; crossed resampling reflects the two observed dimensions but not day-to-day, load, or deployment variability. C-E1 lacks token equivalence. E3 includes repeated exact keys for some targets, and its intervals do not incorporate detector, prompt, model, or human-judgment uncertainty.
+
+\subsubsection{External validity}
+
+The evidence is concentrated on English task-oriented MultiWOZ dialogues, Qwen2-7B-Instruct, a ChatML-like role structure, Transformers \texttt{DynamicCache}, BF16/SDPA, and RTX 3090 GPUs. Other languages, tokenizers, TTS segmentation, chat templates, precisions, attention backends, and inference engines may define different legal boundaries and state transitions. No experiment includes a real streaming-ASR, asynchronous-TTS, and audio-device loop, loopback waveform, network congestion, or production concurrency. Results therefore apply to the tested software runtime and protocols, not to acoustic stopping, mouth-to-ear latency, production delivery, or user experience.
+
+\subsection{Migration conditions}
+
+Migration requires more than a cache-cropping primitive. TTS must expose ownership between text fragments and audio chunks; playback must report an interpretable progress position; and the inference backend must retain or reconstruct a legal prefix while jointly updating masks, positions, token ledgers, content spans, role phase, and structural EOT. Each chat template requires its own serialization and close/reopen rules, and each backend requires renewed tests for legal crop points and recovery.
+
+An opaque audio stream requires additional alignment and buffering instrumentation. Word-level durations, device clocks, or loopback waveforms could move the observed boundary closer to device presentation or acoustic reception, but each would change the measured construct. Broader claims would additionally require an asynchronous endpoint gate, TTS admission and cancellation, shared-clock event traces, realistic buffering and concurrency, human annotation, and cross-language or cross-backend replication.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This study formulates barge-in context correction in a cascaded spoken-dialogue system as external-progress-conditioned joint prefix-state repair. A software-consumed-sample cursor is resolved through TTS fragments to a legal assistant-token commit boundary, after which the KV cache, attention mask, token ledger, positions, content span, role phase, and EOT state are transformed together.
+
+Under the frozen exact-only evaluation, production cropping was bitwise exact against layer-wise slicing of the same pre-crop snapshot, and matched recovery arms remained stepwise exact after receiving identical token chunks and operations. These findings support direct crop integrity and within-run matched-arm recovery exactness only. They do not overturn the rejected clean-reprefill protocols or establish cross-environment, acoustic, or production equivalence.
+
+The remaining campaigns bound rather than broaden that conclusion. Fixed-protocol measurements show the cost advantage of retaining a prefix over re-prefilling long contexts, while E3 did not determine a stable downstream direction across automated operationalizations. Candidate studies characterize a synchronous oracle and non-equivalent implementation paths rather than benefit before a real end of speech. The evidence therefore shows that external software progress can be converted into a checkable, internally consistent prefix-state transition. Extending that result to device presentation, acoustic reception, other model stacks, production latency, or human interaction requires direct evidence at each corresponding boundary.

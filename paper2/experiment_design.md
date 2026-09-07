@@ -1,5 +1,7 @@
 # 实验设计文档（Code Experiment Plan）
 
+> **2026-09-06 / D-027：获批 R/B 有限补证新入口**：`experiments/sci34_supplement/recovery_boundary/EXPERIMENT_PLAN.md`；执行交接 `GPU_HANDOFF.md`（同目录）。R 为 Qwen2-7B/BF16/SDPA 同策略可执行 crop vs full-rebuild 下一轮恢复，9 cases/4 sessions/320 arm-event records；B 为既有软件边界独立检查。GPU 待执行，代码未提交，正文与旧工件不变；下文“当前无 GPU 实验”保留为历史描述。
+
 ## 文档状态
 
 > 本文件是 2026-05-21 的历史实验预案，不再代表正式结果或最终统计口径。GPU 原始结果见 `experiments/results/exp*.json`；排除开发 fixture 后的离线完整性审计见 `experiments/results/paper2_reanalysis.json`；最终结论与限制以 `paper2/chapter6_experiments.md` 和决策 D-013～D-023 为准。C2 v1/v2 clean-reprefill 数值协议及 rejected 工件见 `experiments/sci34_supplement/c2_equivalence/`；D-023 已正式接受 protocol v3 crop-integrity run `c2crop_82103004_20260903T080512Z`，设计与严格主张边界见 `experiments/sci34_supplement/c2_crop_integrity/EXPERIMENT_PLAN.md`。当前无待执行 GPU 实验。下文中“单调前沿、完全隐藏、完整 barge-in 亚毫秒”等均是当时的预期或旧口径，不得作为已验证结论引用。

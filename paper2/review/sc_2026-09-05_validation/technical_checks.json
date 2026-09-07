@@ -1,0 +1,27 @@
+{
+  "bib_entries": 26,
+  "cited_keys": 26,
+  "missing_citations": [],
+  "uncited_entries": [],
+  "missing_refs": [],
+  "duplicate_labels": [],
+  "abstract_whitespace_words": 199,
+  "highlight_lengths": [
+    67,
+    68,
+    73,
+    68,
+    60
+  ],
+  "overfull": [],
+  "underfull": [
+    "Underfull \\hbox (badness 1436) in paragraph at lines 8--9",
+    "Underfull \\hbox (badness 1009) in paragraph at lines 18--20",
+    "Underfull \\hbox (badness 1552) in paragraph at lines 36--37",
+    "Underfull \\hbox (badness 10000) in paragraph at lines 152--159",
+    "Underfull \\hbox (badness 6708) in paragraph at lines 160--168",
+    "Underfull \\hbox (badness 5231) in paragraph at lines 181--189",
+    "Underfull \\hbox (badness 3029) in paragraph at lines 181--189"
+  ],
+  "warnings": []
+}

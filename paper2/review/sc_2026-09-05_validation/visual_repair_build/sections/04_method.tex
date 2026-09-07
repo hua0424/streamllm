@@ -1,0 +1,101 @@
+\section{Playback-conditioned joint prefix-state repair}
+\label{sec:method}
+
+\subsection{Fragment association and producer contract}
+
+Each timeline record contains
+\begin{equation}
+\langle f_j,[\operatorname{ts},\operatorname{te}),C_j,
+[\operatorname{ss},\operatorname{se}),s_j\rangle,
+\label{eq:timeline-record}
+\end{equation}
+where $C_j$ is the ordered list of audio chunks and $s_j$ is the fragment lifecycle state. Generation registers a frozen token span, TTS attaches chunks and advances the cumulative sample axis, and the player advances $p$. On interruption, $\Phi$ locates the hit fragment and returns its token endpoint (Figure~\ref{fig:timeline}).
+
+\begin{figure}[t]
+\centering
+\resizebox{0.96\linewidth}{!}{%
+\begin{tikzpicture}[
+  node distance=8mm,
+  box/.style={draw,rounded corners=2pt,text width=30mm,minimum height=10mm,align=center,font=\small},
+  flow/.style={-{Stealth[length=2.5mm]},thick}
+]
+\node[box] (tok) {Assistant token span\\$[\operatorname{ts},\operatorname{te})$};
+\node[box,right=of tok] (frag) {TTS text\\fragment $f_j$};
+\node[box,right=of frag] (audio) {Owned audio chunks\\$C_j$};
+\node[box,right=of audio] (sample) {Software samples\\$[\operatorname{ss},\operatorname{se})$};
+\draw[flow] (tok)--(frag);
+\draw[flow] (frag)--(audio);
+\draw[flow] (audio)--(sample);
+\draw[flow] (sample.north) -- ++(0,9mm)
+  -- node[above,font=\small]{cursor query $\Phi$} ([yshift=9mm]tok.north)
+  -- (tok.north);
+\end{tikzpicture}%
+}
+\caption{Fragment association record. A TTS fragment links one assistant-token span to its ordered audio chunks and cumulative software-sample interval.}
+\label{fig:timeline}
+\end{figure}
+
+The reverse query is valid only if write-side constraints hold. Fragment spans must be non-empty, monotonic, and contiguous. A fragment accepts audio only after its span is frozen, and no terminal fragment accepts further chunks. Every chunk identifier is globally unique. Sample intervals must be non-empty, ordered, and contiguous, while the software cursor is monotonic and cannot advance beyond registered samples. Out-of-order fragments, duplicate or misassigned chunks, gaps, overlaps, post-closure appends, and cursor regression are rejected rather than silently reordered.
+
+The chunker sees decoded text rather than token identifiers. To associate a fragment with a token endpoint, the method accumulates non-whitespace characters contributed by each decoded token and locates the fragment's non-whitespace length in that cumulative sequence. Whitespace-only fragments are skipped, endpoints are clamped to the observed content length, and the concatenated non-whitespace fragment sequence must equal the original decoded sequence. The procedure establishes a deterministic software boundary without claiming acoustic alignment.
+
+\subsection{Invalidatable candidate generation}
+
+Let a turn-completion model assign the cumulative stable transcript a confidence
+\begin{equation}
+c_i=\operatorname{conf}(u_1\cdots u_i)\in[0,1].
+\label{eq:trigger}
+\end{equation}
+When $c_i\geq\theta$, the system stores the current \texttt{USER\_OPEN} state as a pre-speculation snapshot, opens the assistant role, and generates at most $B$ candidate content tokens. The budget bounds the token volume of a false trigger.
+
+If another stable ASR segment arrives, the active candidate is fully invalidated. The joint state returns to the saved user-open endpoint, including removal of the assistant header, and discarded candidate tokens are counted. Immediately after the crop, \texttt{CROPPED} remains observable; successful prefill of new user text resets the current end reason. At the eventual endpoint event, a live candidate can continue or a fresh assistant role can be opened.
+
+The first-candidate callback follows token selection but precedes the cache-update forward and generator yield. It denotes internal selection/compute readiness only. It does not denote delivery authorization, TTS admission, device presentation, or acoustic output. The present harness uses a post-candidate synchronous oracle; an independent online delivery gate is outside the evaluated mechanism.
+
+\subsection{Joint crop and role recovery}
+
+Given a legal endpoint $N$, cropping shortens every K/V layer on its sequence dimension and truncates $M$, $I$, $A$, and $[a_0,a_1)$ to the same prefix. It assigns a role phase consistent with the retained structure and marks the current end reason as \texttt{CROPPED}. An endpoint inside structural role or EOT tokens is rejected.
+
+For playback interruption, the hit fragment and preceding fragments remain in $A$, while later content disappears from all cache and ledger representations. When no assistant content is retained, the assistant header remains and the role is still open. The role-reopening operation then appends the template-derived assistant-close and user-open sequence once. If that sequence contains $q$ tokens, the state after reopening satisfies
+\begin{equation}
+|I|=|M|=\operatorname{seq}(\mathcal{K})=N+q,
+\qquad |A|=\widehat H(p).
+\label{eq:post-reopen}
+\end{equation}
+The structural tokens enter $\mathcal{K}$, $M$, and $I$ but not $A$; the next user text begins at position $N+q$.
+
+Full candidate invalidation instead crops to the saved user-open endpoint before the assistant header and inserts no assistant close. The \texttt{CROPPED} state persists until the next user segment is appended. Figure~\ref{fig:state-repair} summarizes the playback case and the unique structural close.
+
+\begin{figure}[t]
+\centering
+\resizebox{0.92\linewidth}{!}{%
+\begin{tikzpicture}[
+  node distance=10mm,
+  box/.style={draw,rounded corners=2pt,text width=35mm,minimum height=12mm,align=center,font=\small},
+  flow/.style={-{Stealth[length=2.5mm]},thick}
+]
+\node[box] (before) {Generated state\\retained + discarded content};
+\node[box,right=of before] (crop) {Joint crop at $N$\\KV, mask, and ledgers};
+\node[box,right=of crop] (role) {Restore role phase\\and content span};
+\node[box,right=of role] (reopen) {Commit one close\\and next user-open};
+\draw[flow] (before)--(crop);
+\draw[flow] (crop)--(role);
+\draw[flow] (role)--(reopen);
+\node[below=7mm of crop,align=center,font=\small] {Selected EOT remains pending structural state; it is not assistant content.};
+\end{tikzpicture}%
+}
+\caption{Joint crop and role recovery. A unique close/reopen transition commits structural EOT without duplicating it in assistant content.}
+\label{fig:state-repair}
+\end{figure}
+
+Editing text without removing its K/V representation leaves the model conditioned on discarded content. Shortening K/V without truncating the mask and ledgers invalidates lengths and positions. Joint repair makes the same retained prefix inspectable in token space and model state. Here, joint consistency is specified at completed operation boundaries; it is not a claim of transactional atomicity for concurrent readers.
+
+\subsection{Exact validation}
+
+Direct crop integrity is evaluated by comparing three states at every crop event: the prefix extracted from the pre-crop production state, the state after one production crop, and a slicing oracle cloned from the same pre-crop snapshot. The oracle slices every K/V tensor directly to the derived length together with the mask and global token ledger; it does not call the production crop interface. It is nevertheless a same-snapshot oracle, not an external implementation or clean re-prefill reference. It tests preservation of a specified prefix, not whether the pre-crop state was semantically correct or whether a live audio cursor was mapped to the appropriate text. Those boundary assumptions require separate validation.
+
+The frozen grid contains 24 ordered cases covering 512-, 2048-, and 8192-token contexts; zero-content retention; exact and mid-fragment boundaries; reply-tail removal; pending EOT; full invalidation; a later user turn; and a second crop. The cases produce 27 crop events, including three no-ops. All 308 assistant fixture tokens are appended through the production accumulation path.
+
+For each event, the target length is derived from the case, fragment partition, and role/content boundaries rather than trusted from a recorded keep value. Validation compares per-layer K/V shape, dtype, device, SHA-256, and runtime element equality, together with the mask, token ledger, sequence length, content span, role phase, and end reason. A disposable wrong-length control must fail for each event.
+
+After cropping, the production and oracle arms receive identical token-ID chunks and role/state operations for 60 matched recovery steps. K/V, logits, masks, ledgers, retained-prefix hashes, and independently derived role/end/content states are compared after each step. We call this \emph{within-run matched-arm recovery exactness}. It means that two exactly matched retained states remain equal under the same operations in one accepted run. It does not mean determinism across processes, devices, versions, precisions, or backends, and it does not establish clean-reprefill or continuation equivalence.

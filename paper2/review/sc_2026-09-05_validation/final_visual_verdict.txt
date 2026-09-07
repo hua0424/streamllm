@@ -1,0 +1,7 @@
+Final visual verification — 2026-09-05
+Initial delegated judge inspected all 29 rendered pages without main-agent prescreening. Layout/content-display defects on pages 10, 12, and 20 were repaired, including related wording on page 18.
+A targeted delegated judge then inspected rendered_visual_repair/page-10.png, page-12.png, page-18.png, and page-20.png; all four returned pass.
+All manuscript pages now have no outstanding identified layout or figure-to-caption consistency defects from this gate.
+Submission-readiness failures remain on pages 1, 2, 25, and 26 solely for known author identity, affiliation, correspondence, and declaration placeholders. These were not replaced with invented information. This is NOT an unconditional all-pages acceptance or journal acceptance verdict.
+Official guide retrieval by main agent also returned HTTP 403; no live-policy verification is claimed.
+This final record supersedes 'awaiting targeted judge verification' status in earlier review/response records.

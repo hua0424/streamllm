@@ -426,6 +426,8 @@ for sentence_chunk in generate_sentences(
 
 | 日期 | 里程碑 | 产出 |
 |---|---|---|
+| 2026-09-06 | **获批 R/B 有限补证实现（D-027）** | 新增 recovery_boundary：同策略可执行 crop/full-rebuild 下一轮恢复 + 独立软件边界检查；冻结 Qwen2-7B/BF16/SDPA、9 cases/4 sessions/320 records，pilot 仅工程用途。B 100 trajectories/800 records/1118 cursors/27 C2 closures、本地 random CPU/既有 smoke 通过。生产与论文不改；代码未 commit/push，GPU 未执行。入口 `experiments/sci34_supplement/recovery_boundary/GPU_HANDOFF.md`。 |
+| 2026-09-05 | **SC 英文衍生稿审阅与限定澄清（D-026）** | 仅修 SC LaTeX：片段向上保留代价、joint/atomic 区分、C2 fixture 边界、E3 eligible clusters/条件不确定性；不改中文章节及实验工件。同上下文五视角模拟，不称独立 panel；官方 guide 403，期刊分区未知。作者声明/公开工件与独立视觉验收仍阻塞投稿，全文期刊贡献显著性仍需作者判断。 |
 | 2026-09-04 | **内部初稿审阅意见落实（D-025）** | 标题改为“级联式语音对话打断中的上下文状态修正：从软件播放游标和 TTS 片段到 KV 与角色恢复”；RQ 与第六章按 C2→E3→C-E2→C-E1→A2 重组；C2 收窄为 direct crop integrity 与 within-run matched-arm recovery exactness，E1/E2/E3/A2 术语闭合；英文摘要 296 词；合并稿由权威源重建并通过一致性检查。无新增 GPU 实验。 |
 | 2026-05-21 | 一期代码审查完成 | Q1-Q8 全部回答，明确二期改造点与陷阱 |
 | 2026-05-21 | 技术选型完整收口 | 软触发选 TEN Turn Detection、重写选 Qwen3-0.6B、KV 走 DynamicCache.crop |

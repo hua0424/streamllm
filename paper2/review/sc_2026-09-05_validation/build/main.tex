@@ -1,0 +1,80 @@
+\documentclass[preprint,12pt,authoryear]{elsarticle}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{adjustbox}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage{lmodern}
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage{lineno}
+\usepackage[
+  hidelinks,
+  pdftitle={Playback-Conditioned Joint Prefix-State Repair for Barge-In in Cascaded Spoken-Dialogue Systems},
+  pdfauthor={Author names to be confirmed},
+  pdfsubject={Context-state repair for barge-in in cascaded spoken-dialogue systems},
+  pdfkeywords={cascaded spoken dialogue, barge-in, playback cursor, prefix-state repair, KV cache, dialogue history}
+]{hyperref}
+\usepackage{url}
+
+\modulolinenumbers[5]
+\graphicspath{{figures/}}
+\setlength{\emergencystretch}{3em}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\softwarecursor}{software-consumed-sample cursor}
+\newcommand{\jointstate}{\mathcal{Z}}
+
+\journal{Speech Communication}
+
+\begin{document}
+\hypersetup{pageanchor=false}
+
+\begin{frontmatter}
+
+\title{Playback-Conditioned Joint Prefix-State Repair for Barge-In in Cascaded Spoken-Dialogue Systems}
+
+\author[aff1]{[AUTHOR NAME(S) TO BE CONFIRMED]\corref{cor1}}
+\ead{[CORRESPONDING AUTHOR EMAIL TO BE CONFIRMED]}
+\cortext[cor1]{Corresponding author.}
+\affiliation[aff1]{organization={[DEPARTMENT AND INSTITUTION TO BE CONFIRMED]},
+            addressline={[POSTAL ADDRESS TO BE CONFIRMED]},
+            city={[CITY TO BE CONFIRMED]},
+            postcode={[POSTCODE TO BE CONFIRMED]},
+            country={[COUNTRY TO BE CONFIRMED]}}
+
+\begin{abstract}
+Barge-in creates asynchronous progress across language-model generation, text-to-speech synthesis, and software playback in cascaded spoken-dialogue systems. We formulate the resulting context correction as external-progress-conditioned joint prefix-state repair. A software-consumed-sample cursor is resolved through text-to-speech fragments to a legal assistant-token commit boundary; the key--value cache, attention mask, token ledger, position progression, content span, role phase, and end-of-turn state are then transformed together. Under a frozen Qwen2-7B-Instruct, Transformers, BF16, and SDPA configuration, an exact-only evaluation covered 24 cases, 27 crop events, and 60 recovery steps. Every production crop was bitwise exact across 28 key--value layers against direct layer-wise slicing of the same pre-crop snapshot, all 27 wrong-length controls were detected, and matched recovery arms remained stepwise exact within the accepted run. A fixed-protocol microbenchmark measured 31.054--48.315~ms for joint crop and role repair over 256--8192-token contexts; the median re-prefill-to-repair ratio increased from 2.254 to 40.620. A downstream fixed-trajectory probe produced generation-minus-playback differences from $-3.37$ to $-1.58$ percentage points across four automated operationalizations, with all dialogue-cluster 95\% confidence intervals crossing zero. The evidence supports direct crop integrity and within-run matched-arm recovery exactness at a software boundary. It does not establish clean-reprefill equivalence, device or acoustic playback boundaries, human-semantic effects, or production end-to-end latency.
+\end{abstract}
+
+\begin{highlights}
+\item A software cursor resolves a legal assistant-token commit boundary.
+\item KV, mask, token, position, role, and EOT state are repaired jointly.
+\item All 27 production crops matched direct layer-wise prefix slicing exactly.
+\item Matched recovery remained exact across 60 steps in the accepted run.
+\item Fixed-protocol repair avoided long-context re-prefill costs.
+\end{highlights}
+
+\begin{keyword}
+cascaded spoken dialogue \sep barge-in \sep playback cursor \sep prefix-state repair \sep KV cache \sep dialogue history
+\end{keyword}
+
+\end{frontmatter}
+\hypersetup{pageanchor=true}
+
+\linenumbers
+
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_formulation}
+\input{sections/04_method}
+\input{sections/05_experiments_results}
+\input{sections/06_discussion_conclusion}
+\input{sections/07_declarations}
+
+\bibliographystyle{elsarticle-harv}
+\bibliography{references}
+
+\end{document}

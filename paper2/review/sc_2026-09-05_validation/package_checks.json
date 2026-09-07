@@ -1,0 +1,11 @@
+{
+  "standalone_build_pass": true,
+  "rendered_pages": 29,
+  "visual_gate": "NOT_RUN_NO_DELEGATION_TOOL",
+  "text_pages": 29,
+  "page_bound_text_violations": [],
+  "empty_pages": [],
+  "pdf_bytes": 523418,
+  "pdf_sha256": "ac13422abc1f79f0e59401b84fe428837ea335591ba0b4d449a59f8fc1cd12d6",
+  "archive_sha256": "e3c394778dda63562a093e5df5f85db1ea741407cbea426d1f13ea5c9076f642"
+}

@@ -1,0 +1,124 @@
+\section{System model and problem formulation}
+\label{sec:formulation}
+
+\subsection{Cascaded streaming system}
+
+We consider a cascaded spoken-dialogue system
+\begin{equation}
+\mathcal{S}=\langle\mathrm{ASR},\mathrm{LLM},\mathrm{CHK},\mathrm{TTS},\mathrm{PLY}\rangle,
+\label{eq:system}
+\end{equation}
+whose components communicate incrementally. Streaming ASR converts an utterance into stable text segments $U=\langle u_1,u_2,\ldots\rangle$. Downstream processing consumes only final segments rather than mutable partial hypotheses. The LLM incrementally prefills these segments and generates assistant content $Y=\langle y_0,\ldots,y_{G-1}\rangle$, where $G$ is the current content endpoint.
+
+A chunker partitions decoded assistant output into complete text fragments $F=\langle f_1,\ldots,f_m\rangle$ for TTS. Each fragment owns a contiguous, half-open interval on the assistant-content token axis:
+\begin{align}
+f_j&\mapsto[\operatorname{ts}(f_j),\operatorname{te}(f_j)), \label{eq:fragment-span}\\
+\operatorname{ts}(f_1)&=0,\qquad
+\operatorname{ts}(f_{j+1})=\operatorname{te}(f_j). \nonumber
+\end{align}
+A fragment is the atomic unit of retention because the system has no word-, phoneme-, or token-level alignment between synthesized audio and text. Streaming TTS transforms each fragment into one or more audio chunks. Once registered, fragment $f_j$ occupies the cumulative sample interval $[\operatorname{ss}(f_j),\operatorname{se}(f_j))$ at sampling rate $r$. The player reports a cursor $p\in\mathbb{N}$ with counting semantics: $[0,p)$ has been consumed in software.
+
+Figure~\ref{fig:architecture} gives the processing path. ASR segments $u_i$ and TTS fragments $f_j$ are distinct: the former drive input-side prefill, while the latter associate assistant tokens with synthesized samples.
+
+\begin{figure}[t]
+\centering
+\resizebox{0.96\linewidth}{!}{%
+\begin{tikzpicture}[
+  node distance=7mm,
+  box/.style={draw,rounded corners=2pt,text width=25mm,minimum height=9mm,align=center,font=\small},
+  flow/.style={-{Stealth[length=2.5mm]},thick},
+  repair/.style={-{Stealth[length=2.5mm]},thick,dashed}
+]
+\node[box] (asr) {Stable ASR\\segments};
+\node[box,right=of asr] (llm) {Incremental LLM\\and KV state};
+\node[box,right=of llm] (tts) {TTS fragments\\and audio chunks};
+\node[box,right=of tts] (ply) {Software\\playback cursor};
+\node[box,below=12mm of llm,text width=36mm] (repair) {Joint prefix-state repair\\KV, mask, ledger, role/EOT};
+\draw[flow] (asr)--(llm);
+\draw[flow] (llm)--(tts);
+\draw[flow] (tts)--(ply);
+\draw[repair] (ply.south) |- node[pos=0.25,right,font=\small]{barge-in} (repair.east);
+\draw[repair] (repair.north)--(llm.south);
+\end{tikzpicture}%
+}
+\caption{Cascaded architecture and interruption-time state repair. The cursor is a software-level signal; the figure does not imply a device or acoustic boundary.}
+\label{fig:architecture}
+\end{figure}
+
+\subsection{Software retention boundary}
+
+At time $t$, let $G(t)$ denote the generated-content endpoint and $S(t)$ the largest token endpoint registered on the TTS/software timeline. Because $p(t)$ lies on a sample axis, it cannot be compared directly with $G(t)$ or $S(t)$. If $p$ lies within fragment $f_k$ under the counting convention
+\begin{equation}
+\operatorname{ss}(f_k)<p\leq\operatorname{se}(f_k),
+\label{eq:cursor-hit}
+\end{equation}
+the fragment-level retention boundary is
+\begin{equation}
+\widehat H(p)=\operatorname{te}(f_k).
+\label{eq:retention}
+\end{equation}
+When the cursor falls inside $f_k$, the boundary is deliberately rounded upward to the complete fragment endpoint. This policy retains the hit fragment's unconsumed tail as well as its consumed prefix; it does not recover an exact transcript of consumed audio. Excluding the hit fragment instead would remove material already consumed in software. Whole-fragment retention is therefore an explicit granularity tradeoff, not an empirically established optimal policy. A separate partial flag records the intra-fragment hit without correcting that approximation. For $p=0$, $\widehat H(0)=0$. A cursor beyond registered audio is clamped to the last fragment with an audio record.
+
+Under the producer-order assumption that playback consumes only registered fragments and fragments enter the timeline in generation order,
+\begin{equation}
+\widehat H(p(t))\leq S(t)\leq G(t).
+\label{eq:progress-order}
+\end{equation}
+This is an application-timeline invariant, not a model of acoustic propagation. The reverse query is
+\begin{equation}
+\Phi:p\mapsto f_k\mapsto
+[\operatorname{ts}(f_k),\operatorname{te}(f_k))\mapsto\widehat H(p).
+\label{eq:reverse-query}
+\end{equation}
+It is an association across samples, chunks, fragments, and token spans rather than an invertible alignment. Figure~\ref{fig:progress} illustrates the three progress quantities after they have been mapped to a common token domain.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[x=0.75\linewidth,y=1cm,font=\small]
+\draw[very thick] (0,0)--(1,0);
+\draw (0,0.16)--(0,-0.16) node[below=3pt] {$0$};
+\draw (0.24,0.16)--(0.24,-0.16) node[below=3pt] {$f_1$};
+\draw (0.48,0.16)--(0.48,-0.16) node[below=3pt] {$f_2$};
+\draw (0.72,0.16)--(0.72,-0.16) node[below=3pt] {$f_3$};
+\draw (1,0.16)--(1,-0.16) node[below=3pt] {$S(t)$};
+\draw[-{Stealth[length=2.5mm]},thick] (0.61,0.72)--(0.61,0.12)
+  node[above=2pt] {$p$};
+\draw[-{Stealth[length=2.5mm]},thick] (0.72,1.05)--(0.72,0.12);
+\node[above=2pt,align=center] at (0.72,1.22) {retained fragment boundary\\$\widehat H(p)=\operatorname{te}(f_3)$};
+\draw[thick,dashed] (1,0)--(1.08,0) node[right] {$G(t)$};
+\end{tikzpicture}
+\caption{Generated, registered, and software-consumed progress after conversion to the token domain. A cursor inside $f_3$ selects its complete fragment endpoint.}
+\label{fig:progress}
+\end{figure}
+
+For downstream analysis only, a partially consumed fragment tail is approximated from the character ratio
+\begin{equation}
+\alpha(p)=\frac{p-\operatorname{ss}(f_k)}{\operatorname{se}(f_k)-\operatorname{ss}(f_k)}.
+\label{eq:alpha}
+\end{equation}
+The raw split $\operatorname{round}(\alpha(p)L_k)$ for fragment length $L_k$ is moved backward to the nearest whitespace boundary. This proxy is not used as a crop point and is neither token-linear nor an acoustic alignment.
+
+\subsection{Persistent joint prefix state}
+
+Interruption repair is not an operation on a KV object alone. We define the persistent state as
+\begin{equation}
+\jointstate=\langle\mathcal{K},M,I,A,\varphi,e,a_0,a_1\rangle,
+\label{eq:joint-state}
+\end{equation}
+where $\mathcal{K}$ is the dynamic KV cache, $M$ is the attention mask, $I$ is the complete token-ID ledger, $A$ is the current assistant-content ledger, $\varphi$ is the role phase, $e$ is the generation end reason, and $[a_0,a_1)$ is the absolute assistant-content span. Every stable state satisfies
+\begin{equation}
+|I|=|M|=\operatorname{seq}(\mathcal{K}),\qquad A=I[a_0:a_1].
+\label{eq:invariants}
+\end{equation}
+Positions for subsequent prefill are derived from the actual cache length after each operation.
+
+The role phase belongs to three states: \texttt{USER\_OPEN}, \texttt{ASSISTANT\_OPEN}, and \texttt{ASSISTANT\_EOT\_PENDING}. The end reason explicitly distinguishes none, model-selected EOT, maximum-token termination, consumer stop, and cropping. A selected structural EOT moves the role to \texttt{ASSISTANT\_EOT\_PENDING} and records EOS, but is not forwarded into $\mathcal{K}$, appended to $A$, or admitted to TTS. A later role-reopening operation is the only close commit and appends exactly one template-derived assistant-close sequence followed by user-open tokens.
+
+For playback interruption, the relative boundary is converted to the absolute endpoint
+\begin{equation}
+N=a_0+\widehat H(p).
+\label{eq:absolute-crop}
+\end{equation}
+The repaired state must shorten K/V, mask, global ledger, assistant ledger, and content span to one semantic boundary; remove all access to discarded content; continue positions from the retained prefix; and assign role/end state consistent with the retained token sequence.
+
+Two zero-content cases are distinct. A playback interruption with $\widehat H(p)=0$ crops to $a_0$, preserving the assistant header and an open assistant role before normal closure. Full invalidation of an unaccepted candidate instead returns to the pre-speculation \texttt{USER\_OPEN} endpoint and removes both the assistant header and candidate content. Conflating the two cases either manufactures an empty assistant turn or erases a turn that already entered the output path.

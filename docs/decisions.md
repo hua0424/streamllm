@@ -5,6 +5,28 @@
 
 ---
 
+## D-027（2026-09-06）实现获批 R/B 有限补证，不修改论文
+
+**决策**：用户批准 SC 聚焦方案点 1/2 后，新增 `experiments/sci34_supplement/recovery_boundary/`。R 比较相同保留策略下 production crop 与可执行 full-rebuild 的 USER_OPEN、suffix/header-ready 及首 consumer-deliverable token；B 独立核验既有 E3 软件采样/fragment records 与 C2 fixture closure。旧 campaign/protocol/verdict 全部只读，中文/SC 正文不动。
+
+**冻结**：历史 manifest 实证为 Qwen2-7B-Instruct（非 Qwen2.5）、BF16、SDPA、既有强模型指纹；默认单 3090 顺序运行。9 个非笛卡尔 cases，4 独立进程 sessions×4 pairs，共 320 arm-event records，含有限第二次打断；pilot 3 cases/1 session/8 records，仅工程估时。两臂 exact token/mask/role/length，数值只检查有限并保存差值，不要求 cross-topology BF16 bitwise/容差等价。配对 session-cluster CI 仅针对固定 fixtures，不能把 repeats/events 当独立样本。完整协议见目录 EXPERIMENT_PLAN.md。
+
+**工件与状态**：clean exact source commit gate、离线强模型身份、唯一目录、失败保留、NPY logits、source snapshot、旧工件前后 guard、validate/analyze/seal/verify/tar 已实现。GPU_HANDOFF.md 给出 pull/pilot/formal/回传步骤；本批未 commit/push，当前 GPU 安装/缓存未核验，正式与 pilot 均未执行。无生产 src 改动。实际本地测试包括 R/B random CPU smoke、B 100 trajectories/800 records/1118 cursors/27 closures、timeline、chunker、C2 fake smoke；均通过。GPU 正式证据仍 pending，不能预告优势或 accepted。
+
+**状态**：accepted（限定实验实现；结果待 GPU 执行及设计侧验收）
+
+---
+
+## D-026（2026-09-05）SC 投稿衍生稿边界澄清与技术校验
+
+**决策**：仅修改 Speech Communication 英文 LaTeX 衍生稿，不改中文权威章节、实验协议或既有工件，不新增或重跑 GPU。明确部分片段向上保留会包含软件尚未消费的尾部；将 joint consistency 与并发事务 atomicity 分开；C2 证据限于 fixture-defined boundary 的 direct crop integrity / within-run matched-arm recovery exactness；补 E3 eligible dialogue counts 和 fixed-detector-conditioned uncertainty。
+
+**审阅限制**：`paper2/review/sc_review_2026-09-05.txt` 为同一模型、同一上下文的五视角模拟意见，不是独立审稿或合同验证的 panel。官方 guide 当日 WebFetch 返回 403，格式检查依据本地清单/模板；期刊分区及年份未知。SC full-length article 的贡献显著性仍存在实质性接受障碍，不能用文字澄清宣称补足真实语音或用户证据。作者元数据、公开工件/权利/声明与独立视觉验收仍待完成。
+
+**状态**：accepted（限定措辞修订；不代表投稿就绪或期刊接受，构建结果见 dated response record）
+
+---
+
 ## D-025（2026-09-04）落实内部初稿审阅并以 C2→E3→C1→C3 重组论文
 
 **决策**：接受 `paper2/review/paper2_internal_draft_review_2026-09-04.md` 的定位与报告意见，在不新增或重跑实验、不改 accepted/rejected verdict 的前提下，修改权威摘要与第一至八章。采用标题“级联式语音对话打断中的上下文状态修正：从软件播放游标和 TTS 片段到 KV 与角色恢复”；将研究问题与第六章顺序调整为 C2 核心→E3 downstream 支持→C-E2/C-E1 supporting characterization→A2 exploratory description。

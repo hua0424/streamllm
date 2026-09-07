@@ -1,0 +1,23 @@
+{
+  "status": "AWAITING_TARGETED_JUDGE",
+  "judge_input": "User supplied completed review of all 29 previous PNG pages",
+  "editor_inspected_images": false,
+  "build_pass": true,
+  "standalone_zip_build_pass": true,
+  "archive_members": 16,
+  "archive_sources_byte_match": true,
+  "clean_archive": true,
+  "pages": 29,
+  "pdf_bytes": 523505,
+  "overfull": false,
+  "undefined_references": false,
+  "underfull_count": 7,
+  "png_paths": [
+    "D:/project/my/research/streamllm_p2/paper2/review/sc_2026-09-05_validation/rendered_visual_repair/page-10.png",
+    "D:/project/my/research/streamllm_p2/paper2/review/sc_2026-09-05_validation/rendered_visual_repair/page-12.png",
+    "D:/project/my/research/streamllm_p2/paper2/review/sc_2026-09-05_validation/rendered_visual_repair/page-18.png",
+    "D:/project/my/research/streamllm_p2/paper2/review/sc_2026-09-05_validation/rendered_visual_repair/page-20.png"
+  ],
+  "pdf_sha256": "d43dd840fec786e1ca3a5fa01ddb166901ac34a3ab9cb6208c7a25e9e9acb7c9",
+  "zip_sha256": "25e6bb66e2e4acc0de5af19e1894a39eddb0add8463d0e51a30af6d5e8cb839e"
+}

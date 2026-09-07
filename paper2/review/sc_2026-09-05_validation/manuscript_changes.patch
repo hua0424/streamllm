@@ -1,0 +1,125 @@
+--- before/GUIDE_FOR_AUTHORS_CHECKLIST.md
++++ after/GUIDE_FOR_AUTHORS_CHECKLIST.md
+@@ -2,7 +2,9 @@
+ 
+ Source checked: https://www.sciencedirect.com/journal/speech-communication/publish/guide-for-authors
+ 
+-Accessed: 2026-09-04
++Historical access recorded by the package: 2026-09-04.
++
++Verification attempt on 2026-09-05: the official URL returned HTTP 403 through WebFetch. The checklist below remains a local, previously recorded guide summary, not independently reverified current policy. Reconfirm article type, review model, data/declaration requirements and publication charges in an accessible official interface before submission.
+ 
+ ## Journal and article type
+ 
+--- before/latex/AUTHOR_CONFIRM.md
++++ after/latex/AUTHOR_CONFIRM.md
+@@ -26,6 +26,14 @@
+ - [ ] Permission to redistribute the derived E3 input, or remove it from the public package and revise the statement.
+ - [ ] Identify any result or log files that cannot be public and state the factual reason.
+ 
++## Review and verification gates (2026-09-05)
++
++- [ ] Recheck the official guide in an accessible environment; this session received HTTP 403.
++- [ ] Arrange a separate rendered-page visual review; PNG pages were generated but not inspected by the editing agent, and no delegated judge was available.
++- [ ] Verify reference metadata, current preprint/publication status and accessible novelty-search exports; successful BibTeX compilation does not verify sources.
++- [ ] Decide whether the bounded software-state contribution is sufficient for an SC full-length article. No device/acoustic, live speech-loop or human-benefit evidence was added; prose cannot resolve that significance concern.
++- [ ] If a quartile claim is needed, identify ranking system, subject category and year; these remain unknown.
++
+ ## Final submission checks
+ 
+ - [ ] Replace every `[AUTHOR CONFIRM: ...]` and title-page placeholder in `main.tex` and `sections/07_declarations.tex`.
+--- before/latex/README.md
++++ after/latex/README.md
+@@ -1,6 +1,6 @@
+ # Speech Communication LaTeX submission package
+ 
+-This directory contains an English Original Full-length Research Article prepared against the Speech Communication Guide for Authors accessed on 2026-09-04.
++This directory contains an English Original Full-length Research Article prepared using the local Speech Communication guide summary dated 2026-09-04. A fresh official-guide fetch on 2026-09-05 returned HTTP 403; current policy was not independently reverified. The 2026-09-05 revision clarifies manuscript claims but is not submission-ready: author placeholders, public artifact rights/availability and a separate visual gate remain unresolved.
+ 
+ ## Build
+ 
+--- before/latex/sections/01_introduction.tex
++++ after/latex/sections/01_introduction.tex
+@@ -1,7 +1,7 @@
+ \section{Introduction}
+ \label{sec:introduction}
+ 
+-Barge-in exposes a state-consistency problem that is specific to interactive speech systems. When a user begins speaking while an assistant response is playing, language-model generation, text-to-speech (TTS) synthesis, and software playback may have advanced to different positions. The language model may already have generated a suffix that the synthesizer has only partly converted and the player has not consumed. Committing the complete generated response can make the next turn depend on information outside the observed playback path. Discarding the whole assistant turn instead loses both the retained prefix and its computation. Stopping audio is therefore only one part of barge-in handling: a cascaded system must also decide which assistant prefix remains committed and make every representation of the conversation agree with that decision.
++Barge-in exposes a state-consistency problem that arises in interactive speech systems. When a user begins speaking while an assistant response is playing, language-model generation, text-to-speech (TTS) synthesis, and software playback may have advanced to different positions. The language model may already have generated a suffix that the synthesizer has only partly converted and the player has not consumed. Committing the complete generated response can make the next turn depend on information outside the observed playback path. Discarding the whole assistant turn instead loses both the retained prefix and its computation. Stopping audio is therefore only one part of barge-in handling: a cascaded system must also decide which assistant prefix remains committed and make every representation of the conversation agree with that decision.
+ 
+ This problem requires a precise account of progress. We distinguish \emph{software-consumed samples}, \emph{device-presented samples}, and \emph{acoustically heard content}. The first quantity is reported by playback software. The second additionally depends on application, operating-system, driver, and device buffers, while the third is further affected by transduction, propagation, and the listener's environment. This work observes only a software-consumed-sample cursor. Accordingly, ``playback-conditioned'' denotes state operations driven by this software cursor, not token-level knowledge of what reached the device or what a listener heard.
+ 
+--- before/latex/sections/02_related_work.tex
++++ after/latex/sections/02_related_work.tex
+@@ -15,7 +15,7 @@
+ 
+ Full-duplex speech models provide another reference. Moshi models concurrent speech and text streams to support overlapping interaction \citep{defossez2024Moshi}. Tighter stream coordination can avoid some boundaries introduced by independently deployed ASR, LLM, and TTS components, but model-stream position, device presentation, and acoustic reception remain distinct in the presence of queues and buffers. Comparisons must therefore name the observed boundary instead of inferring delivery from an architectural label.
+ 
+-Speech Communication has published low-latency, streaming, and conversational studies that clarify the journal-level context. Morrone et al. integrated speech separation and voice-activity detection for low-latency diarization \citep{morrone2024LowLatencyDiarization}; Edwards measured how telecommunications delay changes speaker-transition timing \citep{edwards2025TelecommunicationsLatency}; and Zheng et al. combined conversation history and hotwords for contextual prompting in conversational ASR \citep{zheng2026MultilevelContextualPrompting}. These works address speech processing, latency, and conversational context, respectively. None of them addresses playback-conditioned transformer-state rollback.
++Related studies connect streaming speech processing, conversational timing, and contextual inference. Morrone et al. integrated speech separation and voice-activity detection for low-latency diarization \citep{morrone2024LowLatencyDiarization}; Edwards measured how telecommunications delay changes speaker-transition timing \citep{edwards2025TelecommunicationsLatency}; and Zheng et al. combined conversation history and hotwords for contextual prompting in conversational ASR \citep{zheng2026MultilevelContextualPrompting}. These works address speech processing, latency, and conversational context, respectively. None of them addresses playback-conditioned transformer-state rollback.
+ 
+ \subsection{KV-cache management and cross-turn state}
+ 
+--- before/latex/sections/03_formulation.tex
++++ after/latex/sections/03_formulation.tex
+@@ -57,7 +57,7 @@
+ \widehat H(p)=\operatorname{te}(f_k).
+ \label{eq:retention}
+ \end{equation}
+-When the cursor falls inside $f_k$, the boundary is deliberately rounded upward to the complete fragment endpoint. A separate partial flag records the intra-fragment hit. For $p=0$, $\widehat H(0)=0$. A cursor beyond registered audio is clamped to the last fragment with an audio record.
++When the cursor falls inside $f_k$, the boundary is deliberately rounded upward to the complete fragment endpoint. This policy retains the hit fragment's unconsumed tail as well as its consumed prefix; it does not recover an exact transcript of consumed audio. Excluding the hit fragment instead would remove material already consumed in software. Whole-fragment retention is therefore an explicit granularity tradeoff, not an empirically established optimal policy. A separate partial flag records the intra-fragment hit without correcting that approximation. For $p=0$, $\widehat H(0)=0$. A cursor beyond registered audio is clamped to the last fragment with an audio record.
+ 
+ Under the producer-order assumption that playback consumes only registered fragments and fragments enter the timeline in generation order,
+ \begin{equation}
+--- before/latex/sections/04_method.tex
++++ after/latex/sections/04_method.tex
+@@ -73,7 +73,7 @@
+   flow/.style={-{Stealth[length=2.5mm]},thick}
+ ]
+ \node[box] (before) {Generated state\\retained + discarded content};
+-\node[box,right=of before] (crop) {Atomic crop at $N$\\KV, mask, and ledgers};
++\node[box,right=of before] (crop) {Joint crop at $N$\\KV, mask, and ledgers};
+ \node[box,right=of crop] (role) {Restore role phase\\and content span};
+ \node[box,right=of role] (reopen) {Commit one close\\and next user-open};
+ \draw[flow] (before)--(crop);
+@@ -86,11 +86,11 @@
+ \label{fig:state-repair}
+ \end{figure}
+ 
+-Editing text without removing its K/V representation leaves the model conditioned on discarded content. Shortening K/V without truncating the mask and ledgers invalidates lengths and positions. Joint repair makes the same retained prefix inspectable in token space and model state.
++Editing text without removing its K/V representation leaves the model conditioned on discarded content. Shortening K/V without truncating the mask and ledgers invalidates lengths and positions. Joint repair makes the same retained prefix inspectable in token space and model state. Here, joint consistency is specified at completed operation boundaries; it is not a claim of transactional atomicity for concurrent readers.
+ 
+ \subsection{Exact validation}
+ 
+-Direct crop integrity is evaluated by comparing three states at every crop event: the prefix extracted from the pre-crop production state, the state after one production crop, and a slicing oracle cloned from the same pre-crop snapshot. The oracle slices every K/V tensor directly to the derived length together with the mask and global token ledger; it does not call the production crop interface. It is nevertheless a same-snapshot oracle, not an external implementation or clean re-prefill reference.
++Direct crop integrity is evaluated by comparing three states at every crop event: the prefix extracted from the pre-crop production state, the state after one production crop, and a slicing oracle cloned from the same pre-crop snapshot. The oracle slices every K/V tensor directly to the derived length together with the mask and global token ledger; it does not call the production crop interface. It is nevertheless a same-snapshot oracle, not an external implementation or clean re-prefill reference. It tests preservation of a specified prefix, not whether the pre-crop state was semantically correct or whether a live audio cursor was mapped to the appropriate text. Those boundary assumptions require separate validation.
+ 
+ The frozen grid contains 24 ordered cases covering 512-, 2048-, and 8192-token contexts; zero-content retention; exact and mid-fragment boundaries; reply-tail removal; pending EOT; full invalidation; a later user turn; and a second crop. The cases produce 27 crop events, including three no-ops. All 308 assistant fixture tokens are appended through the production accumulation path.
+ 
+--- before/latex/sections/05_experiments_results.tex
++++ after/latex/sections/05_experiments_results.tex
+@@ -86,11 +86,11 @@
+ 
+ \subsection{Downstream fixed-trajectory probe}
+ 
+-E3 contained 100 dialogues, 400 paired dialogue--injection-position units, 800 condition records, and 1600 judge records. Each assistant trajectory was generated once; software-cursor and generation-retention conditions shared that trajectory, its fragment timeline, and four injection positions (0.25, 0.50, 0.75, and a fragment boundary). Fragment and character-ratio proxy targets were separately eligible when their respective target strings were non-empty.
++E3 contained 100 dialogues, 400 paired dialogue--injection-position units, 800 condition records, and 1600 judge records. Each assistant trajectory was generated once; software-cursor and generation-retention conditions shared that trajectory, its fragment timeline, and four injection positions (0.25, 0.50, 0.75, and a fragment boundary). Fragment and character-ratio proxy targets were separately eligible when their respective target strings were non-empty. The fragment analysis contained 297 eligible labels from 96 dialogues; the proxy analysis contained 380 labels from all 100 dialogues. Eligibility and uncertainty are therefore target-specific rather than based on 400 independent observations.
+ 
+ The primary estimand assigned equal weight to each eligible dialogue--position label and computed generation minus software-cursor retention. Confidence intervals used 10,000 paired dialogue-cluster bootstrap repetitions. A dialogue-weighted sensitivity first averaged within dialogue. Target-specific exact-key deduplication combined dialogue and trajectory identities, both history keys, and an exact target hash; the fragment key also included the retained token endpoint. It is not semantic clustering.
+ 
+-The lexical detector matched numbers, selected capitalized terms, and non-stopword content terms. The \texttt{specific-reference-v3} Mistral judge received the target and two delimiter-joined replies without condition identity, and greedily produced a strict YES/NO decision. Neither detector is a human reference standard.
++The lexical detector matched numbers, selected capitalized terms, and non-stopword content terms. The \texttt{specific-reference-v3} Mistral judge received the target and two delimiter-joined replies without condition identity, and greedily produced a strict YES/NO decision. Neither detector is a human reference standard. The intervals quantify dialogue-sampling uncertainty conditional on the frozen trajectories, targets, detectors, prompts, and 40-token response cap; they do not include detector error or model/prompt variation.
+ 
+ \begin{table}[t]
+ \centering
+--- before/latex/sections/06_discussion_conclusion.tex
++++ after/latex/sections/06_discussion_conclusion.tex
+@@ -5,7 +5,7 @@
+ 
+ The contribution is not playback-conditioned history truncation as a general principle or KV cropping as an isolated operation. Both have precedents. The contribution is an external-progress-conditioned joint prefix-state contract that specifies how an observed software playback position becomes a legal language-model commit boundary and how every prefix-dependent representation is repaired at that boundary.
+ 
+-C2 provides direct evidence for this contract. Under the frozen configuration, every production crop retained exactly the same 28-layer K/V prefix as direct slicing of its own pre-crop snapshot, all known wrong-length perturbations were detected, and matched subsequent operations preserved exact agreement within the accepted run. The evidence goes beyond checking cache length because it covers masks, token ledgers, assistant-content span, role phase, end reason, positions, and post-crop logits. It remains narrower than a clean reconstruction test. The v1/v2 protocols were not reinterpreted after failure; their forward-topology mismatch prevents attribution of their numerical differences to cropping. C2 v3 instead answers an identifiable same-snapshot integrity question.
++C2 provides direct evidence for the state-repair part of this contract at the tested fixture-defined boundaries, rather than for the complete speech-to-playback mapping. Under the frozen configuration, every production crop retained exactly the same 28-layer K/V prefix as direct slicing of its own pre-crop snapshot, all known wrong-length perturbations were detected, and matched subsequent operations preserved exact agreement within the accepted run. The evidence goes beyond checking cache length because it covers masks, token ledgers, assistant-content span, role phase, end reason, positions, and post-crop logits. It remains narrower than a clean reconstruction test. The v1/v2 protocols were not reinterpreted after failure; their forward-topology mismatch prevents attribution of their numerical differences to cropping. C2 v3 instead answers an identifiable same-snapshot integrity question.
+ 
+ The most important implication is that transcript correction and cache correction cannot be separated. Text-only truncation can leave discarded content accessible through K/V state, while tensor-only cropping can leave masks, positions, role structure, or audit ledgers at an incompatible endpoint. Structural EOT requires particular care: treating a predicted EOT as assistant content and later adding another close marker silently changes the serialized conversation. Pending structural state and a unique close commit prevent that duplication.
+ 

@@ -1,0 +1,59 @@
+SC response and change record — 2026-09-05
+
+Outcome
+Reviewed the actual main.tex, all seven included sections, all 26 bibliography entries, local author checklist and template/package provenance. Applied a limited English SC revision under explicit user just-fix authorization. This is NOT a submission-ready or acceptance certification. No author facts, experiment results, verdicts, stronger C2 claims or human benefit were invented.
+
+Review execution
+Both academic-paper-reviewer and academic-paper revision skills were loaded. Five review perspectives were simulated read-only in the same context before editing; separate-call reviewer isolation, sprint contract, typed provenance replay and formal re-review were unavailable/not executed. Revision used exact-string edits and a before/after patch, not a machine-validated ARS anchor/author-sidecar protocol; no protocol authorization PASS is claimed. The explicit user scope governs the changes. No external model upload occurred. Official guide WebFetch returned 403; no live guide-verification claim. Quartile/system/category/year remain unknown.
+
+Response to source-ordered findings
+EIC-1 / DA-1: PARTIAL. Added explicit state-repair/fixture-boundary assurance scope in method and discussion. Full-length journal significance remains uncertain; no live speech or external-backend evidence added.
+EIC-2: ADDRESSED. Related-work lead now describes the scientific relationship rather than advertising journal membership; citations unchanged.
+EIC-3: BLOCKED. Author identities, affiliations, declarations, public artifact URL/license and derived-data rights remain placeholders. AUTHOR_CONFIRM checklist expanded.
+R1-1: ADDRESSED AS WORDING ONLY. Same-snapshot integrity does not validate the original state's semantics or the live cursor-to-text mapping. Missing whole-system evidence remains missing.
+R1-2: ADDRESSED. 'Atomic crop' becomes 'Joint crop'; completed-operation consistency explicitly does not assert concurrent-reader transactional atomicity.
+R1-3: PARTIAL. Added 297 labels/96 dialogues and 380 labels/100 dialogues, plus frozen detector/trajectory/prompt/40-token-cap conditioning. Counts and uncertainty scope checked against docs/paper2_revision_evidence_2026-09-03.md. No new target formula was guessed; the compact exact target-string construction and full detector/prompt reproducibility still depend on the artifact record, whose public release remains blocked.
+R1-4: PRESERVED. A1 fixed-order/fixed-suffix and P1 finite-tail limitations and all numbers unchanged.
+R2-1 / R3-1: ADDRESSED. Whole-fragment upward retention explicitly retains an unconsumed tail; excluding the fragment would discard already consumed material. No optimal-policy or exact-heard-history claim introduced.
+R2-2: OPEN. Technical citation graph checked; complete external source existence/metadata/entailment and contemporary publication status were not reverified. No fabricated replacement references.
+R3-2: PRESERVED. E3 superiority/equivalence/noninferiority/harm/absence-of-effect and human-semantic claims remain unsupported; intervals unchanged.
+DA-2: ADDRESSED. 'Specific to' narrowed to 'arises in' interactive speech systems.
+
+Validation actually performed
+- Original archive inspected: all 16 archived members matched the existing latex directory byte-for-byte. Existing PDF text title matched the manuscript. Before-overwrite backup preserved in sc_2026-09-05_validation/before_revision.zip.
+- MiKTeX pdflatex + BibTeX compilation succeeded, with an extra LaTeX pass to stabilize labels. Revised PDF: 29 pages, 523418 bytes.
+- Final log: no undefined citations/references, no label-rerun warning, no overfull boxes. Seven underfull hbox notices remain (badness up to 10000); these are spacing/layout review flags, not a clean visual bill of health.
+- 26 bibliography keys, all 26 cited; no missing citation keys, uncited bibliography entries, missing reference targets or duplicate labels.
+- Abstract unchanged; whitespace-token count 199 (the historical checklist's 210 uses an unspecified different counting convention). Either is below its locally recorded 250-word limit. Five separate highlights have 67, 68, 73, 68 and 60 characters after bullet removal; six keywords. No live confirmation of these journal limits.
+- Source ZIP independently extracted into an external temporary directory and compiled using only packaged manuscript files plus installed TeX dependencies. BibTeX and four LaTeX passes succeeded; no overfull/undefined/rerun warning. Final ZIP members exactly match working source members. This tests source completeness, not a hermetic TeX installation or experiment reproducibility.
+- Poppler text bounding-box check: 29 text-containing pages, no empty pages, no words outside physical page bounds. All 26 PDF font records report embedded fonts. This does not detect overlapping in-page labels or every layout defect.
+- Revised PDF rendered to 29 PNG files at 100 dpi. Images were NOT opened or preinspected by this editing agent. The user subsequently supplied a completed judge review of all 29 PNG pages. Three targeted repairs were requested and implemented; visual status is now AWAITING TARGETED JUDGE, not unavailable. PyMuPDF unavailable, so the PDF skill's PyMuPDF QA script was not run; Poppler checks substituted only for available text/font/bounds checks.
+- Initial helper issues (locale decoding of pdfinfo, regex escaping in a citation check, MiKTeX pdftotext stdout behavior) were corrected; final checks above were rerun successfully. Build/standalone command logs are saved.
+
+Safety and reversibility
+No git commit/push, external upload, GPU execution, experiment artifact edit, source-code edit, Chinese authoritative chapter edit or main_zh-CN.md synchronization. main.tex, references.bib, declarations and figure PDFs were not edited. The SC target existed as untracked user content on entry; it was not recreated wholesale. Exact source diff is sc_2026-09-05_validation/manuscript_changes.patch; baseline outputs and original source are in before_revision.zip. docs/decisions.md receives D-026 and docs/paper2_context.md receives one timeline row. Historical conclusions are not silently overwritten.
+
+Changed existing paths (workspace root D:/project/my/research/streamllm_p2)
+- paper2/tougao/SC/latex/sections/01_introduction.tex
+- paper2/tougao/SC/latex/sections/02_related_work.tex
+- paper2/tougao/SC/latex/sections/03_formulation.tex
+- paper2/tougao/SC/latex/sections/04_method.tex
+- paper2/tougao/SC/latex/sections/05_experiments_results.tex
+- paper2/tougao/SC/latex/sections/06_discussion_conclusion.tex
+- paper2/tougao/SC/latex/README.md
+- paper2/tougao/SC/latex/AUTHOR_CONFIRM.md
+- paper2/tougao/SC/GUIDE_FOR_AUTHORS_CHECKLIST.md
+- paper2/tougao/SC/Speech_Communication_manuscript.pdf
+- paper2/tougao/SC/Speech_Communication_LaTeX_source.zip
+- docs/decisions.md
+- docs/paper2_context.md
+New review/response records and validation artifacts are under paper2/review; complete SC changed paths and checks are recorded in validation JSON.
+
+Strongest remaining blockers and author decisions
+1. Scholarly significance: whether a bounded coupled-state implementation/test contract without live speech/HCI validation merits an SC full-length article. This is not solved by prose, and no acceptance probability is supplied. Broader experiments would require a separate decision, not unconditional reruns.
+2. Public reproducibility: immutable artifact release and lawful distribution, exact E3 target/prompt traceability, and third-party rights must be settled by the authors.
+3. Author-dependent title-page facts, CRediT, funding, COI, ethics/consent/annotator status and actual AI-use disclosure must be confirmed. The manuscript retains placeholders.
+4. Accessible official-guide and reference-metadata checks and targeted visual re-verification remain outstanding. Subscription/OA selection and any fee claim need current official confirmation; nothing was selected or submitted.
+
+VISUAL REPAIR FOLLOW-UP — 2026-09-05
+Judge evidence supplied by user: all 29 pages reviewed, all other visual pages pass except legitimate author placeholders p1/2/25/26. Findings and repairs: p10/Fig2 p label separated from arrow shaft; p12/Fig3 cursor-query connector rerouted above boxes through north anchors; p18 prose and p20/Fig6 caption corrected to four main label-weighted estimates with one CI each. Existing sensitivity values remain in prose; no sensitivity curves, tables or data were invented. Three section sources plus README/AUTHOR_CONFIRM status updated. PDF and clean ZIP rebuilt; affected pages re-rendered without editor image inspection. Repaired pages await targeted judge verification. Latest machine results and exact PNG paths: sc_2026-09-05_validation/visual_repair_checks.json. Previous PDF/source saved in before_visual_repairs.zip. Earlier PDF size/hash/build metrics refer to the pre-visual-repair revision and are superseded by that JSON.

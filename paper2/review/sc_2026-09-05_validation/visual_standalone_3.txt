@@ -1,0 +1,305 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex.fmt)
+ restricted \write18 enabled.
+entering extended mode
+(main.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+(elsarticle.cls
+Document Class: elsarticle 2026/01/09, 3.5: Elsevier Ltd
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/l3kernel\expl3.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdfte
+x.def))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/l3packages/xparse\xparse.
+sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/base\size12.clo))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\graphics.cfg
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/graphics-def\pdftex.def
+))) (main.spl)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/natbib\natbib.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
+For additional information on amsmath, use the `?' option.
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/tools\tabularx.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/adjustbox\adjustbox.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/xkeyval\xkeyval.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/xkeyval\xkeyval.tex
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/xkeyval\xkvutils.tex)))
+ (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/adjustbox\adjcalc.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/adjustbox\trimclip.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/collectbox\collectbox.sty
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/adjustbox\tc-pdftex.def
+))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/ifoddpage\ifoddpage.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/varwidth\varwidth.sty)
+==> First Aid for varwidth.sty applied!
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/enumitem\enumitem.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/pgf/frontendlayer\tikz.st
+y (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/pgf/basiclayer\pgf.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/pgf/utilities\pgfrcs.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfutil-c
+ommon.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfutil-l
+atex.def)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfrcs.co
+de.tex
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf\pgf.revision.tex)))
+
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/pgf/basiclayer\pgfcore.st
+y
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/pgf/systemlayer\pgfsys.st
+y
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgfsys.
+code.tex
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfkeys.c
+ode.tex
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfkeysli
+braryfiltered.code.tex))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgf.cfg
+)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgfsys-
+pdftex.def
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgfsys-
+common-pdf.def)))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgfsyss
+oftpath.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/systemlayer\pgfsysp
+rotocol.code.tex))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/graphics\mathcolor.ltx))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcore.
+code.tex
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmath.code.t
+ex
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathutil.co
+de.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathparser.
+code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunctio
+ns.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunctio
+ns.basic.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunctio
+ns.trigonometric.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunctio
+ns.random.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunctio
+ns.comparison.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunctio
+ns.base.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunctio
+ns.round.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunctio
+ns.misc.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfunctio
+ns.integerarithmetics.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathcalc.co
+de.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmathfloat.c
+ode.tex))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfint.code.te
+x)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcorep
+oints.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcorep
+athconstruct.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcorep
+athusage.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcores
+copes.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcoreg
+raphicstate.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcoret
+ransformations.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcoreq
+uick.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcoreo
+bjects.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcorep
+athprocessing.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcorea
+rrows.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcores
+hade.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcorei
+mage.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcoree
+xternal.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcorel
+ayers.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcoret
+ransparency.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcorep
+atterns.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/basiclayer\pgfcorer
+df.code.tex)))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/modules\pgfmodulesh
+apes.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/modules\pgfmodulepl
+ot.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/pgf/compatibility\pgfcomp
+-version-0-65.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/pgf/compatibility\pgfcomp
+-version-1-18.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/pgf/utilities\pgffor.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/pgf/utilities\pgfkeys.sty
+
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgfkeys.c
+ode.tex))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/pgf/math\pgfmath.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/math\pgfmath.code.t
+ex))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/utilities\pgffor.co
+de.tex))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tikz\
+tikz.code.tex
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries\pgflibrar
+yplothandlers.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/modules\pgfmodulema
+trix.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tikz/
+libraries\tikzlibrarytopaths.code.tex)))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/libraries\pgflibrar
+yarrows.meta.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tikz/
+libraries\tikzlibrarypositioning.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pgf/frontendlayer/tikz/
+libraries\tikzlibrarycalc.code.tex)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\lmodern.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype-pdfte
+x.def)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype.cfg))
+ (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lineno\lineno.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty))
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefineke
+ys.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.sty
+
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds.s
+ty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.sty
+))) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettitle
+string.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\stringenc.sty
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc.s
+ty)))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfilec
+heck.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquecou
+nter.sty))) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmr.fd)
+(main.aux)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-bas
+e.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/00miktex\epstopdf-sys.cfg
+)) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-cmr.cfg)
+(main.out) (main.out)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmr.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\omllmm.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\omslmsy.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\omxlmex.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msa.cfg)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msb.cfg)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\ts1lmr.fd) [1{C:/Users
+/hua/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/hua/AppData/Loc
+al/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc}{C:/Users/hua/AppData/Local/Pro
+grams/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}]
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmtt.fd) [1{C:/Users
+/hua/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathsy.enc}{C:/Users/h
+ua/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Users/hua/App
+Data/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}]
+(sections/01_introduction.tex
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmss.fd)
+Underfull \hbox (badness 1436) in paragraph at lines 8--9
+\T1/lmr/m/n/12 (LLM)--TTS sys-tems re-main at-trac-tive be-cause their com-po-n
+ents can
+[2] [3]) (sections/02_related_work.tex [4] [5] [6])
+(sections/03_formulation.tex
+Underfull \hbox (badness 1009) in paragraph at lines 18--20
+\T1/lmr/m/n/12 Once reg-is-tered, frag-ment $\OML/lmm/m/it/12 f[]$ \T1/lmr/m/n/
+12 oc-cu-pies the cu-mu-la-tive sam-ple in-ter-val
+[7] [8{C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathex.
+enc}] [9]) (sections/04_method.tex [10] [11] [12])
+(sections/05_experiments_results.tex [13] [14] [15] [16 <./figures/Figure_5_cos
+t_microbenchmark.pdf>] [17] [18]) (sections/06_discussion_conclusion.tex
+[19 <./figures/Figure_6_e3_intervals.pdf>] [20] [21]
+Underfull \hbox (badness 1552) in paragraph at lines 36--37
+[]\T1/lmr/m/n/12 The ev-i-dence is con-cen-trated on En-glish task-oriented Mul
+-ti-WOZ
+[22]) (sections/07_declarations.tex [23] [24]) (main.bbl [25] [26]
+Underfull \hbox (badness 10000) in paragraph at lines 152--159
+\T1/lmtt/m/n/12 ai-[]services / speech-[]service / how-[]to-[]voice-[]live-[]au
+to-[]truncation$[]\T1/lmr/m/n/12 .
+
+Underfull \hbox (badness 6708) in paragraph at lines 160--168
+[]\T1/lmr/m/n/12 Mistral AI, 2024.  Mistral-7B-Instruct-v0.3 model card.  Hug-
+
+Underfull \hbox (badness 5231) in paragraph at lines 181--189
+[]\T1/lmr/m/n/12 OpenAI, n.d.  Re-al-time con-ver-sa-tions.  Ope-nAI API doc-u-
+men-
+
+Underfull \hbox (badness 3029) in paragraph at lines 181--189
+\T1/lmr/m/n/12 ta-tion.  URL: []$\T1/lmtt/m/n/12 https : / / developers . opena
+i . com / api / docs / guides /
+[27]) [28] (main.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)<C:/Users/hua/AppData/Local
+/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/hua/AppData/Local/P
+rograms/MiKTeX/fonts/type1/public/lm/lmex10.pfb><C:/Users/hua/AppData/Local/Pro
+grams/MiKTeX/fonts/type1/public/lm/lmmi10.pfb><C:/Users/hua/AppData/Local/Progr
+ams/MiKTeX/fonts/type1/public/lm/lmmi12.pfb><C:/Users/hua/AppData/Local/Program
+s/MiKTeX/fonts/type1/public/lm/lmmi8.pfb><C:/Users/hua/AppData/Local/Programs/M
+iKTeX/fonts/type1/public/lm/lmr10.pfb><C:/Users/hua/AppData/Local/Programs/MiKT
+eX/fonts/type1/public/lm/lmr12.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/
+fonts/type1/public/lm/lmr17.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fon
+ts/type1/public/lm/lmr7.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/t
+ype1/public/lm/lmr8.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1
+/public/lm/lmri10.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/p
+ublic/lm/lmri12.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/pub
+lic/lm/lmri7.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public
+/lm/lmss8.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm
+/lmsy10.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/l
+msy7.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy
+8.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.
+pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt12.pf
+b><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/symbo
+ls/msbm10.pfb>
+Output written on main.pdf (29 pages, 523505 bytes).
+Transcript written on main.log.
+pdflatex: major issue: So far, you have not checked for MiKTeX updates.
