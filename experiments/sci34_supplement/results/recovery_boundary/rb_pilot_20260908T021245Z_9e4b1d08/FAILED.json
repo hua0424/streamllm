@@ -1,0 +1,5 @@
+{
+  "exception_type": "AssertionError",
+  "instruction": "Stop; preserve all files. No retry/resume/quantization or protocol expansion.",
+  "retained": true
+}

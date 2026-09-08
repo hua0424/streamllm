@@ -1,0 +1,181 @@
+{
+  "cells": [
+    {
+      "case_id": "c2_02_clean_short_max",
+      "event": 0,
+      "metrics": {
+        "first_deliverable_ns": {
+          "mean_rebuild_minus_crop_ms": 112.835323,
+          "missing_pairs": 0,
+          "session_cluster_percentile_ci95_ms": null,
+          "session_mean_differences_ms": [
+            112.835323
+          ]
+        },
+        "ready_total_ns": {
+          "mean_rebuild_minus_crop_ms": 112.79668,
+          "missing_pairs": 0,
+          "session_cluster_percentile_ci95_ms": null,
+          "session_mean_differences_ms": [
+            112.79668
+          ]
+        },
+        "recovery_ns": {
+          "mean_rebuild_minus_crop_ms": 110.859476,
+          "missing_pairs": 0,
+          "session_cluster_percentile_ci95_ms": null,
+          "session_mean_differences_ms": [
+            110.859476
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "c2_16_second_medium_eos",
+      "event": 0,
+      "metrics": {
+        "first_deliverable_ns": {
+          "mean_rebuild_minus_crop_ms": 452.561196,
+          "missing_pairs": 0,
+          "session_cluster_percentile_ci95_ms": null,
+          "session_mean_differences_ms": [
+            452.561196
+          ]
+        },
+        "ready_total_ns": {
+          "mean_rebuild_minus_crop_ms": 452.400849,
+          "missing_pairs": 0,
+          "session_cluster_percentile_ci95_ms": null,
+          "session_mean_differences_ms": [
+            452.400849
+          ]
+        },
+        "recovery_ns": {
+          "mean_rebuild_minus_crop_ms": 451.220974,
+          "missing_pairs": 0,
+          "session_cluster_percentile_ci95_ms": null,
+          "session_mean_differences_ms": [
+            451.220974
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "c2_16_second_medium_eos",
+      "event": 1,
+      "metrics": {
+        "first_deliverable_ns": {
+          "mean_rebuild_minus_crop_ms": 455.299284,
+          "missing_pairs": 0,
+          "session_cluster_percentile_ci95_ms": null,
+          "session_mean_differences_ms": [
+            455.299284
+          ]
+        },
+        "ready_total_ns": {
+          "mean_rebuild_minus_crop_ms": 455.36916,
+          "missing_pairs": 0,
+          "session_cluster_percentile_ci95_ms": null,
+          "session_mean_differences_ms": [
+            455.36916
+          ]
+        },
+        "recovery_ns": {
+          "mean_rebuild_minus_crop_ms": 453.16819,
+          "missing_pairs": 0,
+          "session_cluster_percentile_ci95_ms": null,
+          "session_mean_differences_ms": [
+            453.16819
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "c2_18_clean_long_max",
+      "event": 0,
+      "metrics": {
+        "first_deliverable_ns": {
+          "mean_rebuild_minus_crop_ms": 1918.885937,
+          "missing_pairs": 0,
+          "session_cluster_percentile_ci95_ms": null,
+          "session_mean_differences_ms": [
+            1918.885937
+          ]
+        },
+        "ready_total_ns": {
+          "mean_rebuild_minus_crop_ms": 1919.490888,
+          "missing_pairs": 0,
+          "session_cluster_percentile_ci95_ms": null,
+          "session_mean_differences_ms": [
+            1919.490888
+          ]
+        },
+        "recovery_ns": {
+          "mean_rebuild_minus_crop_ms": 1915.929383,
+          "missing_pairs": 0,
+          "session_cluster_percentile_ci95_ms": null,
+          "session_mean_differences_ms": [
+            1915.929383
+          ]
+        }
+      }
+    }
+  ],
+  "delivery_counts": {
+    "crop": 4,
+    "rebuild": 4
+  },
+  "diagnostics": [
+    {
+      "continuation_same": true,
+      "key": [
+        0,
+        "c2_02_clean_short_max",
+        0,
+        0
+      ],
+      "max_abs_logit_difference": 0.59375,
+      "mean_abs_logit_difference": 0.049333032220602036,
+      "top1_same": true
+    },
+    {
+      "continuation_same": true,
+      "key": [
+        0,
+        "c2_16_second_medium_eos",
+        0,
+        0
+      ],
+      "max_abs_logit_difference": 0.3125,
+      "mean_abs_logit_difference": 0.04532844200730324,
+      "top1_same": true
+    },
+    {
+      "continuation_same": false,
+      "key": [
+        0,
+        "c2_16_second_medium_eos",
+        0,
+        1
+      ],
+      "max_abs_logit_difference": 0.279296875,
+      "mean_abs_logit_difference": 0.03386744111776352,
+      "top1_same": true
+    },
+    {
+      "continuation_same": true,
+      "key": [
+        0,
+        "c2_18_clean_long_max",
+        0,
+        0
+      ],
+      "max_abs_logit_difference": 0.25,
+      "mean_abs_logit_difference": 0.03788568452000618,
+      "top1_same": true
+    }
+  ],
+  "pilot": true,
+  "uncertainty": "conditional on fixed fixtures; independent process-session clusters; repeats/events are not independent samples; 4-session CI is coarse",
+  "verdict": "descriptive; not superiority/equivalence acceptance"
+}

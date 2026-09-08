@@ -1,0 +1,32 @@
+{
+  "fx_old.json": {
+    "log": [
+      {"text": "I need a cheap hotel, and it should include parking near the centre.", "metadata": {}},
+      {"text": "I can help.", "metadata": {"hotel": {}}}
+    ]
+  },
+  "dlg_alpha.json": {
+    "log": [
+      {"text": "Please find a northern hotel, and make sure that it offers free parking.", "metadata": {}},
+      {"text": "I can help.", "metadata": {"hotel": {}}}
+    ]
+  },
+  "dlg_beta.json": {
+    "log": [
+      {"text": "I need a train after noon, but it must arrive before seven tonight.", "metadata": {}},
+      {"text": "I can help.", "metadata": {"train": {}}}
+    ]
+  },
+  "dlg_gamma.json": {
+    "log": [
+      {"text": "Recommend an Italian restaurant, and please keep the price range moderate.", "metadata": {}},
+      {"text": "I can help.", "metadata": {"restaurant": {}}}
+    ]
+  },
+  "dlg_delta.json": {
+    "log": [
+      {"text": "Book a taxi from the museum, because I need to reach the station soon.", "metadata": {}},
+      {"text": "I can help.", "metadata": {"taxi": {}}}
+    ]
+  }
+}

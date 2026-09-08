@@ -310,3 +310,40 @@ top1 3/4 same、continuation 3/4 same（c2_16 event 1 不同，无等价性门�
 位于源码树外 `/root/autodl-tmp/recovery_boundary_runs/`。未修改任何代码/协议/
 旧结果；待设计侧修复（建议 validate 对 cases 比较做 JSON 归一化）并交付新 commit 后
 从 pilot 重跑。
+
+## R/B recovery_boundary（2026-09-08，commit bfa7d7a）：修复后 pilot+formal 全流程通过并封存
+
+开发按 GPU 侧诊断修复 `campaign.py` L123（cases 比较改为 JSON 归一化后精确比较，
+与 `chat_parts` 处理一致；`smoke.py` 增加真实落盘→读取→validator 的 pilot/formal
+结构回归测试与三类 case 篡改负控）。拉取 `bfa7d7a37363d327cfa96b5448e151663ff578f8`
+后：树干净、`recovery_boundary.smoke` 三项全 PASS（含新回归测试）、`uv sync
+--frozen --offline` 通过。
+
+**新工程 pilot** `rb_pilot_20260908T023730Z_47156665`：全流程一次通过
+（8 records/4 pairs，validation ok、analysis descriptive、seal 创建+验证、tar OK），
+session 52.3s、峰值 reserved 21.1GiB、日志零错误；工程预算结论：formal 可接受。
+
+**正式 formal** `rb_formal_20260908T023934Z_f69e6478`（SOURCE_COMMIT `bfa7d7a`，
+--source-commit 显式核对，clean tree 含 untracked）：4 个独立模型子进程顺序单卡
+完成，每 session 约 150s，全流程 run→validate→analyze→seal→verify→tar 一次通过；
+GPU 侧独立复核 `campaign validate`/`verify` 均 ok=true（464 文件，seal sha
+`f5ab2def1420ba98fe9b413ee4f06f9f83ac93d72116aff07bbb367e4f9eaf4c`），tarball
+78MB sha `10b9fc19547f96a7e3284fc1fc30acc782fe7c13ac4b25a3c07005befdf7f47e`
+（`sha256sum -c` OK）。
+
+- 网格/账本：320 arm-event records、160 event-pairs，全部经 validate 独立核对
+  （keep 独立推导、role/content span、ready/final 状态、logits 有限性、legacy
+  前后零变化）；两臂交付 160/160（无 missing pairs，首 selection 无 EOT）。
+- 配对恢复差 rebuild−crop（ms，session-cluster bootstrap CI95，每 cell
+  4 session×4 pair）：512/短上下文 111.5–130.7、2048 约 463.7、8192 为 1951.7
+  （CI [1937.3,1963.2]）；first_deliverable 与 recovery 同量级（decode_first 两臂
+  相当）。全部 cell 的 rebuild 显著慢于 crop。
+- 有限性诊断（仅描述，无等价门槛）：160 对 logits max_abs ≤0.5938、top1 相同
+  160/160、greedy continuation 相同 144/160；`analysis.json` verdict 保持
+  descriptive，`no_equivalence_claim=true`。
+- 旧现场保留：阻断 pilot `rb_pilot_20260908T021245Z_9e4b1d08` 及失败 tar 未改动；
+  C2 v1/v2/v3 与 E1/E2/E3/A1/P1 零改动（legacy guard 验证）。
+- 入库：formal/pilot×2 目录按“大文件不入库”惯例排除全部 `session_*/*.npy`
+  （约 190MB，哈希在 seal.json 可复核，完整原件在树外 tarball）后入
+  `results/recovery_boundary/`，附 `REPO_ARCHIVAL_NOTE.md`；tar 与失败 tar 留在
+  `/root/autodl-tmp/recovery_boundary_runs/` 供回传。

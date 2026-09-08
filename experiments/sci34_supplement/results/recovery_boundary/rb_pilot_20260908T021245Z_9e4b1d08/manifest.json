@@ -1,0 +1,478 @@
+{
+  "case_tokens": {
+    "c2_02_clean_short_max": {
+      "assistant": [
+        3973,
+        279,
+        2400,
+        323,
+        4614,
+        1379,
+        13,
+        25429,
+        279,
+        21434,
+        323,
+        882,
+        13,
+        13655,
+        279,
+        5785,
+        1372,
+        13
+      ],
+      "fragment_ends": [
+        8,
+        14,
+        18
+      ],
+      "second": []
+    },
+    "c2_16_second_medium_eos": {
+      "assistant": [
+        3379,
+        279,
+        9500,
+        13,
+        33563,
+        12713,
+        323,
+        14709,
+        13
+      ],
+      "fragment_ends": [
+        5,
+        9
+      ],
+      "second": [
+        11613,
+        14709,
+        323,
+        6602,
+        525,
+        12433,
+        13,
+        358,
+        2058,
+        1184,
+        279,
+        1372,
+        315,
+        21461,
+        13
+      ]
+    },
+    "c2_18_clean_long_max": {
+      "assistant": [
+        12020,
+        466,
+        10774,
+        13064,
+        13,
+        10783,
+        85460,
+        2213,
+        13,
+        1032,
+        2508,
+        279,
+        1196,
+        3476,
+        13
+      ],
+      "fragment_ends": [
+        6,
+        10,
+        15
+      ],
+      "second": []
+    }
+  },
+  "cases": [
+    {
+      "assistant_text": "Check the date and party size. Verify the venue and time. Keep the reference number.",
+      "context_class": "short_512",
+      "context_tokens": 512,
+      "controlled_fixture": false,
+      "fragments": [
+        "Check the date and party size. ",
+        "Verify the venue and time. ",
+        "Keep the reference number."
+      ],
+      "id": "c2_02_clean_short_max",
+      "next_user": "State the next confirmed step briefly.",
+      "retain_fragment_count": 2,
+      "scenario": "clean_fragment_boundary",
+      "second_assistant_text": null,
+      "second_crop_fraction": null,
+      "source": "accepted E1/E2 holdout style prompt",
+      "termination": "max_tokens",
+      "user_prompt": "Explain a simple two-step booking check."
+    },
+    {
+      "assistant_text": "Select the hotel. Confirm dates and guests.",
+      "context_class": "medium_2048",
+      "context_tokens": 2048,
+      "controlled_fixture": true,
+      "fragments": [
+        "Select the hotel. ",
+        "Confirm dates and guests."
+      ],
+      "id": "c2_16_second_medium_eos",
+      "next_user": "Book for two guests on Friday.",
+      "retain_fragment_count": 1,
+      "scenario": "second_crop_later_turn",
+      "second_assistant_text": "Two guests and Friday are recorded. I still need the number of nights.",
+      "second_crop_fraction": 0.5,
+      "source": "controlled multi-turn crop fixture",
+      "termination": "natural_eos",
+      "user_prompt": "Give a brief hotel-booking sequence."
+    },
+    {
+      "assistant_text": "Retain confirmed facts. Remove unheard content. Reopen the user role.",
+      "context_class": "long_8192",
+      "context_tokens": 8192,
+      "controlled_fixture": false,
+      "fragments": [
+        "Retain confirmed facts. ",
+        "Remove unheard content. ",
+        "Reopen the user role."
+      ],
+      "id": "c2_18_clean_long_max",
+      "next_user": "State the next confirmed step briefly.",
+      "retain_fragment_count": 2,
+      "scenario": "clean_fragment_boundary",
+      "second_assistant_text": null,
+      "second_crop_fraction": null,
+      "source": "controlled long-context fragment fixture",
+      "termination": "max_tokens",
+      "user_prompt": "Give a three-step summary after a long context."
+    }
+  ],
+  "chat_parts": {
+    "assistant_close_eot_offset": 0,
+    "assistant_eot": [
+      151645,
+      198
+    ],
+    "assistant_open": [
+      151645,
+      198,
+      151644,
+      77091,
+      198
+    ],
+    "assistant_to_user": [
+      151644,
+      872,
+      198
+    ],
+    "eos_token_id": 151645,
+    "eot_token_id": 151645,
+    "pad_token_id": 151643,
+    "prefix_to_user_content": [
+      151644,
+      8948,
+      198,
+      2610,
+      525,
+      264,
+      10950,
+      17847,
+      13,
+      17841,
+      304,
+      6364,
+      13,
+      151645,
+      198,
+      151644,
+      872,
+      198
+    ],
+    "template_hash": "793202280c0910ab26bc6eb57c8212c2417324c6d8c4efd0d10d59092ab3e3eb",
+    "user_to_assistant": [
+      151645,
+      198,
+      151644,
+      77091,
+      198
+    ]
+  },
+  "historical_manifest_sha256": "d8c3db4d609234a072064162a5caa443e25171b2311d84afa48b7b6a4f1d4bc2",
+  "model_identity": {
+    "content_identity_hash": "209f3a9cbccde56fb9ed39fca06a86b11c1aa0ebf721d897baab708d6cab2133",
+    "file_count": 15,
+    "files": [
+      {
+        "path": ".gitattributes",
+        "sha256": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+        "size": 1519
+      },
+      {
+        "path": "LICENSE",
+        "sha256": "c156170b718ec29139d3653d40ed1986fd92fb7e0959b5c71f3c48f62e6636f4",
+        "size": 11344
+      },
+      {
+        "path": "README.md",
+        "sha256": "174c5a5d83d0f9670e0b96df86f2dddb2de5ab958f885653525b3d2c977f24b5",
+        "size": 6577
+      },
+      {
+        "path": "config.json",
+        "sha256": "8b9a4f6c0acf4854a2d301616d4203039c3d7972cb0a557dae98686b6c3ae4b2",
+        "size": 663
+      },
+      {
+        "path": "configuration.json",
+        "sha256": "a78221ae93dd8977b26fcd1d106fa5ad7e7f1fd3a7d93bfd9d6fba5ed00ec4d2",
+        "size": 48
+      },
+      {
+        "path": "generation_config.json",
+        "sha256": "3a8f9087e486054c8a4a08dae2e5a3ba62e23da212b5b8c08bc42cb983c3459f",
+        "size": 243
+      },
+      {
+        "path": "merges.txt",
+        "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+        "size": 1671839
+      },
+      {
+        "path": "model-00001-of-00004.safetensors",
+        "sha256": "26d9919262ccd063fcdfd926763fe9025ef1e3073767aaa8c83a375d7c5140c4",
+        "size": 3945426872
+      },
+      {
+        "path": "model-00002-of-00004.safetensors",
+        "sha256": "f5bb99fdadcac55c2c176497ec99f088a1764e78ed986fa4a0d45d12426ef0fa",
+        "size": 3864726352
+      },
+      {
+        "path": "model-00003-of-00004.safetensors",
+        "sha256": "0b749a4446d7cda007d5e7bd9f908849d08d89867192d4c039dc167e9ab5a02e",
+        "size": 3864726408
+      },
+      {
+        "path": "model-00004-of-00004.safetensors",
+        "sha256": "da724bb7d3c3512eb371aa6caa5bcc08d78bda84f94e00ae9a9b2124e3e9c62f",
+        "size": 3556392240
+      },
+      {
+        "path": "model.safetensors.index.json",
+        "sha256": "f00d17cbf433746c391ad43948613e373aa51222dbee3b0db61ffff59a74bb1a",
+        "size": 27752
+      },
+      {
+        "path": "tokenizer.json",
+        "sha256": "f7c9b2dba4a296b1aa76c16a34b8225c0c118978400d4bb66bff0902d702f5b8",
+        "size": 7028015
+      },
+      {
+        "path": "tokenizer_config.json",
+        "sha256": "be21acaf90e7f449b7282fdef7b06516a0102476e86cbc2108e18ac071f9cc9c",
+        "size": 1288
+      },
+      {
+        "path": "vocab.json",
+        "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+        "size": 2776833
+      }
+    ],
+    "resolved_path": "/root/autodl-tmp/dataA/models/Qwen2-7B-Instruct",
+    "revision": null,
+    "schema_version": 1,
+    "total_bytes": 15242797993
+  },
+  "pilot": true,
+  "protocol": {
+    "arms": [
+      "crop",
+      "rebuild"
+    ],
+    "bootstrap_draws": 10000,
+    "case_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      9,
+      15,
+      17
+    ],
+    "continuation_cap": 8,
+    "estimand": "per fixed case/event mean paired rebuild-minus-crop; session-cluster bootstrap",
+    "numerical_gate": "finite only; no cross-topology tolerance or equivalence test",
+    "pairs_per_case": 4,
+    "pilot_case_indices": [
+      1,
+      15,
+      17
+    ],
+    "pilot_pairs": 1,
+    "pilot_sessions": 1,
+    "scope": "controlled text fixtures; software boundaries; single GPU; no acoustic evidence",
+    "seed": 20260906,
+    "sessions": 4,
+    "timing": "synchronized wall time; start through USER_OPEN then suffix/header then first generator yield (including token KV commit)",
+    "version": 1,
+    "warmup_pairs_per_case": 1
+  },
+  "protocol_hash": "2fccb0b2567dbd099b7fff31074387051d758715648be81a74d8841e6ff9a0f3",
+  "source": {
+    "commit": "10dcc155baf95e089de6d6375d4a0faac87b000b",
+    "dirty": false,
+    "files": {
+      "experiments/sci34_supplement/CLAIMS_MATRIX.md": "7e20e55f178e363d01f35af2afcece8a774415138c4b85d1374b2f7510d32682",
+      "experiments/sci34_supplement/EXPERIMENT_PLAN.md": "dfd2c0007bd1e1b2683831af91723b1c8a816c3356394ddd64e72b98aa776ac5",
+      "experiments/sci34_supplement/GPU_RUNBOOK.md": "6e71ffe21f07313dccf40957f5871611763d9b5eab26b477fe91d3904b6c57c2",
+      "experiments/sci34_supplement/HANDOFF_FOR_GPU.md": "87b470bcb883c4098b78648dbf2d378b34de89465020d52f44af1ddd95e3edc3",
+      "experiments/sci34_supplement/P1_PREPARED_RERUN.md": "98da1d4092abe1c87fb3c72c54356cb8c8e77f1d4230f2a839be98eb55934776",
+      "experiments/sci34_supplement/README.md": "2b22402b7f578275967144acbc4898f07a0d27665b0fc25a8042d2053d176c24",
+      "experiments/sci34_supplement/__init__.py": "a47eff8e9180996fedbaa934d6b1055e9da5e107dfd72590dfa5fcd61075210e",
+      "experiments/sci34_supplement/a1_joint_latency.py": "35a307bef9bb59439e8fe3fb7a0b3fe9f9ec02e0d1e4613c8e5db628af22f078",
+      "experiments/sci34_supplement/analyze_e3.py": "133fdbbd4e83860dcb24018a51335b31bd311a5f1724c68b1eafa192180f69b5",
+      "experiments/sci34_supplement/analyze_e3_v2.py": "14435b0643296d9f5458f8498f5d11bd10bbda1864e4c0060e8cebe619320bfc",
+      "experiments/sci34_supplement/analyze_latency.py": "0caa76c083594b787824f27d0e2f21799fe49ff8d40ddb397c9f243abdea150b",
+      "experiments/sci34_supplement/async_bargein.py": "296842c2ac30e7670b0b02715adc84c38ca4fb875e8af08ade062db67999cddd",
+      "experiments/sci34_supplement/c2_crop_integrity/ACCEPTANCE_TEMPLATE.md": "d703f5fa188e360948baa24f8453b9787f1ad51c4ebec7b9e72c840779828ce7",
+      "experiments/sci34_supplement/c2_crop_integrity/EXPERIMENT_PLAN.md": "10a1bca5a152c4c2d81484c13f2a26eee14e28f70a1b9c5569bb0a82de34f9c4",
+      "experiments/sci34_supplement/c2_crop_integrity/GPU_HANDOFF.md": "dc4209ea9a9e225fefa1193abb0bea626bb5d9a60f72b4d1a75a7c46317a0527",
+      "experiments/sci34_supplement/c2_crop_integrity/README.md": "70e5dc54ac3077f9e189a8af81b7d2ff88696de2e77ceb3a6d531c2cdf14cadc",
+      "experiments/sci34_supplement/c2_crop_integrity/__init__.py": "9c8430d8fa51bb9c9d5eaafd4dd972b9110e84f1ae15b03e5fe09af1a035983d",
+      "experiments/sci34_supplement/c2_crop_integrity/analyze.py": "48e6aaa80425cd7cc98e2cf21354a273d82152ab393b080040245be532ff6838",
+      "experiments/sci34_supplement/c2_crop_integrity/campaign.py": "3607d9c6799a06eed5274b7a28865303d47434b3d25818a8f676fad0b4097846",
+      "experiments/sci34_supplement/c2_crop_integrity/canonical_chat.py": "f264706a9f1af29b87284496535771db2493f1c39c7712f6a175a73cd00699bc",
+      "experiments/sci34_supplement/c2_crop_integrity/cases.json": "acda9afb83ff393d222fc06eb433c1a307dba1eb213fcbbbedfdb860f7500696",
+      "experiments/sci34_supplement/c2_crop_integrity/integrity.py": "68bb9920d14a573cbf51c478b6a9c3c69c6b64ab559b3264246af4cfb1e6fafb",
+      "experiments/sci34_supplement/c2_crop_integrity/protocol.py": "331e159642e9913d9c98e72f0ce698a1479de40a7eee7e18068389b71b65f191",
+      "experiments/sci34_supplement/c2_crop_integrity/run.py": "b38ce78846035b355d4d56f0f275b9acb7cd7f94421f8f0fc97ae4165d789edf",
+      "experiments/sci34_supplement/c2_crop_integrity/runtime.py": "4ecc20e9da110868028eaf8259fbb47804e7484eed03fc0b475ff21209f66014",
+      "experiments/sci34_supplement/c2_crop_integrity/seal.py": "6d27270216fff14bc8d7ce1f7ed2d351972b92731741a461326e7a6694af3c80",
+      "experiments/sci34_supplement/c2_crop_integrity/smoke.py": "3494a730371d8f849f2fdcc5a196712da93add54dbec33d5d6c86cbf6feec306",
+      "experiments/sci34_supplement/c2_crop_integrity/validate.py": "8025413ba3235e222d8e148a7a79603c867248d50edc6e6660dc09a4b653e5ab",
+      "experiments/sci34_supplement/c2_equivalence/ACCEPTANCE_TEMPLATE.md": "13ae4e4afda3978863fe19320d04b7c496e952da2c059eda81aec351c6e8599d",
+      "experiments/sci34_supplement/c2_equivalence/EXPERIMENT_PLAN.md": "68b9c16c01aa9632ba4f1b857c5c44ade04d2246a5d987cd759483b5b47a10e8",
+      "experiments/sci34_supplement/c2_equivalence/GPU_HANDOFF.md": "6bac78f7461b1e1f9a02d96b3b00adb669ad1a5402e363d150e949f1ffbb8545",
+      "experiments/sci34_supplement/c2_equivalence/README.md": "e49f0939f223ef5f99e2de95240ed06d10ed3496ba58ec04c3ed9a72dbb3784b",
+      "experiments/sci34_supplement/c2_equivalence/__init__.py": "b2480f77e6f8d167e9e5dd3297399336b1b9c39251fd1a3b817a3ba7ac84d086",
+      "experiments/sci34_supplement/c2_equivalence/analyze.py": "8d5c271818d3a65c9f21fa394c82e7865c4af63393403f4a1cdc869f4bb74dba",
+      "experiments/sci34_supplement/c2_equivalence/campaign.py": "0bd026ce256ac6af95356b2b1b8ee72f7620cacb891cb213b3bbf21f533d6c2e",
+      "experiments/sci34_supplement/c2_equivalence/canonical_chat.py": "f264706a9f1af29b87284496535771db2493f1c39c7712f6a175a73cd00699bc",
+      "experiments/sci34_supplement/c2_equivalence/cases.json": "acda9afb83ff393d222fc06eb433c1a307dba1eb213fcbbbedfdb860f7500696",
+      "experiments/sci34_supplement/c2_equivalence/protocol.py": "84469e9271e4b249297bf62426c36e3b57afbfde105e1ff6cfbc3435cc9dc91b",
+      "experiments/sci34_supplement/c2_equivalence/run.py": "015ed4c8880fcf83f90c0268f6c3afb9271b5c276807be10bc7ada10fa63eab2",
+      "experiments/sci34_supplement/c2_equivalence/runtime.py": "1d0c1bdf516a9fc70f91f1ec26c15a71331bec05226d263af5947ccd89f28099",
+      "experiments/sci34_supplement/c2_equivalence/seal.py": "d2b9eb4e38a05853a12e19545316b049c3a3b8d9337e4683f0c36b1d42dc79e4",
+      "experiments/sci34_supplement/c2_equivalence/smoke.py": "11c74ff82cda0743b5ba4ca7acb93ad41d25ae256e46b277a9e4d6938a6a0aa5",
+      "experiments/sci34_supplement/c2_equivalence/validate.py": "32c0de9f0f1ad88ef4a9a9528ff1447170961404434315703b515681905fd72c",
+      "experiments/sci34_supplement/common.py": "cc26ff1247fdad3ae1270f7542f4b5ab72a7de5a992f63e039ad46c05800afc0",
+      "experiments/sci34_supplement/e1e2_confirmatory/ACCEPTANCE_TEMPLATE.md": "6d734f0c422f6c53baec4d56dacab31578fa4cc263cd16086e9ce061874ded87",
+      "experiments/sci34_supplement/e1e2_confirmatory/CLAIMS_MATRIX.md": "d86bcf89986d33c94f1de18c3700374d085fbda9280f21761380db897f5d438b",
+      "experiments/sci34_supplement/e1e2_confirmatory/EXPERIMENT_PLAN.md": "b4abde1cf890835730c0d5df9262e7cc296da1d18e67b6e614cd290e734ce4f8",
+      "experiments/sci34_supplement/e1e2_confirmatory/GPU_HANDOFF.md": "103fcc040d423fa007d76a25c2e65445aaec27b2b8931f620766d9d134735674",
+      "experiments/sci34_supplement/e1e2_confirmatory/README.md": "05adc23d597d477a94dfbf7e2c426566df583b0e4ec1563b722852a0220d495c",
+      "experiments/sci34_supplement/e1e2_confirmatory/__init__.py": "b49c70ebad5b2c1cdee03034838e66ee77eb9a34e5d69d43b1fb78a92541724c",
+      "experiments/sci34_supplement/e1e2_confirmatory/analyze.py": "4d7d569bbb59466b1961831ee06c2cf0ad86c21c83fe90e5abbb38d4175b7b24",
+      "experiments/sci34_supplement/e1e2_confirmatory/analyze_v2.py": "1421113607f6625e27f9db2cfcbc7cb7c44597101aa42020ac71bb7ec83e9a78",
+      "experiments/sci34_supplement/e1e2_confirmatory/campaign.py": "07f3be9969a4bd9c27e4055db7e61e512964b7e4bbc14cf7bfccf2b8f81ee4f3",
+      "experiments/sci34_supplement/e1e2_confirmatory/campaign_support.py": "4779779d3e056d522b5ecf646cb5963aba2e27addff92e97d99669e5b9f92aaa",
+      "experiments/sci34_supplement/e1e2_confirmatory/fake_backend.py": "a49f196295e5246a7d99e7f6fe26dfe8758da44d7ed36c2a1d582ffe6cc81876",
+      "experiments/sci34_supplement/e1e2_confirmatory/fixtures/mini_multiwoz.json": "ca2e7f0850f1af95283012bef03f20e23bfa7ff2f8920809272ef9d2f49a9431",
+      "experiments/sci34_supplement/e1e2_confirmatory/holdout_builder.py": "bafc63ce9534f5e08accb2096b51d832bd12c7fee58e41c87488c49c08fd9fc9",
+      "experiments/sci34_supplement/e1e2_confirmatory/protocol.py": "6070aa45cd56b9fbd0ac2defd9e8b134d8d3e63c451913c4a33aafc4961700f1",
+      "experiments/sci34_supplement/e1e2_confirmatory/run_session.py": "d1ae218e1d2f77c04be67624fd23cc55a01cd308fed8f19698d6d29376cde448",
+      "experiments/sci34_supplement/e1e2_confirmatory/runtime.py": "31ac9d6597c3b3e8e9efe84d7d8cbbad38adcab9e7873a9dbf981186ab8878d5",
+      "experiments/sci34_supplement/e1e2_confirmatory/smoke.py": "1de3445039ca689e52ae71c768da7e53e2e20cae42c1ddfa98624d9bdc3cdfbb",
+      "experiments/sci34_supplement/e1e2_confirmatory/strong_identity.py": "18923b844ccdd36ac1c57d89703db89a309cb7949fda187d638ee08678897346",
+      "experiments/sci34_supplement/e1e2_confirmatory/trigger_cache.py": "d2dacd6da1e86d69715db41f94228bf9ef6c9051ca329e6a4b60b97e02221cf9",
+      "experiments/sci34_supplement/e1e2_confirmatory/validate.py": "c04cabba20e10bdf039710785063400707c6ceb35b24c35a9c17feebf6b08867",
+      "experiments/sci34_supplement/e3_fixed_trajectory.py": "1ad81e459b729f3198920324f0cdeb6d83a8eb6b3846297a0043b751d24c7289",
+      "experiments/sci34_supplement/e3_judge.py": "1d6bd71d1f697835ba99eebf02a1112f948fb0808cd205b84401ef5d208c0b02",
+      "experiments/sci34_supplement/fixtures/mini_dialogues.json": "3a764aede6f24276d5690c9f5e52ebd22034f9d5110c8a4b9aa532f11acd87e9",
+      "experiments/sci34_supplement/kv_runtime.py": "88ee752089d758eea0ebd992f0ea327a7adf158cd2b1516e1209ec4d994d22cd",
+      "experiments/sci34_supplement/model_runtime.py": "b552428a46c55dd0c8a529459945559c2806ae5e99578d2ce038bbd2db02bdaa",
+      "experiments/sci34_supplement/paced_player.py": "373949b7be3072ad00af6dd130dbdfbd10dd3f06bd47c146ea65f0ce0379db5c",
+      "experiments/sci34_supplement/recovery_boundary/EXPERIMENT_PLAN.md": "5284c1fcc54dfb9a000c06ca94b4d57744c3ac2f62385921c14a0fa0480fb83e",
+      "experiments/sci34_supplement/recovery_boundary/GPU_HANDOFF.md": "cb37fc783186bbbe258ba086f19c91c15725835c9281eb525b2406d1a00274f3",
+      "experiments/sci34_supplement/recovery_boundary/__init__.py": "40d0b3387108cf6f0bf709300c2255b6a3befd7026623fc4c05d9a9c31a04e78",
+      "experiments/sci34_supplement/recovery_boundary/boundary.py": "f0d3370138c94a9a24f4cd657616fe670f3e72f6178f8c42b9e4ad366aa08c9c",
+      "experiments/sci34_supplement/recovery_boundary/campaign.py": "c7dfd1557b4133c22aafd1cc6cedba614429dc6da0958703a522143df39fd099",
+      "experiments/sci34_supplement/recovery_boundary/protocol.py": "f3b66bfa8a53b1b8ecfcaa49f860519d21394177699d7f4fbd1cb1c2f1a7e946",
+      "experiments/sci34_supplement/recovery_boundary/runtime.py": "f0b142d41d59ee2986f5905a6c9d4ccf201f0146f4809a8aba69201649131733",
+      "experiments/sci34_supplement/recovery_boundary/smoke.py": "0f32f2870599cc7909257ef8743ade786131868cb24405e50231167c12196931",
+      "experiments/sci34_supplement/run_all_gpu.sh": "e8c5f5fdff9483198ce3ec0f43eb8985fb89611cc223ff7f6957e6c423d07290",
+      "experiments/sci34_supplement/smoke.py": "1e9aa13a25f37ca01d760b0adbdfdd27e4b37161b0c354fce32faa7793607886",
+      "pyproject.toml": "25868bca620fe60647b4523e6898b0bafb79ffc1c9ca479ee41fc204a2392002",
+      "src/__init__.py": "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068",
+      "src/asr/__init__.py": "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068",
+      "src/asr/faster_whisper_streamer.py": "b3ae52293d6c35e5af5d8462876b2578702d9a127ceb8644c937b1b2357ff425",
+      "src/asr/run_stream_asr_test.py": "cbcd5592f365a9510eb5a3e84e14127d4c6a25b6dcc61aeb7e807d477641c524",
+      "src/asr/streamaudio_segmenter.py": "1b4f39294195e6cae4ef4ad800519bdc8e451c4b23af133d484c37f95f575037",
+      "src/config.py": "06b45d4e095b374dcaafff4b4774ec82108df8ac0d6236aa4a9d542ae37a34ab",
+      "src/dialogue/__init__.py": "a980dd1b634cc29b8fb84c27412987b0c34afd58728642c32aa45055f40a7953",
+      "src/dialogue/orchestrator.py": "26ce8314459157a387b12b46a43c2e5dcada79a0d86426d83872d757d5760a89",
+      "src/dialogue/rewriter.py": "52dd5b613328524635184f375e2d22c47560dd3b205169e0e2a7fb212fa53191",
+      "src/dialogue/run_bargein_demo.py": "6353204a1870759d870b82459ba298cd2cb7cb4e09fc5689624636d393617fb0",
+      "src/dialogue/run_conditions_demo.py": "89d1b5018d3fe0a68ff5497ddc5d773e2bfea9d1d481f20b3cb7e417c630e5e3",
+      "src/dialogue/run_orchestrator_demo.py": "4a25d7f0a8f9b6db33ff8277d6b1fce39a78240f272362e6aa64ad24f9778e9d",
+      "src/dialogue/run_speculative_test.py": "ee77c0b7d5c72b0fd7c7451a84f91714b1253a45b449ed459c5761ee6c977f32",
+      "src/dialogue/run_timeline_test.py": "845ea8a1ddc0df019d8913748e0f270ed8b2aaf1f69d122ed35ec5261273871f",
+      "src/dialogue/run_trigger_test.py": "cda9594062c1e1fd856e48f5f5f91278ce020d7778e6f5bb9293219e2968a0a3",
+      "src/dialogue/timeline.py": "2243f087d73879a1ad7cc3a29564beabfee119f8f51b95f537d01dca3d22df99",
+      "src/dialogue/trigger.py": "03911a8ae21aecda069927f659385ba2723a8fafb699c3dc828a0f46fbd7c992",
+      "src/dialogue/unheard_detector.py": "8f8b983e6d4e8f07200f9e4f475336cd8cb02e37da9ef1613cb686f40efa960a",
+      "src/llm/__init__.py": "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068",
+      "src/llm/run_kvcrop_test.py": "d604fa2217d4d3f85e0b2575e29c59515db77c54c1ea06d0935d128bc0118e97",
+      "src/llm/run_llm_test.py": "57d62890f6716dfc7d23c09127ebb3074e09e20f4435142a36e041bcaa4fac40",
+      "src/llm/stream_llm_inference.py": "54980a72aaf744567284dfdd23a534922599c89d83b5e10acd1ca82cdc01c8e8",
+      "src/player/__init__.py": "62262eff6af602b4b816329ebbcbdf8f48498d055f5a7a7e0a4f183eca5e4ffe",
+      "src/player/player.py": "84f39930afc0c047ef67d639d2dd0e8cd508183f26c96d101f150ea708ed71a5",
+      "src/run_test_simple.py": "f57cb4b039019f4ad6d5b68c44c6b320be5362c6531d5b21b248072ba1349ca2",
+      "src/run_test_simple.sh": "536fe821c777eb21fe0c72ec37065609c12da6f00e443bbb1b3316eb14df7b25",
+      "src/tts/__init__.py": "b24872ba1d80193487d609e554ab55b1957f4e257f9733b6360eaf4fa0dd309b",
+      "src/tts/cosyvoice_tts.py": "448df4ee66fb8ea06b8fefe9737429c993c6bc235f4b6d6a9ac690cc7c837b70",
+      "src/tts/run_chunker_test.py": "66604efd1cc61c3f8213e2de2262c9e12917344dbeb3449d48d6d461e7e707a7",
+      "src/tts/sentence_chunker.py": "64f871a0503ad1c92f470e83a2598ae1d6ae0c8bcb62c91f11887d04a1026163",
+      "src/tts/streaming_tts.py": "db621de18415b918398ba045679baa15c5a0c07517f2e991bcb48e366a947f21",
+      "src/utils/__init__.py": "36a9e7f1c95b82ffb99743e0c5c4ce95d83c9a430aac59f84ef3cbfab6145068",
+      "src/utils/audio2stream.py": "2ebcdd4c14509f43f087750fa6177f04159569cc8beb8be67c41adf85a8e42e2",
+      "src/utils/audio_utils.py": "32b8b0bc87268b7bedf911bc173b538eb05edb3879aad2fb1e53c654ca091cc0",
+      "src/utils/check_utils.py": "f64cfa42db8ca81bef0563d38a13e3991b8bc8b7c3ff708b492e750f80ccca6c",
+      "src/utils/logging_utils.py": "da5669b68f9cc57993071ce3ad40ead1fec2e21ed94e4f61f01638e632e0cbc2",
+      "uv.lock": "7b76c69de3b04f10d270215206b892cebaf372fe2107a4a76cb6e12436cc2fd1"
+    }
+  },
+  "suffix_tokens": {
+    "Book for two guests on Friday.": [
+      7134,
+      369,
+      1378,
+      14709,
+      389,
+      6602,
+      13
+    ],
+    "State only the confirmed next step.": [
+      1397,
+      1172,
+      279,
+      10774,
+      1790,
+      3019,
+      13
+    ],
+    "State the next confirmed step briefly.": [
+      1397,
+      279,
+      1790,
+      10774,
+      3019,
+      26753,
+      13
+    ]
+  }
+}

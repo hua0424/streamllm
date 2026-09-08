@@ -1,0 +1,58 @@
+{
+  "boundary_ok": true,
+  "diagnostics": [
+    {
+      "continuation_same": true,
+      "key": [
+        0,
+        "c2_02_clean_short_max",
+        0,
+        0
+      ],
+      "max_abs_logit_difference": 0.59375,
+      "mean_abs_logit_difference": 0.049333032220602036,
+      "top1_same": true
+    },
+    {
+      "continuation_same": true,
+      "key": [
+        0,
+        "c2_16_second_medium_eos",
+        0,
+        0
+      ],
+      "max_abs_logit_difference": 0.3125,
+      "mean_abs_logit_difference": 0.04532844200730324,
+      "top1_same": true
+    },
+    {
+      "continuation_same": false,
+      "key": [
+        0,
+        "c2_16_second_medium_eos",
+        0,
+        1
+      ],
+      "max_abs_logit_difference": 0.279296875,
+      "mean_abs_logit_difference": 0.03386744111776352,
+      "top1_same": true
+    },
+    {
+      "continuation_same": true,
+      "key": [
+        0,
+        "c2_18_clean_long_max",
+        0,
+        0
+      ],
+      "max_abs_logit_difference": 0.25,
+      "mean_abs_logit_difference": 0.03788568452000618,
+      "top1_same": true
+    }
+  ],
+  "formal_evidence_eligible": false,
+  "no_equivalence_claim": true,
+  "ok": true,
+  "pairs": 4,
+  "records": 8
+}

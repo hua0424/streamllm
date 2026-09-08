@@ -1,0 +1,112 @@
+{
+  "cuda": "12.8",
+  "cudnn": 91002,
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "gpu_free_total_bytes": [
+    9762242560,
+    25296044032
+  ],
+  "model": {
+    "content_identity_hash": "209f3a9cbccde56fb9ed39fca06a86b11c1aa0ebf721d897baab708d6cab2133",
+    "file_count": 15,
+    "files": [
+      {
+        "path": ".gitattributes",
+        "sha256": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361",
+        "size": 1519
+      },
+      {
+        "path": "LICENSE",
+        "sha256": "c156170b718ec29139d3653d40ed1986fd92fb7e0959b5c71f3c48f62e6636f4",
+        "size": 11344
+      },
+      {
+        "path": "README.md",
+        "sha256": "174c5a5d83d0f9670e0b96df86f2dddb2de5ab958f885653525b3d2c977f24b5",
+        "size": 6577
+      },
+      {
+        "path": "config.json",
+        "sha256": "8b9a4f6c0acf4854a2d301616d4203039c3d7972cb0a557dae98686b6c3ae4b2",
+        "size": 663
+      },
+      {
+        "path": "configuration.json",
+        "sha256": "a78221ae93dd8977b26fcd1d106fa5ad7e7f1fd3a7d93bfd9d6fba5ed00ec4d2",
+        "size": 48
+      },
+      {
+        "path": "generation_config.json",
+        "sha256": "3a8f9087e486054c8a4a08dae2e5a3ba62e23da212b5b8c08bc42cb983c3459f",
+        "size": 243
+      },
+      {
+        "path": "merges.txt",
+        "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+        "size": 1671839
+      },
+      {
+        "path": "model-00001-of-00004.safetensors",
+        "sha256": "26d9919262ccd063fcdfd926763fe9025ef1e3073767aaa8c83a375d7c5140c4",
+        "size": 3945426872
+      },
+      {
+        "path": "model-00002-of-00004.safetensors",
+        "sha256": "f5bb99fdadcac55c2c176497ec99f088a1764e78ed986fa4a0d45d12426ef0fa",
+        "size": 3864726352
+      },
+      {
+        "path": "model-00003-of-00004.safetensors",
+        "sha256": "0b749a4446d7cda007d5e7bd9f908849d08d89867192d4c039dc167e9ab5a02e",
+        "size": 3864726408
+      },
+      {
+        "path": "model-00004-of-00004.safetensors",
+        "sha256": "da724bb7d3c3512eb371aa6caa5bcc08d78bda84f94e00ae9a9b2124e3e9c62f",
+        "size": 3556392240
+      },
+      {
+        "path": "model.safetensors.index.json",
+        "sha256": "f00d17cbf433746c391ad43948613e373aa51222dbee3b0db61ffff59a74bb1a",
+        "size": 27752
+      },
+      {
+        "path": "tokenizer.json",
+        "sha256": "f7c9b2dba4a296b1aa76c16a34b8225c0c118978400d4bb66bff0902d702f5b8",
+        "size": 7028015
+      },
+      {
+        "path": "tokenizer_config.json",
+        "sha256": "be21acaf90e7f449b7282fdef7b06516a0102476e86cbc2108e18ac071f9cc9c",
+        "size": 1288
+      },
+      {
+        "path": "vocab.json",
+        "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+        "size": 2776833
+      }
+    ],
+    "resolved_path": "/root/autodl-tmp/dataA/models/Qwen2-7B-Instruct",
+    "revision": null,
+    "schema_version": 1,
+    "total_bytes": 15242797993
+  },
+  "platform": "Linux-5.15.0-136-generic-x86_64-with-glibc2.35",
+  "python": "3.10.18 (main, Oct  7 2025, 15:34:08) [Clang 20.1.4 ]",
+  "runtime": {
+    "accepted_model_artifact_hash": "fae2ece10b76512237cf28957f98e7b0d2c609455a173031e3bd16b3dff7c5ab",
+    "architectures": [
+      "Qwen2ForCausalLM"
+    ],
+    "attention_backend": "sdpa",
+    "chat_template_sha256": "793202280c0910ab26bc6eb57c8212c2417324c6d8c4efd0d10d59092ab3e3eb",
+    "eot_token_id": 151645,
+    "execution": "transformers_model",
+    "model_type": "qwen2",
+    "resolved_dtype": "torch.bfloat16",
+    "tokenizer_class": "Qwen2TokenizerFast"
+  },
+  "strict_offline": true,
+  "torch": "2.8.0+cu128",
+  "transformers": "4.57.1"
+}

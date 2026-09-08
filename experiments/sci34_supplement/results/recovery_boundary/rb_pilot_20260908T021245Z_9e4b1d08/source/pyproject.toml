@@ -1,0 +1,50 @@
+[project]
+name = "streamllm"
+version = "0.1.0"
+description = "Research artifact for low-latency cascaded spoken dialogue using streaming ASR, incremental LLM KV caching, and playback-aware barge-in"
+readme = "README.MD"
+requires-python = ">=3.10"
+dependencies = [
+    "accelerate>=1.10.0",
+    "openai-whisper>=20231106",
+    "faster-whisper>=1.1.1",
+    "ipykernel>=6.29.5",
+    "ipywidgets>=8.1.7",
+    "librosa>=0.11.0",
+    "markupsafe==2.1.5",
+    "matplotlib>=3.10.3",
+    "numpy<2",
+    "pandas>=2.2.3",
+    "pydub>=0.25.1",
+    "python-dotenv>=1.1.0",
+    "scipy>=1.15.3",
+    "silero-vad>=5.1.2",
+    # cu128 构建以支持 Blackwell (RTX 5070 Ti, sm_120)；同时兼容 Ampere (3090, sm_86)。
+    # nvidia-*-cu12 运行库不再显式 pin，由 torch cu128 wheel 传递依赖拉取匹配的 12.8.x / cudnn 9.x。
+    "torch==2.8.0",
+    "torchaudio==2.8.0",
+    "torchvision==0.23.0",
+    "tqdm>=4.66.5",
+    "transformers>=4.52.3",
+    "seaborn>=0.13.2",
+    "stream2sentence>=1.0.0",
+    "sentencepiece==0.2.2",
+]
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cu128" },
+]
+torchvision = [
+  { index = "pytorch-cu128" },
+]
+torchaudio = [
+  { index = "pytorch-cu128" },
+]
+
+
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true 
