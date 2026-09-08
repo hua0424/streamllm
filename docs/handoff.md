@@ -1,5 +1,7 @@
 # 二期论文统一修订交接（C2 v3 已正式接受）
 
+> **2026-09-08 R/B 阻断修复（D-028）**：e82551b 报告旧 pilot `rb_pilot_20260908T021245Z_9e4b1d08` 8 records 完成后 cases tuple/list 校验失败，formal 未启动。现最小修复 validator JSON 比较，完整 CPU 合成 pilot/formal-shaped 回归及篡改负控、R/B/C2 v2/v3 smoke 通过；未跑 GPU、未 commit/push。本机无原失败归档可独立重放，旧失败报告/工件只读保留。下一步由作者交付新 clean 修复 commit，按 `recovery_boundary/GPU_HANDOFF.md` 新 pilot 成功后再 formal；下条未执行状态是历史记录。
+
 > **2026-09-06 新增获批限定任务（D-027）**：R 同策略下一轮恢复 + B 独立软件边界补证已实现，唯一 GPU 入口为 `experiments/sci34_supplement/recovery_boundary/GPU_HANDOFF.md`，协议见同目录 `EXPERIMENT_PLAN.md`。历史正式模型已核验为 Qwen2-7B/BF16/SDPA；当前远程安装未知。本批未 commit/push，需作者处理原有改动并明确提交后才可 pull/formal。R/B 本地软件测试通过，GPU pilot/formal 未执行。旧实验仍只读，不修改中文或 SC 正文。下文“无 GPU 任务”是 D-024 历史状态，由本条仅对新增 R/B 覆盖。
 
 > GPU 补实验与第二次审稿意见的科学内容修订均已结束。当前没有待执行的无条件 GPU 任务；既有 E1/E2/E3/A1/P1 与 C2 v1/v2/v3 工件全部只读，不得重跑或覆盖。下一断点是作者确认投稿元数据、完成可访问环境下的检索导出，并在选定目标期刊后生成压缩投稿稿。

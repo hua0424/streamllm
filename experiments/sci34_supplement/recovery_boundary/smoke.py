@@ -3,6 +3,8 @@
 No pretrained model/tokenizer download. Random model output is software test evidence only.
 """
 import copy
+from dataclasses import asdict
+import json
 import logging
 from pathlib import Path
 import tempfile
@@ -101,6 +103,123 @@ def production_cpu():
         assert arms[0]["ready_state"] == arms[1]["ready_state"]
 
 
+def campaign_validation_cpu():
+    """Full on-disk validator regression; synthetic CPU artifacts, not GPU evidence.
+
+    Genuine frozen cases and historical model identity, but deliberately synthetic
+    token/state/timing/environment fixtures. No validator gates or B replay mocked.
+    """
+    import numpy as np
+    from .campaign import read, validate
+    from .protocol import C2, file_hash
+    historical = read(C2 / "campaign_manifest.json")["config"]
+    boundary = run_boundary()
+    for pilot in (True, False):
+        selected_cases = cases(pilot)
+        with tempfile.TemporaryDirectory(prefix="rb_validate_cpu_") as temp:
+            path = Path(temp)
+            source_file = Path(__file__).with_name("campaign.py")
+            (path / "source").mkdir()
+            (path / "source/campaign.py").write_bytes(source_file.read_bytes())
+            parts = {"assistant_eot": [2, 3], "assistant_to_user": [4],
+                     "user_to_assistant": [2, 3, 5], "eot_token_id": 2}
+            tokens = {c.id: {"assistant": [7] * (2 * len(c.fragments)),
+                      "fragment_ends": [2 * (i+1) for i in range(len(c.fragments))],
+                      "second": [8, 9, 10, 11]} for c in selected_cases}
+            suffixes = {c.next_user for c in selected_cases} | {"State only the confirmed next step."}
+            manifest = {"protocol": PROTOCOL, "protocol_hash": digest(PROTOCOL),
+                        "pilot": pilot, "cases": [asdict(c) for c in selected_cases],
+                        "source": {"dirty": False, "files": {"campaign.py": file_hash(source_file)}},
+                        "model_identity": historical["model_identity"], "chat_parts": parts,
+                        "case_tokens": tokens, "suffix_tokens": {s: [12, 13] for s in suffixes}}
+            write(path / "manifest.json", manifest)
+            # Prove we cross the same tuple -> JSON array boundary as run().
+            loaded = read(path / "manifest.json")
+            assert isinstance(manifest["cases"][0]["fragments"], tuple)
+            assert isinstance(loaded["cases"][0]["fragments"], list)
+            assert loaded["cases"] == json.loads(json.dumps(manifest["cases"]))
+            manifest_hash = file_hash(path / "manifest.json")
+            write(path / "legacy_before.json", {"synthetic": "unchanged"})
+            write(path / "legacy_after.json", {"synthetic": "unchanged"})
+            write(path / "boundary.json", boundary)
+            for session in range(1 if pilot else PROTOCOL["sessions"]):
+                target = path / f"session_{session}"
+                target.mkdir()
+                write(target / "started.json", {"session": session,
+                      "process_start_id": f"synthetic-cpu-{session}", "manifest_hash": manifest_hash})
+                write(target / "environment.json", {"runtime": historical["runtime_metadata"],
+                      "strict_offline": True, "torch": "2.8.0+cu128", "transformers": "4.57.1"})
+                write(target / "complete.json", {"synthetic_cpu": True})
+                rows = []
+                for ci, case in enumerate(selected_cases):
+                    for repeat in range(1 if pilot else PROTOCOL["pairs_per_case"]):
+                        pre_ids = [6] * (case.context_tokens - 3) + parts["user_to_assistant"] + tokens[case.id]["assistant"]
+                        boundaries = []
+                        start = case.context_tokens
+                        for event in range(2 if case.second_crop_fraction is not None else 1):
+                            invalid = event == 0 and case.scenario == "speculation_full_invalidation"
+                            keep = (start + max(1, int(4 * case.second_crop_fraction)) if event else
+                                    start - 3 if invalid else len(pre_ids) if case.scenario == "reply_tail_noop" else
+                                    start + 2 * case.retain_fragment_count)
+                            def state(ids, role, reason, content_start, history, content):
+                                return {"token_ids": list(ids), "seq_length": len(ids), "kv_length": len(ids),
+                                        "mask": [[1]*len(ids)], "role_phase": role, "end_reason": reason,
+                                        "assistant_role_start": content_start-3, "assistant_content_start": content_start,
+                                        "assistant_content_end": None, "assistant_role_end": None,
+                                        "assistant_token_ids": content, "role_boundaries": copy.deepcopy(history)}
+                            pre = state(pre_ids, "assistant_open", "none", start, boundaries, pre_ids[start:])
+                            recovered = pre_ids[:keep] + ([] if invalid else [2, 3, 4])
+                            if not invalid:
+                                boundaries.append({"role_header_start": start-3, "content_start": start,
+                                    "content_end": keep, "role_end": keep+2, "next_user_content_start": len(recovered),
+                                    "end_reason": "none" if keep == len(pre_ids) else "cropped"})
+                            suffix = case.next_user if event == 0 else "State only the confirmed next step."
+                            ready_ids = recovered + [12, 13] + parts["user_to_assistant"]
+                            ready = state(ready_ids, "assistant_open", "none", len(ready_ids), boundaries, [])
+                            continuation = [14] * PROTOCOL["continuation_cap"]
+                            final = state(ready_ids + continuation, "assistant_open", "max_tokens", len(ready_ids), boundaries, continuation)
+                            for ordinal, arm in enumerate(order(session, ci, repeat)):
+                                sidecar = target / f"{case.id}_{repeat}_{event}_{arm}.npy"
+                                np.save(sidecar, np.arange(16, dtype=np.float32), allow_pickle=False)
+                                rows.append({"session": session, "case_id": case.id, "repeat": repeat,
+                                    "event": event, "arm": arm, "arm_order": ordinal, "manifest_hash": manifest_hash,
+                                    "recovery_ns": 1, "suffix_ready_ns": 2, "ready_total_ns": 3,
+                                    "decode_first_ns": 4, "first_deliverable_ns": 7, "delivered": True,
+                                    "pre_ids": pre_ids, "pre_state": pre, "keep": keep, "recovered_ids": recovered,
+                                    "suffix": suffix, "ready_ids_expected": ready_ids, "ready_state": ready,
+                                    "final_state": final, "selected_ids": continuation, "continuation_ids": continuation,
+                                    "logits_file": sidecar.relative_to(path).as_posix(), "logits_sha256": file_hash(sidecar)})
+                            start = len(ready_ids)
+                            pre_ids = ready_ids + tokens[case.id]["second"]
+                (target / "records.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+            result = validate(path)
+            assert result["ok"] and result["boundary_ok"]
+            assert result["records"] == (8 if pilot else 320)
+            assert result["pairs"] == (4 if pilot else 160)
+            assert result["formal_evidence_eligible"] is (not pilot)
+            original = (path / "manifest.json").read_bytes()
+            # Require rejection at the cases gate, not a later stale manifest hash.
+            for tamper in ("fragment", "order", "missing"):
+                altered = copy.deepcopy(loaded)
+                if tamper == "fragment":
+                    altered["cases"][0]["fragments"][0] += " tampered"
+                elif tamper == "order":
+                    altered["cases"].reverse()
+                else:
+                    altered["cases"].pop()
+                (path / "manifest.json").write_text(json.dumps(altered), encoding="utf-8")
+                try:
+                    validate(path)
+                except AssertionError as exc:
+                    import traceback
+                    assert 'm["cases"]' in traceback.extract_tb(exc.__traceback__)[-1].line
+                else:
+                    raise AssertionError(f"Tampered cases accepted: {tamper}")
+            (path / "manifest.json").write_bytes(original)
+            assert validate(path) == result
+            print(f"PASS: full CPU synthetic validate pilot={pilot}, records={result['records']}, pairs={result['pairs']}; case content/order/missing rejected at cases gate")
+
+
 def main():
     logging.disable(logging.CRITICAL)
     assert len(cases()) == 9 and len(expected_grid()) == 320
@@ -124,6 +243,7 @@ def main():
         assert verify(path)["ok"]
         (path/"raw.json").write_text("tampered")
         rejected(lambda: verify(path))
+    campaign_validation_cpu()
     production_cpu()
     print("PASS: 320-record grid/order; E3 100 trajectories/800 records/1118 cursors; C2 27 closures; unique writes/seal tamper; random CPU Qwen production crop/rebuild/role/consumer commit")
 

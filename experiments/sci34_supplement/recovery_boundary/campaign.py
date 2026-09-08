@@ -120,7 +120,8 @@ def validate(run_dir):
     import numpy as np
     m = read(run_dir / "manifest.json")
     assert m["protocol"] == PROTOCOL and m["protocol_hash"] == digest(PROTOCOL)
-    assert m["cases"] == [asdict(c) for c in cases(m["pilot"])]
+    # Compare in the persisted JSON domain: asdict preserves fragments tuples.
+    assert m["cases"] == json.loads(json.dumps([asdict(c) for c in cases(m["pilot"])]))
     assert read(run_dir / "legacy_before.json") == read(run_dir / "legacy_after.json")
     for relative, sha in m["source"]["files"].items():
         assert file_hash(run_dir / "source" / relative) == sha

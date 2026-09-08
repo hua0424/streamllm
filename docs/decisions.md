@@ -5,6 +5,16 @@
 
 ---
 
+## D-028（2026-09-08）修复 R/B manifest cases 的 JSON 边界比较
+
+**背景与决策**：e82551b 报告旧 pilot `rb_pilot_20260908T021245Z_9e4b1d08` 完成 8 records 后在 campaign.py:123 失败，formal 未启动。本机以真实 cases 经 write→read→validate 重现同一 AssertionError；asdict 保留 fragments tuple，JSON 读回为 list。仅将 validator 期望 cases 做 `json.loads(json.dumps(...))`，与既有 chat_parts 归一化一致，仍精确比较全部值和顺序。不是协议或实验设计变更。
+
+**回归**：smoke 新增完整临时 CPU 合成 campaign（真实冻结 cases、历史模型身份、source snapshot、manifest/session/records/NPY/B replay，无 validator mock）；修复前红在同一 cases 行，修复后 pilot 8/4 与 formal-shaped 320/160 records/pairs 全绿。内容篡改、换序、缺 case 均在 cases 门 fail-closed。R/B、C2 v2/v3 smoke、CLI/compile 通过；合成工件仅为软件测试，不是 GPU/正式证据。
+
+**影响与状态**：accepted（局部修复；GPU 新 pilot/formal pending）。src、冻结 gates/model/grid/protocol、旧结果/失败报告/归档/seals 均不改。原失败 tar 本机不可用，未独立重放；保留旧失败不改判。本批未 commit/push；作者交付修复后的新 clean commit 后按 GPU_HANDOFF 从新 pilot 开始，成功且预算可接受再 formal。
+
+---
+
 ## D-027（2026-09-06）实现获批 R/B 有限补证，不修改论文
 
 **决策**：用户批准 SC 聚焦方案点 1/2 后，新增 `experiments/sci34_supplement/recovery_boundary/`。R 比较相同保留策略下 production crop 与可执行 full-rebuild 的 USER_OPEN、suffix/header-ready 及首 consumer-deliverable token；B 独立核验既有 E3 软件采样/fragment records 与 C2 fixture closure。旧 campaign/protocol/verdict 全部只读，中文/SC 正文不动。
