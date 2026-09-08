@@ -274,3 +274,39 @@ validation `ok=true` 零错误，ACCEPTANCE `Status: accepted`，seal 已创建�
   `e3_exact_rescue/` 零改动；论文零改动。v2 保持 rejected，v3 结果未改写 v2 结论
   （claim boundary 已在 ACCEPTANCE 限定：仅证 crop/truncation 完整性与
   matched recovery 确定性，不证 clean re-prefill 数值等价）。
+
+## R/B recovery_boundary（2026-09-08，commit 10dcc15）：工程 pilot 被协议外断言阻断，formal 未启动
+
+按 `experiments/sci34_supplement/recovery_boundary/GPU_HANDOFF.md` 执行
+（SOURCE_COMMIT `10dcc155baf95e089de6d6375d4a0faac87b000b`，工作树含 untracked 全干净）。
+§1 环境核验全绿：torch 2.8.0+cu128 / transformers 4.57.1 精确匹配冻结栈，
+`uv sync --frozen --offline` 通过，两张 3090 全空、无计算进程。
+§2 软件检查全 PASS：`recovery_boundary.smoke`（320-record grid、E3 100
+trajectories/800 records/1118 cursors、C2 27 closures、exclusive write/seal tamper、
+随机 CPU Qwen 两臂 execute）、`run_timeline_test`、`run_chunker_test`（nltk 已缓存）、
+`c2_equivalence.smoke`（protocol_version=2）。
+
+**Pilot 阻断（工程 pilot，非 formal）**：run
+`rb_pilot_20260908T021245Z_9e4b1d08` 的模型计算全部成功——8 条 arm-event records
+齐全、session_0 耗时 53.9s、峰值 reserved 15.7GB（24GB 充裕）、session 日志零错误；
+但随后 `campaign.py` validate 在 L123
+`assert m["cases"] == [asdict(c) for c in cases(m["pilot"])]` 抛 AssertionError，
+目录按协议写入 `FAILED.json`（AssertionError, retained）。
+
+**根因（确定性代码 bug，非数值/环境问题）**：`CaseSpec.fragments` 类型为
+`tuple[str, ...]`（c2_equivalence/protocol.py L174 起）。manifest 经 `json.dump`
+落盘后 tuple 变 list；validate 现场重算的 `asdict(c)` 保留 tuple。逐字段 diff 确认
+3/3 pilot cases 唯一差异字段为 `fragments`（list vs tuple），JSON 归一化后完全相等。
+同文件 L340 对 `chat_parts` 已做 `json.loads(json.dumps(...))` 归一化，cases 漏做。
+诊断性全量复核（只读、不改任何文件，仅将该比较按 JSON 归一化后跑完整 validate）：
+`ok=True`、8 records/4 pairs、boundary_ok=True，下游全部断言（账本/keep 独立推导/
+role 边界/logits 有限性/逐 pair 一致性/B 重放）均通过——即修复此一处即可 unblock。
+pilot 描述性诊断（非正式证据）：4 对 crop/rebuild 的 max_abs logit 差 0.25–0.59，
+top1 3/4 same、continuation 3/4 same（c2_16 event 1 不同，无等价性门槛，仅描述）。
+
+**处置**：按 handoff §3 停止并保留现场；formal 未启动；失败目录已打包
+`rb_pilot_20260908T021245Z_9e4b1d08.failed.tar.gz`（2.7MB，sha256
+`7c4d7ae0ebf1c072d06c3ed766fa44be0316d7c876bbd3b57e5bf0d3ac0b6e12`），
+位于源码树外 `/root/autodl-tmp/recovery_boundary_runs/`。未修改任何代码/协议/
+旧结果；待设计侧修复（建议 validate 对 cases 比较做 JSON 归一化）并交付新 commit 后
+从 pilot 重跑。
