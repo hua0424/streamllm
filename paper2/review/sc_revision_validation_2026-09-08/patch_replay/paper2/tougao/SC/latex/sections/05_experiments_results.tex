@@ -1,0 +1,143 @@
+\section{Experimental methodology and results}
+\label{sec:experiments}
+
+\subsection{Evidence and environment}
+
+The evaluation separates prefix integrity, operational recovery cost, and downstream effects (Table~\ref{tab:evidence}). C2 tests same-snapshot crop integrity and matched recovery. B checks the software boundary independently of the production lookup. R compares executable next-turn recovery under the same retention policy. A1 and P1 provide supporting measurements at different operation boundaries; E3 is a downstream diagnostic. Absolute times from different campaigns are neither pooled nor subtracted.
+
+\begin{table}[t]
+\centering\small
+\caption{Evidence roles and limits of inference.}
+\label{tab:evidence}
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+Study & Question & Scope of answer \\
+\midrule
+C2 v3 & Is the specified prefix preserved? & Same-snapshot exact crop and matched recovery \\
+B & Does the software cursor select the specified boundary? & Independent replay of stored software records \\
+R & What cost does executable reuse avoid? & Same-policy crop versus full rebuild; fixed fixtures \\
+A1/P1 & What are local repair and software-control costs? & Synchronized microbenchmark and prepared-state headless path \\
+E3 & Does retention change automated information reproduction? & Inconclusive fixed-trajectory diagnostic \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The principal model was Qwen2-7B-Instruct \citep{yang2024Qwen2}. The R runtime used Python 3.10.18, PyTorch 2.8.0+cu128, Transformers 4.57.1, CUDA 12.8, cuDNN 9.10.2, BF16, and SDPA, with exactly one exposed RTX 3090 (24~GB) per process session. It used the historical model artifact also recorded by C2, not Qwen2.5. Model loading was strictly offline. Four independently initialized processes reloaded the model; repetitions within them are not independent sessions.
+
+The downstream data were derived from MultiWOZ 2.1 \citep{eric2020MultiWOZ21}. Mistral-7B-Instruct-v0.3 supplied automated E3 judgments \citep{jiang2023Mistral7B,mistralAI2024Mistral7BInstructV03}. A six-sentence CosyVoice2-0.5B profile parameterized deterministic Mock-TTS durations \citep{du2024CosyVoice2}; these are not live synthesis measurements. The surrounding implementation reuses Whisper-based ASR \citep{radford2023RobustSpeechRecognition} and stream2sentence version 1.0.0 \citep{beigel2026Stream2Sentence}, but the evaluated records do not constitute a live speech loop. Supplementary Material S1--S4 contains the separate candidate/history studies and complete artifact mapping.
+
+\subsection{C2 exact correctness and B software boundaries}
+
+C2 v1 and v2 retain their rejected verdicts. V1 failed its frozen clean-reprefill numerical criteria; v2 passed structural checks but only 42/45 numerical comparisons. Its control did not match the production forward topology, preventing attribution of numerical differences to cropping. C2 v3 instead posed the narrower same-snapshot slicing and matched-recovery questions. Rejected protocols, records, and their diagnostic limitations remain available in Supplementary Material S4.
+
+\begin{table}[t]
+\centering\small
+\caption{C2 v3 exact-gate coverage.}
+\label{tab:c2}
+\begin{tabularx}{\linewidth}{@{}Yr@{}}
+\toprule
+Check & Result \\
+\midrule
+Cases / crop events & 24/24; 27/27 \\
+Production assistant append & 308 tokens \\
+K/V layers compared & 28 \\
+Recovery steps & 60/60 \\
+Wrong-length controls detected & 27/27 \\
+No-op crops & 3/3 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+At all 27 crop events, the retained pre-crop K/V prefix, production post-crop K/V, and slicing-oracle K/V agreed across 28 layers in shape, dtype, device, hash, and runtime \texttt{torch.equal}. The independently derived keep length, mask, global ledger, sequence length, and K/V length were exact. Across 60 recovery steps, matched arms remained exact in K/V, logits, mask, ledger, retained-prefix hash, and role/end/content state. All wrong-length controls were detected. This is direct crop integrity and within-run matched-arm recovery exactness, not clean-reprefill equivalence.
+
+B independently reconstructed expected fragment selection from ordered sample-end intervals and replayed the production timeline on 100 saved E3 trajectories. It checked 800 stored condition records and 1118 distinct trajectory--cursor combinations, covering zero, fragment starts, the next sample, midpoints, ends, total length, and an overrun query. Token/sample continuity, retained/history endpoints, hit identity, partial flags, and lifecycle states passed. It also independently derived the keep lengths and closure ledgers for 27 C2 events, including both zero-content cases and second crops. B thus connects saved software geometry to the declared retention policy without reusing the production lookup as its reference. It cannot validate real TTS alignment, device presentation, or listening truth.
+
+\subsection{R: executable same-policy next-turn recovery}
+\label{sec:recovery-cost}
+
+\paragraph{Design and comparator.}
+R used nine frozen, non-Cartesian cases: ordinary fragment boundaries at 512, 2048, and 8192 initial-context tokens; short-context zero playback, mid-fragment upward retention, reply-tail no-op, pending EOT, and complete candidate invalidation; and a 2048-token case with a second interruption. Nine cases produced ten case--event cells. Each of four sessions included one excluded warm-up pair per case and four measured pairs, yielding 144 case pairs, 160 event pairs, and 320 arm--event records. Arm order was balanced by session, case, and repetition. EOT states were controlled fixtures driven through the production generator, not observations of natural termination despite historical case-name suffixes.
+
+Each arm independently prepared the same pre-interruption token history outside the timed intervals. The crop arm used the production crop and, when required, role reopening. The full-rebuild arm forwarded the identical retained token IDs and legal close/user-open sequence in one batch, keeping the resulting cache and logits in an executable state. Both then appended the same user suffix and assistant header and ran greedy decoding for at most eight token selections. Thus R compares the same retention policy and serialized next-turn history, not different history strategies. Full rebuilding is a meaningful recomputation reference but not an optimized stable-prefix serving baseline.
+
+For the second interruption, the first diagnostic continuation was removed outside the measurement window and both arms were advanced through the same frozen second-assistant fixture, while preserving their repaired first-turn histories. This reconciliation prevents numerical greedy divergence from changing the prefixes being compared. It tests a second controlled repair, not unrestricted long-conversation recovery.
+
+\paragraph{Endpoints and uncertainty.}
+All operation intervals used \texttt{perf\_counter\_ns} with CUDA synchronization at their boundaries. Recovery ends at \texttt{USER\_OPEN}; suffix/header readiness ends after the next assistant role is opened. The separate decode interval ends when the first \texttt{next(generator)} returns and device synchronization completes, including the token's actual KV commit and yield rather than only its selection callback. With $T_{\mathrm{suffix}}$ measured after recovery,
+\begin{equation}
+T_{\mathrm{deliver}}=T_{\mathrm{recover}}+T_{\mathrm{suffix}}+T_{\mathrm{decode,first}}.
+\label{eq:recovery-cost}
+\end{equation}
+This is a sum of synchronized intervals, not a continuous wall-clock span. Model loading, initial history and fixture preparation, CPU state/logit audits between intervals, and the remaining diagnostic continuation are excluded. ASR, TTS, and playback are absent. A first-selection EOT would yield no deliverable and a null cost rather than a fabricated zero; no such missing deliveries occurred.
+
+For each fixed case/event, the estimand is the mean paired difference $T_{\mathrm{rebuild}}-T_{\mathrm{crop}}$. We report 95\% percentile intervals from 10,000 session-cluster bootstrap draws (seed 20260906). Repeats and second events remain within their process cluster. With only four sessions these intervals are coarse descriptions of process variation conditional on fixed fixtures, not uncertainty over 160 independent dialogues or over deployment workloads.
+
+\paragraph{Results.}
+All 320 records passed the frozen structural/finite-value gates and both arms delivered a first token in all 160 pairs. Table~\ref{tab:r} reports every case/event rather than selecting only ordinary boundaries. At the three ordinary boundaries, mean first-deliverable savings were 113.621, 465.377, and 1956.100~ms, respectively. At 8192 tokens the recovery-only difference was 1951.675~ms [1937.285, 1963.226], showing that most avoided work was in reconstructing the retained context, not in the first decoding operation. Positive costs here establish the observed operational advantage over full rebuilding within this fixed design; no outcome-sign acceptance gate or broader workload claim was used.
+
+\begin{table}[t]
+\centering\small
+\caption{R paired rebuild-minus-crop first-deliverable operation cost (ms). All ten fixed case--event cells are shown; each contains four pairs in each of four process sessions. Intervals are 95\% session-cluster percentile intervals, not independent-event intervals. Initial context length does not include later fixture/suffix growth.}
+\label{tab:r}
+\begin{tabularx}{\linewidth}{@{}lYr r@{}}
+\toprule
+Case/event & Boundary (initial tokens) & Mean & 95\% CI \\
+\midrule
+\tableinput{tables/r_first_deliverable_rows.tex}
+\bottomrule
+\end{tabularx}
+\end{table}
+
+At matched next-turn-ready states, token IDs, masks, sequence/KV lengths, role/content spans, and closure ledgers satisfied the same structural plan. All 320 saved next-token logit arrays were finite float32 arrays of shape $[1,152064]$. The maximum cross-arm absolute logit difference was 0.59375. Top-1 choices agreed in 160/160 pairs, but bounded eight-token continuations agreed in only 144/160. All 16 differences occurred at case 16, event index 1 (the second interruption), across all sessions and repeats. Logit and output differences are retained as diagnostics: R requires finite values, not cross-topology BF16 equality. These observations support executable same-policy recovery and measured cost savings, not numerical equivalence or broad functionality without loss.
+
+\subsection{Supporting repair microbenchmark and software path}
+
+A1 compared synchronized joint crop-plus-role repair with complete re-prefill over 256--8192-token contexts. Each length used five warm-ups and 50 recorded repetitions, fixed operation order, and removal of a fixed 32-token suffix. Table~\ref{tab:a1} and Figure~\ref{fig:a1} show joint-repair medians of 31.054--48.315~ms. The median re-prefill-to-repair ratio increased from $2.254\times$ at 256 tokens to $40.620\times$ at 8192 tokens. Unlike R, this local microbenchmark does not extend its comparator to a measured next-turn generator endpoint.
+
+\begin{table}[t]
+\centering\small
+\caption{A1 synchronized repair microbenchmark; 50 repetitions per length.}
+\label{tab:a1}
+\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrrrrr@{}}
+\toprule
+Context length & 256 & 512 & 1024 & 2048 & 4096 & 8192 \\
+\midrule
+Joint median (ms) & 31.616 & 31.852 & 31.054 & 31.519 & 36.903 & 48.315 \\
+Joint IQR (ms) & 2.356 & 2.162 & 3.099 & 1.197 & 0.635 & 0.928 \\
+Re-prefill/joint & $2.254\times$ & $4.124\times$ & $7.707\times$ & $15.020\times$ & $25.453\times$ & $40.620\times$ \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.82\linewidth,height=0.39\textheight,keepaspectratio]{Figure_5_cost_microbenchmark.pdf}
+\caption{A1 joint repair and re-prefill microbenchmark. Error bars show interquartile ranges across 50 repetitions.}
+\label{fig:a1}
+\end{figure}
+
+P1 crossed three context lengths (512, 2048, 8192) with three cursor proportions (0.25, 0.50, 0.75) and 20 repetitions per cell, yielding 180 prepared-state headless records. All requests and acknowledgements reached the intended software cursor. Cell medians were 0.055--0.062~ms for stop acknowledgement, 0.167--0.176~ms for subsequent GPU synchronization, 0.47--0.50~ms for timeline lookup, 2.44--2.53~ms from stop to crop completion, and 78.6--80.8~ms from stop to role recovery. The latter intervals are nested and must not be added. Prepared-state setup was excluded. Zero leaked software samples means only that the software counter did not advance after acknowledgement; it says nothing about sound-card or acoustic stopping. P1's earlier timing-contaminated version remains excluded (Supplementary Material S4).
+
+\subsection{Downstream fixed-trajectory diagnostic}
+
+E3 contained 100 dialogues, 400 paired dialogue--injection-position units, 800 condition records, and 1600 judge records. Each assistant trajectory was generated once; software-cursor and generation-retention conditions shared that trajectory, its fragment timeline, and four injection positions (0.25, 0.50, 0.75, and a fragment boundary). Fragment and character-ratio proxy targets were separately eligible when their respective target strings were non-empty: 297 fragment labels from 96 dialogues and 380 proxy labels from 100 dialogues.
+
+The primary estimand weights eligible dialogue--position labels equally and measures generation minus software-cursor retention. Intervals use 10,000 paired dialogue-cluster bootstrap repetitions (seed 20260831). The lexical detector matches numbers, selected capitalized terms, and non-stopword content terms. The \texttt{specific-reference-v3} Mistral judge receives the target and two delimiter-joined replies without condition identity, and greedily produces a strict YES/NO decision. The intervals describe dialogue-sampling uncertainty conditional on the fixed trajectories, targets, detectors, prompts, and 40-token response cap; they omit detector and model/prompt uncertainty.
+
+\begin{table}[t]
+\centering\small
+\caption{E3 label-weighted information-reproduction rates. The effect is generation minus software-cursor retention; pp denotes percentage points.}
+\label{tab:e3}
+\begin{tabularx}{\linewidth}{@{}llccY@{}}
+\toprule
+Target & Detector & Cursor rate & Generation rate & Effect [95\% CI] (pp) \\
+\midrule
+Fragment & Lexical & 67.00\% (199/297) & 63.64\% (189/297) & $-3.37$ [$-10.49$, 3.40] \\
+Fragment & Judge & 42.76\% (127/297) & 40.74\% (121/297) & $-2.02$ [$-10.70$, 6.13] \\
+Proxy & Lexical & 75.26\% (286/380) & 73.68\% (280/380) & $-1.58$ [$-6.08$, 2.67] \\
+Proxy & Judge & 43.95\% (167/380) & 41.32\% (157/380) & $-2.63$ [$-8.57$, 2.90] \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+All four primary intervals cross zero (Table~\ref{tab:e3}). Dialogue weighting and target-specific exact-key deduplication also leave the direction inconclusive; complete sensitivity results and detector agreement appear in Supplementary Material S3. None establishes superiority, equivalence, non-inferiority, harm, or absence of an effect. In particular, removing complete unretained fragments from the cursor-conditioned history is a construction property, not evidence that subsequent responses reproduce less information or that listeners experience better dialogue.

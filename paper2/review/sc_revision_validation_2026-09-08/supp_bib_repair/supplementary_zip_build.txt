@@ -1,0 +1,551 @@
+Rc files read (in order):
+  NONE
+Latexmk: This is Latexmk, John Collins, 9 March 2026. Version 4.88.
+No existing .aux file, so I'll make a simple one, and require run of *latex.
+Latexmk: applying rule 'pdflatex'...
+Rule 'pdflatex':  Reasons for rerun
+Category 'other':
+  Rerun of 'pdflatex' forced or previously required:
+    Reason or flag: 'Initial setup'
+
+------------
+Run number 1 of rule 'pdflatex'
+------------
+------------
+Running 'pdflatex  -interaction=nonstopmode -halt-on-error -recorder  "supplementary.tex"'
+------------
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex.fmt)
+ restricted \write18 enabled.
+entering extended mode
+(supplementary.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/base\size12.clo))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/natbib\natbib.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
+For additional information on amsmath, use the `?' option.
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/tools\tabularx.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/tools\longtable.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\lmodern.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype-pdfte
+x.def)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype.cfg))
+ (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefineke
+ys.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds.s
+ty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.sty
+))) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettitle
+string.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty))
+)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\stringenc.sty
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc.s
+ty)))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfilec
+heck.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquecou
+nter.sty))) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/xurl\xurl.sty
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/needspace\needspace.sty
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmr.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdfte
+x.def) (supplementary.aux)
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-cmr.cfg)
+Underfull \hbox (badness 10000) in paragraph at lines 28--28
+[]\OT1/lmr/bx/n/17.28 Candidate-generation char-ac-ter-i-za-tion (C1/C-
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\omllmm.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\omslmsy.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\omxlmex.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msa.cfg)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msb.cfg)
+
+Package natbib Warning: Citation `schwarz2023PersonalizedPredictiveASR' on page
+ 1 undefined on input line 33.
+
+
+Package natbib Warning: Citation `zou2026LTSVoiceAgent' on page 1 undefined on 
+input line 33.
+
+
+Package natbib Warning: Citation `mai2026RelayS2S' on page 1 undefined on input
+ line 33.
+
+
+Package natbib Warning: Citation `eric2020MultiWOZ21' on page 1 undefined on in
+put line 35.
+
+
+Package natbib Warning: Citation `yang2024Qwen2' on page 1 undefined on input l
+ine 35.
+
+
+Package natbib Warning: Citation `tenFramework2025TurnDetection' on page 1 unde
+fined on input line 35.
+
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmtt.fd) [1{C:/User
+s/hua/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/hua/AppData/Lo
+cal/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Users/hua/AppData/Local/Pr
+ograms/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Users/hua/AppData/Local/Prog
+rams/MiKTeX/fonts/enc/dvips/lm/lm-mathsy.enc}{C:/Users/hua/AppData/Local/Progra
+ms/MiKTeX/fonts/enc/dvips/lm/lm-rmtt.enc}]
+
+LaTeX Warning: Reference `tab:s-candidate' on page 2 undefined on input line 47
+.
+
+(tables/candidate_grid_rows.tex) (tables/candidate_grid_rows.tex)
+(tables/candidate_grid_rows.tex) [2{C:/Users/hua/AppData/Local/Programs/MiKTeX/
+fonts/enc/dvips/lm/lm-mathex.enc}]
+Underfull \hbox (badness 10000) in paragraph at lines 72--72
+[]\OT1/lmr/bx/n/17.28 Exploratory interrupted-history nat-u-ral-iza-tion
+
+Package natbib Warning: Citation `yang2025Qwen3' on page 3 undefined on input l
+ine 75.
+
+[3]
+
+Package natbib Warning: Citation `jiang2023Mistral7B' on page 4 undefined on in
+put line 98.
+
+
+Package natbib Warning: Citation `mistralAI2024Mistral7BInstructV03' on page 4 
+undefined on input line 98.
+
+
+LaTeX Warning: Reference `tab:s-e3' on page 4 undefined on input line 100.
+
+(tables/e3_sensitivity_rows.tex) [4] [5]
+
+LaTeX Warning: Reference `tab:s-r' on page 6 undefined on input line 140.
+
+[6] (tables/r_all_endpoints_rows.tex)
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table S4 on input line 156.
+
+[7]
+No file supplementary.bbl.
+
+Package natbib Warning: There were undefined citations.
+
+
+Package longtable Warning: Table widths have changed. Rerun LaTeX.
+
+[8] (supplementary.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+
+Package rerunfilecheck Warning: File `supplementary.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+ )
+(see the transcript file for additional information)<C:/Users/hua/AppData/Local
+/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/hua/AppData/Local/P
+rograms/MiKTeX/fonts/type1/public/lm/lmex10.pfb><C:/Users/hua/AppData/Local/Pro
+grams/MiKTeX/fonts/type1/public/lm/lmmi10.pfb><C:/Users/hua/AppData/Local/Progr
+ams/MiKTeX/fonts/type1/public/lm/lmmi12.pfb><C:/Users/hua/AppData/Local/Program
+s/MiKTeX/fonts/type1/public/lm/lmmi8.pfb><C:/Users/hua/AppData/Local/Programs/M
+iKTeX/fonts/type1/public/lm/lmr10.pfb><C:/Users/hua/AppData/Local/Programs/MiKT
+eX/fonts/type1/public/lm/lmr12.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/
+fonts/type1/public/lm/lmr17.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fon
+ts/type1/public/lm/lmr8.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/t
+ype1/public/lm/lmsy10.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/typ
+e1/public/lm/lmtt12.pfb>
+Output written on supplementary.pdf (8 pages, 222155 bytes).
+Transcript written on supplementary.log.
+Latexmk: Getting log file 'supplementary.log'
+Latexmk: Examining 'supplementary.fls'
+Latexmk: Examining 'supplementary.log'
+Latexmk: References changed.
+Latexmk: References changed.
+Latexmk: Log file says output to 'supplementary.pdf'
+  ===Source file 'supplementary.bbl' for 'pdflatex'
+Create bibtex supplementary
+Latexmk: Found bibliography file(s):
+  ./references.bib
+Latexmk: applying rule 'bibtex supplementary'...
+Rule 'bibtex supplementary':  Reasons for rerun
+Category 'other':
+  Rerun of 'bibtex supplementary' forced or previously required:
+    Reason or flag: 'Initial set up of rule'
+
+------------
+Run number 1 of rule 'bibtex supplementary'
+------------
+------------
+Running 'bibtex  "supplementary.aux"'
+------------
+This is BibTeX, Version 0.99e (MiKTeX 25.12)
+The top-level auxiliary file: supplementary.aux
+The style file: elsarticle-harv.bst
+Database file #1: references.bib
+Latexmk: applying rule 'pdflatex'...
+Rule 'pdflatex':  Reasons for rerun
+Changed files or newly in use/created:
+  supplementary.aux
+  supplementary.bbl
+  supplementary.out
+
+------------
+Run number 2 of rule 'pdflatex'
+------------
+------------
+Running 'pdflatex  -interaction=nonstopmode -halt-on-error -recorder  "supplementary.tex"'
+------------
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex.fmt)
+ restricted \write18 enabled.
+entering extended mode
+(supplementary.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/base\size12.clo))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/natbib\natbib.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
+For additional information on amsmath, use the `?' option.
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/tools\tabularx.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/tools\longtable.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\lmodern.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype-pdfte
+x.def)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype.cfg))
+ (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefineke
+ys.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds.s
+ty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.sty
+))) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettitle
+string.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty))
+)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\stringenc.sty
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc.s
+ty)))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfilec
+heck.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquecou
+nter.sty))) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/xurl\xurl.sty
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/needspace\needspace.sty
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmr.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdfte
+x.def) (supplementary.aux)
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-cmr.cfg)
+(supplementary.out) (supplementary.out)
+Underfull \hbox (badness 10000) in paragraph at lines 28--28
+[]\OT1/lmr/bx/n/17.28 Candidate-generation char-ac-ter-i-za-tion (C1/C-
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\omllmm.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\omslmsy.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\omxlmex.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msa.cfg)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msb.cfg)
+
+Package natbib Warning: Citation `schwarz2023PersonalizedPredictiveASR' on page
+ 1 undefined on input line 33.
+
+
+Package natbib Warning: Citation `zou2026LTSVoiceAgent' on page 1 undefined on 
+input line 33.
+
+
+Package natbib Warning: Citation `mai2026RelayS2S' on page 1 undefined on input
+ line 33.
+
+
+Package natbib Warning: Citation `eric2020MultiWOZ21' on page 1 undefined on in
+put line 35.
+
+
+Package natbib Warning: Citation `yang2024Qwen2' on page 1 undefined on input l
+ine 35.
+
+
+Package natbib Warning: Citation `tenFramework2025TurnDetection' on page 1 unde
+fined on input line 35.
+
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmtt.fd) [1{C:/User
+s/hua/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/hua/AppData/Lo
+cal/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Users/hua/AppData/Local/Pr
+ograms/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Users/hua/AppData/Local/Prog
+rams/MiKTeX/fonts/enc/dvips/lm/lm-mathsy.enc}{C:/Users/hua/AppData/Local/Progra
+ms/MiKTeX/fonts/enc/dvips/lm/lm-rmtt.enc}] (tables/candidate_grid_rows.tex)
+(tables/candidate_grid_rows.tex) (tables/candidate_grid_rows.tex) [2{C:/Users/h
+ua/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathex.enc}]
+Underfull \hbox (badness 10000) in paragraph at lines 72--72
+[]\OT1/lmr/bx/n/17.28 Exploratory interrupted-history nat-u-ral-iza-tion
+
+Package natbib Warning: Citation `yang2025Qwen3' on page 3 undefined on input l
+ine 75.
+
+[3]
+
+Package natbib Warning: Citation `jiang2023Mistral7B' on page 4 undefined on in
+put line 98.
+
+
+Package natbib Warning: Citation `mistralAI2024Mistral7BInstructV03' on page 4 
+undefined on input line 98.
+
+(tables/e3_sensitivity_rows.tex) [4] [5] [6] (tables/r_all_endpoints_rows.tex)
+[7] (supplementary.bbl)
+
+Package natbib Warning: There were undefined citations.
+
+[8] (supplementary.aux
+
+Package natbib Warning: Citation(s) may have changed.
+(natbib)                Rerun to get citations correct.
+
+) )
+(see the transcript file for additional information)<C:/Users/hua/AppData/Local
+/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/hua/AppData/Local/P
+rograms/MiKTeX/fonts/type1/public/lm/lmex10.pfb><C:/Users/hua/AppData/Local/Pro
+grams/MiKTeX/fonts/type1/public/lm/lmmi10.pfb><C:/Users/hua/AppData/Local/Progr
+ams/MiKTeX/fonts/type1/public/lm/lmmi12.pfb><C:/Users/hua/AppData/Local/Program
+s/MiKTeX/fonts/type1/public/lm/lmmi8.pfb><C:/Users/hua/AppData/Local/Programs/M
+iKTeX/fonts/type1/public/lm/lmr10.pfb><C:/Users/hua/AppData/Local/Programs/MiKT
+eX/fonts/type1/public/lm/lmr12.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/
+fonts/type1/public/lm/lmr17.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fon
+ts/type1/public/lm/lmr8.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/t
+ype1/public/lm/lmsy10.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/typ
+e1/public/lm/lmtt12.pfb>
+Output written on supplementary.pdf (8 pages, 233574 bytes).
+Transcript written on supplementary.log.
+Latexmk: Getting log file 'supplementary.log'
+Latexmk: Examining 'supplementary.fls'
+Latexmk: Examining 'supplementary.log'
+Latexmk: Found input bbl file 'supplementary.bbl'
+Latexmk: References changed.
+Latexmk: Log file says output to 'supplementary.pdf'
+  ===Source file 'supplementary.bbl' for 'pdflatex'
+Latexmk: Found bibliography file(s):
+  ./references.bib
+Latexmk: applying rule 'bibtex supplementary'...
+Rule 'bibtex supplementary':  Reasons for rerun
+Changed files or newly in use/created:
+  supplementary.aux
+
+------------
+Run number 2 of rule 'bibtex supplementary'
+------------
+------------
+Running 'bibtex  "supplementary.aux"'
+------------
+This is BibTeX, Version 0.99e (MiKTeX 25.12)
+The top-level auxiliary file: supplementary.aux
+The style file: elsarticle-harv.bst
+Database file #1: references.bib
+Latexmk: applying rule 'pdflatex'...
+Rule 'pdflatex':  Reasons for rerun
+Changed files or newly in use/created:
+  supplementary.aux
+
+------------
+Run number 3 of rule 'pdflatex'
+------------
+------------
+Running 'pdflatex  -interaction=nonstopmode -halt-on-error -recorder  "supplementary.tex"'
+------------
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex.fmt)
+ restricted \write18 enabled.
+entering extended mode
+(supplementary.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2025-12-24>
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/base\size12.clo))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/natbib\natbib.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
+For additional information on amsmath, use the `?' option.
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/tools\tabularx.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/tools\longtable.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\lmodern.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype-pdfte
+x.def)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\microtype.cfg))
+ (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hyperref.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/kvsetkeys\kvsetkeys.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/kvdefinekeys\kvdefineke
+ys.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pdfescape\pdfescape.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/pdftexcmds\pdftexcmds.s
+ty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.sty
+))) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hycolor\hycolor.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/gettitlestring\gettitle
+string.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/kvoptions\kvoptions.sty))
+)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/stringenc\stringenc.sty
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/intcalc\intcalc.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/bigintcalc\bigintcalc.s
+ty)))
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/rerunfilecheck\rerunfilec
+heck.sty
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/generic/uniquecounter\uniquecou
+nter.sty))) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/xurl\xurl.sty
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/needspace\needspace.sty
+) (C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmr.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdfte
+x.def) (supplementary.aux)
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-cmr.cfg)
+(supplementary.out) (supplementary.out)
+Underfull \hbox (badness 10000) in paragraph at lines 28--28
+[]\OT1/lmr/bx/n/17.28 Candidate-generation char-ac-ter-i-za-tion (C1/C-
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\omllmm.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\omslmsy.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\omxlmex.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msa.cfg)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msb.cfg)
+(C:\Users\hua\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmtt.fd) [1{C:/User
+s/hua/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/hua/AppData/Lo
+cal/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Users/hua/AppData/Local/Pr
+ograms/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Users/hua/AppData/Local/Prog
+rams/MiKTeX/fonts/enc/dvips/lm/lm-mathsy.enc}{C:/Users/hua/AppData/Local/Progra
+ms/MiKTeX/fonts/enc/dvips/lm/lm-rmtt.enc}] (tables/candidate_grid_rows.tex)
+(tables/candidate_grid_rows.tex) (tables/candidate_grid_rows.tex) [2{C:/Users/h
+ua/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathex.enc}]
+Underfull \hbox (badness 10000) in paragraph at lines 72--72
+[]\OT1/lmr/bx/n/17.28 Exploratory interrupted-history nat-u-ral-iza-tion
+[3] (tables/e3_sensitivity_rows.tex) [4] [5] [6]
+(tables/r_all_endpoints_rows.tex) [7] (supplementary.bbl) [8]
+(supplementary.aux) )
+(see the transcript file for additional information)<C:/Users/hua/AppData/Local
+/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/hua/AppData/Local/P
+rograms/MiKTeX/fonts/type1/public/lm/lmex10.pfb><C:/Users/hua/AppData/Local/Pro
+grams/MiKTeX/fonts/type1/public/lm/lmmi10.pfb><C:/Users/hua/AppData/Local/Progr
+ams/MiKTeX/fonts/type1/public/lm/lmmi12.pfb><C:/Users/hua/AppData/Local/Program
+s/MiKTeX/fonts/type1/public/lm/lmmi8.pfb><C:/Users/hua/AppData/Local/Programs/M
+iKTeX/fonts/type1/public/lm/lmr10.pfb><C:/Users/hua/AppData/Local/Programs/MiKT
+eX/fonts/type1/public/lm/lmr12.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/
+fonts/type1/public/lm/lmr17.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fon
+ts/type1/public/lm/lmr8.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/t
+ype1/public/lm/lmsy10.pfb><C:/Users/hua/AppData/Local/Programs/MiKTeX/fonts/typ
+e1/public/lm/lmtt12.pfb>
+Output written on supplementary.pdf (8 pages, 237169 bytes).
+Transcript written on supplementary.log.
+Latexmk: Getting log file 'supplementary.log'
+Latexmk: Examining 'supplementary.fls'
+Latexmk: Examining 'supplementary.log'
+Latexmk: Found input bbl file 'supplementary.bbl'
+Latexmk: Log file says output to 'supplementary.pdf'
+  ===Source file 'supplementary.bbl' for 'pdflatex'
+Latexmk: Found bibliography file(s):
+  ./references.bib
+Latexmk: All targets (supplementary.pdf) are up-to-date
+
+pdflatex: major issue: So far, you have not checked for MiKTeX updates.
+Latexmk: Missing bbl file 'supplementary.bbl' in following:
+ No file supplementary.bbl.
+Latexmk: Using bibtex to make bibliography file(s).
+kpsewhich: major issue: So far, you have not checked for MiKTeX updates.
+kpsewhich: major issue: So far, you have not checked for MiKTeX updates.
+bibtex: major issue: So far, you have not checked for MiKTeX updates.
+pdflatex: major issue: So far, you have not checked for MiKTeX updates.
+Latexmk: Using bibtex to make bibliography file(s).
+kpsewhich: major issue: So far, you have not checked for MiKTeX updates.
+kpsewhich: major issue: So far, you have not checked for MiKTeX updates.
+bibtex: major issue: So far, you have not checked for MiKTeX updates.
+pdflatex: major issue: So far, you have not checked for MiKTeX updates.
+Latexmk: Using bibtex to make bibliography file(s).
+kpsewhich: major issue: So far, you have not checked for MiKTeX updates.
+kpsewhich: major issue: So far, you have not checked for MiKTeX updates.
+latexmk: major issue: So far, you have not checked for MiKTeX updates.

@@ -1,0 +1,22 @@
+Title:           Supplementary Material: Joint Prefix-State Repair
+Subject:         
+Keywords:        
+Author:          Author names to be confirmed
+Creator:         LaTeX with hyperref
+Producer:        MiKTeX pdfTeX-1.40.28
+CreationDate:    Tue Sep  8 13:22:46 2026 中国标准时间
+ModDate:         Tue Sep  8 13:22:46 2026 中国标准时间
+Custom Metadata: yes
+Metadata Stream: no
+Tagged:          no
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           9
+Encrypted:       no
+Page size:       612 x 792 pts (letter)
+Page rot:        0
+File size:       236761 bytes
+Optimized:       no
+PDF version:     1.5

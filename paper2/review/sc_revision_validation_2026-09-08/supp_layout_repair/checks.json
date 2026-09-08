@@ -1,0 +1,30 @@
+{
+  "scientific_review": "PASS reported by user: all 30 R CIs plus E3 accurate",
+  "layout_source_content_unchanged": true,
+  "pages": 9,
+  "changed_text_pages": [
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "rendered_range": [
+    5,
+    9
+  ],
+  "png_directory": "D:\\project\\my\\research\\streamllm_p2\\paper2\\review\\sc_revision_validation_2026-09-08\\supp_layout_repair\\png_supplementary",
+  "png_count": 5,
+  "main_pdf_unchanged": true,
+  "zip_entries": 22,
+  "both_zip_documents_compile": true,
+  "supplement_zip_text_identical": true,
+  "overfull": 0,
+  "undefined_refs_citations": 0,
+  "visual_status": "repair awaiting judge; main judge pending; images not inspected",
+  "artifact_sha256": {
+    "Speech_Communication_LaTeX_source.zip": "29b0ed9de77db751258467acf906d4eb3881c59528d4148f745debf51a602560",
+    "Speech_Communication_supplementary.pdf": "314b2a75fc8bf9119155d53d2b885d1d6751accfca52944a32bbe11663ac32b9",
+    "Speech_Communication_manuscript.pdf": "b4071b9c3fd641efffba05a6a7801c235bc0aa61f5d0da45a5923eb2a5e5f902"
+  }
+}

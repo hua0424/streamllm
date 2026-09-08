@@ -1,0 +1,24 @@
+{
+  "scope": "typesetting extraction and raw interval/structural cross-check; no GPU, no new estimates",
+  "r_records": 320,
+  "r_pairs": 160,
+  "r_cells": 10,
+  "raw_interval_identity_checks": 320,
+  "raw_matched_state_pairs": 160,
+  "recomputed_metrics_and_bootstrap_intervals": 30,
+  "source_files": 118,
+  "source_commit": "bfa7d7a37363d327cfa96b5448e151663ff578f8",
+  "top1_same_stored_diagnostics": 160,
+  "continuation_same_recomputed": 144,
+  "boundary_cursor_checks_stored": 1118,
+  "closure_checks_stored": 27,
+  "npy_status": "prior-turn complete-tar verification accepted; not reopened or reverified in this revision",
+  "sources_sha256_worktree": {
+    "experiments\\sci34_supplement\\results\\recovery_boundary\\rb_formal_20260908T023934Z_f69e6478\\analysis.json": "2756c1c4260c105903be8adf0e0fd4f5e22ce3c69f03c4389b8b8c379ab9c994",
+    "experiments\\sci34_supplement\\results\\recovery_boundary\\rb_formal_20260908T023934Z_f69e6478\\manifest.json": "6d16e332e78a9f247e18dccbfa3ae3eecc15364692d76536dc052505dc8a211a",
+    "experiments\\sci34_supplement\\results\\recovery_boundary\\rb_formal_20260908T023934Z_f69e6478\\boundary.json": "633529ee1b2d270bb2fb0805ce3dfa0b5696400077d22b09fbd35ec1cb20d1fc",
+    "experiments\\sci34_supplement\\results\\recovery_boundary\\rb_formal_20260908T023934Z_f69e6478\\validation.json": "41798b964b515a8da59e32eab037ace9f6303ba1e67cee173e14b73f88c6d09c",
+    "experiments\\sci34_supplement\\results\\e1e2_confirmatory\\e1e2c_b8c758b_20260901T173306Z\\analysis_v2.json": "9bce6db5d93c1faccb4069b295df32ce5ee0778899b31ac6be17526bfb644456",
+    "experiments\\sci34_supplement\\results\\e3\\sci34_f11ccba_20260901_e3\\analysis_weighting_dedup_v2.json": "5776db23e534767c6ca266872967e228962eef59924cec3a1e3dd5cdbcd30366"
+  }
+}

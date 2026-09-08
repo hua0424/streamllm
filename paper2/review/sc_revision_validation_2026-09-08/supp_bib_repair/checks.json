@@ -1,0 +1,75 @@
+{
+  "scientific_check": "completed by orchestrator-dispatched read-only agent 6343...; all 30 R intervals and E3 PASS; no independent-error claim",
+  "supplement_scientific_content": "exactly unchanged after removing bibliography-layout wrapper",
+  "reference_database_unchanged": true,
+  "counts": {
+    "main": {
+      "pages": 27,
+      "earlier_page_text_unchanged": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "rendered_pages": [
+        25,
+        27
+      ],
+      "png_directory": "D:\\project\\my\\research\\streamllm_p2\\paper2\\review\\sc_revision_validation_2026-09-08\\supp_bib_repair\\png_main",
+      "png_count": 3,
+      "overfull_boxes": 0,
+      "undefined_refs_citations": 0,
+      "fonts": "all embedded; no Type 3",
+      "zip_recompile_text_identical": true
+    },
+    "supplementary": {
+      "pages": 8,
+      "earlier_page_text_unchanged": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "rendered_pages": [
+        8,
+        8
+      ],
+      "png_directory": "D:\\project\\my\\research\\streamllm_p2\\paper2\\review\\sc_revision_validation_2026-09-08\\supp_bib_repair\\png_supplementary",
+      "png_count": 1,
+      "overfull_boxes": 0,
+      "undefined_refs_citations": 0,
+      "fonts": "all embedded; no Type 3",
+      "zip_recompile_text_identical": true
+    }
+  },
+  "zip_entries": 23,
+  "visual_status": "supplement earlier targeted 5-8 PASS; latest page8 recheck pending; main25-end URL recheck pending; no images inspected",
+  "artifact_sha256": {
+    "Speech_Communication_LaTeX_source.zip": "5ecc4093318fd765702333ca1aaabf4edb3dc61b1f642ed0d136ddcb310bab63",
+    "Speech_Communication_manuscript.pdf": "67ac45664109b75adbbbb1c78425ad703af973629b59f8bc8a00abef3abe9fb5",
+    "Speech_Communication_supplementary.pdf": "17f3300ba95bca273921adcbdd962f97a5902948c50a43a93cf777af5745e0f9"
+  }
+}

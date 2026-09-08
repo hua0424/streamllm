@@ -1,0 +1,50 @@
+{
+  "counts": {
+    "main": {
+      "pages": 28,
+      "texcount_text_words": 6026,
+      "texcount_sum": 6416,
+      "citations_printed": 24,
+      "labels": 32,
+      "overfull_boxes": 0,
+      "undefined_refs_citations": 0,
+      "fonts": "all embedded; no Type 3",
+      "underfull_boxes": 9,
+      "png_directory": "D:\\project\\my\\research\\streamllm_p2\\paper2\\review\\sc_revision_validation_2026-09-08\\png_main"
+    },
+    "supplementary": {
+      "pages": 9,
+      "texcount_text_words": 2143,
+      "texcount_sum": 2311,
+      "citations_printed": 9,
+      "labels": 8,
+      "overfull_boxes": 0,
+      "undefined_refs_citations": 0,
+      "fonts": "all embedded; no Type 3",
+      "underfull_boxes": 2,
+      "png_directory": "D:\\project\\my\\research\\streamllm_p2\\paper2\\review\\sc_revision_validation_2026-09-08\\png_supplementary"
+    }
+  },
+  "abstract_whitespace_words": 207,
+  "abstract_punctuation_split_tokens": 246,
+  "highlight_characters": [
+    72,
+    76,
+    73,
+    72,
+    70
+  ],
+  "keywords": 6,
+  "bibliography_entries_used_across_package": 26,
+  "zip_entries": 22,
+  "zip_rebuild_text_identical": true,
+  "visual_gate": "PENDING main orchestrator; PNGs not opened by editing agent",
+  "formal_revision_schema": "NOT VALIDATED",
+  "independent_scientific_review": "not performed; no delegation tool",
+  "fresh_citation_existence_retraction_check": "not performed",
+  "artifacts_sha256": {
+    "Speech_Communication_LaTeX_source.zip": "c22809a8e9a70bf40a1e007109e8439765a1f3ab34afc88e27ade80220b76b56",
+    "Speech_Communication_manuscript.pdf": "b4071b9c3fd641efffba05a6a7801c235bc0aa61f5d0da45a5923eb2a5e5f902",
+    "Speech_Communication_supplementary.pdf": "8856d482fe9d101a35b874eb4bba28dc95955c5fa7508fd3ff4e08fd726689bd"
+  }
+}

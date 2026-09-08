@@ -1,0 +1,97 @@
+# 二期论文统一修订交接（R/B 已接受，SC 聚焦修订完成）
+
+> **当前状态 2026-09-08（D-029，覆盖下列历史 pending 状态）**：R/B formal `rb_formal_20260908T023934Z_f69e6478` 已完成并接受为有限软件/结构与成本证据；完整 78MB 原 tar 前轮已核验，本轮不重验。320 records/160 event pairs、9 cases/10 cells、4 process sessions，clean `bfa7d7a`/118 sources、Qwen2-7B BF16 SDPA 单3090。B 100 trajectories/800 records/1118 cursors/27 closures。无 GPU 待办，不重跑任何旧实验。
+>
+> **SC 单方法主线已执行**：joint prefix-state repair；R 为中心 operational cost，A1/P1 支撑，C2 v3 保留 exact-only、v1/v2 rejected 不变，E3 inconclusive 主表保留。C1/C-E1/C-E2/A2 实际承接于独立编译的 Supplementary Material S1/S2，S3--S5 为敏感性/工件/全 R 端点。主稿与补充 PDF 分别上传，二者源码在干净 ZIP 中，Highlights 另上传。未触碰 src、实验脚本/结果/GPU_RUN_NOTES、中文权威章节及历史 proposal；未 commit/push/upload。
+>
+> **下一断点**：主 orchestrator 对所有最终主稿和 supplement PNG 执行唯一视觉 gate；编辑代理未看 PNG，不能称 visual passed。另由主 orchestrator 做独立科学只读复核（编辑端无委派工具）。作者确认身份/权利/LICENSE/公开数据链接或正当不能共享说明/伦理与 consent/funding/COI/CRediT/AI disclosure，以及可访问检索导出。指南已于 2026-09-06 IAB LIVE 核验，无全文页/词 cap、无强制 DOI；当前不是 submission-ready。技术检查、最终页数、PNG 与备份/patch 入口见 `paper2/review/sc_focused_revision_2026-09-08.md`。下文的 GPU pending 与压缩稿措辞仅为历史，已被本条覆盖；本轮无减页目标。
+
+> **2026-09-08 R/B 阻断修复（D-028）**：e82551b 报告旧 pilot `rb_pilot_20260908T021245Z_9e4b1d08` 8 records 完成后 cases tuple/list 校验失败，formal 未启动。现最小修复 validator JSON 比较，完整 CPU 合成 pilot/formal-shaped 回归及篡改负控、R/B/C2 v2/v3 smoke 通过；未跑 GPU、未 commit/push。本机无原失败归档可独立重放，旧失败报告/工件只读保留。下一步由作者交付新 clean 修复 commit，按 `recovery_boundary/GPU_HANDOFF.md` 新 pilot 成功后再 formal；下条未执行状态是历史记录。
+
+> **2026-09-06 新增获批限定任务（D-027）**：R 同策略下一轮恢复 + B 独立软件边界补证已实现，唯一 GPU 入口为 `experiments/sci34_supplement/recovery_boundary/GPU_HANDOFF.md`，协议见同目录 `EXPERIMENT_PLAN.md`。历史正式模型已核验为 Qwen2-7B/BF16/SDPA；当前远程安装未知。本批未 commit/push，需作者处理原有改动并明确提交后才可 pull/formal。R/B 本地软件测试通过，GPU pilot/formal 未执行。旧实验仍只读，不修改中文或 SC 正文。下文“无 GPU 任务”是 D-024 历史状态，由本条仅对新增 R/B 覆盖。
+
+> GPU 补实验与第二次审稿意见的科学内容修订均已结束。当前没有待执行的无条件 GPU 任务；既有 E1/E2/E3/A1/P1 与 C2 v1/v2/v3 工件全部只读，不得重跑或覆盖。下一断点是作者确认投稿元数据、完成可访问环境下的检索导出，并在选定目标期刊后生成压缩投稿稿。
+
+**更新时间**：2026-09-03
+
+**分支**：`paper2`
+
+**当前状态**：C2 v3 formal `c2crop_82103004_20260903T080512Z` 已按 D-023 正式接受并封存。24/24 cases、27/27 crop events 全 exact；validation 零错误；ACCEPTANCE accepted；seal 通过。GPU 正确性阻塞解除。
+
+## 一、已接受的 C2 v3 证据
+
+- Code commit：`82103004637dce8f98688f4a685d33ebee363a3b`
+- Result commit：`7d50624`
+- Manifest SHA-256：`d8c3db4d609234a072064162a5caa443e25171b2311d84afa48b7b6a4f1d4bc2`
+- Records SHA-256：`f775ba238f17439b2b1831f31cbb97eb8ade87ddc7e2517c8eba427ee8b21725`
+- Seal SHA-256：`e0997d41793f510fc1120a7c3f08c420097813cc627f08d47716e76b4489f4a9`
+- Formal directory：`experiments/sci34_supplement/results/c2_crop_integrity/c2crop_82103004_20260903T080512Z/`
+
+设计侧独立复核：24 records / 27 events / 3 no-op / 3 second-crop ledgers / 60 recovery steps / 28 层 K/V 全部 exact；308 个 assistant fixture token 均逐 token 走 production append；27/27 wrong-length negative control 检出；381-file legacy guard 一致；模型为 accepted Qwen2-7B、BF16、SDPA、strict offline、clean commit。
+
+## 二、论文允许写入的 C2 结论
+
+只能写：
+
+> 在冻结 Qwen2-7B snapshot、BF16/SDPA/Transformers backend 和 24-case/27-event v3 addendum 下，production `crop_to_token` 保留的 K/V 前缀与 crop 前前缀及独立切片 oracle 逐张量 bitwise exact；使用相同 token-ID chunk 恢复后的 K/V、logits、attention mask、token ledger 与 role/end 状态也 exact 一致。
+
+不得写：
+
+- clean re-prefill 数值等价；
+- C2 v2 通过；
+- 32-token continuation 等价；
+- 跨模型、dtype、backend 或硬件普适；
+- 真实 ASR/TTS/声卡或“用户实际听到”边界正确；
+- 生产端到端正确性、时延或质量提升。
+
+C2 v1/v2 必须透明保留为 rejected 描述性证据：两轮均支持 token/state/EOT 正确性，但不同 forward topology 下的 BF16 clean-prefill 数值比较不构成 crop 的可识别 oracle。v3 是 direct crop-integrity addendum，不得包装成 v2 clean-reprefill 结论。
+
+## 三、已完成的二审统一论文修订
+
+以下项目已在 D-024 中完成并由最终 re-review 核对：
+
+1. **C2 贡献重构**：把 exact crop-integrity、显式 EOT/role state 与 playback-aware retention 提升为主要技术贡献；C1 timing characterization 降为支持性结果；C3/A2 降为 exploratory/negative extension。
+2. **E1/E2 crossed reanalysis**：用 session × dialogue crossed/product bootstrap 生成 versioned `analysis_v2`，不得覆盖 accepted raw/analysis_v1。审核阶段估计的区间仅作核对，最终数值从正式 raw 重算。
+3. **事件命名**：27.70/62.38 ms 改称内部 first-token selection/compute readiness，不称 generator deliverability。同步 harness 的 consumer/yield 延迟不作生产 headline。
+4. **C-E1 限定**：明确是 implementation-path comparison，不声称 token-equivalent；报告 full output 280/500 same、first token 465/500 same，B@0.92 vs B-never 500/500 same（以正式离线分析为准）。
+5. **E3 weighting/sensitivity**：统一点估计与区间 estimand；补 label-weighted/dialogue-weighted/unique-boundary 去重敏感性。现有证据不支持 superiority/equivalence/noninferiority/harm。
+6. **播放边界术语**：始终区分 software playback cursor、device-presented audio 与 acoustically heard content；将保留边界称为 TTS-fragment-level software boundary。
+7. **novelty search**：完成可复现的 targeted/scoping literature search，并收窄 novelty 语言。
+8. **artifact 完成**：LICENSE、release/tag、exact E3 input（已在 `results/e3_exact_rescue/`）、references、declarations、复现说明。
+9. **全文同步**：摘要与权威分章已同步，`thesis_draft.md` 已确定性重建；图 6-1～6-3 已重画并通过视觉验收。旧 IEEE 衍生稿没有增量修补，待目标期刊确定后从当前权威稿重新生成。
+
+最终 re-review：CF/MF 共 17 项中 13 项 resolved、4 项 partial、0 项 unresolved；当前窄定位下没有科学技术 Major blocker。Partial 项分别是：不恢复 clean-reprefill equivalence 主张；受访问限制的检索导出待补；公开 release/LICENSE/declarations 待作者确认；参考文献待按目标期刊样式导出。
+
+## 四、只读实验工件
+
+以下均不得覆盖或无条件重跑：
+
+- C2 v3 accepted：`c2crop_82103004_20260903T080512Z`；
+- C2 v1/v2 rejected 及全部 pilots/failure sidecars；
+- C-E1/E2 accepted：`e1e2c_b8c758b_20260901T173306Z`；
+- 固定轨迹 E3：`sci34_f11ccba_20260901_e3`；
+- 联合 A1：`sci34_f11ccba_20260901_a1`；
+- P1 v2：`sci34_dc52978_20260901_async_prepared_v2`；
+- E3 exact rescue：`experiments/sci34_supplement/results/e3_exact_rescue/`；
+- `experiments/results/` 中全部旧 JSON。
+
+统计 reanalysis 必须新建 versioned 输出，不修改 raw、manifest、validation、analysis_v1、acceptance 或 seal。
+
+## 五、跨平台复核陷阱
+
+Windows 的 `core.autocrlf` 会把结果文本转成 CRLF，直接在普通 Windows checkout 上跑 byte-level cases/seal 校验会误报。正式复核必须采用以下任一方式：
+
+- `git -c core.autocrlf=false clone ...` 的 LF 保留 checkout；
+- `git show HEAD:<path>` 的 Git blob 原字节；
+- GPU 返回的原 tarball。
+
+设计侧已在 LF 保留临时 clone 中重跑 formal validator：`ok=true/errors=0/cases=24/events=27/all_exact=true`；seal verify：`files=30/ok=true/seal_sha256=e0997d41…f4a9`。
+
+## 六、关键文档
+
+- 二审意见：`paper2/review/sci_q3_q4_full_review_2026-09-02.md`
+- 决策：`docs/decisions.md` D-018～D-024
+- C2 v3 plan：`experiments/sci34_supplement/c2_crop_integrity/EXPERIMENT_PLAN.md`
+- C2 v3 accepted artifacts：`experiments/sci34_supplement/results/c2_crop_integrity/c2crop_82103004_20260903T080512Z/`
+- GPU 执行日志：`experiments/sci34_supplement/results/GPU_RUN_NOTES.md`
+- 论文总稿：`paper2/thesis_draft.md`

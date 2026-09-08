@@ -1,0 +1,13 @@
+name                                 type              encoding         emb sub uni object ID
+------------------------------------ ----------------- ---------------- --- --- --- ---------
+IAIYUQ+LMRoman17-Regular             Type 1            Custom           yes yes yes     51  0
+SWOBRA+LMRoman12-Regular             Type 1            Custom           yes yes yes     52  0
+WKYKTW+LMRoman12-Bold                Type 1            Custom           yes yes yes     53  0
+UAVPIF+LMMathItalic12-Regular        Type 1            Custom           yes yes yes     54  0
+XYYFVR+LMMathItalic8-Regular         Type 1            Custom           yes yes yes     55  0
+MYRQGH+LMRoman8-Regular              Type 1            Custom           yes yes yes     56  0
+JCIEXK+LMMathSymbols10-Regular       Type 1            Custom           yes yes yes     57  0
+WESJXS+LMMono12-Regular              Type 1            Custom           yes yes yes     59  0
+OFNHXR+LMRoman10-Regular             Type 1            Custom           yes yes yes     73  0
+KHCBYR+LMMathExtension10-Regular     Type 1            Custom           yes yes yes     74  0
+DGEJQT+LMMathItalic10-Regular        Type 1            Custom           yes yes yes     99  0

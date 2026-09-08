@@ -1,0 +1,93 @@
+\begin{thebibliography}{9}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\href}[2]{#2}
+\providecommand{\path}[1]{#1}
+\providecommand{\DOIprefix}{doi:}
+\providecommand{\ArXivprefix}{arXiv:}
+\providecommand{\URLprefix}{URL: }
+\providecommand{\Pubmedprefix}{pmid:}
+\providecommand{\doi}[1]{\href{http://dx.doi.org/#1}{\path{#1}}}
+\providecommand{\Pubmed}[1]{\href{pmid:#1}{\path{#1}}}
+\providecommand{\bibinfo}[2]{#2}
+\ifx\xfnm\relax \def\xfnm[#1]{\unskip,\space#1}\fi
+%Type = Inproceedings
+\bibitem[{Eric et~al.(2020)Eric, Goel, Paul, Sethi, Agarwal, Gao, Kumar, Goyal,
+  Ku and Hakkani-Tur}]{eric2020MultiWOZ21}
+\bibinfo{author}{Eric, M.}, \bibinfo{author}{Goel, R.}, \bibinfo{author}{Paul,
+  S.}, \bibinfo{author}{Sethi, A.}, \bibinfo{author}{Agarwal, S.},
+  \bibinfo{author}{Gao, S.}, \bibinfo{author}{Kumar, A.},
+  \bibinfo{author}{Goyal, A.K.}, \bibinfo{author}{Ku, P.},
+  \bibinfo{author}{Hakkani-Tur, D.}, \bibinfo{year}{2020}.
+\newblock \bibinfo{title}{{MultiWOZ} 2.1: A consolidated multi-domain dialogue
+  dataset with state corrections and state tracking baselines}, in:
+  \bibinfo{booktitle}{Proceedings of the Twelfth Language Resources and
+  Evaluation Conference}, \bibinfo{publisher}{European Language Resources
+  Association}. pp. \bibinfo{pages}{422--428}.
+\newblock \URLprefix \url{https://aclanthology.org/2020.lrec-1.53/}.
+%Type = Misc
+\bibitem[{Jiang et~al.(2023)}]{jiang2023Mistral7B}
+\bibinfo{author}{Jiang, A.Q.}, et~al., \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{{Mistral 7B}}.
+\newblock \URLprefix \url{https://arxiv.org/abs/2310.06825},
+  \href{http://arxiv.org/abs/2310.06825}{{\tt arXiv:2310.06825}}.
+%Type = Misc
+\bibitem[{Mai(2026)}]{mai2026RelayS2S}
+\bibinfo{author}{Mai, L.}, \bibinfo{year}{2026}.
+\newblock \bibinfo{title}{{RelayS2S}: A dual-path speculative generation for
+  real-time dialogue}.
+\newblock \URLprefix \url{https://arxiv.org/abs/2603.23346},
+  \href{http://arxiv.org/abs/2603.23346}{{\tt arXiv:2603.23346}}.
+%Type = Misc
+\bibitem[{{Mistral AI}(2024)}]{mistralAI2024Mistral7BInstructV03}
+\bibinfo{author}{{Mistral AI}}, \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{{Mistral-7B-Instruct-v0.3} model card}.
+\newblock \bibinfo{howpublished}{Hugging Face model card}.
+\newblock \URLprefix
+  \url{https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.3}.
+  \bibinfo{note}{accessed 3 September 2026}.
+%Type = Inproceedings
+\bibitem[{Schwarz et~al.(2023)Schwarz, He, Segbroeck, Hethnawi and
+  Rastrow}]{schwarz2023PersonalizedPredictiveASR}
+\bibinfo{author}{Schwarz, A.}, \bibinfo{author}{He, D.},
+  \bibinfo{author}{Segbroeck, M.V.}, \bibinfo{author}{Hethnawi, M.},
+  \bibinfo{author}{Rastrow, A.}, \bibinfo{year}{2023}.
+\newblock \bibinfo{title}{Personalized predictive {ASR} for latency reduction
+  in voice assistants}, in: \bibinfo{booktitle}{INTERSPEECH 2023},
+  \bibinfo{publisher}{ISCA}. pp. \bibinfo{pages}{745--749}.
+\newblock \URLprefix \url{https://doi.org/10.21437/Interspeech.2023-211},
+  \DOIprefix\doi{10.21437/Interspeech.2023-211}.
+%Type = Misc
+\bibitem[{{TEN Team}(2025)}]{tenFramework2025TurnDetection}
+\bibinfo{author}{{TEN Team}}, \bibinfo{year}{2025}.
+\newblock \bibinfo{title}{{TEN Turn Detection}: Turn detection for full-duplex
+  dialogue communication}.
+\newblock \bibinfo{howpublished}{GitHub repository}.
+\newblock \URLprefix \url{https://github.com/TEN-framework/ten-turn-detection}.
+  \bibinfo{note}{accessed 3 September 2026}.
+%Type = Misc
+\bibitem[{Yang et~al.(2024)}]{yang2024Qwen2}
+\bibinfo{author}{Yang, A.}, et~al., \bibinfo{year}{2024}.
+\newblock \bibinfo{title}{{Qwen2} technical report}.
+\newblock \URLprefix \url{https://arxiv.org/abs/2407.10671},
+  \href{http://arxiv.org/abs/2407.10671}{{\tt arXiv:2407.10671}}.
+%Type = Misc
+\bibitem[{Yang et~al.(2025)}]{yang2025Qwen3}
+\bibinfo{author}{Yang, A.}, et~al., \bibinfo{year}{2025}.
+\newblock \bibinfo{title}{{Qwen3} technical report}.
+\newblock \URLprefix \url{https://arxiv.org/abs/2505.09388},
+  \href{http://arxiv.org/abs/2505.09388}{{\tt arXiv:2505.09388}}.
+%Type = Misc
+\bibitem[{Zou et~al.(2026)Zou, Miao, Ma, Xu, Gao, Hao, He and
+  Xu}]{zou2026LTSVoiceAgent}
+\bibinfo{author}{Zou, W.}, \bibinfo{author}{Miao, Y.}, \bibinfo{author}{Ma,
+  Z.}, \bibinfo{author}{Xu, J.}, \bibinfo{author}{Gao, J.},
+  \bibinfo{author}{Hao, J.}, \bibinfo{author}{He, R.}, \bibinfo{author}{Xu,
+  J.}, \bibinfo{year}{2026}.
+\newblock \bibinfo{title}{{LTS-VoiceAgent}: A listen-think-speak framework for
+  efficient streaming voice interaction via semantic triggering and incremental
+  reasoning}.
+\newblock \URLprefix \url{https://arxiv.org/abs/2601.19952},
+  \href{http://arxiv.org/abs/2601.19952}{{\tt arXiv:2601.19952}}.
+
+\end{thebibliography}

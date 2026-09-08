@@ -1,0 +1,1155 @@
+--- a/docs/decisions.md
++++ b/docs/decisions.md
+@@ -2,6 +2,22 @@
+ 
+ 每次做技术决策时按时间倒序追加一条。每条包含：**日期 / 决策 / 背景 / 理由 / 影响 / 状态**。
+ 状态：`proposed` / `accepted` / `superseded`（被后续决策替代时填写替代条目的日期与编号）。
++
++---
++
++## D-029（2026-09-08）接受 R/B 有限补证并完成 SC 单主线修订
++
++**授权与决策**：作者两次明确批准 `paper2/review/sc_focused_revision_proposal_2026-09-06.md` 的唯一 joint prefix-state repair 主线及 C1/C-E1/C-E2/A2 移出主要论证。本次仅修改 SC 英文衍生稿、实际随稿 supplement 和交接文档；不改中文权威章节、src、实验脚本、结果或 GPU_RUN_NOTES，不重跑实验，不 commit/push/upload。原方案保留历史状态不改。
++
++**正式接受的 R/B**：run `rb_formal_20260908T023934Z_f69e6478`，clean source `bfa7d7a37363d327cfa96b5448e151663ff578f8`，118-file source snapshot；Qwen2-7B/BF16/SDPA、torch 2.8.0+cu128、Transformers 4.57.1，单 RTX 3090、4 process sessions。9 cases/10 case-event cells、每 session 每 cell 4 pairs，共 320 records/160 event pairs。原完整 tar（含 320 NPY）前轮已核验，本轮不重复 78MB 验证；expanded repo copy 缺 NPY 的事实明确保留。formal validation `ok=true/formal_evidence_eligible=true`；accepted 是协议与有限证据验收，不是数值等价或统计优效门。
++
++**允许的 R 主张**：同保留策略下可执行 crop vs full rebuild。普通 512/2048/8192 context 的 first-deliverable 配对 rebuild-minus-crop 均值为 113.621 [111.555,116.132]、465.377 [464.181,466.851]、1956.100 [1940.446,1968.986] ms；8192 recovery-only 为 1951.675 [1937.285,1963.226] ms。4-session cluster bootstrap/10,000/seed 20260906；固定 fixtures，不把 160 pairs 当独立样本。计时是同步分段区间之和，包含首 token KV commit，排除准备及 CPU 审计暂停，不是连续墙钟或 speech E2E。第二事件前计时外统一冻结 fixture，避免前缀失配；不是自由运行长对话。full rebuild 不代表所有优化 serving baseline。
++
++**边界与不利证据**：top-1 160/160，8-token continuation 144/160；16 个差异均位于 case16/event1。max abs logit difference 0.59375；320 float32 [1,152064] arrays 有限（本轮沿用前轮 NPY 验证，未重验）。不声称 cross-topology BF16/logit/output 等价或广泛功能无损。B 为独立软件 replay：100 trajectories/800 records/1118 cursors/27 closure checks，不是实际 TTS/听觉对齐。C2 v3 27 crops/60 matched steps 保留，v1/v2 rejected 不改判。
++
++**稿件与检查**：主稿保留标准七节，R 成为中心成本证据，A1/P1 支撑，E3 全四主结果与不确定性保留；S1/S2 实际承接 C1/C-E1/C-E2/A2，S3/S4/S5 提供 E3 敏感性、工件和 R 全端点。独立 supplement.tex/PDF 与可编辑表格并入干净源码 ZIP。指南事实依据 2026-09-06 IAB LIVE 核验，不再称当前 403；Acknowledgements 紧邻 references；数据 Option C 可 deposit/cite/link 或说明不能共享的正当原因，无强制 DOI。无页数/词数压缩目标。
++
++**状态**：accepted（R/B 补证完成，SC 科学内容聚焦完成；无 GPU 待办）。技术构建与字面/数值检查及备份/patch 见 `paper2/review/sc_focused_revision_2026-09-08.md`。本轮未 formal schema 验证、未独立多代理科学审稿、未新检索；所有最终 PDF 页渲染 PNG 后交主 orchestrator 唯一视觉 gate，编辑代理未看 PNG、未宣称 visual passed。作者身份、权利/许可、公开链接或合理不能共享声明、伦理/consent、funding/COI/CRediT/AI disclosure 仍阻塞投稿，不承诺期刊接受或已验证分区。
+ 
+ ---
+ 
+--- a/docs/handoff.md
++++ b/docs/handoff.md
+@@ -1,4 +1,10 @@
+-# 二期论文统一修订交接（C2 v3 已正式接受）
++# 二期论文统一修订交接（R/B 已接受，SC 聚焦修订完成）
++
++> **当前状态 2026-09-08（D-029，覆盖下列历史 pending 状态）**：R/B formal `rb_formal_20260908T023934Z_f69e6478` 已完成并接受为有限软件/结构与成本证据；完整 78MB 原 tar 前轮已核验，本轮不重验。320 records/160 event pairs、9 cases/10 cells、4 process sessions，clean `bfa7d7a`/118 sources、Qwen2-7B BF16 SDPA 单3090。B 100 trajectories/800 records/1118 cursors/27 closures。无 GPU 待办，不重跑任何旧实验。
++>
++> **SC 单方法主线已执行**：joint prefix-state repair；R 为中心 operational cost，A1/P1 支撑，C2 v3 保留 exact-only、v1/v2 rejected 不变，E3 inconclusive 主表保留。C1/C-E1/C-E2/A2 实际承接于独立编译的 Supplementary Material S1/S2，S3--S5 为敏感性/工件/全 R 端点。主稿与补充 PDF 分别上传，二者源码在干净 ZIP 中，Highlights 另上传。未触碰 src、实验脚本/结果/GPU_RUN_NOTES、中文权威章节及历史 proposal；未 commit/push/upload。
++>
++> **下一断点**：主 orchestrator 对所有最终主稿和 supplement PNG 执行唯一视觉 gate；编辑代理未看 PNG，不能称 visual passed。另由主 orchestrator 做独立科学只读复核（编辑端无委派工具）。作者确认身份/权利/LICENSE/公开数据链接或正当不能共享说明/伦理与 consent/funding/COI/CRediT/AI disclosure，以及可访问检索导出。指南已于 2026-09-06 IAB LIVE 核验，无全文页/词 cap、无强制 DOI；当前不是 submission-ready。技术检查、最终页数、PNG 与备份/patch 入口见 `paper2/review/sc_focused_revision_2026-09-08.md`。下文的 GPU pending 与压缩稿措辞仅为历史，已被本条覆盖；本轮无减页目标。
+ 
+ > **2026-09-08 R/B 阻断修复（D-028）**：e82551b 报告旧 pilot `rb_pilot_20260908T021245Z_9e4b1d08` 8 records 完成后 cases tuple/list 校验失败，formal 未启动。现最小修复 validator JSON 比较，完整 CPU 合成 pilot/formal-shaped 回归及篡改负控、R/B/C2 v2/v3 smoke 通过；未跑 GPU、未 commit/push。本机无原失败归档可独立重放，旧失败报告/工件只读保留。下一步由作者交付新 clean 修复 commit，按 `recovery_boundary/GPU_HANDOFF.md` 新 pilot 成功后再 formal；下条未执行状态是历史记录。
+ 
+--- a/docs/paper2_context.md
++++ b/docs/paper2_context.md
+@@ -426,7 +426,8 @@
+ 
+ | 日期 | 里程碑 | 产出 |
+ |---|---|---|
+-| 2026-09-08 | **R/B JSON validator 修复（D-028）** | e82551b 报告旧 pilot 8 records 后 cases tuple/list 断言失败，formal 未启动；真实 manifest 读边界先红后绿，最小 JSON 归一化；完整 CPU 合成 8/320 records 与 case 篡改负控、R/B/C2 v2/v3 smoke 通过。旧失败只读，本机无归档可重放；未 commit/push、未跑 GPU，须新 clean 修复 commit 后新 pilot 成功再 formal。 |
++| 2026-09-08 | **R/B 正式接受与 SC 单主线改稿完成（D-029）** | formal `rb_formal_20260908T023934Z_f69e6478`：320 records/160 event pairs，4 sessions，B 100 trajectories/1118 cursors/27 closures；完整 tar 前轮已核验。SC 以 joint prefix-state repair 为唯一方法，新增 R 全 cell 成本表，C1/C-E1/C-E2/A2 实际移入独立编译 supplement，保留 C2 failures 与 inconclusive E3。无新实验、无 GPU 待办；源码 ZIP/主稿及补充 PDF 重建，全部 PNG 交主 orchestrator 单一视觉 gate，作者声明及权利仍待确认。详见 dated revision record；不改中文权威章节。 |
++| 2026-09-08 | **R/B JSON validator 修复（D-028，历史阶段；后续已由 D-029 完成）** | e82551b 报告旧 pilot 8 records 后 cases tuple/list 断言失败，formal 未启动；真实 manifest 读边界先红后绿，最小 JSON 归一化；完整 CPU 合成 8/320 records 与 case 篡改负控、R/B/C2 v2/v3 smoke 通过。旧失败只读，本机无归档可重放；未 commit/push、未跑 GPU，须新 clean 修复 commit 后新 pilot 成功再 formal。 |
+ | 2026-09-06 | **获批 R/B 有限补证实现（D-027）** | 新增 recovery_boundary：同策略可执行 crop/full-rebuild 下一轮恢复 + 独立软件边界检查；冻结 Qwen2-7B/BF16/SDPA、9 cases/4 sessions/320 records，pilot 仅工程用途。B 100 trajectories/800 records/1118 cursors/27 C2 closures、本地 random CPU/既有 smoke 通过。生产与论文不改；代码未 commit/push，GPU 未执行。入口 `experiments/sci34_supplement/recovery_boundary/GPU_HANDOFF.md`。 |
+ | 2026-09-05 | **SC 英文衍生稿审阅与限定澄清（D-026）** | 仅修 SC LaTeX：片段向上保留代价、joint/atomic 区分、C2 fixture 边界、E3 eligible clusters/条件不确定性；不改中文章节及实验工件。同上下文五视角模拟，不称独立 panel；官方 guide 403，期刊分区未知。作者声明/公开工件与独立视觉验收仍阻塞投稿，全文期刊贡献显著性仍需作者判断。 |
+ | 2026-09-04 | **内部初稿审阅意见落实（D-025）** | 标题改为“级联式语音对话打断中的上下文状态修正：从软件播放游标和 TTS 片段到 KV 与角色恢复”；RQ 与第六章按 C2→E3→C-E2→C-E1→A2 重组；C2 收窄为 direct crop integrity 与 within-run matched-arm recovery exactness，E1/E2/E3/A2 术语闭合；英文摘要 296 词；合并稿由权威源重建并通过一致性检查。无新增 GPU 实验。 |
+--- /dev/null
++++ b/paper2/review/sc_focused_revision_2026-09-08.md
+@@ -0,0 +1,86 @@
++# SC focused revision execution record — 2026-09-08
++
++## Authority, scope and status
++
++Executed the author's repeated approval of the sole joint prefix-state repair mainline and migration of C1/C-E1/C-E2/A2 to an actual accompanying supplement. The historical proposal `sc_focused_revision_proposal_2026-09-06.md` is unchanged. Academic-paper revision guidance was loaded; this is a deterministic, traceable local revision, **not** a formally schema-validated revision-patch/authorization run. No invented schema PASS, independent panel, visual pass, journal quartile, or acceptance guarantee.
++
++Initial Git HEAD: `d7af7abcdb4d0d610da806e40e33bcba038611bb`; initial `git status --short` was empty. No unrelated initial modifications existed. No commit, push, upload, model execution, or experimental rerun occurred. `src/`, all experimental scripts and result trees, GPU_RUN_NOTES, Chinese authoritative chapters, the historical SC Chinese translation, original figures, and the proposal are unchanged. R/B complete-tar verification from the prior turn was accepted and not repeated.
++
++**Completed:** actual writing, two PDF builds, source ZIP extraction/recompilation, numerical/structural/citation checks, all-page PNG rendering, D-029, context milestone and handoff. **Awaiting:** one visual gate by the main orchestrator, independent scientific read-only review, author declarations/rights and final submission decision. No GPU task remains.
++
++## Applied changes
++
++- New title: “Joint Prefix-State Repair for Barge-In in Cascaded Spoken Dialogue: Integrity and Recovery Cost.” Updated abstract, six keywords and separate Highlights; removed duplicate in-PDF Highlights.
++- Kept seven conventional main sections. Replaced five competing RQs with integrity, executable recovery cost and applicability questions. Kept invalidation as a method boundary case; moved trigger policy/timing detail out of the main method.
++- Main evaluation now follows C2 + B → R → supporting A1/P1 → concise E3. The editable R table shows **all ten** case/event cells and actual 95% CIs; the supplement supplies all three endpoints, both arm means, and frozen bootstrap details.
++- Standalone `supplementary.tex`/PDF provides S1 complete C1/C-E1/C-E2 policy, ten-condition grid and both favorable/unfavorable contrasts; S2 confounded A2; S3 all sixteen E3 estimand rows and detector agreement; S4 artifact/failure mapping; S5 all thirty R endpoint rows. No absent or merely promised supplement references.
++- Preserved all four inconclusive E3 primary effects in the main table; exact-key/detector limitations remain explicit. C2 v1/v2 rejected and P1 v1 excluded remain transparent. A1/P1 are support, not central novelty claims.
++- Consolidated scope limitations in discussion without dropping distinctions between software, device, acoustic, structural, numerical and downstream constructs. No clean-reprefill, cross-topology BF16/output-equivalence or broad functionality-no-loss claim.
++- Retained four editable method figures and the original vector A1 figure. The historical E3 figure stays unchanged locally; the main table replaces its redundant display and it is excluded from the clean upload ZIP.
++- Moved Acknowledgements directly before references. Guide/README/author checklist now cite the successful 2026-09-06 IAB LIVE verification, not stale 403 status. Data Option C is deposit/cite/link **or justified inability**, not compulsory DOI. No manuscript page/word reduction goal. No graphical abstract.
++- `docs/decisions.md` adds reverse-chronological D-029; context timeline and handoff record R/B accepted, SC focus completed, current no-GPU status, and remaining gates. Historical decisions are retained rather than rewritten.
++
++## Source-evidence checks
++
++Formal source directory: `experiments/sci34_supplement/results/recovery_boundary/rb_formal_20260908T023934Z_f69e6478/`.
++
++Read manifest, analysis, validation, boundary, all four session records/environment records, and protocol/runtime/campaign/boundary implementations. The frozen runtime is Qwen2-7B-Instruct (not Qwen2.5), BF16/SDPA, PyTorch 2.8.0+cu128, Transformers 4.57.1, one RTX 3090 per process, four process sessions, clean source `bfa7d7a37363d327cfa96b5448e151663ff578f8`, 118 snapshotted source files.
++
++The CPU-only SC table extractor independently recomputed **320 interval identities, 160 matched structural-state pairs, and all 30 endpoint means and exact bootstrap intervals** from raw JSON. It uses no model or experiment code and writes only SC assets. The frozen bootstrap is four session means, 10,000 draws, seed 20260906, sorted indices 249/9749; fixtures/repeats/events are not 160 independent samples.
++
++| Ordinary boundary | First-deliverable rebuild−crop mean (ms) | 95% session-cluster CI (ms) |
++|---|---:|---|
++| 512 tokens, case02/event0 | 113.621 | [111.555, 116.132] |
++| 2048 tokens, case10/event0 | 465.377 | [464.181, 466.851] |
++| 8192 tokens, case18/event0 | 1956.100 | [1940.446, 1968.986] |
++
++8192 recovery-only: **1951.675 [1937.285, 1963.226] ms**. All 320 records/160 pairs delivered; nine cases produce ten cells, four pairs per cell/session. Cost sums synchronized intervals, includes first-generator KV commit, excludes preparation and CPU audit pauses, and is not continuous wall time or speech E2E. Second-event fixture reconciliation is disclosed; full rebuilding is not every serving baseline.
++
++Stored diagnostics report top-1 160/160, max-absolute logit difference 0.59375, finite 320 float32 arrays of shape [1,152064]. **Continuation 144/160 was independently recomputed from raw token IDs**; all sixteen differences are case16/event1. Logit arrays were not reopened in this revision: the complete original tar was verified in the prior turn and the expanded repository copy intentionally lacks NPYs. Therefore this record does not claim a new full seal/NPY validation.
++
++B stored evidence: 100 trajectories, 800 records, 1118 cursor checks, 27 C2 closure checks. This revision checked counts and read the independent software-reference logic, without claiming new acoustic/TTS/listening validation. C2 v3 remains 27 exact crops/60 matched steps; it is not a substitute for failed clean-reprefill comparisons.
++
++Numeric provenance: `paper2/tougao/SC/latex/assets/numeric_checks.json`. Recorded worktree SHA-256 values are explicitly worktree identities, not substitutes for original LF seals. E1/E2 analysis_v2 and E3 weighting/dedup v2 supply the supplement tables; A2 descriptive values were checked against `experiments/results/paper2_reanalysis.json`.
++
++## Build and technical validation
++
++| Check | Actual result |
++|---|---|
++| Main PDF | **28 pages** (previous PDF 29); no reduction target |
++| Supplement PDF | **9 pages**, standalone compilation |
++| Main TeXcount | **6026 text words**; weighted sum 6416 |
++| Supplement TeXcount | **2143 text words**; weighted sum 2311 |
++| Abstract | **207 whitespace-delimited source words; 246 punctuation-split tokens**, both <250 |
++| Keywords | 6 |
++| Highlights | 5; character lengths **72, 76, 73, 72, 70** |
++| References | 24 printed in main, 9 in supplement; all 26 database entries cited somewhere; no `nocite{*}` |
++| Labels/citations | No duplicate labels, missing local reference targets, undefined citations/references, or citation/bibliography mismatches |
++| Boxes | **0 overfull** in each final build; 9 main/2 supplement underfull diagnostics retained for visual judgment |
++| Fonts | All embedded, no Type 3 |
++| ZIP | 22 clean entries, both .tex entry points, no aux/log/build/Chinese source clutter |
++| Independent ZIP build | Fresh extraction compiled both PDFs; PDF text extraction is byte-identical to local builds |
++| Rendering | **28 + 9 = 37 PNGs**, all pages at 110 dpi; none inspected by editing agent |
++| Git diff whitespace | `git diff --check` passed; standard LF→CRLF notices are not whitespace failures |
++
++TeXcount text counts exclude the rendered bibliography and treat table/math material according to its defaults; the weighted sum additionally includes headers/captions/math units and is not a journal word-limit declaration. Custom generated table rows are not a prose word count. The first parser selected the main entry-file count rather than the final “Sum of files”; this was corrected to the actual 6026/6416 totals shown in the saved TeXcount output.
++
++Build issues resolved locally: expandable table inputs avoid a booktabs/input alignment error; the out-of-tree MiKTeX bibliography name collision was removed by supplying the correct local `.bib`/`.bst`; fixed-size supplement tables avoid longtable infinite-glue warnings. Final logs contain none of these failures. MiKTeX's update-check notice does not prevent successful compilation. No installed packages or experiment dependencies were changed.
++
++**Skipped/not claimed:** formal revision-schema/criteria-binding validation; new reference-existence/retraction or web-guide lookup; full original-tar/NPY/seal revalidation; new GPU or acoustic experiments; independent multi-agent scientific review; visual acceptance. The available toolset did not include scientific-review delegation, so that read-only review remains with the main orchestrator.
++
++## Final artifacts and visual gate
++
++All paths below are repository-relative within `D:/project/my/research/streamllm_p2/`.
++
++- Main upload PDF: `paper2/tougao/SC/Speech_Communication_manuscript.pdf`.
++- **Separate supplement upload PDF:** `paper2/tougao/SC/Speech_Communication_supplementary.pdf`.
++- Editable package: `paper2/tougao/SC/Speech_Communication_LaTeX_source.zip`.
++- Separate Highlights: `paper2/tougao/SC/latex/highlights.txt`.
++- Main PNGs: `paper2/review/sc_revision_validation_2026-09-08/png_main/page-01.png` through `page-28.png`.
++- Supplement PNGs: `paper2/review/sc_revision_validation_2026-09-08/png_supplementary/page-1.png` through `page-9.png`.
++- Machine technical report, build/word/font logs and independent extracted ZIP: `paper2/review/sc_revision_validation_2026-09-08/`.
++- Pre-edit backup: `paper2/review/sc_revision_validation_2026-09-08/before_revision.zip`.
++- Deterministic source/document patch and before/after hashes: `paper2/review/sc_revision_validation_2026-09-08/revision.patch` and `change_manifest.json`.
++- Git baseline/final logs: `git_before.txt`, `git_after.txt` in the same validation directory.
++
++**Single visual gate owner: main orchestrator. Status: awaiting judgment.** Inspect all 37 PNGs, including method-figure labels/arrows, R/E3/A1 table widths, supplement artifact path wrapping, the complete R endpoint table, and declaration/reference transitions. Do not carry forward the previous 29-page visual approval. Author placeholders are intentional unresolved facts, not proof of submission readiness.
+--- a/paper2/tougao/SC/GUIDE_FOR_AUTHORS_CHECKLIST.md
++++ b/paper2/tougao/SC/GUIDE_FOR_AUTHORS_CHECKLIST.md
+@@ -1,72 +1,46 @@
+-# Speech Communication Guide for Authors — manuscript checklist
++# Speech Communication Guide for Authors — focused revision checklist
+ 
+-Source checked: https://www.sciencedirect.com/journal/speech-communication/publish/guide-for-authors
++Official source: https://www.sciencedirect.com/journal/speech-communication/publish/guide-for-authors
+ 
+-Historical access recorded by the package: 2026-09-04.
++Fact source: successful LIVE reading via the user's IAB/side-panel browser on 2026-09-06, recorded in `paper2/review/sc_focused_revision_proposal_2026-09-06.md` §2. The earlier 2026-09-05 WebFetch 403 is historical and does not override that reading. This 2026-09-08 revision uses that record; it did not refetch the guide or validate a formal criteria-binding schema.
+ 
+-Verification attempt on 2026-09-05: the official URL returned HTTP 403 through WebFetch. The checklist below remains a local, previously recorded guide summary, not independently reverified current policy. Reconfirm article type, review model, data/declaration requirements and publication charges in an accessible official interface before submission.
++## Journal and structure
+ 
+-## Journal and article type
+-
+-- Journal: Speech Communication.
+-- Article type: Original Full-length Research Article.
+-- Peer review: single anonymized; suitable manuscripts are normally reviewed by at least two independent experts.
+-
+-## File and structure requirements
+-
+-- [x] Editable LaTeX source (`.tex`) is provided; a PDF alone is not sufficient.
+-- [x] Numbered sections and subsections are used; the abstract is not numbered.
+-- [x] Equations and tables remain editable.
+-- [x] Figures are cited in appearance order and supplied as separate, logically named files.
+-- [x] SI units are used where applicable.
+-- [x] Author--year citations and an alphabetic reference list are used.
+-- [x] DOI or stable URL information is included where available.
++- [x] Scope includes oral dialogue, assessment methodologies, and specialised software tools; the manuscript targets bounded incremental systems research.
++- [x] Original Full-length Research article; the page lists this and Review, not a Short Communication route.
++- [x] Single-anonymized review; normally at least two reviewers after editorial screening.
++- [x] Editable .tex plus consistently formatted author–year references. PDF alone is not editable source.
++- [x] Seven numbered main sections; unnumbered abstract and declarations.
++- [x] No whole-paper word/page cap found on the verified page. No arbitrary reduction target imposed.
++- [x] Editable equations, tables and method figures; supplementary content cited in main text.
++- [ ] Journal significance remains an editorial judgment; no acceptance guarantee. Quartile/ranking system, category and year remain unverified.
+ 
+ ## Front matter
+ 
+-- [x] Concise English title without an abbreviation.
+-- [ ] Final author names and order.
+-- [ ] Final affiliations and postal addresses.
+-- [ ] Corresponding-author identity and active email.
+-- [x] Abstract does not exceed 250 words (current: 210 words by repository check).
+-- [x] Abstract has no citations and defines or avoids uncommon abbreviations.
+-- [x] Six English keywords (guide permits 1–7).
++- [ ] Author names/order, affiliations, postal addresses, corresponding email, and any ORCIDs.
++- [x] Abstract below 250 words; 207 whitespace-delimited source words, with a separate punctuation-split technical check recorded in validation.
++- [x] Six keywords (allowed 1–7).
++- [x] Five Highlights in separate editable `latex/highlights.txt`; each at most 85 characters.
++- [x] No graphical abstract generated; it is encouraged, not compulsory.
+ 
+-## Mandatory Highlights
++## Files and separate supplement
+ 
+-- [x] Separate editable `highlights.txt` supplied.
+-- [x] Five bullet points (guide requires 3–5).
+-- [x] Every bullet is at most 85 characters including spaces (current range: 60–73).
++- [x] Main source entry `latex/main.tex` and refreshed `Speech_Communication_manuscript.pdf`.
++- [x] Standalone source `latex/supplementary.tex` and separately compiled `Speech_Communication_supplementary.pdf`.
++- [x] Both main and supplement sources, required figures, editable tables, bibliography, class/style, and Highlights are included in the clean source ZIP.
++- [ ] At submission, upload the main manuscript PDF and the supplementary PDF as distinct items. S1–S5 must actually accompany the manuscript; repository pointers do not replace it.
++- [ ] Upload Highlights separately and the editable LaTeX source as required by the interface.
++- [ ] Main orchestrator's single visual gate over all final main/supplement PNGs. Editing agent did not inspect images or mark them passed.
+ 
+-## Optional graphical abstract
++## Data and declarations
+ 
+-Not created. The guide encourages but does not require one. If later added, it must be submitted separately at 531 × 1328 pixels (height × width) or proportionally larger and remain legible at 5 × 13 cm.
++- [x] Acknowledgements placed immediately before references, after other declarations.
++- [ ] Resolve CRediT, funding, competing interests, ethics/consent, acknowledgements, and actual AI-tool/use disclosure; do not infer these facts.
++- [ ] Under data Option C, deposit supporting data and cite/link it **or state a factual justified inability to share**. Add DOI if available; no compulsory-DOI assertion.
++- [ ] Confirm repository rights holder, license, third-party notices, and E3 derived-data redistribution permission.
++- [ ] Resolve all author placeholders and recompile/revalidate afterward; current package is not submission-ready.
++- [ ] Confirm reference metadata, current publication/retraction status and accessible literature-search exports. BibTeX success is not source verification.
+ 
+-## Research data
++## Publication charges
+ 
+-The journal applies research-data Option C:
+-
+-- [ ] Deposit supporting research data in a relevant repository and cite/link it, or provide a factual explanation if sharing is not possible.
+-- [ ] Replace the manuscript's provisional data/code statement with an immutable public URL/DOI and release identifier.
+-- [ ] Confirm E3 derived-data redistribution rights.
+-- [ ] Confirm repository license and third-party notices.
+-
+-## Declarations
+-
+-- [ ] Acknowledgements.
+-- [ ] CRediT author-contribution statement.
+-- [ ] Funding and funder roles, or the no-specific-funding statement.
+-- [ ] Competing-interest declaration generated as required by Elsevier's submission process.
+-- [ ] Ethics/exemption/not-applicable wording and confirmation of any annotator involvement.
+-- [ ] Generative-AI/AI-assisted-technology declaration before the references, covering the actual tools and purposes and confirming human review.
+-
+-## Publication cost route
+-
+-Speech Communication is hybrid. The journal's current page states that subscription publication has no publication fee charged to authors. To preserve a zero-APC route:
+-
+-- [ ] Select Subscription publishing after acceptance.
+-- [ ] Do not select optional Gold Open Access unless funding becomes available.
+-- [ ] Use online colour only; print-colour reproduction may incur an optional cost.
+-- [ ] Do not order optional paper offprints unless budgeted.
+-
+-Policies and charges can change; reconfirm the publishing agreement and invoice at acceptance.
++The previous local checklist recorded a subscription/no-APC route, optional Gold OA, and possible print-colour/offprint costs. These charge details were not reverified in this revision. Reconfirm the current publishing agreement and any charges; select the subscription route if zero APC is required and available. No journal ranking or publication-cost guarantee is made.
+--- a/paper2/tougao/SC/latex/AUTHOR_CONFIRM.md
++++ b/paper2/tougao/SC/latex/AUTHOR_CONFIRM.md
+@@ -20,18 +20,20 @@
+ 
+ ## Data and code availability
+ 
+-- [ ] Immutable public repository/archive URL, release/tag or commit, DOI if available, and access date.
++- [ ] Deposit/cite/link supporting data and code with release/tag or commit and DOI if available, or provide a factual justified inability to share under data Option C. A DOI is not unconditionally required.
+ - [ ] Repository rights holder and approved root license.
+ - [ ] Third-party notices for datasets, models, tokenizers, and software.
+ - [ ] Permission to redistribute the derived E3 input, or remove it from the public package and revise the statement.
+ - [ ] Identify any result or log files that cannot be public and state the factual reason.
+ 
+-## Review and verification gates (2026-09-05)
++## Review and verification gates (2026-09-08)
+ 
+-- [ ] Recheck the official guide in an accessible environment; this session received HTTP 403.
+-- [ ] Obtain targeted judge verification of the repaired pages. The user supplied the completed 29-page judge review; Figure 2 label placement, Figure 3 connector routing and Figure 6 main-only caption/prose were repaired. All other pages passed apart from author placeholders. The editing agent has not inspected images.
+-- [ ] Verify reference metadata, current preprint/publication status and accessible novelty-search exports; successful BibTeX compilation does not verify sources.
+-- [ ] Decide whether the bounded software-state contribution is sufficient for an SC full-length article. No device/acoustic, live speech-loop or human-benefit evidence was added; prose cannot resolve that significance concern.
++- [x] Official guide LIVE verification is recorded in the approved 2026-09-06 proposal §2 via IAB; the older 403 is historical. No new fetch or formal criteria-binding validation is claimed.
++- [x] Author-approved sole joint-repair mainline and migration of C1/C-E1/C-E2/A2 to an actual supplement are implemented. R/B formal evidence is complete; no GPU task remains for this revision.
++- [ ] Main orchestrator must perform the single visual gate on all final main and supplementary PNGs. Earlier 29-page judgments do not validate the new PDFs; the editing agent has inspected no PNG.
++- [ ] Independent scientific read-only review remains with the main orchestrator; no separate reviewer tool was available to the editing agent.
++- [ ] Verify reference metadata, current preprint/publication and retraction status, and accessible novelty-search exports; successful BibTeX compilation does not verify sources.
++- [ ] Make the final submission decision. R now supplies bounded operational cost evidence, but journal significance and acceptance remain editorial judgments; no device/acoustic or human-benefit evidence was added.
+ - [ ] If a quartile claim is needed, identify ranking system, subject category and year; these remain unknown.
+ 
+ ## Final submission checks
+@@ -39,6 +41,7 @@
+ - [ ] Replace every `[AUTHOR CONFIRM: ...]` and title-page placeholder in `main.tex` and `sections/07_declarations.tex`.
+ - [ ] Recompile and re-run all checks after metadata replacement.
+ - [ ] Upload `highlights.txt` as the mandatory separate editable Highlights file.
+-- [ ] Upload the LaTeX source, BibTeX database, class/style files, and each figure as a separate file.
++- [ ] Upload `Speech_Communication_manuscript.pdf` as the main manuscript and `Speech_Communication_supplementary.pdf` separately as Supplementary Material; S1–S5 must accompany the submission.
++- [ ] Upload the clean LaTeX source ZIP (both entry points, table inputs, bibliography and necessary figure/class/style files) following the interface's source-file instructions. It is a typesetting package, not the full experimental archive.
+ - [ ] Select the Subscription publishing route after acceptance if zero APC publication is required.
+ - [ ] Do not request print-color reproduction unless its optional cost is acceptable; online color is sufficient.
+--- a/paper2/tougao/SC/latex/README.md
++++ b/paper2/tougao/SC/latex/README.md
+@@ -1,49 +1,41 @@
+-# Speech Communication LaTeX submission package
++# Speech Communication manuscript and separate supplement
+ 
+-This directory contains an English Original Full-length Research Article prepared using the local Speech Communication guide summary dated 2026-09-04. A fresh official-guide fetch on 2026-09-05 returned HTTP 403; current policy was not independently reverified. The 2026-09-05 revision clarifies manuscript claims but is not submission-ready: author placeholders, public artifact rights/availability and targeted visual re-verification remain unresolved.
++Focused revision: 2026-09-08. One method mainline: joint prefix-state repair. R/B formal evidence is complete and accepted for bounded structural/software and operational-cost claims. No new experiments were run for this revision. Author placeholders remain; this is not submission-ready and no acceptance or journal-quartile claim is made.
+ 
+ ## Build
+ 
+-Run from this directory with MiKTeX/TeX Live:
++From this directory, using installed MiKTeX or TeX Live:
+ 
+ ```bash
+ latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
++latexmk -pdf -interaction=nonstopmode -halt-on-error supplementary.tex
+ ```
+ 
+-Or run the explicit sequence:
++Build in the source directory for an unambiguous local `references.bib`. If using a separate output directory on MiKTeX, copy `references.bib` and `elsarticle-harv.bst` into it first; otherwise an unrelated installed bibliography with the same name can be resolved. The main uses the included official `elsarticle` class; the independently compiled supplement uses the standard `article` class. Both use the same author–year bibliography and print only cited entries. Standard TeX packages must be installed.
+ 
+-```bash
+-pdflatex -interaction=nonstopmode -halt-on-error main.tex
+-bibtex main
+-pdflatex -interaction=nonstopmode -halt-on-error main.tex
+-pdflatex -interaction=nonstopmode -halt-on-error main.tex
+-```
++## Files and uploads
+ 
+-The package includes the official Elsevier `elsarticle` class and Harvard-style BibTeX style for portable compilation. The downloaded upstream bundle is preserved in `../template/`.
++- `main.tex` + `sections/`: seven-section main manuscript; submit its PDF as the manuscript, not as supplementary material.
++- `supplementary.tex`: separate accompanying Supplementary Material. Submit `Speech_Communication_supplementary.pdf` separately as Supplementary Material with the description “Candidate-generation and history-naturalization characterizations, downstream sensitivities, artifact mapping, and complete recovery-cost endpoints.” It is cited explicitly by the main text. Do not omit this upload or assume a repository pointer substitutes for it.
++- `highlights.txt`: five separate editable Highlights, not an extra page in the manuscript PDF.
++- `references.bib`, `elsarticle.cls`, `elsarticle-harv.bst`: editable reference database and main journal style.
++- `tables/`: editable JSON-derived table rows for main and supplement.
++- `figures/Figure_5_cost_microbenchmark.pdf`: main-text A1 figure. Four method figures are editable TikZ in the sections. `Figure_6_e3_intervals.pdf` is a preserved historical asset, not referenced or included in the clean upload ZIP; the main reports all E3 estimates in a table.
++- `assets/generate_tables.py`: optional CPU-only extraction/check of accepted JSON. Requires the repository via `uv run --no-sync python assets/generate_tables.py --repo REPOSITORY_ROOT`. Tables are already included, so compilation does not require experimental data or this script. `assets/numeric_checks.json` records actual checks and their limits.
++- `AUTHOR_CONFIRM.md`: unresolved author-controlled items.
+ 
+-## Main files
++`../Speech_Communication_LaTeX_source.zip` is a clean typesetting package containing both entry points, their required assets, Highlights, instructions, and numeric extraction provenance. Upload the editable source package in addition to the main PDF and separate supplement PDF according to the submission interface. It does not contain model weights or the complete experimental archive. Local `main_zh-CN.md` is an untouched historical translation, not an updated or submitted source.
+ 
+-- `main.tex`: manuscript entry point, abstract, title page, keywords, and Highlights.
+-- `sections/`: modular manuscript body.
+-- `references.bib`: author--year BibTeX database.
+-- `figures/`: separately named English figures.
+-- `highlights.txt`: mandatory separate Highlights file.
+-- `AUTHOR_CONFIRM.md`: unresolved author-controlled metadata and legal/administrative decisions.
++## Main versus supplement
+ 
+-## Guide-for-authors mapping
++The main evaluates C2 integrity, B software replay, R same-policy executable recovery, supporting A1/P1 costs, and concise inconclusive E3 results. C1/C-E1/C-E2 and A2 are not main research questions or contribution evidence: S1/S2 preserve their favorable, unfavorable, and confounded results together. S3 gives all four E3 weighting estimands; S4 maps artifacts and rejected protocols; S5 reports every R endpoint and arm mean.
+ 
+-- Editable LaTeX source: provided.
+-- Concise factual abstract: 210 words by the repository check; no citations.
+-- English keywords: six.
+-- Highlights: five bullets, each no more than 85 characters including spaces.
+-- Numbered sections: provided; abstract is unnumbered.
+-- Author--year citations and alphabetic bibliography: `elsarticle-harv`.
+-- Editable tables and separately named figures: provided.
+-- Acknowledgements before references: provided as an author-confirmation placeholder.
+-- CRediT, funding, competing interests, data availability, ethics, and AI-use disclosure: structured placeholders provided and must be resolved by the authors.
++R has 320 records/160 event pairs, nine cases/ten cells, four process sessions. First-deliverable cost sums synchronized recovery, suffix/header, and first-generator-return intervals, includes first-token KV commit, and excludes preparation/CPU audit pauses. It is not continuous wall-clock or speech E2E. Full rebuild is not every serving baseline. 160/160 top-1 but 144/160 short continuations match; no numerical/output equivalence is claimed. B is software replay, not acoustic alignment.
+ 
+-## Scope and evidence boundary
++## Guide source and remaining gates
+ 
+-The article is deliberately framed around spoken-dialogue barge-in and joint context-state repair. The accepted correctness claim is limited to direct crop integrity and within-run matched-arm recovery exactness under the frozen Qwen2-7B/Transformers/BF16/SDPA configuration. It does not claim clean-reprefill equivalence, device/acoustic playback truth, human-semantic effects, or production end-to-end latency.
++The official guide was successfully read through the user's IAB/side-panel browser on 2026-09-06; the historical 2026-09-05 WebFetch 403 is not the current verification status. The evidence record is `paper2/review/sc_focused_revision_proposal_2026-09-06.md` §2 (repository-relative). No new live fetch was performed on 2026-09-08.
+ 
+-Visual review update (2026-09-05): the user supplied a judge review of all 29 pages. Figure 2 label placement, Figure 3 connector routing, and Figure 6 main-analysis-only caption/prose were repaired. All other pages passed apart from author placeholders; repaired pages await targeted judge verification.
++The verified page permits Original Full-length Research and Review, single-anonymized review, editable .tex, abstract at most 250 words, 1–7 keywords, 3–5 Highlights of at most 85 characters, and author–year references in a consistent format. No full-manuscript word/page cap was found on that page. No length-reduction target was applied. Graphical abstract is optional and was not generated. Acknowledgements now immediately precede references. Data Option C means deposit/cite/link, or a justified inability to share; a DOI is not an unconditional requirement.
++
++Current abstract: 207 whitespace-delimited source words (also below 250 under punctuation-split counting); six keywords. Final page/word/font/citation checks are recorded in `paper2/review/sc_focused_revision_2026-09-08.md`. All final PDF pages are rendered for one visual gate assigned to the main orchestrator. The editing agent has not opened any PNG and does not claim visual acceptance. Independent scientific review and fresh citation/retraction verification were not performed here. Formal academic revision-schema authorization was not validated; the backup, patch, hashes, and deterministic numeric checks are ordinary traceability artifacts, not schema certification.
+--- /dev/null
++++ b/paper2/tougao/SC/latex/assets/generate_tables.py
+@@ -0,0 +1,128 @@
++"""Typesetting-only extraction of accepted JSON; no model or experiment execution.
++Usage: uv run --no-sync python assets/generate_tables.py --repo REPOSITORY_ROOT
++The checked-in tables suffice for standalone LaTeX compilation without the repo.
++"""
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import random
++import statistics
++
++parser = argparse.ArgumentParser()
++parser.add_argument('--repo', type=Path, required=True)
++args = parser.parse_args()
++root = args.repo.resolve()
++out = Path(__file__).resolve().parents[1] / 'tables'
++out.mkdir(exist_ok=True)
++base = root / 'experiments/sci34_supplement/results'
++r = base / 'recovery_boundary/rb_formal_20260908T023934Z_f69e6478'
++a = json.loads((r / 'analysis.json').read_text(encoding='utf-8'))
++m = json.loads((r / 'manifest.json').read_text(encoding='utf-8'))
++rows = [json.loads(line) for p in sorted(r.glob('session_*/records.jsonl'))
++        for line in p.read_text(encoding='utf-8').splitlines()]
++assert len(rows) == 320 and len(a['cells']) == 10
++pairs = {}
++for row in rows:
++    assert row['ready_total_ns'] == row['recovery_ns'] + row['suffix_ready_ns']
++    assert row['first_deliverable_ns'] == row['ready_total_ns'] + row['decode_first_ns']
++    assert row['delivered']
++    st = row['ready_state']
++    n = len(st['token_ids'])
++    assert st['token_ids'] == row['ready_ids_expected']
++    assert st['seq_length'] == st['kv_length'] == n
++    assert st['mask'] == [[1] * n]
++    assert st['role_phase'] == 'assistant_open' and st['end_reason'] == 'none'
++    key = (row['session'], row['case_id'], row['repeat'], row['event'])
++    assert row['arm'] not in pairs.setdefault(key, {})
++    pairs[key][row['arm']] = row
++assert len(pairs) == 160
++for pair in pairs.values():
++    assert set(pair) == {'crop', 'rebuild'}
++    for field in ('pre_ids', 'pre_state', 'keep', 'recovered_ids', 'suffix', 'ready_state'):
++        assert pair['crop'][field] == pair['rebuild'][field]
++# Recompute the frozen process-cluster algorithm from raw interval differences.
++rng = random.Random(20260906)
++short = []
++full = []
++labels = {
++    '01': 'Zero playback (512)', '02': 'Fragment boundary (512)',
++    '03': 'Mid-fragment (512)', '04': 'Reply-tail no-op (512)',
++    '05': 'Pending EOT (512)', '06': 'Full invalidation (512)',
++    '10': 'Fragment boundary (2048)', '16': 'Repeated interruption (2048)',
++    '18': 'Fragment boundary (8192)',
++}
++for cell in a['cells']:
++    case, event = cell['case_id'], cell['event']
++    cid = case.split('_')[1]
++    selected = [row for row in rows if row['case_id'] == case and row['event'] == event]
++    for metric, endpoint in [('recovery_ns', 'Rec'), ('ready_total_ns', 'Ready'),
++                             ('first_deliverable_ns', 'First')]:
++        means = []
++        for session in range(4):
++            ds = [(pairs[(session, case, rep, event)]['rebuild'][metric] -
++                   pairs[(session, case, rep, event)]['crop'][metric]) / 1e6
++                  for rep in range(4)]
++            means.append(statistics.mean(ds))
++        draws = sorted(statistics.mean(rng.choices(means, k=4)) for _ in range(10000))
++        actual = cell['metrics'][metric]
++        assert means == actual['session_mean_differences_ms']
++        assert statistics.mean(means) == actual['mean_rebuild_minus_crop_ms']
++        assert [draws[249], draws[9749]] == actual['session_cluster_percentile_ci95_ms']
++        mean = actual['mean_rebuild_minus_crop_ms']
++        low, high = actual['session_cluster_percentile_ci95_ms']
++        cm, rm = [statistics.mean(row[metric] / 1e6 for row in selected if row['arm'] == arm)
++                  for arm in ('crop', 'rebuild')]
++        full.append(f'{cid}/{event} & {endpoint} & {cm:.3f} & {rm:.3f} & {mean:.3f} [{low:.3f}, {high:.3f}] \\\\')
++        if metric == 'first_deliverable_ns':
++            short.append(f'{cid}/{event} & {labels[cid]} & {mean:.3f} & [{low:.3f}, {high:.3f}] \\\\')
++(out / 'r_first_deliverable_rows.tex').write_text('\n'.join(short) + '\n', encoding='utf-8')
++(out / 'r_all_endpoints_rows.tex').write_text('\n'.join(full) + '\n', encoding='utf-8')
++e1file = base / 'e1e2_confirmatory/e1e2c_b8c758b_20260901T173306Z/analysis_v2.json'
++e1 = json.loads(e1file.read_text(encoding='utf-8'))
++cs = []
++for condition, c in e1['condition_summaries'].items():
++    label = ('A full prefill' if condition == 'system_a_full_prefill' else
++             'B never trigger' if condition == 'b_never_speculate' else
++             'B@' + condition.removeprefix('b_threshold_'))
++    ready = c['candidate_selection_compute_readiness_ms']['summary']['mean']
++    oracle = c['ttft_eff_ms_oracle_latency_lower_bound']['mean']
++    cs.append(f'{label} & {ready:.3f} & {oracle:.3f} & {100*c["survival_rate"]:.1f} & {100*c["pooled_token_waste_ratio"]:.3f} \\\\')
++assert len(cs) == 10
++(out / 'candidate_grid_rows.tex').write_text('\n'.join(cs) + '\n', encoding='utf-8')
++e3file = base / 'e3/sci34_f11ccba_20260901_e3/analysis_weighting_dedup_v2.json'
++e3 = json.loads(e3file.read_text(encoding='utf-8'))
++es = []
++for target, t in e3['targets'].items():
++    for detector, d in t['metrics'].items():
++        for key, abbr in [('label_weighted', 'L'), ('dialogue_weighted', 'D'),
++                          ('unique_semantic_group_weighted', 'K'), ('unique_dialogue_weighted', 'KD')]:
++            e = d['estimands'][key]
++            mean = 100 * e['generation_minus_playback']
++            low, high = [100*x for x in e['difference_95_ci']]
++            assert low < 0 < high
++            es.append(f'{target.title()} & {"Lexical" if detector == "rule" else "Judge"} & {abbr} & ${mean:.2f}$ [${low:.2f}$, ${high:.2f}$] \\\\')
++(out / 'e3_sensitivity_rows.tex').write_text('\n'.join(es) + '\n', encoding='utf-8')
++b = json.loads((r / 'boundary.json').read_text(encoding='utf-8'))
++assert b['ok'] and b['trajectories'] == 100 and b['stored_records_checked'] == 800
++assert len(b['boundary_checks']) == 1118 and len(b['c2_closure_checks']) == 27
++diag = a['diagnostics']
++assert sum(x['top1_same'] for x in diag) == 160
++assert sum(x['continuation_same'] for x in diag) == 144
++assert max(x['max_abs_logit_difference'] for x in diag) == 0.59375
++assert {(x['key'][1], x['key'][3]) for x in diag if not x['continuation_same']} == {('c2_16_second_medium_eos', 1)}
++assert sum(p['crop']['continuation_ids'] == p['rebuild']['continuation_ids'] for p in pairs.values()) == 144
++sources = [r/'analysis.json', r/'manifest.json', r/'boundary.json', r/'validation.json', e1file, e3file]
++report = {
++    'scope': 'typesetting extraction and raw interval/structural cross-check; no GPU, no new estimates',
++    'r_records': len(rows), 'r_pairs': len(pairs), 'r_cells': len(a['cells']),
++    'raw_interval_identity_checks': 320, 'raw_matched_state_pairs': 160,
++    'recomputed_metrics_and_bootstrap_intervals': 30,
++    'source_files': len(m['source']['files']), 'source_commit': m['source']['commit'],
++    'top1_same_stored_diagnostics': 160, 'continuation_same_recomputed': 144,
++    'boundary_cursor_checks_stored': 1118, 'closure_checks_stored': 27,
++    'npy_status': 'prior-turn complete-tar verification accepted; not reopened or reverified in this revision',
++    'sources_sha256_worktree': {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources},
++}
++(Path(__file__).resolve().parent / 'numeric_checks.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
++print(json.dumps(report, indent=2))
+--- /dev/null
++++ b/paper2/tougao/SC/latex/assets/numeric_checks.json
+@@ -0,0 +1,24 @@
++{
++  "scope": "typesetting extraction and raw interval/structural cross-check; no GPU, no new estimates",
++  "r_records": 320,
++  "r_pairs": 160,
++  "r_cells": 10,
++  "raw_interval_identity_checks": 320,
++  "raw_matched_state_pairs": 160,
++  "recomputed_metrics_and_bootstrap_intervals": 30,
++  "source_files": 118,
++  "source_commit": "bfa7d7a37363d327cfa96b5448e151663ff578f8",
++  "top1_same_stored_diagnostics": 160,
++  "continuation_same_recomputed": 144,
++  "boundary_cursor_checks_stored": 1118,
++  "closure_checks_stored": 27,
++  "npy_status": "prior-turn complete-tar verification accepted; not reopened or reverified in this revision",
++  "sources_sha256_worktree": {
++    "experiments\\sci34_supplement\\results\\recovery_boundary\\rb_formal_20260908T023934Z_f69e6478\\analysis.json": "2756c1c4260c105903be8adf0e0fd4f5e22ce3c69f03c4389b8b8c379ab9c994",
++    "experiments\\sci34_supplement\\results\\recovery_boundary\\rb_formal_20260908T023934Z_f69e6478\\manifest.json": "6d16e332e78a9f247e18dccbfa3ae3eecc15364692d76536dc052505dc8a211a",
++    "experiments\\sci34_supplement\\results\\recovery_boundary\\rb_formal_20260908T023934Z_f69e6478\\boundary.json": "633529ee1b2d270bb2fb0805ce3dfa0b5696400077d22b09fbd35ec1cb20d1fc",
++    "experiments\\sci34_supplement\\results\\recovery_boundary\\rb_formal_20260908T023934Z_f69e6478\\validation.json": "41798b964b515a8da59e32eab037ace9f6303ba1e67cee173e14b73f88c6d09c",
++    "experiments\\sci34_supplement\\results\\e1e2_confirmatory\\e1e2c_b8c758b_20260901T173306Z\\analysis_v2.json": "9bce6db5d93c1faccb4069b295df32ce5ee0778899b31ac6be17526bfb644456",
++    "experiments\\sci34_supplement\\results\\e3\\sci34_f11ccba_20260901_e3\\analysis_weighting_dedup_v2.json": "5776db23e534767c6ca266872967e228962eef59924cec3a1e3dd5cdbcd30366"
++  }
++}
+--- a/paper2/tougao/SC/latex/highlights.txt
++++ b/paper2/tougao/SC/latex/highlights.txt
+@@ -1,5 +1,5 @@
+-A software cursor resolves a legal assistant-token commit boundary.
+-KV, mask, token, position, role, and EOT state are repaired jointly.
+-All 27 production crops matched direct layer-wise prefix slicing exactly.
+-Matched recovery remained exact across 60 steps in the accepted run.
+-Fixed-protocol repair avoided long-context re-prefill costs.
++Software playback boundaries drive joint cache, ledger, and role repair.
++All 27 crops matched direct slicing; 60 matched recovery steps stayed exact.
++Paired recovery costs favored crop over full rebuild in nine fixed cases.
++First-token choices matched, but 16 of 160 short continuations differed.
++Software replay checks boundaries without claiming acoustic alignment.
+--- a/paper2/tougao/SC/latex/main.tex
++++ b/paper2/tougao/SC/latex/main.tex
+@@ -13,7 +13,7 @@
+ \usepackage{lineno}
+ \usepackage[
+   hidelinks,
+-  pdftitle={Playback-Conditioned Joint Prefix-State Repair for Barge-In in Cascaded Spoken-Dialogue Systems},
++  pdftitle={Joint Prefix-State Repair for Barge-In in Cascaded Spoken Dialogue: Integrity and Recovery Cost},
+   pdfauthor={Author names to be confirmed},
+   pdfsubject={Context-state repair for barge-in in cascaded spoken-dialogue systems},
+   pdfkeywords={cascaded spoken dialogue, barge-in, playback cursor, prefix-state repair, KV cache, dialogue history}
+@@ -26,6 +26,9 @@
+ \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+ \newcommand{\softwarecursor}{software-consumed-sample cursor}
+ \newcommand{\jointstate}{\mathcal{Z}}
++\makeatletter
++\newcommand{\tableinput}[1]{\@@input #1 }
++\makeatother
+ 
+ \journal{Speech Communication}
+ 
+@@ -34,7 +37,7 @@
+ 
+ \begin{frontmatter}
+ 
+-\title{Playback-Conditioned Joint Prefix-State Repair for Barge-In in Cascaded Spoken-Dialogue Systems}
++\title{Joint Prefix-State Repair for Barge-In in Cascaded Spoken Dialogue: Integrity and Recovery Cost}
+ 
+ \author[aff1]{[AUTHOR NAME(S) TO BE CONFIRMED]\corref{cor1}}
+ \ead{[CORRESPONDING AUTHOR EMAIL TO BE CONFIRMED]}
+@@ -46,16 +49,10 @@
+             country={[COUNTRY TO BE CONFIRMED]}}
+ 
+ \begin{abstract}
+-Barge-in creates asynchronous progress across language-model generation, text-to-speech synthesis, and software playback in cascaded spoken-dialogue systems. We formulate the resulting context correction as external-progress-conditioned joint prefix-state repair. A software-consumed-sample cursor is resolved through text-to-speech fragments to a legal assistant-token commit boundary; the key--value cache, attention mask, token ledger, position progression, content span, role phase, and end-of-turn state are then transformed together. Under a frozen Qwen2-7B-Instruct, Transformers, BF16, and SDPA configuration, an exact-only evaluation covered 24 cases, 27 crop events, and 60 recovery steps. Every production crop was bitwise exact across 28 key--value layers against direct layer-wise slicing of the same pre-crop snapshot, all 27 wrong-length controls were detected, and matched recovery arms remained stepwise exact within the accepted run. A fixed-protocol microbenchmark measured 31.054--48.315~ms for joint crop and role repair over 256--8192-token contexts; the median re-prefill-to-repair ratio increased from 2.254 to 40.620. A downstream fixed-trajectory probe produced generation-minus-playback differences from $-3.37$ to $-1.58$ percentage points across four automated operationalizations, with all dialogue-cluster 95\% confidence intervals crossing zero. The evidence supports direct crop integrity and within-run matched-arm recovery exactness at a software boundary. It does not establish clean-reprefill equivalence, device or acoustic playback boundaries, human-semantic effects, or production end-to-end latency.
++Barge-in leaves generation, synthesis, and playback at different positions in cascaded spoken-dialogue systems. We implement joint prefix-state repair: a software playback cursor selects a text-to-speech fragment boundary, and the key--value cache, mask, token ledger, positions, and role/end-of-turn state are repaired together. The method distinguishes zero-content playback from complete candidate invalidation and commits structural closure once. Under a frozen Qwen2-7B-Instruct configuration with brain floating-point precision and scaled dot-product attention, 27 production crops matched direct slicing of the same snapshot across 28 layers, and 60 matched recovery steps remained exact. Independent software replay checked 100 stored trajectories at 1118 cursors. A same-policy comparison with executable full rebuilding covered nine fixed cases and 160 paired interruption events across four process sessions. At ordinary fragment boundaries in 512-, 2048-, and 8192-token contexts, mean rebuild-minus-crop first-deliverable costs were 113.621, 465.377, and 1956.100~ms; respective session-cluster 95\% confidence intervals were [111.555, 116.132], [464.181, 466.851], and [1940.446, 1968.986]~ms. These costs sum synchronized operation intervals, including the first token's cache commit, rather than continuous speech-response latency. First-token choices agreed in all pairs, but eight-token continuations agreed in only 144/160. Downstream automated information-reproduction estimates remained inconclusive. The contribution is a checkable state-repair implementation and bounded recovery-cost evidence, not cross-topology numerical equivalence, acoustic alignment, or demonstrated user benefit.
+ \end{abstract}
+ 
+-\begin{highlights}
+-\item A software cursor resolves a legal assistant-token commit boundary.
+-\item KV, mask, token, position, role, and EOT state are repaired jointly.
+-\item All 27 production crops matched direct layer-wise prefix slicing exactly.
+-\item Matched recovery remained exact across 60 steps in the accepted run.
+-\item Fixed-protocol repair avoided long-context re-prefill costs.
+-\end{highlights}
++% Highlights are supplied separately in highlights.txt, as required by the guide.
+ 
+ \begin{keyword}
+ cascaded spoken dialogue \sep barge-in \sep playback cursor \sep prefix-state repair \sep KV cache \sep dialogue history
+--- a/paper2/tougao/SC/latex/sections/01_introduction.tex
++++ b/paper2/tougao/SC/latex/sections/01_introduction.tex
+@@ -13,7 +13,7 @@
+ 
+ The contract has four layers. First, \emph{boundary resolution} maps the software cursor through a TTS fragment to an assistant token span. Second, \emph{joint-state representation} treats the cache, mask, ledgers, content span, positions, and role/EOT state as one coupled object. Third, \emph{invariant-preserving transitions} define cropping and role reopening without duplicating or misclassifying structural EOT. Fourth, \emph{falsifiable validation} compares the production crop with direct layer-wise slicing of the same pre-crop snapshot, applies wrong-length negative controls, and checks matched recovery from identical retained states.
+ 
+-The article addresses five questions in decreasing order of evidential importance. RQ1 asks whether joint repair satisfies direct crop integrity and within-run matched-arm recovery exactness under a frozen model/backend, and what its fixed-protocol costs are. RQ2 compares software-cursor retention and complete-generation retention using fixed trajectories and automated information-reproduction probes. RQ3 characterizes how a soft trigger affects candidate availability, discarded-token ratio, and an optimistic synchronous-oracle latency bound. RQ4 audits full-string/full-prefill and segment-wise/incremental implementation paths while recognizing that they are not token-equivalent. RQ5 describes three interrupted-history naturalization implementations, whose present trajectories do not permit a causal comparison.
++The evaluation follows three linked questions: does the implementation preserve the specified state, what operational cost does reuse avoid relative to rebuilding the same retained history, and what remains uncertain at the software boundary and in downstream responses? These questions support one method contribution rather than independent claims for triggering, cache management, and history rewriting. The same-policy recovery comparison extends an isolated repair microbenchmark to an executable next-turn state and the first generator-deliverable token.
+ 
+ The sole core mechanism contribution is the implemented path
+ \begin{equation}
+@@ -26,4 +26,6 @@
+ \end{equation}
+ Under a frozen Qwen2-7B-Instruct, Transformers, BF16, and scaled dot-product attention (SDPA) configuration \citep{yang2024Qwen2}, the accepted exact-only evaluation covered 24 cases, 27 crop events, and 60 recovery steps. The retained production state was bitwise exact across 28 K/V layers against direct layer-wise slicing of the same snapshot, all wrong-length controls were detected, and matched recovery arms remained stepwise exact within the accepted run. These results support direct crop integrity and within-run matched-arm recovery exactness only. Earlier clean-reprefill protocols remain rejected; the accepted protocol does not establish clean-reprefill or continuation equivalence, or correctness across models, backends, or hardware.
+ 
+-The remaining studies provide supporting or exploratory evidence. A fixed-trajectory downstream probe produced uncertain differences across four automated operationalizations and is not a human-semantic or human--computer interaction evaluation. Candidate generation was evaluated in a synchronous segmented-text harness whose timestamps do not establish readiness before a real end of speech or production delivery. A separate implementation-path comparison was not token-equivalent. The paper consequently contributes a testable state contract and bounded software evidence rather than a claim of production barge-in latency or improved user experience.
++Two complementary evaluations connect that integrity result to use. Independent replay checks stored software-cursor/fragment boundaries, while a four-session comparison measures crop repair against executable full rebuilding under the same retention policy. Across nine fixed cases, reuse reduces measured recovery and first-deliverable operation costs; the comparison does not cover optimized serving strategies that already reuse stable prefixes. The fixed-trajectory downstream probe remains inconclusive and is retained here because implementation integrity alone cannot establish dialogue benefit.
++
++The accompanying Supplementary Material supplies complete candidate-generation and implementation-path results (C1/C-E1/C-E2), exploratory history naturalization (A2), downstream sensitivities, and artifact pointers. Both favorable oracle contrasts and unfavorable or confounded comparisons are preserved there; none supplies the main contribution claim. The article is an incremental systems study of inspectable repair and bounded operational cost, not a claim of a new playback policy or major algorithmic novelty.
+--- a/paper2/tougao/SC/latex/sections/02_related_work.tex
++++ b/paper2/tougao/SC/latex/sections/02_related_work.tex
+@@ -9,7 +9,7 @@
+ 
+ \subsection{Streaming dialogue, anticipatory computation, and interruption control}
+ 
+-Predictive ASR uses partial recognition to forecast completed input and prefetch a response that can be used if the final recognition confirms the prediction \citep{schwarz2023PersonalizedPredictiveASR}. LTS-VoiceAgent combines semantic triggering with incremental reasoning \citep{zou2026LTSVoiceAgent}, and RelayS2S uses response-level candidate prefixes with verification and continuation \citep{mai2026RelayS2S}. These studies establish compute-before-commit as a relevant design pattern for speech interaction. Our supporting candidate study shares that pattern but measures generation before synchronous oracle acceptance. Its candidate-selection event is not equivalent to production availability because cache update, delivery authorization, consumer admission, TTS, and audio buffering may follow it.
++Predictive ASR uses partial recognition to forecast completed input and prefetch a response that can be used if the final recognition confirms the prediction \citep{schwarz2023PersonalizedPredictiveASR}. LTS-VoiceAgent combines semantic triggering with incremental reasoning \citep{zou2026LTSVoiceAgent}, and RelayS2S uses response-level candidate prefixes with verification and continuation \citep{mai2026RelayS2S}. These studies establish compute-before-commit as a relevant design pattern for speech interaction. Here its relevance is the need to remove an unaccepted candidate completely when new input arrives. Trigger quality and anticipatory timing are distinct from the repair operation; their separate characterization is reported in Supplementary Material S1.
+ 
+ Interruption-control research primarily determines when output should stop. FireRedChat combines streaming or personalized voice-activity detection with interruption control in cascaded and semi-cascaded configurations \citep{chen2025FireRedChat}. In contrast, joint prefix-state repair starts after an interruption decision and determines what part of the assistant turn remains committed. Detection and repair are complementary, but successful detection does not imply a valid next-turn cache and dialogue history.
+ 
+--- a/paper2/tougao/SC/latex/sections/04_method.tex
++++ b/paper2/tougao/SC/latex/sections/04_method.tex
+@@ -39,18 +39,9 @@
+ 
+ The chunker sees decoded text rather than token identifiers. To associate a fragment with a token endpoint, the method accumulates non-whitespace characters contributed by each decoded token and locates the fragment's non-whitespace length in that cumulative sequence. Whitespace-only fragments are skipped, endpoints are clamped to the observed content length, and the concatenated non-whitespace fragment sequence must equal the original decoded sequence. The procedure establishes a deterministic software boundary without claiming acoustic alignment.
+ 
+-\subsection{Invalidatable candidate generation}
++\subsection{Complete invalidation before output commitment}
+ 
+-Let a turn-completion model assign the cumulative stable transcript a confidence
+-\begin{equation}
+-c_i=\operatorname{conf}(u_1\cdots u_i)\in[0,1].
+-\label{eq:trigger}
+-\end{equation}
+-When $c_i\geq\theta$, the system stores the current \texttt{USER\_OPEN} state as a pre-speculation snapshot, opens the assistant role, and generates at most $B$ candidate content tokens. The budget bounds the token volume of a false trigger.
+-
+-If another stable ASR segment arrives, the active candidate is fully invalidated. The joint state returns to the saved user-open endpoint, including removal of the assistant header, and discarded candidate tokens are counted. Immediately after the crop, \texttt{CROPPED} remains observable; successful prefill of new user text resets the current end reason. At the eventual endpoint event, a live candidate can continue or a fresh assistant role can be opened.
+-
+-The first-candidate callback follows token selection but precedes the cache-update forward and generator yield. It denotes internal selection/compute readiness only. It does not denote delivery authorization, TTS admission, device presentation, or acoustic output. The present harness uses a post-candidate synchronous oracle; an independent online delivery gate is outside the evaluated mechanism.
++An unaccepted response candidate has a different rollback boundary from a response that entered playback. Before opening the candidate's assistant role, the system saves the \texttt{USER\_OPEN} endpoint. If another stable input segment arrives, repair returns to this endpoint, removing both candidate content and its assistant header. Immediately after cropping, \texttt{CROPPED} remains observable; successful prefill of new user text resets the current end reason. A subsequent response can open a fresh assistant role. This transition is part of the joint repair method regardless of how the candidate was triggered. The threshold policy and synchronous-oracle timing study are reported separately in Supplementary Material S1.
+ 
+ \subsection{Joint crop and role recovery}
+ 
+--- a/paper2/tougao/SC/latex/sections/05_experiments_results.tex
++++ b/paper2/tougao/SC/latex/sections/05_experiments_results.tex
+@@ -1,40 +1,37 @@
+ \section{Experimental methodology and results}
+ \label{sec:experiments}
+ 
+-\subsection{Evidence hierarchy and environment}
++\subsection{Evidence and environment}
+ 
+-The evaluation follows the evidence hierarchy in Table~\ref{tab:evidence}. C2 is the core correctness study. A1 and P1 bound model-side repair cost and the prepared-state software control path. E3 probes a downstream automated outcome. C-E2 and C-E1 characterize candidate generation in a separate synchronous harness, while A2 is exploratory. These campaigns have different states and timing boundaries; their absolute times are neither pooled nor subtracted across campaigns.
++The evaluation separates prefix integrity, operational recovery cost, and downstream effects (Table~\ref{tab:evidence}). C2 tests same-snapshot crop integrity and matched recovery. B checks the software boundary independently of the production lookup. R compares executable next-turn recovery under the same retention policy. A1 and P1 provide supporting measurements at different operation boundaries; E3 is a downstream diagnostic. Absolute times from different campaigns are neither pooled nor subtracted.
+ 
+ \begin{table}[t]
+-\centering
+-\small
+-\caption{Evidence hierarchy and measurement boundary.}
++\centering\small
++\caption{Evidence roles and limits of inference.}
+ \label{tab:evidence}
+ \begin{tabularx}{\linewidth}{@{}lYY@{}}
+ \toprule
+-Study & Role & Principal limitation \\
++Study & Question & Scope of answer \\
+ \midrule
+-C2 v3 & Direct crop and recovery correctness & One snapshot/backend; no clean re-prefill \\
+-A1/P1 & Fixed-protocol cost and software path & No device or acoustic stopping \\
+-E3 & Automated downstream probe & No human reference standard \\
+-C-E2 & Token-consistent candidate characterization & Synchronous oracle \\
+-C-E1 & Whole implementation-path audit & Paths not token-equivalent \\
+-A2 & Exploratory history naturalization & Generation trajectories confounded \\
++C2 v3 & Is the specified prefix preserved? & Same-snapshot exact crop and matched recovery \\
++B & Does the software cursor select the specified boundary? & Independent replay of stored software records \\
++R & What cost does executable reuse avoid? & Same-policy crop versus full rebuild; fixed fixtures \\
++A1/P1 & What are local repair and software-control costs? & Synchronized microbenchmark and prepared-state headless path \\
++E3 & Does retention change automated information reproduction? & Inconclusive fixed-trajectory diagnostic \\
+ \bottomrule
+ \end{tabularx}
+ \end{table}
+ 
+-Data were derived from MultiWOZ 2.1 \citep{eric2020MultiWOZ21}. The principal model was Qwen2-7B-Instruct \citep{yang2024Qwen2}; TEN Turn Detection supplied turn confidence \citep{tenFramework2025TurnDetection}; Mistral-7B-Instruct-v0.3 supplied the E3 automated judgments \citep{jiang2023Mistral7B,mistralAI2024Mistral7BInstructV03}; a six-sentence CosyVoice2-0.5B profile parameterized deterministic Mock-TTS durations \citep{du2024CosyVoice2}; and Qwen3-0.6B was used by the exploratory rewriter \citep{yang2025Qwen3}. The implementation reused Whisper-based ASR \citep{radford2023RobustSpeechRecognition} and stream2sentence version 1.0.0 for output segmentation \citep{beigel2026Stream2Sentence}.
++The principal model was Qwen2-7B-Instruct \citep{yang2024Qwen2}. The R runtime used Python 3.10.18, PyTorch 2.8.0+cu128, Transformers 4.57.1, CUDA 12.8, cuDNN 9.10.2, BF16, and SDPA, with exactly one exposed RTX 3090 (24~GB) per process session. It used the historical model artifact also recorded by C2, not Qwen2.5. Model loading was strictly offline. Four independently initialized processes reloaded the model; repetitions within them are not independent sessions.
+ 
+-The frozen runtime used Python 3.10.18, PyTorch 2.8.0+cu128, Transformers 4.57.1, CUDA 12.8, and cuDNN 9.10.2 on RTX 3090 GPUs with 24~GB memory. C2 used BF16 and SDPA. Confirmatory C-E1/C-E2 used two GPUs; other campaigns followed their own manifests.
++The downstream data were derived from MultiWOZ 2.1 \citep{eric2020MultiWOZ21}. Mistral-7B-Instruct-v0.3 supplied automated E3 judgments \citep{jiang2023Mistral7B,mistralAI2024Mistral7BInstructV03}. A six-sentence CosyVoice2-0.5B profile parameterized deterministic Mock-TTS durations \citep{du2024CosyVoice2}; these are not live synthesis measurements. The surrounding implementation reuses Whisper-based ASR \citep{radford2023RobustSpeechRecognition} and stream2sentence version 1.0.0 \citep{beigel2026Stream2Sentence}, but the evaluated records do not constitute a live speech loop. Supplementary Material S1--S4 contains the separate candidate/history studies and complete artifact mapping.
+ 
+-\subsection{C2 exact correctness}
++\subsection{C2 exact correctness and B software boundaries}
+ 
+-C2 v1 and v2 retain their rejected verdicts. The v2 structural checks passed, but its numerical gate passed only 42/45 comparisons and its clean-reprefill control did not match the production forward topology. It could therefore establish neither crop attribution nor clean-reprefill equivalence. C2 v3 posed the narrower, identifiable same-snapshot slicing and matched-recovery questions.
++C2 v1 and v2 retain their rejected verdicts. V1 failed its frozen clean-reprefill numerical criteria; v2 passed structural checks but only 42/45 numerical comparisons. Its control did not match the production forward topology, preventing attribution of numerical differences to cropping. C2 v3 instead posed the narrower same-snapshot slicing and matched-recovery questions. Rejected protocols, records, and their diagnostic limitations remain available in Supplementary Material S4.
+ 
+ \begin{table}[t]
+-\centering
+-\small
++\centering\small
+ \caption{C2 v3 exact-gate coverage.}
+ \label{tab:c2}
+ \begin{tabularx}{\linewidth}{@{}Yr@{}}
+@@ -51,20 +48,57 @@
+ \end{tabularx}
+ \end{table}
+ 
+-For all 27 crop events, the retained pre-crop K/V prefix, production post-crop K/V, and slicing-oracle K/V agreed across 28 layers in shape, dtype, device, hash, and runtime \texttt{torch.equal}. The independently derived keep length, mask, global ledger, sequence length, and K/V length were exact. Across 60 recovery steps, matched arms remained exact in K/V, logits, mask, ledger, retained-prefix hash, and role/end/content state. All wrong-length controls were detected.
++At all 27 crop events, the retained pre-crop K/V prefix, production post-crop K/V, and slicing-oracle K/V agreed across 28 layers in shape, dtype, device, hash, and runtime \texttt{torch.equal}. The independently derived keep length, mask, global ledger, sequence length, and K/V length were exact. Across 60 recovery steps, matched arms remained exact in K/V, logits, mask, ledger, retained-prefix hash, and role/end/content state. All wrong-length controls were detected. This is direct crop integrity and within-run matched-arm recovery exactness, not clean-reprefill equivalence.
+ 
+-These results support direct crop integrity and within-run matched-arm recovery exactness for the tested configuration. They do not revise the rejected v1/v2 verdicts and do not establish clean-reprefill numerical equivalence, continuation equivalence, cross-process or cross-device determinism, or end-to-end production correctness.
++B independently reconstructed expected fragment selection from ordered sample-end intervals and replayed the production timeline on 100 saved E3 trajectories. It checked 800 stored condition records and 1118 distinct trajectory--cursor combinations, covering zero, fragment starts, the next sample, midpoints, ends, total length, and an overrun query. Token/sample continuity, retained/history endpoints, hit identity, partial flags, and lifecycle states passed. It also independently derived the keep lengths and closure ledgers for 27 C2 events, including both zero-content cases and second crops. B thus connects saved software geometry to the declared retention policy without reusing the production lookup as its reference. It cannot validate real TTS alignment, device presentation, or listening truth.
+ 
+-\subsection{Fixed-protocol repair cost and software path}
++\subsection{R: executable same-policy next-turn recovery}
++\label{sec:recovery-cost}
+ 
+-A1 compared synchronized joint crop-plus-role repair with complete re-prefill over 256--8192-token contexts. Each length used five warm-ups and 50 recorded repetitions, fixed operation order, and removal of a fixed 32-token suffix. Table~\ref{tab:a1} and Figure~\ref{fig:a1} show that joint-repair medians ranged from 31.054 to 48.315~ms. The median re-prefill-to-repair ratio increased from $2.254\times$ at 256 tokens to $40.620\times$ at 8192 tokens. This is a latency microbenchmark, not a state-equivalence test.
++\paragraph{Design and comparator.}
++R used nine frozen, non-Cartesian cases: ordinary fragment boundaries at 512, 2048, and 8192 initial-context tokens; short-context zero playback, mid-fragment upward retention, reply-tail no-op, pending EOT, and complete candidate invalidation; and a 2048-token case with a second interruption. Nine cases produced ten case--event cells. Each of four sessions included one excluded warm-up pair per case and four measured pairs, yielding 144 case pairs, 160 event pairs, and 320 arm--event records. Arm order was balanced by session, case, and repetition. EOT states were controlled fixtures driven through the production generator, not observations of natural termination despite historical case-name suffixes.
+ 
+-\begin{table*}[t]
+-\centering
+-\small
++Each arm independently prepared the same pre-interruption token history outside the timed intervals. The crop arm used the production crop and, when required, role reopening. The full-rebuild arm forwarded the identical retained token IDs and legal close/user-open sequence in one batch, keeping the resulting cache and logits in an executable state. Both then appended the same user suffix and assistant header and ran greedy decoding for at most eight token selections. Thus R compares the same retention policy and serialized next-turn history, not different history strategies. Full rebuilding is a meaningful recomputation reference but not an optimized stable-prefix serving baseline.
++
++For the second interruption, the first diagnostic continuation was removed outside the measurement window and both arms were advanced through the same frozen second-assistant fixture, while preserving their repaired first-turn histories. This reconciliation prevents numerical greedy divergence from changing the prefixes being compared. It tests a second controlled repair, not unrestricted long-conversation recovery.
++
++\paragraph{Endpoints and uncertainty.}
++All operation intervals used \texttt{perf\_counter\_ns} with CUDA synchronization at their boundaries. Recovery ends at \texttt{USER\_OPEN}; suffix/header readiness ends after the next assistant role is opened. The separate decode interval ends when the first \texttt{next(generator)} returns and device synchronization completes, including the token's actual KV commit and yield rather than only its selection callback. With $T_{\mathrm{suffix}}$ measured after recovery,
++\begin{equation}
++T_{\mathrm{deliver}}=T_{\mathrm{recover}}+T_{\mathrm{suffix}}+T_{\mathrm{decode,first}}.
++\label{eq:recovery-cost}
++\end{equation}
++This is a sum of synchronized intervals, not a continuous wall-clock span. Model loading, initial history and fixture preparation, CPU state/logit audits between intervals, and the remaining diagnostic continuation are excluded. ASR, TTS, and playback are absent. A first-selection EOT would yield no deliverable and a null cost rather than a fabricated zero; no such missing deliveries occurred.
++
++For each fixed case/event, the estimand is the mean paired difference $T_{\mathrm{rebuild}}-T_{\mathrm{crop}}$. We report 95\% percentile intervals from 10,000 session-cluster bootstrap draws (seed 20260906). Repeats and second events remain within their process cluster. With only four sessions these intervals are coarse descriptions of process variation conditional on fixed fixtures, not uncertainty over 160 independent dialogues or over deployment workloads.
++
++\paragraph{Results.}
++All 320 records passed the frozen structural/finite-value gates and both arms delivered a first token in all 160 pairs. Table~\ref{tab:r} reports every case/event rather than selecting only ordinary boundaries. At the three ordinary boundaries, mean first-deliverable savings were 113.621, 465.377, and 1956.100~ms, respectively. At 8192 tokens the recovery-only difference was 1951.675~ms [1937.285, 1963.226], showing that most avoided work was in reconstructing the retained context, not in the first decoding operation. Positive costs here establish the observed operational advantage over full rebuilding within this fixed design; no outcome-sign acceptance gate or broader workload claim was used.
++
++\begin{table}[t]
++\centering\small
++\caption{R paired rebuild-minus-crop first-deliverable operation cost (ms). All ten fixed case--event cells are shown; each contains four pairs in each of four process sessions. Intervals are 95\% session-cluster percentile intervals, not independent-event intervals. Initial context length does not include later fixture/suffix growth.}
++\label{tab:r}
++\begin{tabularx}{\linewidth}{@{}lYr r@{}}
++\toprule
++Case/event & Boundary (initial tokens) & Mean & 95\% CI \\
++\midrule
++\tableinput{tables/r_first_deliverable_rows.tex}
++\bottomrule
++\end{tabularx}
++\end{table}
++
++At matched next-turn-ready states, token IDs, masks, sequence/KV lengths, role/content spans, and closure ledgers satisfied the same structural plan. All 320 saved next-token logit arrays were finite float32 arrays of shape $[1,152064]$. The maximum cross-arm absolute logit difference was 0.59375. Top-1 choices agreed in 160/160 pairs, but bounded eight-token continuations agreed in only 144/160. All 16 differences occurred at case 16, event index 1 (the second interruption), across all sessions and repeats. Logit and output differences are retained as diagnostics: R requires finite values, not cross-topology BF16 equality. These observations support executable same-policy recovery and measured cost savings, not numerical equivalence or broad functionality without loss.
++
++\subsection{Supporting repair microbenchmark and software path}
++
++A1 compared synchronized joint crop-plus-role repair with complete re-prefill over 256--8192-token contexts. Each length used five warm-ups and 50 recorded repetitions, fixed operation order, and removal of a fixed 32-token suffix. Table~\ref{tab:a1} and Figure~\ref{fig:a1} show joint-repair medians of 31.054--48.315~ms. The median re-prefill-to-repair ratio increased from $2.254\times$ at 256 tokens to $40.620\times$ at 8192 tokens. Unlike R, this local microbenchmark does not extend its comparator to a measured next-turn generator endpoint.
++
++\begin{table}[t]
++\centering\small
+ \caption{A1 synchronized repair microbenchmark; 50 repetitions per length.}
+ \label{tab:a1}
+-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrr@{}}
++\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrrrrrr@{}}
+ \toprule
+ Context length & 256 & 512 & 1024 & 2048 & 4096 & 8192 \\
+ \midrule
+@@ -73,7 +107,7 @@
+ Re-prefill/joint & $2.254\times$ & $4.124\times$ & $7.707\times$ & $15.020\times$ & $25.453\times$ & $40.620\times$ \\
+ \bottomrule
+ \end{tabular*}
+-\end{table*}
++\end{table}
+ 
+ \begin{figure}[t]
+ \centering
+@@ -82,24 +116,21 @@
+ \label{fig:a1}
+ \end{figure}
+ 
+-P1 crossed three context lengths (512, 2048, and 8192 tokens) with three cursor proportions (0.25, 0.50, and 0.75) and 20 repetitions per cell, for 180 prepared-state headless records. All 180 requests and acknowledgements reached the intended software cursor. A zero leaked-sample count means only that the software counter did not advance after acknowledgement. Cell medians were 0.055--0.062~ms for stop acknowledgement, 0.167--0.176~ms for post-acknowledgement GPU synchronization, 0.47--0.50~ms for timeline lookup, 2.44--2.53~ms from stop to crop completion, and 78.6--80.8~ms from stop to role recovery. The latter intervals are nested. With $n=20$ per cell, empirical P95 values are descriptive, not service-level objectives. Neither A1 nor P1 includes device/acoustic stopping, online TTS cancellation, or a complete concurrent barge-in path.
++P1 crossed three context lengths (512, 2048, 8192) with three cursor proportions (0.25, 0.50, 0.75) and 20 repetitions per cell, yielding 180 prepared-state headless records. All requests and acknowledgements reached the intended software cursor. Cell medians were 0.055--0.062~ms for stop acknowledgement, 0.167--0.176~ms for subsequent GPU synchronization, 0.47--0.50~ms for timeline lookup, 2.44--2.53~ms from stop to crop completion, and 78.6--80.8~ms from stop to role recovery. The latter intervals are nested and must not be added. Prepared-state setup was excluded. Zero leaked software samples means only that the software counter did not advance after acknowledgement; it says nothing about sound-card or acoustic stopping. P1's earlier timing-contaminated version remains excluded (Supplementary Material S4).
+ 
+-\subsection{Downstream fixed-trajectory probe}
++\subsection{Downstream fixed-trajectory diagnostic}
+ 
+-E3 contained 100 dialogues, 400 paired dialogue--injection-position units, 800 condition records, and 1600 judge records. Each assistant trajectory was generated once; software-cursor and generation-retention conditions shared that trajectory, its fragment timeline, and four injection positions (0.25, 0.50, 0.75, and a fragment boundary). Fragment and character-ratio proxy targets were separately eligible when their respective target strings were non-empty. The fragment analysis contained 297 eligible labels from 96 dialogues; the proxy analysis contained 380 labels from all 100 dialogues. Eligibility and uncertainty are therefore target-specific rather than based on 400 independent observations.
++E3 contained 100 dialogues, 400 paired dialogue--injection-position units, 800 condition records, and 1600 judge records. Each assistant trajectory was generated once; software-cursor and generation-retention conditions shared that trajectory, its fragment timeline, and four injection positions (0.25, 0.50, 0.75, and a fragment boundary). Fragment and character-ratio proxy targets were separately eligible when their respective target strings were non-empty: 297 fragment labels from 96 dialogues and 380 proxy labels from 100 dialogues.
+ 
+-The primary estimand assigned equal weight to each eligible dialogue--position label and computed generation minus software-cursor retention. Confidence intervals used 10,000 paired dialogue-cluster bootstrap repetitions. A dialogue-weighted sensitivity first averaged within dialogue. Target-specific exact-key deduplication combined dialogue and trajectory identities, both history keys, and an exact target hash; the fragment key also included the retained token endpoint. It is not semantic clustering.
+-
+-The lexical detector matched numbers, selected capitalized terms, and non-stopword content terms. The \texttt{specific-reference-v3} Mistral judge received the target and two delimiter-joined replies without condition identity, and greedily produced a strict YES/NO decision. Neither detector is a human reference standard. The intervals quantify dialogue-sampling uncertainty conditional on the frozen trajectories, targets, detectors, prompts, and 40-token response cap; they do not include detector error or model/prompt variation.
++The primary estimand weights eligible dialogue--position labels equally and measures generation minus software-cursor retention. Intervals use 10,000 paired dialogue-cluster bootstrap repetitions (seed 20260831). The lexical detector matches numbers, selected capitalized terms, and non-stopword content terms. The \texttt{specific-reference-v3} Mistral judge receives the target and two delimiter-joined replies without condition identity, and greedily produces a strict YES/NO decision. The intervals describe dialogue-sampling uncertainty conditional on the fixed trajectories, targets, detectors, prompts, and 40-token response cap; they omit detector and model/prompt uncertainty.
+ 
+ \begin{table}[t]
+-\centering
+-\small
+-\caption{E3 label-weighted information-reproduction rates. The effect is generation minus software-cursor retention.}
++\centering\small
++\caption{E3 label-weighted information-reproduction rates. The effect is generation minus software-cursor retention; pp denotes percentage points.}
+ \label{tab:e3}
+ \begin{tabularx}{\linewidth}{@{}llccY@{}}
+ \toprule
+-Target & Detector & Cursor rate & Generation rate & Effect [95\% cluster CI] (pp) \\
++Target & Detector & Cursor rate & Generation rate & Effect [95\% CI] (pp) \\
+ \midrule
+ Fragment & Lexical & 67.00\% (199/297) & 63.64\% (189/297) & $-3.37$ [$-10.49$, 3.40] \\
+ Fragment & Judge & 42.76\% (127/297) & 40.74\% (121/297) & $-2.02$ [$-10.70$, 6.13] \\
+@@ -109,23 +140,4 @@
+ \end{tabularx}
+ \end{table}
+ 
+-Figure~\ref{fig:e3} shows the four label-weighted main-analysis estimates and intervals. Sensitivity results are summarized below. Exact-key deduplication reduced 297 fragment labels to 169 groups and 380 proxy labels to 379 groups. Dialogue weighting yielded effects from $-3.21$ to $-1.30$ percentage points; exact-key effects ranged from $-2.96$ to 0.00 percentage points. All corresponding intervals crossed zero. The four primary estimates therefore establish neither advantage nor harm, and they do not establish equivalence, non-inferiority, absence of a difference, or human-semantic effects.
+-
+-\begin{figure}[t]
+-\centering
+-\includegraphics[width=\linewidth,height=0.34\textheight,keepaspectratio]{Figure_6_e3_intervals.pdf}
+-\caption{E3 generation-minus-software-cursor effects. Four points and their 95\% dialogue-cluster confidence intervals show the label-weighted main analysis only.}
+-\label{fig:e3}
+-\end{figure}
+-
+-\subsection{Candidate-generation characterization}
+-
+-Confirmatory C-E1/C-E2 used 100 unique holdout utterances, five independently initialized process sessions, and ten conditions. Each condition contained 500 session--utterance observations, but the content sampling unit remained 100 utterances. Formal inference used 10,000 crossed/product bootstrap repetitions by independently resampling sessions and utterances and evaluating their Cartesian-product multiplicities.
+-
+-The harness delivered pre-segmented text synchronously. It excluded real audio, ASR wall-clock time, online turn-detector computation, TTS, playback, and a sound card. \texttt{first\_token\_ready} followed candidate-token selection but preceded cache-update completion and generator yield, so it is reported as candidate selection/readiness. \texttt{endpoint\_accept} was a post-candidate synchronous oracle, not a natural endpoint detector. The effective-TTFT quantity is therefore an optimistic oracle lower bound.
+-
+-C-E2 compared the token-consistent B@0.92 and never-trigger paths. Candidate selection/readiness remained between 62.0 and 62.4~ms across all nine B-path points. At B@0.92, candidate availability at oracle acceptance was 67\% (335/500), with crossed 95\% CI [58\%, 76\%], and the pooled discarded-token ratio was 2.85\% [1.12\%, 4.73\%]. The latter is a ratio of token counts, not FLOPs, GPU time, energy, or bandwidth. Relative to never trigger, the readiness difference (never minus B@0.92) was $-0.03$~ms [$-0.64$, 0.61], while the oracle-latency lower-bound difference was $+20.80$~ms [17.85, 23.65]. Across the nine discrete points, lower thresholds increased candidate availability and the pooled discarded-token ratio, while arrival-to-candidate readiness remained between 62.0 and 62.4~ms. These findings characterize generation before synchronous oracle acceptance; they do not show readiness before real end of speech.
+-
+-C-E1 compared full-string tokenization/full prefill with segment-wise tokenization/incremental forward. The readiness means were 27.70 and 62.38~ms, respectively, giving an A-minus-B difference of $-34.69$~ms [$-35.44$, $-33.95$]. Oracle lower-bound means were 27.70 and 10.26~ms, for $+17.44$~ms [14.41, 20.32]. Complete token outputs matched in only 280/500 pairs and diverged for at least one session in 44/100 utterances. The contrast therefore combines tokenization, forward topology/shape, role boundaries, kernels, and Python scheduling. It cannot identify an incremental-prefill effect, and selecting only output-matched pairs would be post-treatment selection.
+-
+-Finally, A2 generated 100 records per naturalization implementation. Mean automated coherence scores were 3.76 for naive retention, 3.62 for lightweight rewriting, and 3.29 for interruption marking. Rewriting took 639~ms on average (median 670~ms; interpolated P90 approximately 935~ms; maximum 1165~ms). Because the conditions regenerated both initial and subsequent responses and shared compatible retained text in only 33/100 dialogues, these values do not estimate a strategy effect. They are exploratory descriptions, not negative or null results.
++All four primary intervals cross zero (Table~\ref{tab:e3}). Dialogue weighting and target-specific exact-key deduplication also leave the direction inconclusive; complete sensitivity results and detector agreement appear in Supplementary Material S3. None establishes superiority, equivalence, non-inferiority, harm, or absence of an effect. In particular, removing complete unretained fragments from the cursor-conditioned history is a construction property, not evidence that subsequent responses reproduce less information or that listeners experience better dialogue.
+--- a/paper2/tougao/SC/latex/sections/06_discussion_conclusion.tex
++++ b/paper2/tougao/SC/latex/sections/06_discussion_conclusion.tex
+@@ -1,51 +1,31 @@
+ \section{Discussion}
+ \label{sec:discussion}
+ 
+-\subsection{A joint state contract rather than a new crop primitive}
++\subsection{What the combined evidence establishes}
+ 
+-The contribution is not playback-conditioned history truncation as a general principle or KV cropping as an isolated operation. Both have precedents. The contribution is an external-progress-conditioned joint prefix-state contract that specifies how an observed software playback position becomes a legal language-model commit boundary and how every prefix-dependent representation is repaired at that boundary.
++The implemented contribution is the coupling between a software progress boundary and all persistent representations of the retained conversational prefix. Transcript-only truncation can leave discarded content accessible through K/V state; tensor-only cropping can leave masks, positions, role structure, or ledgers at an incompatible endpoint. The two zero-content transitions and the pending-EOT lifecycle make these distinctions operational rather than merely descriptive. Joint consistency is checked at completed operation boundaries, not asserted as transactional atomicity for concurrent readers.
+ 
+-C2 provides direct evidence for the state-repair part of this contract at the tested fixture-defined boundaries, rather than for the complete speech-to-playback mapping. Under the frozen configuration, every production crop retained exactly the same 28-layer K/V prefix as direct slicing of its own pre-crop snapshot, all known wrong-length perturbations were detected, and matched subsequent operations preserved exact agreement within the accepted run. The evidence goes beyond checking cache length because it covers masks, token ledgers, assistant-content span, role phase, end reason, positions, and post-crop logits. It remains narrower than a clean reconstruction test. The v1/v2 protocols were not reinterpreted after failure; their forward-topology mismatch prevents attribution of their numerical differences to cropping. C2 v3 instead answers an identifiable same-snapshot integrity question.
++The evidence addresses complementary failure modes. C2 checks that the requested prefix survives cropping and matched recovery. B checks software interval selection against an independently constructed reference. R asks whether the repaired state can actually accept the same next-turn input and produce a deliverable token at lower operation cost than full rebuilding. The large long-context difference is consistent with avoiding retained-prefix recomputation. It is not a new asymptotic cache result, but an empirical link between correct conversational serialization and useful recovery work avoided in this implementation.
+ 
+-The most important implication is that transcript correction and cache correction cannot be separated. Text-only truncation can leave discarded content accessible through K/V state, while tensor-only cropping can leave masks, positions, role structure, or audit ledgers at an incompatible endpoint. Structural EOT requires particular care: treating a predicted EOT as assistant content and later adding another close marker silently changes the serialized conversation. Pending structural state and a unique close commit prevent that duplication.
++Structural validity must remain separate from numerical and response identity. R used different forward topologies for reuse and rebuilding: next-token choices agreed in every pair, yet all repetitions of one second-interruption cell produced different short continuations. This is observable output variation, not a tolerance-based equivalence pass. Likewise, the rejected C2 clean-reprefill protocols remain rejected; the exact-only protocol answers a different, identifiable question. Neither the cost advantage nor the structural gates imply that arbitrary subsequent responses are interchangeable.
+ 
+-\subsection{Supporting results and their limits}
++\subsection{Boundary policy and downstream uncertainty}
+ 
+-A1 shows why retaining a validated prefix can be useful under its fixed protocol. Joint crop and role repair remained in a comparatively narrow time range as context grew, whereas re-prefill increased sufficiently for the median ratio to reach $40.620\times$ at 8192 tokens. The result is not an equivalence proof, and operation order and suffix length were fixed. P1 likewise describes a prepared-state headless path. Its software acknowledgement and crop endpoints do not include TTS cancellation, sound-card buffers, or acoustic stopping. Neither campaign supports a production end-to-end latency claim.
++Whole-fragment retention deliberately favors keeping the consumed portion of an interrupted fragment at the cost of also retaining its unconsumed tail. Dropping the fragment would make the opposite error. The partial flag makes this tradeoff visible but does not solve it. B verifies application of the declared policy; it does not show that the policy is perceptually optimal or that simulated sample geometry corresponds to real speech alignment.
+ 
+-E3 tested whether the selected boundary was followed by detectable information-reproduction differences under fixed automated measurements. All four generation-minus-software-cursor point estimates were negative, but their confidence intervals crossed zero and no substantive margin was prespecified. The result supports neither benefit nor harm and cannot establish equivalence or non-inferiority. Fragment targets depend on TTS segmentation; proxy targets add a character-ratio approximation; the lexical rule and single-model judge operationalize different constructs. Exact-key deduplication removes repeated key weights rather than identifying semantic duplicates. E3 is thus a bounded downstream diagnostic, not evidence of perceived coherence, trust, or dialogue quality.
++E3 is relevant precisely because a correct implementation need not improve dialogue. All four automated point estimates were negative in the generation-minus-cursor direction, but their intervals crossed zero. No substantive equivalence or non-inferiority margin was specified. The lexical and model-based measurements capture different forms of information reproduction and agree imperfectly; exact-key deduplication removes repeated weights, not semantically similar responses. Without blinded human reference labels, E3 cannot establish perceived coherence, trust, or task success. Its inconclusive result therefore constrains the contribution rather than being replaced by a favorable construction check.
+ 
+-C-E2 separates candidate computation from acceptance. Its readiness contrast was near zero, whereas its synchronous-oracle lower-bound contrast was positive because an already existing candidate was assigned no post-acceptance wait. Candidate availability of 335/500 uses all condition records as its denominator, not only launched candidates. The discarded-token ratio measures token counts, not compute, energy, or memory traffic. C-E1 is still less isolating because its paths were not token-equivalent. Its timing contrast cannot be attributed to incremental prefill.
++\subsection{Validity and transfer conditions}
+ 
+-The exploratory A2 scores combine different first replies, segmentation boundaries, and subsequent generations. They do not estimate the effect of naive retention, marking, or rewriting. Potential overlap between rewriting and user speech also remains an architectural possibility rather than a measured latency reduction.
++R's four process sessions and fixed cases provide limited replication, not a workload sample or an operational failure-rate estimate. Reconciliation before the second interruption holds the compared prefixes fixed but excludes free-running divergence across many turns. First-deliverable costs are sums of synchronized intervals, excluding preparation and CPU audit pauses. They should not be interpreted as uninterrupted response times or compared directly with P1's nested stop-path intervals. A1 fixes operation order and suffix length, while P1 has only 20 observations per cell; neither supplies a production tail-latency guarantee. The comparator in R reconstructs the full retained prefix and does not represent all serving systems with shared or stable-prefix caches.
+ 
+-\subsection{Threats to validity}
++The shared external limitation is the observed boundary. Software-consumed samples, device-presented samples, and acoustically heard content differ because of queues, APIs, scheduling, device buffers, propagation, and the listening environment. No reported experiment closes a real streaming-ASR, asynchronous-TTS, and audio-device loop or measures a loopback waveform. The evidence is concentrated on English task-oriented text, a frozen Qwen2-7B artifact, a ChatML-like template, Transformers DynamicCache, BF16/SDPA, and RTX 3090 hardware. Other templates, precisions, backends, languages, or segmentation rules require renewed boundary and state tests.
+ 
+-\subsubsection{Construct validity}
+-
+-The software cursor is not a device sample clock or a measurement of acoustic reception. Application queues, audio APIs, operating-system scheduling, drivers, device buffers, and propagation can separate the three boundaries. Consequently, P1's zero leaked software samples cannot be interpreted as zero device-level or acoustic leakage.
+-
+-The E3 targets and detectors are proxies. Without blinded human annotation or a user study, they do not measure perceived semantic fidelity, naturalness, conversational success, or trust. The synchronous candidate harness likewise measures program events rather than a natural end of speech.
+-
+-\subsubsection{Internal and conclusion validity}
+-
+-C2's exact gate covers a finite deterministic grid and is not an operational error-rate estimate. A1 fixes operation order and crop length. P1 has 20 observations per cell, so empirical P95 depends on one or two upper-tail values. E1/E2 reuse 100 utterances across five process sessions; crossed resampling reflects the two observed dimensions but not day-to-day, load, or deployment variability. C-E1 lacks token equivalence. E3 includes repeated exact keys for some targets, and its intervals do not incorporate detector, prompt, model, or human-judgment uncertainty.
+-
+-\subsubsection{External validity}
+-
+-The evidence is concentrated on English task-oriented MultiWOZ dialogues, Qwen2-7B-Instruct, a ChatML-like role structure, Transformers \texttt{DynamicCache}, BF16/SDPA, and RTX 3090 GPUs. Other languages, tokenizers, TTS segmentation, chat templates, precisions, attention backends, and inference engines may define different legal boundaries and state transitions. No experiment includes a real streaming-ASR, asynchronous-TTS, and audio-device loop, loopback waveform, network congestion, or production concurrency. Results therefore apply to the tested software runtime and protocols, not to acoustic stopping, mouth-to-ear latency, production delivery, or user experience.
+-
+-\subsection{Migration conditions}
+-
+-Migration requires more than a cache-cropping primitive. TTS must expose ownership between text fragments and audio chunks; playback must report an interpretable progress position; and the inference backend must retain or reconstruct a legal prefix while jointly updating masks, positions, token ledgers, content spans, role phase, and structural EOT. Each chat template requires its own serialization and close/reopen rules, and each backend requires renewed tests for legal crop points and recovery.
+-
+-An opaque audio stream requires additional alignment and buffering instrumentation. Word-level durations, device clocks, or loopback waveforms could move the observed boundary closer to device presentation or acoustic reception, but each would change the measured construct. Broader claims would additionally require an asynchronous endpoint gate, TTS admission and cancellation, shared-clock event traces, realistic buffering and concurrency, human annotation, and cross-language or cross-backend replication.
++A transferable implementation therefore needs explicit fragment-to-chunk ownership, an interpretable playback-progress signal, and a backend that retains or reconstructs a legal prefix while updating mask, positions, ledgers, content span, and role/EOT state together. Word-level durations, device clocks, or loopback waveforms could refine the observed boundary, but would change what is being validated. Production claims additionally require concurrency and cancellation tests; interaction-quality claims require direct human evidence. These are extensions of the bounded method, not unmeasured benefits of the current implementation.
+ 
+ \section{Conclusion}
+ \label{sec:conclusion}
+ 
+-This study formulates barge-in context correction in a cascaded spoken-dialogue system as external-progress-conditioned joint prefix-state repair. A software-consumed-sample cursor is resolved through TTS fragments to a legal assistant-token commit boundary, after which the KV cache, attention mask, token ledger, positions, content span, role phase, and EOT state are transformed together.
++Joint prefix-state repair turns a software playback boundary into a checkable conversational-state transition. Its implementation distinguishes complete candidate invalidation from zero-content playback, preserves one consistent token/cache prefix, and commits structural closure once. Same-snapshot validation found all 27 crops and 60 matched recovery steps exact, while independent software replay checked 1118 cursor queries over 100 trajectories.
+ 
+-Under the frozen exact-only evaluation, production cropping was bitwise exact against layer-wise slicing of the same pre-crop snapshot, and matched recovery arms remained stepwise exact after receiving identical token chunks and operations. These findings support direct crop integrity and within-run matched-arm recovery exactness only. They do not overturn the rejected clean-reprefill protocols or establish cross-environment, acoustic, or production equivalence.
+-
+-The remaining campaigns bound rather than broaden that conclusion. Fixed-protocol measurements show the cost advantage of retaining a prefix over re-prefilling long contexts, while E3 did not determine a stable downstream direction across automated operationalizations. Candidate studies characterize a synchronous oracle and non-equivalent implementation paths rather than benefit before a real end of speech. The evidence therefore shows that external software progress can be converted into a checkable, internally consistent prefix-state transition. Extending that result to device presentation, acoustic reception, other model stacks, production latency, or human interaction requires direct evidence at each corresponding boundary.
++In the executable same-policy comparison, crop repair avoided full-rebuild work through the next-turn first-deliverable endpoint. At ordinary 512-, 2048-, and 8192-token boundaries the mean paired operation-cost differences were 113.621, 465.377, and 1956.100~ms. This is bounded recovery-cost evidence, not continuous speech end-to-end latency or a comparison against every prefix-caching strategy. Short continuations differed in 16/160 pairs despite identical first-token choices, and the downstream automated diagnostic remained inconclusive. The resulting contribution is an inspectable, incrementally useful systems method with explicit correctness and cost boundaries, rather than a new playback principle or a claim of numerical or perceptual equivalence.
+--- a/paper2/tougao/SC/latex/sections/07_declarations.tex
++++ b/paper2/tougao/SC/latex/sections/07_declarations.tex
+@@ -1,6 +1,3 @@
+-\section*{Acknowledgements}
+-[AUTHOR CONFIRM: identify any individuals who contributed language editing, technical assistance, or other non-author support, or replace this sentence with ``None.'']
+-
+ \section*{CRediT authorship contribution statement}
+ [AUTHOR CONFIRM: list every author and retain only verified CRediT roles. Do not infer roles from repository metadata.]
+ 
+@@ -11,10 +8,13 @@
+ [AUTHOR CONFIRM: declare all relevant financial and non-financial interests for every author, or state: ``The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.'']
+ 
+ \section*{Data and code availability}
+-The experiment records, manifests, versioned analyses, validation outputs, and available environment snapshots are indexed by the project's reproducibility record. [AUTHOR CONFIRM: replace this sentence with an immutable public repository or archive URL, release tag or commit, DOI if available, and access date.] The E3 processed input was derived deterministically from MultiWOZ 2.1; the raw MultiWOZ source and model weights are not redistributed and remain subject to their respective licenses. [AUTHOR CONFIRM: verify whether redistribution of the derived E3 input is permitted and add the required attribution or remove it from the public package.] The source repository currently requires confirmation of its rights holder and release license before a public availability claim can be finalized.
++The accompanying Supplementary Material S4 maps each reported result to its local artifact, manifest, and analysis. The source package contains both manuscript and supplementary sources; it is not the complete experimental archive. [AUTHOR CONFIRM: provide a deposited dataset/code citation and accessible link, with release identifier and DOI if available, or a factual, justified explanation of why sharing is not possible under the journal's data Option C.] The E3 processed input was derived deterministically from MultiWOZ 2.1; the raw MultiWOZ source and model weights are not redistributed and remain subject to their respective licenses. [AUTHOR CONFIRM: verify whether redistribution of the derived E3 input is permitted and add the required attribution or remove it from the public package.] The source repository currently requires confirmation of its rights holder and release license before a public availability claim can be finalized.
+ 
+ \section*{Ethics statement}
+ The reported experiments used model inference and text derived from an existing dialogue dataset; the repository contains no direct participant recruitment or newly collected human-subject data. [AUTHOR CONFIRM: verify the target institution's determination and replace this statement with the required approval, exemption, or not-applicable wording. Confirm separately whether any human annotators participated outside the repository record.]
+ 
+ \section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
+ [AUTHOR CONFIRM: identify every generative-AI or AI-assisted tool used in code, analysis, figures, language editing, or manuscript preparation and state the verified purpose and human review. Suggested venue-compatible form: ``During the preparation of this work, the authors used [TOOL/SERVICE] for [PURPOSE]. The authors reviewed and edited the output as needed and take full responsibility for the content of the article.'']
++
++\section*{Acknowledgements}
++[AUTHOR CONFIRM: identify any individuals who contributed language editing, technical assistance, or other non-author support, or replace this sentence with ``None.'']
+--- /dev/null
++++ b/paper2/tougao/SC/latex/supplementary.tex
+@@ -0,0 +1,159 @@
++\documentclass[12pt]{article}
++\usepackage[letterpaper,margin=1in]{geometry}
++\usepackage[authoryear,round]{natbib}
++\usepackage{amsmath,amssymb,booktabs,tabularx,array,longtable,lmodern}
++\usepackage[protrusion=true,expansion=false]{microtype}
++\usepackage[hidelinks]{hyperref}
++\usepackage{xurl}
++\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
++\makeatletter
++\newcommand{\tableinput}[1]{\@@input #1 }
++\makeatother
++\setlength{\emergencystretch}{3em}
++\renewcommand{\thesection}{S\arabic{section}}
++\renewcommand{\thetable}{S\arabic{table}}
++\renewcommand{\thefigure}{S\arabic{figure}}
++\hypersetup{pdftitle={Supplementary Material: Joint Prefix-State Repair},pdfauthor={Author names to be confirmed}}
++\begin{document}
++\raggedbottom
++\begin{center}
++{\Large Supplementary Material}\par\medskip
++{\large Joint Prefix-State Repair for Barge-In in Cascaded Spoken Dialogue: Integrity and Recovery Cost}\par\medskip
++[AUTHOR NAME(S) TO BE CONFIRMED]
++\end{center}
++
++This separate supplement accompanies the main article. S1 preserves the complete candidate-generation and implementation-path characterization; S2 reports the confounded history-naturalization study; S3 supplies downstream sensitivities; S4 maps claims to artifacts; S5 gives full recovery-cost endpoints. These studies are not additional method contributions. Moving them here does not change their protocols, outcomes, or limitations. Main-text evidence for state repair and cost does not depend on favorable results from S1 or S2.
++
++\section{Candidate-generation characterization (C1/C-E1/C-E2)}
++\label{sec:s-candidate}
++
++\subsection{Policy and measured events}
++
++A turn-completion model assigns cumulative stable input a confidence $c_i=\operatorname{conf}(u_1\cdots u_i)$. When $c_i\geq\theta$, the system saves the user-open endpoint, opens an assistant role, and generates at most 12 candidate tokens. New input invalidates the candidate, removing its content and assistant header. At the synchronous oracle endpoint, a surviving candidate continues or a response is generated on demand. This is response-level anticipatory computation, related to predictive ASR and semantic triggering \citep{schwarz2023PersonalizedPredictiveASR,zou2026LTSVoiceAgent,mai2026RelayS2S}, not token-level speculative decoding with an exact verifier.
++
++The confirmatory campaign used a new MultiWOZ 2.1-derived holdout of 100 unique utterances \citep{eric2020MultiWOZ21}, excluding the earlier E1/E2 and E3 dialogue identities. Qwen2-7B-Instruct was decoded greedily with batch size one and a 32-token response cap \citep{yang2024Qwen2}. TEN Turn Detection confidence was cached from actual prefix inference and replayed identically in all five independently initialized process sessions \citep{tenFramework2025TurnDetection}; its runtime was outside the measurement window. Threshold 0.92 was selected from the earlier exploratory campaign and frozen before the new holdout results. Each of ten conditions has 500 records, for 5000 total, but only 100 unique content units.
++
++The harness delivers pre-segmented text synchronously. It excludes live audio, ASR time, online detector computation, TTS, playback, and a sound card. The raw \texttt{first\_token\_ready} marker occurs after token selection but before the cache-update forward and generator yield. We call it internal candidate selection/compute readiness, not consumer deliverability. The raw \texttt{endpoint\_accept} marker is a post-candidate synchronous oracle, not real end of speech. Consequently, effective TTFT assigns zero post-acceptance wait to an already prepared surviving candidate and otherwise measures on-demand preparation; it is an optimistic oracle latency lower bound, not an observed speech-response latency. The later consumer/yield marker is a harness diagnostic and is not substituted for these events.
++
++The discarded-token statistic is
++\[
++W=\frac{\sum\text{discarded candidate tokens}}{\sum(\text{discarded candidate tokens}+\text{final response tokens})}.
++\]
++It measures token counts, not FLOPs, GPU time, energy, bandwidth, or memory traffic. Candidate availability uses all condition records as its denominator, not only candidate launches.
++
++\subsection{All conditions and confirmatory contrasts}
++
++Table~\ref{tab:s-candidate} preserves all ten discrete points, including full prefill and never-trigger references. It is not a continuous Pareto frontier. Formal uncertainty used 10,000 crossed/product bootstrap repetitions: sessions and global utterances were independently resampled, then their Cartesian-product multiplicities were applied. No outlier trimming or selection of output-matched pairs was used.
++
++\begin{table}[t]
++\centering\small
++\caption{Complete C-E1/C-E2 condition grid. Ready and oracle columns are means in ms; availability and discarded-token ratio are percentages. Ready denotes internal candidate selection, not a generator endpoint. Each row contains 500 observations over the same 100 utterances and five sessions.}
++\label{tab:s-candidate}
++\begin{tabularx}{\linewidth}{@{}Yrrrr@{}}
++\toprule
++Condition & Ready & Oracle & Available & Discarded \\
++\midrule
++\tableinput{tables/candidate_grid_rows.tex}
++\bottomrule
++\end{tabularx}
++\end{table}
++
++C-E2 compares the token-consistent B@0.92 and never-trigger paths: complete output tokens match in 500/500 pairs. The never-minus-B@0.92 readiness contrast is $-0.03349$~ms [95\% CI $-0.63861$, 0.61494], whereas the oracle lower-bound contrast is $+20.8037$~ms [17.8492, 23.6450]. B@0.92 has 67\% availability (335/500; CI [58\%, 76\%]) and 2.8527\% discarded tokens [1.1239\%, 4.7345\%]. Its surviving candidates have a median of 12 ready tokens and a median candidate lead of 291~ms; non-surviving on-demand cost is about 31.09~ms, close to the never-trigger oracle mean of 31.06~ms. Internal readiness stays approximately 62.0--62.4~ms across the nine B points. These results characterize preparation before synchronous oracle acceptance, not readiness before real end of speech or an online trigger with zero overhead.
++
++C-E1 compares full-string tokenization/full prefill (A) with segment-wise tokenization/incremental forward (B@0.92). Readiness means are 27.70 versus 62.38~ms: A-minus-B is $-34.6877$~ms [$-35.4421$, $-33.9535$], favoring A for this event. Oracle lower-bound means are 27.70 versus 10.26~ms, giving $+17.4367$~ms [14.4079, 20.3234]. Thus the apparent direction changes with the event definition. B's last-segment path includes incremental prefill and assistant-role injection as serial operations, while A uses a full-prefill path; fixed per-forward overhead matters for short inputs.
++
++The paths are not token-equivalent: complete outputs agree in 280/500 pairs, first tokens in 465/500, and at least one session diverges for 44/100 unique utterances. The contrast combines tokenization, forward topology/shape, role boundaries, kernels, and Python scheduling. It does not isolate incremental prefill. Restricting inference to output-matched pairs would condition on a post-treatment outcome and is not a remedy. Neither the positive oracle contrast nor the negative readiness contrast supports a general speech-latency claim.
++
++\subsection{Historical campaign limitation}
++
++Earlier exploratory E1/E2 reports used oracle quantities as if they were wall-clock response gains because the user-end marker followed synchronous candidate preparation. Those records remain available but their 0.581/12.1~ms figures are not confirmatory latency headlines. The new campaign separates last-segment arrival, candidate selection, oracle acceptance, and consumer markers. Its versioned crossed analysis supersedes only the earlier nested-bootstrap analysis, not the immutable raw records. Actual ASR, TTS, natural endpoints, asynchronous playback, energy cost, and deployment-optimal thresholds remain untested.
++
++\section{Exploratory interrupted-history naturalization (A2)}
++\label{sec:s-a2}
++
++Three implementations retained the truncated assistant text naively, appended an interruption marker, or asked Qwen3-0.6B to rewrite the partial text into a natural ending without adding information \citep{yang2025Qwen3}. Each implementation generated 100 records. The intention was to compare downstream coherence, but both the first assistant trajectory and subsequent responses were regenerated by condition. Only 33/100 dialogues shared the same retained text across all three implementations. Different responses also induce different segmentation and interruption boundaries. These are confounded implementation descriptions, not a causal strategy comparison, negative result, or evidence of no effect.
++
++\begin{table}[t]
++\centering\small
++\caption{A2 descriptive automated coherence scores; trajectories are not matched across implementations.}
++\begin{tabularx}{\linewidth}{@{}Yrr@{}}
++\toprule
++Implementation & Records & Mean score \\
++\midrule
++Naive retained text & 100 & 3.76 \\
++Lightweight rewriting & 100 & 3.62 \\
++Interruption marking & 100 & 3.29 \\
++\bottomrule
++\end{tabularx}
++\end{table}
++
++Rewriting took 639~ms on average (median 670~ms; interpolated P90 approximately 935~ms; maximum 1165~ms). These times do not show that rewriting was hidden behind user speech. Such overlap is an architectural possibility, not measured end-to-end benefit. Automated scores are not a human reference standard, and no matched-trajectory rerun is used to rehabilitate this comparison. The immutable A2 raw/judged records and offline summary are listed in S4.
++
++\section{E3 measurement and weighting sensitivities}
++\label{sec:s-e3}
++
++The main article reports the label-weighted analysis of 100 fixed generated trajectories and four injection labels per dialogue. Playback and generation retention share each trajectory, timeline, and injection. Targets are non-empty complete unretained fragments (297 labels from 96 dialogues) or the additional within-fragment character-ratio/whitespace proxy (380 labels from 100 dialogues). The proxy is an approximate textual split, not audio/text alignment. Both initial and probe generation are greedy and capped at 40 tokens.
++
++The lexical rule tests numbers, selected capitalized terms, and non-stopword content terms. The Mistral-7B-Instruct-v0.3 \citep{jiang2023Mistral7B,mistralAI2024Mistral7BInstructV03} \path{specific-reference-v3} judge receives the target and two delimiter-joined replies without condition identity and emits a strict YES/NO verdict. Version 3 was adopted after version 2 parsing failures, adding a first-line format constraint and one bounded retry; the formal run had no parsing failures or retries. It is one fixed model/prompt measurement, not independent human annotation or a calibrated truth bound.
++
++Table~\ref{tab:s-e3} includes all four stored estimands. Dialogue weighting averages eligible labels within each dialogue. Exact-key grouping uses dialogue ID, trajectory ID, both condition history keys, and the hash of the exact target; fragment keys additionally contain the retained endpoint. It reduces 297 fragment labels to 169 groups and 380 proxy labels to 379 groups. Stored JSON names containing ``semantic group'' refer to this exact-key operation, not semantic clustering. Unique-dialogue weighting first averages the unique groups within each dialogue.
++
++\begin{table}[t]
++\centering\small
++\caption{E3 generation-minus-cursor effects (pp) and 95\% dialogue-cluster intervals. L: label weighted; D: dialogue weighted; K: exact-key weighted; KD: dialogue weighted after exact-key deduplication. All analyses condition on the fixed detectors and trajectories.}\label{tab:s-e3}
++\begin{tabular}{@{}lllr@{}}
++\toprule
++Target & Detector & Weight & Effect [95\% CI] \\
++\midrule
++\tableinput{tables/e3_sensitivity_rows.tex}
++\bottomrule
++\end{tabular}
++\end{table}
++
++All intervals use 10,000 paired dialogue-cluster percentile bootstrap draws (NumPy default RNG, seed 20260831). They quantify dialogue-sampling uncertainty, not detector error, prompt variation, model uncertainty, or human disagreement. All intervals cross zero. The exact-key fragment-judge effect is 0.00~pp [$-7.98$, 7.47], illustrating sensitivity to repeated label weights without proving equivalence.
++
++At label level the two detectors agree in 370/594 fragment condition decisions (62.29\%) and 442/760 proxy decisions (58.16\%). These agreement rates are not accuracy estimates because neither detector supplies ground truth. The playback-history check finds no complete unretained fragment in 400/400 playback histories by construction; its zero local-reference count is not pooled with downstream effects. No conclusion of benefit, harm, no effect, equivalence, non-inferiority, or human-semantic fidelity is supported.
++
++\section{Traceable artifacts and scope}
++\label{sec:s-artifacts}
++
++Paths below are repository-relative identifiers, not public URLs. The project-level \path{REPRODUCIBILITY.md} indexes historical campaigns. Public access, release rights, dataset redistribution, and author declarations remain to be confirmed in the main article's data statement. The manuscript source ZIP is self-contained for typesetting but does not claim to contain the experimental archive or model weights.
++
++\begin{description}
++\item[R/B formal evidence.] Base \path{experiments/sci34_supplement/results/recovery_boundary/}, run \path{rb_formal_20260908T023934Z_f69e6478/}. Read \path{manifest.json}, \path{analysis.json}, \path{validation.json}, \path{boundary.json}, and \path{session_0/records.jsonl} through \path{session_3/records.jsonl}. Environment and process-start records are stored per session. The clean source commit is \path{bfa7d7a37363d327cfa96b5448e151663ff578f8}, with 118 snapshotted source files. Protocol and executable timing semantics are in \path{experiments/sci34_supplement/recovery_boundary/EXPERIMENT_PLAN.md}, \path{runtime.py}, and \path{campaign.py} (the last two within the same directory). The complete sibling \path{rb_formal_20260908T023934Z_f69e6478.tar.gz} includes all 320 float32 logit sidecars and its SHA-256 file; the expanded repository copy intentionally omits NPY files. Full seal/sidecar validation therefore requires the original archive, not that incomplete expanded copy. Pilot and failed-pilot artifacts remain separate and contribute no formal estimates.
++\item[C2 exact-only.] Base \path{experiments/sci34_supplement/results/c2_crop_integrity/}, run \path{c2crop_82103004_20260903T080512Z/}. The campaign manifest, \path{records.jsonl}, validation, analysis, acceptance, and seal record 24 cases, 27 events, and 60 matched recovery steps. The direct oracle slices the same pre-crop snapshot; it does not reconstruct a prefix independently.
++\item[Rejected C2 comparisons.] Base \path{experiments/sci34_supplement/results/c2_equivalence/}; runs \path{c2eq_563dd22a_20260903T013547Z/} (v1) and \path{c2eq_5c56b014_20260903T040829Z/} (v2). V1's BF16-to-float32 logit differences exceeded its absolute thresholds; v2 passed only 42/45 numerical gates despite structural checks. Their clean-reprefill controls differ in forward topology from the production path. They neither establish numerical equivalence nor identify a crop-specific error. V3 does not change their rejected verdicts.
++\item[C-E1/C-E2.] Base \path{experiments/sci34_supplement/results/e1e2_confirmatory/}, run \path{e1e2c_b8c758b_20260901T173306Z/}. \path{analysis_v2.json} contains all condition summaries, paired crossed estimates, output identity, per-session and leave-one-session-out diagnostics, and provenance. Its SHA-256 is \path{9bce6db5} (prefix; full value in the adjacent checksum file). Raw and version-1 analyses remain unchanged; v2 uses crossed rather than session-then-dialogue nested resampling.
++\item[E3.] Base \path{experiments/sci34_supplement/results/e3/}, run \path{sci34_f11ccba_20260901_e3/}. \path{trajectories.jsonl}, \path{records.jsonl}, and \path{analysis_weighting_dedup_v2.json} provide fixed trajectories, paired histories, eligibility, all four estimands, detector confusion tables, and provenance. Exact processed inputs and judge payload provenance are indexed by \path{experiments/sci34_supplement/results/e3_exact_rescue/}. The v2 analysis SHA-256 starts \path{5776db23}; use its adjacent full checksum.
++\item[A1.] Base \path{experiments/sci34_supplement/results/a1/}, run \path{sci34_f11ccba_20260901_a1/}. Read its raw records and latency analysis for the joint crop/role microbenchmark. Component medians must not be summed to replace the measured joint interval.
++\item[P1.] Base \path{experiments/sci34_supplement/results/async_bargein/}, run \path{sci34_dc52978_20260901_async_prepared_v2/}. Prepared-state records and analysis exclude pre-playback setup. The earlier v1 timing protocol allowed unfinished GPU preparation to enter the stop-path synchronization window and is excluded, not presented as an unfavorable runtime result. The v2 campaign has a distinct host and timing protocol; subtracting its times from A1 or R is invalid.
++\item[A2 and historical exploratory data.] \path{experiments/results/exp_a2_history.json}, \path{exp_a2_history_judged.json}, and \path{paper2_reanalysis.json} (same directory) preserve raw, judged, and offline descriptive data. Earlier E1/E2 files in that directory remain exploratory, including recorded fixture exclusions. They are not replacements for the confirmatory holdout.
++\end{description}
++
++The original byte seals can fail on a Windows checkout with automatic CRLF conversion. Use the original tar, Git blobs, or an LF-preserving checkout for byte-level archival verification. This typesetting package preserves the failure history and provenance but does not itself certify public release permission or revalidate inaccessible source literature.
++
++\section{Complete R endpoint table}
++\label{sec:s-r}
++
++Table~\ref{tab:s-r} supplements the main first-deliverable comparison with arm means and recovery/header endpoints for every fixed case/event. Case labels retain the frozen identifiers; their final ``eos'' or ``max'' strings are inherited fixture labels and are not natural-termination results. Event index 1 denotes the second interruption. Each cell has four paired repetitions in each of four process sessions. All recorded pairs delivered a first token, so no missing-delivery subset was selected.
++
++\begin{table}[p]
++\centering\small
++\caption{R operation costs in ms. C/R are crop/rebuild arm means. Difference is rebuild minus crop, with the frozen session-cluster 95\% interval. Rec: recovery to user-open; Ready: recovery plus suffix/header; First: Ready plus separate first-generator-return interval.}\label{tab:s-r}
++\begin{tabular}{@{}llrrr@{}}
++\toprule
++Case/event & Endpoint & C & R & Difference [95\% CI] \\
++\midrule
++\tableinput{tables/r_all_endpoints_rows.tex}
++\bottomrule
++\end{tabular}
++\end{table}
++
++The bootstrap uses \texttt{random.Random(20260906)}, 10,000 with-replacement draws of the four session means per case/event/metric, with sorted draw indices 249 and 9749 as bounds. Metrics are traversed in recovery, ready, first-deliverable order over sorted case/event cells. Repeats are averaged within session, not bootstrapped as independent events. These implementation details matter for exact reproduction of the stored intervals with four clusters.
++
++First-deliverable cost excludes model loading, initial-history construction, fixture reconciliation, CPU state/logit audit pauses, and the remaining continuation. It includes the first generated token's KV commit and generator yield. No continuous wall-clock or speech end-to-end claim follows. All 320 saved logits are finite float32 $[1,152064]$ arrays; the maximum paired absolute difference is 0.59375. All 160 top-1 choices match, while 144/160 bounded continuations match. Every mismatch belongs to case 16/event 1. This concentration is reported rather than averaged away, and no BF16 tolerance or broad output-equivalence gate is inferred from finite values.
++
++\clearpage
++\bibliographystyle{elsarticle-harv}
++\bibliography{references}
++\end{document}
+--- /dev/null
++++ b/paper2/tougao/SC/latex/tables/candidate_grid_rows.tex
+@@ -0,0 +1,10 @@
++A full prefill & 27.696 & 27.696 & 0.0 & 0.000 \\
++B@0.0052 & 62.407 & 0.000 & 100.0 & 31.037 \\
++B@0.1979 & 62.400 & 0.312 & 99.0 & 19.315 \\
++B@0.3906 & 62.312 & 0.652 & 98.0 & 15.757 \\
++B@0.5833 & 62.134 & 0.935 & 97.0 & 13.237 \\
++B@0.7760 & 62.207 & 1.261 & 96.0 & 11.272 \\
++B@0.8500 & 62.038 & 4.946 & 84.0 & 10.664 \\
++B@0.9200 & 62.384 & 10.259 & 67.0 & 2.853 \\
++B@0.9688 & 62.338 & 22.371 & 28.0 & 0.000 \\
++B never trigger & 62.350 & 31.063 & 0.0 & 0.000 \\
+--- /dev/null
++++ b/paper2/tougao/SC/latex/tables/e3_sensitivity_rows.tex
+@@ -0,0 +1,16 @@
++Fragment & Lexical & L & $-3.37$ [$-10.49$, $3.40$] \\
++Fragment & Lexical & D & $-3.21$ [$-9.55$, $2.78$] \\
++Fragment & Lexical & K & $-2.96$ [$-9.04$, $2.63$] \\
++Fragment & Lexical & KD & $-3.12$ [$-8.68$, $2.08$] \\
++Fragment & Judge & L & $-2.02$ [$-10.70$, $6.13$] \\
++Fragment & Judge & D & $-1.30$ [$-8.94$, $6.08$] \\
++Fragment & Judge & K & $0.00$ [$-7.98$, $7.47$] \\
++Fragment & Judge & KD & $-1.74$ [$-9.20$, $5.38$] \\
++Proxy & Lexical & L & $-1.58$ [$-6.08$, $2.67$] \\
++Proxy & Lexical & D & $-1.50$ [$-5.75$, $2.50$] \\
++Proxy & Lexical & K & $-1.58$ [$-6.10$, $2.69$] \\
++Proxy & Lexical & KD & $-1.50$ [$-5.75$, $2.50$] \\
++Proxy & Judge & L & $-2.63$ [$-8.57$, $2.90$] \\
++Proxy & Judge & D & $-2.58$ [$-8.25$, $2.67$] \\
++Proxy & Judge & K & $-2.64$ [$-8.57$, $2.90$] \\
++Proxy & Judge & KD & $-2.58$ [$-8.25$, $2.67$] \\
+--- /dev/null
++++ b/paper2/tougao/SC/latex/tables/r_all_endpoints_rows.tex
+@@ -0,0 +1,30 @@
++01/0 & Rec & 31.495 & 142.979 & 111.484 [110.112, 112.471] \\
++01/0 & Ready & 92.444 & 206.237 & 113.793 [111.293, 116.292] \\
++01/0 & First & 116.993 & 230.204 & 113.211 [110.305, 116.116] \\
++02/0 & Rec & 31.287 & 143.781 & 112.494 [111.606, 113.382] \\
++02/0 & Ready & 92.618 & 206.339 & 113.721 [112.362, 115.090] \\
++02/0 & First & 117.068 & 230.689 & 113.621 [111.555, 116.132] \\
++03/0 & Rec & 31.431 & 144.259 & 112.828 [111.348, 114.309] \\
++03/0 & Ready & 93.156 & 207.161 & 114.005 [111.400, 117.008] \\
++03/0 & First & 117.869 & 231.890 & 114.020 [111.044, 117.452] \\
++04/0 & Rec & 30.903 & 144.495 & 113.592 [112.200, 114.653] \\
++04/0 & Ready & 93.338 & 207.328 & 113.991 [111.912, 115.529] \\
++04/0 & First & 118.005 & 232.143 & 114.138 [112.147, 115.756] \\
++05/0 & Rec & 31.896 & 144.587 & 112.690 [112.053, 113.555] \\
++05/0 & Ready & 93.521 & 207.737 & 114.216 [112.543, 116.058] \\
++05/0 & First & 118.288 & 232.917 & 114.629 [112.389, 116.868] \\
++06/0 & Rec & 0.440 & 131.178 & 130.738 [130.204, 131.271] \\
++06/0 & Ready & 66.894 & 196.028 & 129.134 [123.406, 132.959] \\
++06/0 & First & 92.549 & 221.192 & 128.643 [121.606, 133.348] \\
++10/0 & Rec & 32.624 & 496.357 & 463.733 [462.189, 465.278] \\
++10/0 & Ready & 95.724 & 561.393 & 465.669 [463.888, 467.449] \\
++10/0 & First & 120.690 & 586.067 & 465.377 [464.181, 466.851] \\
++16/0 & Rec & 33.031 & 496.780 & 463.749 [463.269, 464.295] \\
++16/0 & Ready & 97.188 & 561.954 & 464.767 [463.468, 466.065] \\
++16/0 & First & 122.383 & 586.678 & 464.295 [462.504, 466.017] \\
++16/1 & Rec & 32.352 & 497.884 & 465.532 [464.929, 465.984] \\
++16/1 & Ready & 96.301 & 563.023 & 466.722 [465.569, 468.353] \\
++16/1 & First & 120.944 & 588.414 & 467.470 [465.568, 469.915] \\
++18/0 & Rec & 49.481 & 2001.155 & 1951.675 [1937.285, 1963.226] \\
++18/0 & Ready & 145.039 & 2101.085 & 1956.046 [1940.595, 1968.517] \\
++18/0 & First & 170.396 & 2126.496 & 1956.100 [1940.446, 1968.986] \\
+--- /dev/null
++++ b/paper2/tougao/SC/latex/tables/r_first_deliverable_rows.tex
+@@ -0,0 +1,10 @@
++01/0 & Zero playback (512) & 113.211 & [110.305, 116.116] \\
++02/0 & Fragment boundary (512) & 113.621 & [111.555, 116.132] \\
++03/0 & Mid-fragment (512) & 114.020 & [111.044, 117.452] \\
++04/0 & Reply-tail no-op (512) & 114.138 & [112.147, 115.756] \\
++05/0 & Pending EOT (512) & 114.629 & [112.389, 116.868] \\
++06/0 & Full invalidation (512) & 128.643 & [121.606, 133.348] \\
++10/0 & Fragment boundary (2048) & 465.377 & [464.181, 466.851] \\
++16/0 & Repeated interruption (2048) & 464.295 & [462.504, 466.017] \\
++16/1 & Repeated interruption (2048) & 467.470 & [465.568, 469.915] \\
++18/0 & Fragment boundary (8192) & 1956.100 & [1940.446, 1968.986] \\

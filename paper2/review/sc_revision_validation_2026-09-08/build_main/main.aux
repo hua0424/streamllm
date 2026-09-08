@@ -1,0 +1,164 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\emailauthor{[CORRESPONDING AUTHOR EMAIL TO BE CONFIRMED]}{[AUTHOR NAME(S) TO BE CONFIRMED]\corref {cor1}}
+\Newlabel{cor1}{1}
+\def\@LN@column{1}
+\providecommand \oddpage@label [2]{}
+\Newlabel{aff1}{a}
+\citation{zou2026LTSVoiceAgent,mai2026RelayS2S,chen2025FireRedChat,du2024CosyVoice2}
+\citation{schwarz2023PersonalizedPredictiveASR}
+\citation{morrone2024LowLatencyDiarization}
+\citation{edwards2025TelecommunicationsLatency}
+\citation{zheng2026MultilevelContextualPrompting}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{2}{section.1}\protected@file@percent }
+\newlabel{sec:introduction}{{1}{2}{Introduction}{section.1}{}}
+\citation{openaiRealtimeConversations}
+\citation{microsoftVoiceLiveAutoTruncation2026}
+\citation{livekitEventsErrorHandling}
+\citation{huggingFace2025TransformersCacheUtils,huggingFace2025KVCacheStrategies}
+\def\@LN@column{1}
+\citation{yang2024Qwen2}
+\citation{openaiRealtimeConversations}
+\citation{microsoftVoiceLiveAutoTruncation2026}
+\citation{livekitEventsErrorHandling}
+\def\@LN@column{1}
+\newlabel{eq:contribution-path}{{1}{4}{Introduction}{equation.1}{}}
+\citation{schwarz2023PersonalizedPredictiveASR}
+\citation{zou2026LTSVoiceAgent}
+\citation{mai2026RelayS2S}
+\citation{chen2025FireRedChat}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related work}{5}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{5}{Related work}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Playback-conditioned transcript and history truncation}{5}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Streaming dialogue, anticipatory computation, and interruption control}{5}{subsection.2.2}\protected@file@percent }
+\citation{defossez2024Moshi}
+\citation{morrone2024LowLatencyDiarization}
+\citation{edwards2025TelecommunicationsLatency}
+\citation{zheng2026MultilevelContextualPrompting}
+\citation{huggingFace2025TransformersCacheUtils,huggingFace2025KVCacheStrategies}
+\citation{kwon2023PagedAttention}
+\citation{zheng2024SGLang}
+\citation{li2026IntentKV}
+\citation{hooper2026SpeculativeInteractionAgents}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}KV-cache management and cross-turn state}{6}{subsection.2.3}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {3}System model and problem formulation}{7}{section.3}\protected@file@percent }
+\newlabel{sec:formulation}{{3}{7}{System model and problem formulation}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Cascaded streaming system}{7}{subsection.3.1}\protected@file@percent }
+\newlabel{eq:system}{{2}{7}{Cascaded streaming system}{equation.2}{}}
+\newlabel{eq:fragment-span}{{3}{7}{Cascaded streaming system}{equation.3}{}}
+\def\@LN@column{1}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Cascaded architecture and interruption-time state repair. The cursor is a software-level signal; the figure does not imply a device or acoustic boundary.}}{8}{figure.1}\protected@file@percent }
+\newlabel{fig:architecture}{{1}{8}{Cascaded architecture and interruption-time state repair. The cursor is a software-level signal; the figure does not imply a device or acoustic boundary}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Software retention boundary}{8}{subsection.3.2}\protected@file@percent }
+\newlabel{eq:cursor-hit}{{4}{8}{Software retention boundary}{equation.4}{}}
+\newlabel{eq:retention}{{5}{8}{Software retention boundary}{equation.5}{}}
+\def\@LN@column{1}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Generated, registered, and software-consumed progress after conversion to the token domain. A cursor inside $f_3$ selects its complete fragment endpoint.}}{9}{figure.2}\protected@file@percent }
+\newlabel{fig:progress}{{2}{9}{Generated, registered, and software-consumed progress after conversion to the token domain. A cursor inside $f_3$ selects its complete fragment endpoint}{figure.2}{}}
+\newlabel{eq:progress-order}{{6}{9}{Software retention boundary}{equation.6}{}}
+\newlabel{eq:reverse-query}{{7}{9}{Software retention boundary}{equation.7}{}}
+\newlabel{eq:alpha}{{8}{9}{Software retention boundary}{equation.8}{}}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Persistent joint prefix state}{10}{subsection.3.3}\protected@file@percent }
+\newlabel{eq:joint-state}{{9}{10}{Persistent joint prefix state}{equation.9}{}}
+\newlabel{eq:invariants}{{10}{10}{Persistent joint prefix state}{equation.10}{}}
+\newlabel{eq:absolute-crop}{{11}{10}{Persistent joint prefix state}{equation.11}{}}
+\def\@LN@column{1}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Fragment association record. A TTS fragment links one assistant-token span to its ordered audio chunks and cumulative software-sample interval.}}{11}{figure.3}\protected@file@percent }
+\newlabel{fig:timeline}{{3}{11}{Fragment association record. A TTS fragment links one assistant-token span to its ordered audio chunks and cumulative software-sample interval}{figure.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Playback-conditioned joint prefix-state repair}{11}{section.4}\protected@file@percent }
+\newlabel{sec:method}{{4}{11}{Playback-conditioned joint prefix-state repair}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Fragment association and producer contract}{11}{subsection.4.1}\protected@file@percent }
+\newlabel{eq:timeline-record}{{12}{11}{Fragment association and producer contract}{equation.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Complete invalidation before output commitment}{11}{subsection.4.2}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Joint crop and role recovery. A unique close/reopen transition commits structural EOT without duplicating it in assistant content.}}{12}{figure.4}\protected@file@percent }
+\newlabel{fig:state-repair}{{4}{12}{Joint crop and role recovery. A unique close/reopen transition commits structural EOT without duplicating it in assistant content}{figure.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Joint crop and role recovery}{12}{subsection.4.3}\protected@file@percent }
+\newlabel{eq:post-reopen}{{13}{12}{Joint crop and role recovery}{equation.13}{}}
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Exact validation}{13}{subsection.4.4}\protected@file@percent }
+\citation{yang2024Qwen2}
+\citation{eric2020MultiWOZ21}
+\citation{jiang2023Mistral7B,mistralAI2024Mistral7BInstructV03}
+\citation{du2024CosyVoice2}
+\citation{radford2023RobustSpeechRecognition}
+\citation{beigel2026Stream2Sentence}
+\def\@LN@column{1}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Evidence roles and limits of inference.}}{14}{table.1}\protected@file@percent }
+\newlabel{tab:evidence}{{1}{14}{Evidence roles and limits of inference}{table.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Experimental methodology and results}{14}{section.5}\protected@file@percent }
+\newlabel{sec:experiments}{{5}{14}{Experimental methodology and results}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Evidence and environment}{14}{subsection.5.1}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces C2 v3 exact-gate coverage.}}{15}{table.2}\protected@file@percent }
+\newlabel{tab:c2}{{2}{15}{C2 v3 exact-gate coverage}{table.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}C2 exact correctness and B software boundaries}{15}{subsection.5.2}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}R: executable same-policy next-turn recovery}{16}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:recovery-cost}{{5.3}{16}{R: executable same-policy next-turn recovery}{subsection.5.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Design and comparator}{16}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Endpoints and uncertainty}{16}{section*.2}\protected@file@percent }
+\def\@LN@column{1}
+\newlabel{eq:recovery-cost}{{14}{17}{Endpoints and uncertainty}{equation.14}{}}
+\@writefile{toc}{\contentsline {paragraph}{Results}{17}{section*.3}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces R paired rebuild-minus-crop first-deliverable operation cost (ms). All ten fixed case--event cells are shown; each contains four pairs in each of four process sessions. Intervals are 95\% session-cluster percentile intervals, not independent-event intervals. Initial context length does not include later fixture/suffix growth.}}{18}{table.3}\protected@file@percent }
+\newlabel{tab:r}{{3}{18}{R paired rebuild-minus-crop first-deliverable operation cost (ms). All ten fixed case--event cells are shown; each contains four pairs in each of four process sessions. Intervals are 95\% session-cluster percentile intervals, not independent-event intervals. Initial context length does not include later fixture/suffix growth}{table.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces A1 synchronized repair microbenchmark; 50 repetitions per length.}}{18}{table.4}\protected@file@percent }
+\newlabel{tab:a1}{{4}{18}{A1 synchronized repair microbenchmark; 50 repetitions per length}{table.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Supporting repair microbenchmark and software path}{18}{subsection.5.4}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces A1 joint repair and re-prefill microbenchmark. Error bars show interquartile ranges across 50 repetitions.}}{19}{figure.5}\protected@file@percent }
+\newlabel{fig:a1}{{5}{19}{A1 joint repair and re-prefill microbenchmark. Error bars show interquartile ranges across 50 repetitions}{figure.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Downstream fixed-trajectory diagnostic}{19}{subsection.5.5}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces E3 label-weighted information-reproduction rates. The effect is generation minus software-cursor retention; pp denotes percentage points.}}{20}{table.5}\protected@file@percent }
+\newlabel{tab:e3}{{5}{20}{E3 label-weighted information-reproduction rates. The effect is generation minus software-cursor retention; pp denotes percentage points}{table.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Discussion}{20}{section.6}\protected@file@percent }
+\newlabel{sec:discussion}{{6}{20}{Discussion}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}What the combined evidence establishes}{20}{subsection.6.1}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Boundary policy and downstream uncertainty}{21}{subsection.6.2}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Validity and transfer conditions}{22}{subsection.6.3}\protected@file@percent }
+\def\@LN@column{1}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{23}{section.7}\protected@file@percent }
+\newlabel{sec:conclusion}{{7}{23}{Conclusion}{section.7}{}}
+\def\@LN@column{1}
+\bibstyle{elsarticle-harv}
+\bibdata{references}
+\bibcite{beigel2026Stream2Sentence}{{1}{2026}{{Beigel}}{{}}}
+\bibcite{chen2025FireRedChat}{{2}{2025}{{Chen et~al.}}{{Chen, Hu, Li, Li, Liu, Li, Li, Li, Shen, Tang, Wei, Wu, Xie, Xu and Xie}}}
+\bibcite{defossez2024Moshi}{{3}{2024}{{D{\'e}fossez et~al.}}{{D{\'e}fossez, Mazar{\'e}, Orsini, Royer, P{\'e}rez, J{\'e}gou, Grave and Zeghidour}}}
+\bibcite{du2024CosyVoice2}{{4}{2024}{{Du et~al.}}{{}}}
+\bibcite{edwards2025TelecommunicationsLatency}{{5}{2025}{{Edwards}}{{}}}
+\bibcite{eric2020MultiWOZ21}{{6}{2020}{{Eric et~al.}}{{Eric, Goel, Paul, Sethi, Agarwal, Gao, Kumar, Goyal, Ku and Hakkani-Tur}}}
+\bibcite{hooper2026SpeculativeInteractionAgents}{{7}{2026}{{Hooper et~al.}}{{Hooper, Kang, Moon, Lee, Wen, Wawrzynek, Mahoney, Shao, Gholami and Keutzer}}}
+\def\@LN@column{1}
+\bibcite{huggingFace2025KVCacheStrategies}{{8}{2025a}{{Hugging Face}}{{}}}
+\bibcite{huggingFace2025TransformersCacheUtils}{{9}{2025b}{{Hugging Face}}{{}}}
+\bibcite{jiang2023Mistral7B}{{10}{2023}{{Jiang et~al.}}{{}}}
+\bibcite{kwon2023PagedAttention}{{11}{2023}{{Kwon et~al.}}{{Kwon, Li, Zhuang, Sheng, Zheng, Yu, Gonzalez, Zhang and Stoica}}}
+\bibcite{li2026IntentKV}{{12}{2026}{{Li et~al.}}{{Li, Lou and Li}}}
+\bibcite{livekitEventsErrorHandling}{{13}{n.d.}{{LiveKit}}{{}}}
+\bibcite{mai2026RelayS2S}{{14}{2026}{{Mai}}{{}}}
+\bibcite{microsoftVoiceLiveAutoTruncation2026}{{15}{2026}{{Microsoft}}{{}}}
+\bibcite{mistralAI2024Mistral7BInstructV03}{{16}{2024}{{Mistral AI}}{{}}}
+\bibcite{morrone2024LowLatencyDiarization}{{17}{2024}{{Morrone et~al.}}{{Morrone, Cornell, Serafini, Zovato, Brutti and Squartini}}}
+\def\@LN@column{1}
+\bibcite{openaiRealtimeConversations}{{18}{n.d.}{{OpenAI}}{{}}}
+\bibcite{radford2023RobustSpeechRecognition}{{19}{2023}{{Radford et~al.}}{{Radford, Kim, Xu, Brockman, Mcleavey and Sutskever}}}
+\bibcite{schwarz2023PersonalizedPredictiveASR}{{20}{2023}{{Schwarz et~al.}}{{Schwarz, He, Segbroeck, Hethnawi and Rastrow}}}
+\bibcite{yang2024Qwen2}{{21}{2024}{{Yang et~al.}}{{}}}
+\bibcite{zheng2026MultilevelContextualPrompting}{{22}{2026}{{Zheng et~al.}}{{Zheng, Cheng, Wang, Zhao and Yan}}}
+\bibcite{zheng2024SGLang}{{23}{2024}{{Zheng et~al.}}{{Zheng, Yin, Xie et~al.}}}
+\bibcite{zou2026LTSVoiceAgent}{{24}{2026}{{Zou et~al.}}{{Zou, Miao, Ma, Xu, Gao, Hao, He and Xu}}}
+\def\@LN@column{1}
+\gdef \@abspage@last{27}

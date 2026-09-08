@@ -1,0 +1,154 @@
+File: main.tex
+Encoding: ascii
+Sum count: 274
+Words in text: 260
+Words in headers: 14
+Words outside text (captions, etc.): 0
+Number of headers: 2
+Number of floats/tables/figures: 0
+Number of math inlines: 0
+Number of math displayed: 0
+
+Included file: ./sections/01_introduction.tex
+Encoding: ascii
+Sum count: 893
+Words in text: 891
+Words in headers: 1
+Words outside text (captions, etc.): 0
+Number of headers: 1
+Number of floats/tables/figures: 0
+Number of math inlines: 0
+Number of math displayed: 1
+
+Included file: ./sections/02_related_work.tex
+Encoding: ascii
+Sum count: 798
+Words in text: 779
+Words in headers: 19
+Words outside text (captions, etc.): 0
+Number of headers: 4
+Number of floats/tables/figures: 0
+Number of math inlines: 0
+Number of math displayed: 0
+Subcounts:
+  text+headers+captions (#headers/#floats/#inlines/#displayed)
+  0+2+0 (1/0/0/0) Section: Related work
+  162+5+0 (1/0/0/0) Subsection: Playback-conditioned transcript and history truncation
+  278+7+0 (1/0/0/0) Subsection: Streaming dialogue, anticipatory computation, and interruption control
+  339+5+0 (1/0/0/0) Subsection: KV-cache management and cross-turn state
+
+Included file: ./sections/03_formulation.tex
+Encoding: ascii
+Sum count: 769
+Words in text: 667
+Words in headers: 15
+Words outside text (captions, etc.): 41
+Number of headers: 4
+Number of floats/tables/figures: 2
+Number of math inlines: 36
+Number of math displayed: 10
+Subcounts:
+  text+headers+captions (#headers/#floats/#inlines/#displayed)
+  0+5+0 (1/0/0/0) Section: System model and problem formulation
+  154+3+22 (1/1/11/2) Subsection: Cascaded streaming system
+  249+3+19 (1/1/14/5) Subsection: Software retention boundary
+  264+4+0 (1/0/11/3) Subsection: Persistent joint prefix state
+
+Included file: ./sections/04_method.tex
+Encoding: ascii
+Sum count: 918
+Words in text: 841
+Words in headers: 21
+Words outside text (captions, etc.): 38
+Number of headers: 5
+Number of floats/tables/figures: 2
+Number of math inlines: 16
+Number of math displayed: 2
+Subcounts:
+  text+headers+captions (#headers/#floats/#inlines/#displayed)
+  0+4+0 (1/0/0/0) Section: Playback-conditioned joint prefix-state repair
+  201+5+19 (1/1/4/1) Subsection: Fragment association and producer contract
+  103+5+0 (1/0/0/0) Subsection: Complete invalidation before output commitment
+  224+5+19 (1/1/12/1) Subsection: Joint crop and role recovery
+  313+2+0 (1/0/0/0) Subsection: Exact validation
+
+Included file: ./sections/05_experiments_results.tex
+Encoding: ascii
+Sum count: 1642
+Words in text: 1510
+Words in headers: 35
+Words outside text (captions, etc.): 91
+Number of headers: 9
+Number of floats/tables/figures: 6
+Number of math inlines: 5
+Number of math displayed: 1
+Subcounts:
+  text+headers+captions (#headers/#floats/#inlines/#displayed)
+  0+4+0 (1/0/0/0) Section: Experimental methodology and results
+  192+3+6 (1/1/0/0) Subsection: Evidence and environment
+  263+7+4 (1/1/0/0) Subsection: C2 exact correctness and B software boundaries
+  643+12+44 (4/1/3/1) Subsection: R: executable same-policy next-turn recovery
+  190+6+22 (1/2/2/0) Subsection: Supporting repair microbenchmark and software path
+  222+3+15 (1/1/0/0) Subsection: Downstream fixed-trajectory diagnostic
+
+Included file: ./sections/06_discussion_conclusion.tex
+Encoding: ascii
+Sum count: 838
+Words in text: 822
+Words in headers: 16
+Words outside text (captions, etc.): 0
+Number of headers: 5
+Number of floats/tables/figures: 0
+Number of math inlines: 0
+Number of math displayed: 0
+Subcounts:
+  text+headers+captions (#headers/#floats/#inlines/#displayed)
+  0+1+0 (1/0/0/0) Section: Discussion
+  240+5+0 (1/0/0/0) Subsection: What the combined evidence establishes
+  157+5+0 (1/0/0/0) Subsection: Boundary policy and downstream uncertainty
+  271+4+0 (1/0/0/0) Subsection: Validity and transfer conditions
+  154+1+0 (1/0/0/0) Section: Conclusion
+
+Included file: ./sections/07_declarations.tex
+Encoding: ascii
+Sum count: 284
+Words in text: 256
+Words in headers: 28
+Words outside text (captions, etc.): 0
+Number of headers: 7
+Number of floats/tables/figures: 0
+Number of math inlines: 0
+Number of math displayed: 0
+Subcounts:
+  text+headers+captions (#headers/#floats/#inlines/#displayed)
+  0+4+0 (1/0/0/0) Section: CRediT authorship contribution statement
+  0+1+0 (1/0/0/0) Section: Funding
+  0+4+0 (1/0/0/0) Section: Declaration of competing interest
+  139+4+0 (1/0/0/0) Section: Data and code availability
+  56+2+0 (1/0/0/0) Section: Ethics statement
+  61+12+0 (1/0/0/0) Section: Declaration of generative AI and AI-assisted technologies in the manuscript preparation process
+  0+1+0 (1/0/0/0) Section: Acknowledgements
+
+Sum of files: main.tex
+File(s) total: main.tex
+Sum count: 6416
+Words in text: 6026
+Words in headers: 149
+Words outside text (captions, etc.): 170
+Number of headers: 37
+Number of floats/tables/figures: 10
+Number of math inlines: 57
+Number of math displayed: 14
+Files: 8
+Subcounts:
+  text+headers+captions (#headers/#floats/#inlines/#displayed)
+  260+14+0 (2/0/0/0) File: main.tex
+  891+1+0 (1/0/0/1) Included file: ./sections/01_introduction.tex
+  779+19+0 (4/0/0/0) Included file: ./sections/02_related_work.tex
+  667+15+41 (4/2/36/10) Included file: ./sections/03_formulation.tex
+  841+21+38 (5/2/16/2) Included file: ./sections/04_method.tex
+  1510+35+91 (9/6/5/1) Included file: ./sections/05_experiments_results.tex
+  822+16+0 (5/0/0/0) Included file: ./sections/06_discussion_conclusion.tex
+  256+28+0 (7/0/0/0) Included file: ./sections/07_declarations.tex
+
+texcount: major issue: So far, you have not checked for MiKTeX updates.

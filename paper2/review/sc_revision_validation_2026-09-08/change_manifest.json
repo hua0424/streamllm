@@ -1,0 +1,133 @@
+{
+  "baseline_head": "d7af7abcdb4d0d610da806e40e33bcba038611bb",
+  "initial_status": "clean",
+  "changes": [
+    {
+      "path": "docs/decisions.md",
+      "before_sha256": "d9af203ac0bc5626f8cb8b53e7889f463cd77f9ce28b921c303ba467c4647c93",
+      "after_sha256": "ea0eb18b1d06cf7d4e47acd233c4f3959f41a680a411fd1c5f8f548cc6a01d4b"
+    },
+    {
+      "path": "docs/handoff.md",
+      "before_sha256": "40951ccb5b080fc3cbaa12cdafc9eda31a1d3d9c448933bc3d11d8f1b174303d",
+      "after_sha256": "970f1eefc907c59148df22376fd7bc00ca9d58a5639ff1fef8a6f531a8e3d02c"
+    },
+    {
+      "path": "docs/paper2_context.md",
+      "before_sha256": "2f6dfac62912177e22e743b1c34f7c71276783ebf6db7bdbefa695721a6e5f70",
+      "after_sha256": "c4cd1f2c28f8613c9eca20dda9022fa8078cdcc91db333eaa451b71e3341da2b"
+    },
+    {
+      "path": "paper2/review/sc_focused_revision_2026-09-08.md",
+      "before_sha256": null,
+      "after_sha256": "6dfdb34201e4b37b6dde999308e7d5a0cc84ae570a4d0ef511004ffd4d899fd1"
+    },
+    {
+      "path": "paper2/tougao/SC/GUIDE_FOR_AUTHORS_CHECKLIST.md",
+      "before_sha256": "c11d0e845f73c38427591265910afbb50a9ce05c59b8bdc804df0c8756e45d2e",
+      "after_sha256": "0822bd7b53744443de36b8e762d910d81fe5cc1b1acd4c94504ce26283d5343c"
+    },
+    {
+      "path": "paper2/tougao/SC/Speech_Communication_LaTeX_source.zip",
+      "before_sha256": "25e6bb66e2e4acc0de5af19e1894a39eddb0add8463d0e51a30af6d5e8cb839e",
+      "after_sha256": "c22809a8e9a70bf40a1e007109e8439765a1f3ab34afc88e27ade80220b76b56"
+    },
+    {
+      "path": "paper2/tougao/SC/Speech_Communication_manuscript.pdf",
+      "before_sha256": "d43dd840fec786e1ca3a5fa01ddb166901ac34a3ab9cb6208c7a25e9e9acb7c9",
+      "after_sha256": "b4071b9c3fd641efffba05a6a7801c235bc0aa61f5d0da45a5923eb2a5e5f902"
+    },
+    {
+      "path": "paper2/tougao/SC/Speech_Communication_supplementary.pdf",
+      "before_sha256": null,
+      "after_sha256": "8856d482fe9d101a35b874eb4bba28dc95955c5fa7508fd3ff4e08fd726689bd"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/AUTHOR_CONFIRM.md",
+      "before_sha256": "760569037462a81fdb1b69f9a84a7e17c8049fd9ac1f282edd4ef39f5406b25c",
+      "after_sha256": "e3dd4bcf4293bdc4f01a0d007a18577ba6a9cd8aabd814d926569c5b6e33e4a2"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/README.md",
+      "before_sha256": "b56bb980a8d09ae5b313e7fc824ac77cac61f596bcf6c8a7cb3d41b54dcf32dd",
+      "after_sha256": "e6e3088987a630a2a0646688da8601f16fff8642b49fe249648ae4f6c5c1f720"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/assets/generate_tables.py",
+      "before_sha256": null,
+      "after_sha256": "1a4d87cdea4a1743d5b1c0eb0739c186bec8d638b53922b43e9030d8e61b717d"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/assets/numeric_checks.json",
+      "before_sha256": null,
+      "after_sha256": "45d7be8cb86f4f8b89e896120dff2c331a725ba54bae42bd8feb897c9fe4f385"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/highlights.txt",
+      "before_sha256": "4f2b4540645864a26b454cf7d10f368ef924e64209d6418e196b360ec2a82e64",
+      "after_sha256": "b8f0e99f71962d58442142a17ad5db9d51069f6a35212fd87ccc04b7775e13b1"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/main.tex",
+      "before_sha256": "4538e115b875ab8aade837268cc66e7942ef07cc886f31cb00d23b9c6bc2e3c0",
+      "after_sha256": "eca378a5998180c7140dafa4af108c0e6eb94466ab3a1c3718c4649212da66be"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/sections/01_introduction.tex",
+      "before_sha256": "49c36272cc44c1c0948019d3d3f79e141605cb4567b2e57ae4388281688b2ab3",
+      "after_sha256": "fa5afdf610f53da16504748f71d3ee1ca3401188513cb30d9a1f9ca5555725d0"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/sections/02_related_work.tex",
+      "before_sha256": "fb55aacce552a4d857d7ddcdbaf5b3fd6ca5c46e31931e1cca5e63e103da2be0",
+      "after_sha256": "3710a60c71bf945ffd46cf69dc76e8a7f9a7412ecfde4cc896c32260a7fc8298"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/sections/04_method.tex",
+      "before_sha256": "c476c74a4d88a2476c547e030929aae0d42692c8327e57ece5b1ab5d565b5cd0",
+      "after_sha256": "fc68a09e5f86f22289975acfbb531a160d21e4b050bab87f4390d3e2d91113a1"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/sections/05_experiments_results.tex",
+      "before_sha256": "adcab4b2c2f5969468be8b68d9aae4a49d3659d5c3b451ba663badf948ec46a1",
+      "after_sha256": "45869790d363ae94461307003a810b258f5c327544bbfb5d417210151005f98a"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/sections/06_discussion_conclusion.tex",
+      "before_sha256": "05e6eea67387f46b1d726bf3fabe36263f8e56230fa5897584423668237c278a",
+      "after_sha256": "7f7b1da52cbdea68f02b3c03c73b47e722a58f90a20c3e435c84d44ff836f9c8"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/sections/07_declarations.tex",
+      "before_sha256": "58194b539c5318fa224d9b0021703ccefe2fdd88e5dcd01d773263ba276adea8",
+      "after_sha256": "f2465ae7b005e0ebbc39de971eacee96a4ba095b693a51fe7a97c0a494a801b3"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/supplementary.tex",
+      "before_sha256": null,
+      "after_sha256": "d8afe5465e7a4ee649b7a5900e6e561ba99ba61cf369af768b7224366a5c9f6e"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/tables/candidate_grid_rows.tex",
+      "before_sha256": null,
+      "after_sha256": "fec54d32eb69c6483935cb38477c0e71e0f604d71076aab99ad428d03d58b51e"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/tables/e3_sensitivity_rows.tex",
+      "before_sha256": null,
+      "after_sha256": "ecca4a300f7bb320e41f55a7000d2d0e2d7a1f39f942fb18e0b84dea1347df71"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/tables/r_all_endpoints_rows.tex",
+      "before_sha256": null,
+      "after_sha256": "d36d43e6efbf3f6b37cfd9ebbab3409d79ef5c666c4ee69fb64b1059a845b5c8"
+    },
+    {
+      "path": "paper2/tougao/SC/latex/tables/r_first_deliverable_rows.tex",
+      "before_sha256": null,
+      "after_sha256": "91d162cff393b05d68cb4f4dfdaa88acdf3c3948145b71bf9c0693412f7fe6d7"
+    }
+  ],
+  "patch_scope": "UTF-8 text changes; binary before in backup and final artifacts separately",
+  "formal_schema_validated": false
+}

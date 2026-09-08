@@ -1,0 +1,41 @@
+{
+  "scientific_check": "user-reported separate PASS: all 30 R intervals and E3 accurate",
+  "main_prose_changes": "only three run-in terminal periods removed; full-width A1 figure",
+  "a1_data": "same accepted six medians/quartiles and ratios; labels enlarged in SC-only vector generator",
+  "supplement_scientific_content": "unchanged; prior layout normalization assertion passed",
+  "counts": {
+    "main": {
+      "pages": 27,
+      "rendered_pages": [
+        16,
+        27
+      ],
+      "png_directory": "D:\\project\\my\\research\\streamllm_p2\\paper2\\review\\sc_revision_validation_2026-09-08\\main_layout_repair\\png_main",
+      "png_count": 12,
+      "overfull_boxes": 0,
+      "undefined_refs_citations": 0,
+      "fonts": "all embedded; no Type 3",
+      "zip_recompile_text_identical": true
+    },
+    "supplementary": {
+      "pages": 9,
+      "rendered_pages": [
+        5,
+        9
+      ],
+      "png_directory": "D:\\project\\my\\research\\streamllm_p2\\paper2\\review\\sc_revision_validation_2026-09-08\\main_layout_repair\\png_supplementary",
+      "png_count": 5,
+      "overfull_boxes": 0,
+      "undefined_refs_citations": 0,
+      "fonts": "all embedded; no Type 3",
+      "zip_recompile_text_identical": true
+    }
+  },
+  "zip_entries": 23,
+  "visual_status": "targeted recheck pending; no images inspected",
+  "artifact_sha256": {
+    "Speech_Communication_LaTeX_source.zip": "9b1ce1924e080f8e5ed4a9f5b1d8e5c533edb3c14147335db91f49ccf227f5d9",
+    "Speech_Communication_manuscript.pdf": "bfa4fc88218bad539d2989420e2530915877d72b2a081c9cb5fc1a8c6ddbc213",
+    "Speech_Communication_supplementary.pdf": "314b2a75fc8bf9119155d53d2b885d1d6751accfca52944a32bbe11663ac32b9"
+  }
+}

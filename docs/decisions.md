@@ -5,6 +5,22 @@
 
 ---
 
+## D-029（2026-09-08）接受 R/B 有限补证并完成 SC 单主线修订
+
+**授权与决策**：作者两次明确批准 `paper2/review/sc_focused_revision_proposal_2026-09-06.md` 的唯一 joint prefix-state repair 主线及 C1/C-E1/C-E2/A2 移出主要论证。本次仅修改 SC 英文衍生稿、实际随稿 supplement 和交接文档；不改中文权威章节、src、实验脚本、结果或 GPU_RUN_NOTES，不重跑实验，不 commit/push/upload。原方案保留历史状态不改。
+
+**正式接受的 R/B**：run `rb_formal_20260908T023934Z_f69e6478`，clean source `bfa7d7a37363d327cfa96b5448e151663ff578f8`，118-file source snapshot；Qwen2-7B/BF16/SDPA、torch 2.8.0+cu128、Transformers 4.57.1，单 RTX 3090、4 process sessions。9 cases/10 case-event cells、每 session 每 cell 4 pairs，共 320 records/160 event pairs。原完整 tar（含 320 NPY）前轮已核验，本轮不重复 78MB 验证；expanded repo copy 缺 NPY 的事实明确保留。formal validation `ok=true/formal_evidence_eligible=true`；accepted 是协议与有限证据验收，不是数值等价或统计优效门。
+
+**允许的 R 主张**：同保留策略下可执行 crop vs full rebuild。普通 512/2048/8192 context 的 first-deliverable 配对 rebuild-minus-crop 均值为 113.621 [111.555,116.132]、465.377 [464.181,466.851]、1956.100 [1940.446,1968.986] ms；8192 recovery-only 为 1951.675 [1937.285,1963.226] ms。4-session cluster bootstrap/10,000/seed 20260906；固定 fixtures，不把 160 pairs 当独立样本。计时是同步分段区间之和，包含首 token KV commit，排除准备及 CPU 审计暂停，不是连续墙钟或 speech E2E。第二事件前计时外统一冻结 fixture，避免前缀失配；不是自由运行长对话。full rebuild 不代表所有优化 serving baseline。
+
+**边界与不利证据**：top-1 160/160，8-token continuation 144/160；16 个差异均位于 case16/event1。max abs logit difference 0.59375；320 float32 [1,152064] arrays 有限（本轮沿用前轮 NPY 验证，未重验）。不声称 cross-topology BF16/logit/output 等价或广泛功能无损。B 为独立软件 replay：100 trajectories/800 records/1118 cursors/27 closure checks，不是实际 TTS/听觉对齐。C2 v3 27 crops/60 matched steps 保留，v1/v2 rejected 不改判。
+
+**稿件与检查**：主稿保留标准七节，R 成为中心成本证据，A1/P1 支撑，E3 全四主结果与不确定性保留；S1/S2 实际承接 C1/C-E1/C-E2/A2，S3/S4/S5 提供 E3 敏感性、工件和 R 全端点。独立 supplement.tex/PDF 与可编辑表格并入干净源码 ZIP。指南事实依据 2026-09-06 IAB LIVE 核验，不再称当前 403；Acknowledgements 紧邻 references；数据 Option C 可 deposit/cite/link 或说明不能共享的正当原因，无强制 DOI。无页数/词数压缩目标。
+
+**状态**：accepted（R/B 与 SC 科学修订完成；技术/视觉排版已验收；作者元数据/权利阻塞投稿；无 GPU 待办）。orchestrator-dispatched read-only 科学代理 `6343...` 完成全部 30 R CI 与 E3 检查 PASS，是单独只读核查，不称独立 panel 或 reviewer errors 独立。最终 judge 对主稿 26/27 与 supplement 8 PASS，结合此前全页/定向审阅，全部可修复视觉缺陷已关闭；主稿 25 仅余已知 ACK 占位。剩余作者事实占位在主稿 1/23/24/25、补充 1，未假造解决。最终主稿 27 页、补充 8 页，PDF/TeX 不再修改；源码 ZIP 仅同步 README/AUTHOR_CONFIRM 并独立编译验证。编辑代理未看 PNG。本轮未 formal schema 验证、未新检索。作者身份、权利/许可、公开链接或合理不能共享声明、伦理/consent、funding/COI/CRediT/AI disclosure 仍待确认，不称 submission-ready、不承诺期刊接受或已验证分区。当前检查入口 `paper2/review/sc_revision_validation_2026-09-08/final_status/`，完整历史见 dated revision record。
+
+---
+
 ## D-028（2026-09-08）修复 R/B manifest cases 的 JSON 边界比较
 
 **背景与决策**：e82551b 报告旧 pilot `rb_pilot_20260908T021245Z_9e4b1d08` 完成 8 records 后在 campaign.py:123 失败，formal 未启动。本机以真实 cases 经 write→read→validate 重现同一 AssertionError；asdict 保留 fragments tuple，JSON 读回为 list。仅将 validator 期望 cases 做 `json.loads(json.dumps(...))`，与既有 chat_parts 归一化一致，仍精确比较全部值和顺序。不是协议或实验设计变更。

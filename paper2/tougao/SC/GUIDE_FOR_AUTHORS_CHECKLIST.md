@@ -1,72 +1,47 @@
-# Speech Communication Guide for Authors — manuscript checklist
+# Speech Communication Guide for Authors — focused revision checklist
 
-Source checked: https://www.sciencedirect.com/journal/speech-communication/publish/guide-for-authors
+Official source: https://www.sciencedirect.com/journal/speech-communication/publish/guide-for-authors
 
-Historical access recorded by the package: 2026-09-04.
+Fact source: successful LIVE reading via the user's IAB/side-panel browser on 2026-09-06, recorded in `paper2/review/sc_focused_revision_proposal_2026-09-06.md` §2. The earlier 2026-09-05 WebFetch 403 is historical and does not override that reading. This 2026-09-08 revision uses that record; it did not refetch the guide or validate a formal criteria-binding schema.
 
-Verification attempt on 2026-09-05: the official URL returned HTTP 403 through WebFetch. The checklist below remains a local, previously recorded guide summary, not independently reverified current policy. Reconfirm article type, review model, data/declaration requirements and publication charges in an accessible official interface before submission.
+## Journal and structure
 
-## Journal and article type
-
-- Journal: Speech Communication.
-- Article type: Original Full-length Research Article.
-- Peer review: single anonymized; suitable manuscripts are normally reviewed by at least two independent experts.
-
-## File and structure requirements
-
-- [x] Editable LaTeX source (`.tex`) is provided; a PDF alone is not sufficient.
-- [x] Numbered sections and subsections are used; the abstract is not numbered.
-- [x] Equations and tables remain editable.
-- [x] Figures are cited in appearance order and supplied as separate, logically named files.
-- [x] SI units are used where applicable.
-- [x] Author--year citations and an alphabetic reference list are used.
-- [x] DOI or stable URL information is included where available.
+- [x] Scope includes oral dialogue, assessment methodologies, and specialised software tools; the manuscript targets bounded incremental systems research.
+- [x] Original Full-length Research article; the page lists this and Review, not a Short Communication route.
+- [x] Single-anonymized review; normally at least two reviewers after editorial screening.
+- [x] Editable .tex plus consistently formatted author–year references. PDF alone is not editable source.
+- [x] Seven numbered main sections; unnumbered abstract and declarations.
+- [x] No whole-paper word/page cap found on the verified page. No arbitrary reduction target imposed.
+- [x] Editable equations, tables and method figures; supplementary content cited in main text.
+- [ ] Journal significance remains an editorial judgment; no acceptance guarantee. Quartile/ranking system, category and year remain unverified.
 
 ## Front matter
 
-- [x] Concise English title without an abbreviation.
-- [ ] Final author names and order.
-- [ ] Final affiliations and postal addresses.
-- [ ] Corresponding-author identity and active email.
-- [x] Abstract does not exceed 250 words (current: 210 words by repository check).
-- [x] Abstract has no citations and defines or avoids uncommon abbreviations.
-- [x] Six English keywords (guide permits 1–7).
+- [ ] Author names/order, affiliations, postal addresses, corresponding email, and any ORCIDs.
+- [x] Abstract below 250 words; 207 whitespace-delimited source words, with a separate punctuation-split technical check recorded in validation.
+- [x] Six keywords (allowed 1–7).
+- [x] Five Highlights in separate editable `latex/highlights.txt`; each at most 85 characters.
+- [x] No graphical abstract generated; it is encouraged, not compulsory.
 
-## Mandatory Highlights
+## Files and separate supplement
 
-- [x] Separate editable `highlights.txt` supplied.
-- [x] Five bullet points (guide requires 3–5).
-- [x] Every bullet is at most 85 characters including spaces (current range: 60–73).
+- [x] Main source entry `latex/main.tex` and refreshed `Speech_Communication_manuscript.pdf`.
+- [x] Standalone source `latex/supplementary.tex` and separately compiled `Speech_Communication_supplementary.pdf`.
+- [x] Both main and supplement sources, required figures, editable tables, bibliography, class/style, and Highlights are included in the clean source ZIP.
+- [ ] At submission, upload the main manuscript PDF and the supplementary PDF as distinct items. S1–S5 must actually accompany the manuscript; repository pointers do not replace it.
+- [ ] Upload Highlights separately and the editable LaTeX source as required by the interface.
+- [x] Main orchestrator's visual-layout gate completed: final main 26/27 and supplement 8 PASS closes all fixable defects. Known author facts remain on main 1/23/24/25 and supplement 1. Editing agent inspected no images.
+- [x] Separate read-only scientific agent `6343...`, dispatched by the orchestrator, completed all 30 R interval/E3 checks with PASS; not an independent panel or independent-error claim.
 
-## Optional graphical abstract
+## Data and declarations
 
-Not created. The guide encourages but does not require one. If later added, it must be submitted separately at 531 × 1328 pixels (height × width) or proportionally larger and remain legible at 5 × 13 cm.
+- [x] Acknowledgements placed immediately before references, after other declarations.
+- [ ] Resolve CRediT, funding, competing interests, ethics/consent, acknowledgements, and actual AI-tool/use disclosure; do not infer these facts.
+- [ ] Under data Option C, deposit supporting data and cite/link it **or state a factual justified inability to share**. Add DOI if available; no compulsory-DOI assertion.
+- [ ] Confirm repository rights holder, license, third-party notices, and E3 derived-data redistribution permission.
+- [ ] Resolve all author placeholders and recompile/revalidate afterward; current package is not submission-ready.
+- [ ] Confirm reference metadata, current publication/retraction status and accessible literature-search exports. BibTeX success is not source verification.
 
-## Research data
+## Publication charges
 
-The journal applies research-data Option C:
-
-- [ ] Deposit supporting research data in a relevant repository and cite/link it, or provide a factual explanation if sharing is not possible.
-- [ ] Replace the manuscript's provisional data/code statement with an immutable public URL/DOI and release identifier.
-- [ ] Confirm E3 derived-data redistribution rights.
-- [ ] Confirm repository license and third-party notices.
-
-## Declarations
-
-- [ ] Acknowledgements.
-- [ ] CRediT author-contribution statement.
-- [ ] Funding and funder roles, or the no-specific-funding statement.
-- [ ] Competing-interest declaration generated as required by Elsevier's submission process.
-- [ ] Ethics/exemption/not-applicable wording and confirmation of any annotator involvement.
-- [ ] Generative-AI/AI-assisted-technology declaration before the references, covering the actual tools and purposes and confirming human review.
-
-## Publication cost route
-
-Speech Communication is hybrid. The journal's current page states that subscription publication has no publication fee charged to authors. To preserve a zero-APC route:
-
-- [ ] Select Subscription publishing after acceptance.
-- [ ] Do not select optional Gold Open Access unless funding becomes available.
-- [ ] Use online colour only; print-colour reproduction may incur an optional cost.
-- [ ] Do not order optional paper offprints unless budgeted.
-
-Policies and charges can change; reconfirm the publishing agreement and invoice at acceptance.
+The previous local checklist recorded a subscription/no-APC route, optional Gold OA, and possible print-colour/offprint costs. These charge details were not reverified in this revision. Reconfirm the current publishing agreement and any charges; select the subscription route if zero APC is required and available. No journal ranking or publication-cost guarantee is made.

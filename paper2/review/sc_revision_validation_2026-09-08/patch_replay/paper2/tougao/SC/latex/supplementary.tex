@@ -1,0 +1,159 @@
+\documentclass[12pt]{article}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage[authoryear,round]{natbib}
+\usepackage{amsmath,amssymb,booktabs,tabularx,array,longtable,lmodern}
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xurl}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\makeatletter
+\newcommand{\tableinput}[1]{\@@input #1 }
+\makeatother
+\setlength{\emergencystretch}{3em}
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\hypersetup{pdftitle={Supplementary Material: Joint Prefix-State Repair},pdfauthor={Author names to be confirmed}}
+\begin{document}
+\raggedbottom
+\begin{center}
+{\Large Supplementary Material}\par\medskip
+{\large Joint Prefix-State Repair for Barge-In in Cascaded Spoken Dialogue: Integrity and Recovery Cost}\par\medskip
+[AUTHOR NAME(S) TO BE CONFIRMED]
+\end{center}
+
+This separate supplement accompanies the main article. S1 preserves the complete candidate-generation and implementation-path characterization; S2 reports the confounded history-naturalization study; S3 supplies downstream sensitivities; S4 maps claims to artifacts; S5 gives full recovery-cost endpoints. These studies are not additional method contributions. Moving them here does not change their protocols, outcomes, or limitations. Main-text evidence for state repair and cost does not depend on favorable results from S1 or S2.
+
+\section{Candidate-generation characterization (C1/C-E1/C-E2)}
+\label{sec:s-candidate}
+
+\subsection{Policy and measured events}
+
+A turn-completion model assigns cumulative stable input a confidence $c_i=\operatorname{conf}(u_1\cdots u_i)$. When $c_i\geq\theta$, the system saves the user-open endpoint, opens an assistant role, and generates at most 12 candidate tokens. New input invalidates the candidate, removing its content and assistant header. At the synchronous oracle endpoint, a surviving candidate continues or a response is generated on demand. This is response-level anticipatory computation, related to predictive ASR and semantic triggering \citep{schwarz2023PersonalizedPredictiveASR,zou2026LTSVoiceAgent,mai2026RelayS2S}, not token-level speculative decoding with an exact verifier.
+
+The confirmatory campaign used a new MultiWOZ 2.1-derived holdout of 100 unique utterances \citep{eric2020MultiWOZ21}, excluding the earlier E1/E2 and E3 dialogue identities. Qwen2-7B-Instruct was decoded greedily with batch size one and a 32-token response cap \citep{yang2024Qwen2}. TEN Turn Detection confidence was cached from actual prefix inference and replayed identically in all five independently initialized process sessions \citep{tenFramework2025TurnDetection}; its runtime was outside the measurement window. Threshold 0.92 was selected from the earlier exploratory campaign and frozen before the new holdout results. Each of ten conditions has 500 records, for 5000 total, but only 100 unique content units.
+
+The harness delivers pre-segmented text synchronously. It excludes live audio, ASR time, online detector computation, TTS, playback, and a sound card. The raw \texttt{first\_token\_ready} marker occurs after token selection but before the cache-update forward and generator yield. We call it internal candidate selection/compute readiness, not consumer deliverability. The raw \texttt{endpoint\_accept} marker is a post-candidate synchronous oracle, not real end of speech. Consequently, effective TTFT assigns zero post-acceptance wait to an already prepared surviving candidate and otherwise measures on-demand preparation; it is an optimistic oracle latency lower bound, not an observed speech-response latency. The later consumer/yield marker is a harness diagnostic and is not substituted for these events.
+
+The discarded-token statistic is
+\[
+W=\frac{\sum\text{discarded candidate tokens}}{\sum(\text{discarded candidate tokens}+\text{final response tokens})}.
+\]
+It measures token counts, not FLOPs, GPU time, energy, bandwidth, or memory traffic. Candidate availability uses all condition records as its denominator, not only candidate launches.
+
+\subsection{All conditions and confirmatory contrasts}
+
+Table~\ref{tab:s-candidate} preserves all ten discrete points, including full prefill and never-trigger references. It is not a continuous Pareto frontier. Formal uncertainty used 10,000 crossed/product bootstrap repetitions: sessions and global utterances were independently resampled, then their Cartesian-product multiplicities were applied. No outlier trimming or selection of output-matched pairs was used.
+
+\begin{table}[t]
+\centering\small
+\caption{Complete C-E1/C-E2 condition grid. Ready and oracle columns are means in ms; availability and discarded-token ratio are percentages. Ready denotes internal candidate selection, not a generator endpoint. Each row contains 500 observations over the same 100 utterances and five sessions.}
+\label{tab:s-candidate}
+\begin{tabularx}{\linewidth}{@{}Yrrrr@{}}
+\toprule
+Condition & Ready & Oracle & Available & Discarded \\
+\midrule
+\tableinput{tables/candidate_grid_rows.tex}
+\bottomrule
+\end{tabularx}
+\end{table}
+
+C-E2 compares the token-consistent B@0.92 and never-trigger paths: complete output tokens match in 500/500 pairs. The never-minus-B@0.92 readiness contrast is $-0.03349$~ms [95\% CI $-0.63861$, 0.61494], whereas the oracle lower-bound contrast is $+20.8037$~ms [17.8492, 23.6450]. B@0.92 has 67\% availability (335/500; CI [58\%, 76\%]) and 2.8527\% discarded tokens [1.1239\%, 4.7345\%]. Its surviving candidates have a median of 12 ready tokens and a median candidate lead of 291~ms; non-surviving on-demand cost is about 31.09~ms, close to the never-trigger oracle mean of 31.06~ms. Internal readiness stays approximately 62.0--62.4~ms across the nine B points. These results characterize preparation before synchronous oracle acceptance, not readiness before real end of speech or an online trigger with zero overhead.
+
+C-E1 compares full-string tokenization/full prefill (A) with segment-wise tokenization/incremental forward (B@0.92). Readiness means are 27.70 versus 62.38~ms: A-minus-B is $-34.6877$~ms [$-35.4421$, $-33.9535$], favoring A for this event. Oracle lower-bound means are 27.70 versus 10.26~ms, giving $+17.4367$~ms [14.4079, 20.3234]. Thus the apparent direction changes with the event definition. B's last-segment path includes incremental prefill and assistant-role injection as serial operations, while A uses a full-prefill path; fixed per-forward overhead matters for short inputs.
+
+The paths are not token-equivalent: complete outputs agree in 280/500 pairs, first tokens in 465/500, and at least one session diverges for 44/100 unique utterances. The contrast combines tokenization, forward topology/shape, role boundaries, kernels, and Python scheduling. It does not isolate incremental prefill. Restricting inference to output-matched pairs would condition on a post-treatment outcome and is not a remedy. Neither the positive oracle contrast nor the negative readiness contrast supports a general speech-latency claim.
+
+\subsection{Historical campaign limitation}
+
+Earlier exploratory E1/E2 reports used oracle quantities as if they were wall-clock response gains because the user-end marker followed synchronous candidate preparation. Those records remain available but their 0.581/12.1~ms figures are not confirmatory latency headlines. The new campaign separates last-segment arrival, candidate selection, oracle acceptance, and consumer markers. Its versioned crossed analysis supersedes only the earlier nested-bootstrap analysis, not the immutable raw records. Actual ASR, TTS, natural endpoints, asynchronous playback, energy cost, and deployment-optimal thresholds remain untested.
+
+\section{Exploratory interrupted-history naturalization (A2)}
+\label{sec:s-a2}
+
+Three implementations retained the truncated assistant text naively, appended an interruption marker, or asked Qwen3-0.6B to rewrite the partial text into a natural ending without adding information \citep{yang2025Qwen3}. Each implementation generated 100 records. The intention was to compare downstream coherence, but both the first assistant trajectory and subsequent responses were regenerated by condition. Only 33/100 dialogues shared the same retained text across all three implementations. Different responses also induce different segmentation and interruption boundaries. These are confounded implementation descriptions, not a causal strategy comparison, negative result, or evidence of no effect.
+
+\begin{table}[t]
+\centering\small
+\caption{A2 descriptive automated coherence scores; trajectories are not matched across implementations.}
+\begin{tabularx}{\linewidth}{@{}Yrr@{}}
+\toprule
+Implementation & Records & Mean score \\
+\midrule
+Naive retained text & 100 & 3.76 \\
+Lightweight rewriting & 100 & 3.62 \\
+Interruption marking & 100 & 3.29 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Rewriting took 639~ms on average (median 670~ms; interpolated P90 approximately 935~ms; maximum 1165~ms). These times do not show that rewriting was hidden behind user speech. Such overlap is an architectural possibility, not measured end-to-end benefit. Automated scores are not a human reference standard, and no matched-trajectory rerun is used to rehabilitate this comparison. The immutable A2 raw/judged records and offline summary are listed in S4.
+
+\section{E3 measurement and weighting sensitivities}
+\label{sec:s-e3}
+
+The main article reports the label-weighted analysis of 100 fixed generated trajectories and four injection labels per dialogue. Playback and generation retention share each trajectory, timeline, and injection. Targets are non-empty complete unretained fragments (297 labels from 96 dialogues) or the additional within-fragment character-ratio/whitespace proxy (380 labels from 100 dialogues). The proxy is an approximate textual split, not audio/text alignment. Both initial and probe generation are greedy and capped at 40 tokens.
+
+The lexical rule tests numbers, selected capitalized terms, and non-stopword content terms. The Mistral-7B-Instruct-v0.3 \citep{jiang2023Mistral7B,mistralAI2024Mistral7BInstructV03} \path{specific-reference-v3} judge receives the target and two delimiter-joined replies without condition identity and emits a strict YES/NO verdict. Version 3 was adopted after version 2 parsing failures, adding a first-line format constraint and one bounded retry; the formal run had no parsing failures or retries. It is one fixed model/prompt measurement, not independent human annotation or a calibrated truth bound.
+
+Table~\ref{tab:s-e3} includes all four stored estimands. Dialogue weighting averages eligible labels within each dialogue. Exact-key grouping uses dialogue ID, trajectory ID, both condition history keys, and the hash of the exact target; fragment keys additionally contain the retained endpoint. It reduces 297 fragment labels to 169 groups and 380 proxy labels to 379 groups. Stored JSON names containing ``semantic group'' refer to this exact-key operation, not semantic clustering. Unique-dialogue weighting first averages the unique groups within each dialogue.
+
+\begin{table}[t]
+\centering\small
+\caption{E3 generation-minus-cursor effects (pp) and 95\% dialogue-cluster intervals. L: label weighted; D: dialogue weighted; K: exact-key weighted; KD: dialogue weighted after exact-key deduplication. All analyses condition on the fixed detectors and trajectories.}\label{tab:s-e3}
+\begin{tabular}{@{}lllr@{}}
+\toprule
+Target & Detector & Weight & Effect [95\% CI] \\
+\midrule
+\tableinput{tables/e3_sensitivity_rows.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+All intervals use 10,000 paired dialogue-cluster percentile bootstrap draws (NumPy default RNG, seed 20260831). They quantify dialogue-sampling uncertainty, not detector error, prompt variation, model uncertainty, or human disagreement. All intervals cross zero. The exact-key fragment-judge effect is 0.00~pp [$-7.98$, 7.47], illustrating sensitivity to repeated label weights without proving equivalence.
+
+At label level the two detectors agree in 370/594 fragment condition decisions (62.29\%) and 442/760 proxy decisions (58.16\%). These agreement rates are not accuracy estimates because neither detector supplies ground truth. The playback-history check finds no complete unretained fragment in 400/400 playback histories by construction; its zero local-reference count is not pooled with downstream effects. No conclusion of benefit, harm, no effect, equivalence, non-inferiority, or human-semantic fidelity is supported.
+
+\section{Traceable artifacts and scope}
+\label{sec:s-artifacts}
+
+Paths below are repository-relative identifiers, not public URLs. The project-level \path{REPRODUCIBILITY.md} indexes historical campaigns. Public access, release rights, dataset redistribution, and author declarations remain to be confirmed in the main article's data statement. The manuscript source ZIP is self-contained for typesetting but does not claim to contain the experimental archive or model weights.
+
+\begin{description}
+\item[R/B formal evidence.] Base \path{experiments/sci34_supplement/results/recovery_boundary/}, run \path{rb_formal_20260908T023934Z_f69e6478/}. Read \path{manifest.json}, \path{analysis.json}, \path{validation.json}, \path{boundary.json}, and \path{session_0/records.jsonl} through \path{session_3/records.jsonl}. Environment and process-start records are stored per session. The clean source commit is \path{bfa7d7a37363d327cfa96b5448e151663ff578f8}, with 118 snapshotted source files. Protocol and executable timing semantics are in \path{experiments/sci34_supplement/recovery_boundary/EXPERIMENT_PLAN.md}, \path{runtime.py}, and \path{campaign.py} (the last two within the same directory). The complete sibling \path{rb_formal_20260908T023934Z_f69e6478.tar.gz} includes all 320 float32 logit sidecars and its SHA-256 file; the expanded repository copy intentionally omits NPY files. Full seal/sidecar validation therefore requires the original archive, not that incomplete expanded copy. Pilot and failed-pilot artifacts remain separate and contribute no formal estimates.
+\item[C2 exact-only.] Base \path{experiments/sci34_supplement/results/c2_crop_integrity/}, run \path{c2crop_82103004_20260903T080512Z/}. The campaign manifest, \path{records.jsonl}, validation, analysis, acceptance, and seal record 24 cases, 27 events, and 60 matched recovery steps. The direct oracle slices the same pre-crop snapshot; it does not reconstruct a prefix independently.
+\item[Rejected C2 comparisons.] Base \path{experiments/sci34_supplement/results/c2_equivalence/}; runs \path{c2eq_563dd22a_20260903T013547Z/} (v1) and \path{c2eq_5c56b014_20260903T040829Z/} (v2). V1's BF16-to-float32 logit differences exceeded its absolute thresholds; v2 passed only 42/45 numerical gates despite structural checks. Their clean-reprefill controls differ in forward topology from the production path. They neither establish numerical equivalence nor identify a crop-specific error. V3 does not change their rejected verdicts.
+\item[C-E1/C-E2.] Base \path{experiments/sci34_supplement/results/e1e2_confirmatory/}, run \path{e1e2c_b8c758b_20260901T173306Z/}. \path{analysis_v2.json} contains all condition summaries, paired crossed estimates, output identity, per-session and leave-one-session-out diagnostics, and provenance. Its SHA-256 is \path{9bce6db5} (prefix; full value in the adjacent checksum file). Raw and version-1 analyses remain unchanged; v2 uses crossed rather than session-then-dialogue nested resampling.
+\item[E3.] Base \path{experiments/sci34_supplement/results/e3/}, run \path{sci34_f11ccba_20260901_e3/}. \path{trajectories.jsonl}, \path{records.jsonl}, and \path{analysis_weighting_dedup_v2.json} provide fixed trajectories, paired histories, eligibility, all four estimands, detector confusion tables, and provenance. Exact processed inputs and judge payload provenance are indexed by \path{experiments/sci34_supplement/results/e3_exact_rescue/}. The v2 analysis SHA-256 starts \path{5776db23}; use its adjacent full checksum.
+\item[A1.] Base \path{experiments/sci34_supplement/results/a1/}, run \path{sci34_f11ccba_20260901_a1/}. Read its raw records and latency analysis for the joint crop/role microbenchmark. Component medians must not be summed to replace the measured joint interval.
+\item[P1.] Base \path{experiments/sci34_supplement/results/async_bargein/}, run \path{sci34_dc52978_20260901_async_prepared_v2/}. Prepared-state records and analysis exclude pre-playback setup. The earlier v1 timing protocol allowed unfinished GPU preparation to enter the stop-path synchronization window and is excluded, not presented as an unfavorable runtime result. The v2 campaign has a distinct host and timing protocol; subtracting its times from A1 or R is invalid.
+\item[A2 and historical exploratory data.] \path{experiments/results/exp_a2_history.json}, \path{exp_a2_history_judged.json}, and \path{paper2_reanalysis.json} (same directory) preserve raw, judged, and offline descriptive data. Earlier E1/E2 files in that directory remain exploratory, including recorded fixture exclusions. They are not replacements for the confirmatory holdout.
+\end{description}
+
+The original byte seals can fail on a Windows checkout with automatic CRLF conversion. Use the original tar, Git blobs, or an LF-preserving checkout for byte-level archival verification. This typesetting package preserves the failure history and provenance but does not itself certify public release permission or revalidate inaccessible source literature.
+
+\section{Complete R endpoint table}
+\label{sec:s-r}
+
+Table~\ref{tab:s-r} supplements the main first-deliverable comparison with arm means and recovery/header endpoints for every fixed case/event. Case labels retain the frozen identifiers; their final ``eos'' or ``max'' strings are inherited fixture labels and are not natural-termination results. Event index 1 denotes the second interruption. Each cell has four paired repetitions in each of four process sessions. All recorded pairs delivered a first token, so no missing-delivery subset was selected.
+
+\begin{table}[p]
+\centering\small
+\caption{R operation costs in ms. C/R are crop/rebuild arm means. Difference is rebuild minus crop, with the frozen session-cluster 95\% interval. Rec: recovery to user-open; Ready: recovery plus suffix/header; First: Ready plus separate first-generator-return interval.}\label{tab:s-r}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+Case/event & Endpoint & C & R & Difference [95\% CI] \\
+\midrule
+\tableinput{tables/r_all_endpoints_rows.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+The bootstrap uses \texttt{random.Random(20260906)}, 10,000 with-replacement draws of the four session means per case/event/metric, with sorted draw indices 249 and 9749 as bounds. Metrics are traversed in recovery, ready, first-deliverable order over sorted case/event cells. Repeats are averaged within session, not bootstrapped as independent events. These implementation details matter for exact reproduction of the stored intervals with four clusters.
+
+First-deliverable cost excludes model loading, initial-history construction, fixture reconciliation, CPU state/logit audit pauses, and the remaining continuation. It includes the first generated token's KV commit and generator yield. No continuous wall-clock or speech end-to-end claim follows. All 320 saved logits are finite float32 $[1,152064]$ arrays; the maximum paired absolute difference is 0.59375. All 160 top-1 choices match, while 144/160 bounded continuations match. Every mismatch belongs to case 16/event 1. This concentration is reported rather than averaged away, and no BF16 tolerance or broad output-equivalence gate is inferred from finite values.
+
+\clearpage
+\bibliographystyle{elsarticle-harv}
+\bibliography{references}
+\end{document}

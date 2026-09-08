@@ -1,0 +1,23 @@
+File: supplementary.tex
+Encoding: ascii
+Sum count: 2311
+Words in text: 2143
+Words in headers: 34
+Words outside text (captions, etc.): 122
+Number of headers: 8
+Number of floats/tables/figures: 4
+Number of math inlines: 11
+Number of math displayed: 1
+Subcounts:
+  text+headers+captions (#headers/#floats/#inlines/#displayed)
+  85+0+0 (0/0/0/0) _top_
+  0+5+0 (1/0/0/0) Section: Candidate-generation characterization (C1/C-E1/C-E2)
+  310+4+0 (1/0/2/1) Subsection: Policy and measured events
+  324+5+41 (1/1/7/0) Subsection: All conditions and confirmatory contrasts
+  80+3+0 (1/0/0/0) Subsection: Historical campaign limitation
+  161+4+11 (1/1/0/0) Section: Exploratory interrupted-history naturalization (A2)
+  350+5+32 (1/1/1/0) Section: E3 measurement and weighting sensitivities
+  606+4+0 (1/0/0/0) Section: Traceable artifacts and scope
+  227+4+38 (1/1/1/0) Section: Complete R endpoint table
+
+texcount: major issue: So far, you have not checked for MiKTeX updates.

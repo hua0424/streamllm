@@ -1,0 +1,9 @@
+warning: in the working copy of 'paper2/tougao/SC/GUIDE_FOR_AUTHORS_CHECKLIST.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'paper2/tougao/SC/latex/highlights.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'paper2/tougao/SC/latex/main.tex', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'paper2/tougao/SC/latex/sections/01_introduction.tex', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'paper2/tougao/SC/latex/sections/02_related_work.tex', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'paper2/tougao/SC/latex/sections/04_method.tex', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'paper2/tougao/SC/latex/sections/05_experiments_results.tex', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'paper2/tougao/SC/latex/sections/06_discussion_conclusion.tex', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'paper2/tougao/SC/latex/sections/07_declarations.tex', LF will be replaced by CRLF the next time Git touches it

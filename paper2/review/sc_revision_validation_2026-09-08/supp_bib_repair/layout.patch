@@ -1,0 +1,13 @@
+--- a/supplementary.tex
++++ b/supplementary.tex
+@@ -160,6 +160,10 @@
+ 
+ First-deliverable cost excludes model loading, initial-history construction, fixture reconciliation, CPU state/logit audit pauses, and the remaining continuation. It includes the first generated token's KV commit and generator yield. No continuous wall-clock or speech end-to-end claim follows. All 320 saved logits are finite float32 $[1,152064]$ arrays; the maximum paired absolute difference is 0.59375. All 160 top-1 choices match, while 144/160 bounded continuations match. Every mismatch belongs to case 16/event 1. This concentration is reported rather than averaged away, and no BF16 tolerance or broad output-equivalence gate is inferred from finite values.
+ 
++\begingroup
++\setlength{\bibsep}{0pt}
++\interlinepenalty=10000
+ \bibliographystyle{elsarticle-harv}
+ \bibliography{references}
++\endgroup
+ \end{document}

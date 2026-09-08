@@ -1,0 +1,38 @@
+{
+  "status": "scientifically revised; technical/visual-layout checked; author metadata/rights blocked",
+  "scientific_check": "orchestrator-dispatched read-only agent 6343... complete: all30 R intervals and E3 PASS; no independent panel/error claim",
+  "visual_layout": "all fixable defects closed; final judge main26/27 and supplement8 PASS; main25 only known ACK placeholder",
+  "unresolved_author_fact_pages": {
+    "main": [
+      1,
+      23,
+      24,
+      25
+    ],
+    "supplementary": [
+      1
+    ]
+  },
+  "pages": {
+    "main": 27,
+    "supplementary": 8
+  },
+  "zip_entries": 23,
+  "zip_changed_entries": [
+    "AUTHOR_CONFIRM.md",
+    "README.md"
+  ],
+  "all_tex_bib_figure_bytes_unchanged": true,
+  "published_pdf_bytes_unchanged": true,
+  "fresh_zip_both_compile": true,
+  "rebuilt_text_identical": true,
+  "no_new_image_gate_needed": true,
+  "editing_agent_inspected_images": false,
+  "protected_paths_diff_empty": true,
+  "git_diff_check_pass": true,
+  "artifacts_sha256": {
+    "Speech_Communication_LaTeX_source.zip": "918397eba9890bf741b3a59c92f2e527dfb86272e91932474606528f723ddb3e",
+    "Speech_Communication_manuscript.pdf": "67ac45664109b75adbbbb1c78425ad703af973629b59f8bc8a00abef3abe9fb5",
+    "Speech_Communication_supplementary.pdf": "17f3300ba95bca273921adcbdd962f97a5902948c50a43a93cf777af5745e0f9"
+  }
+}

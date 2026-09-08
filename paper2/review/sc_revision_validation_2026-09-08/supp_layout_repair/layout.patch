@@ -1,0 +1,55 @@
+--- a/supplementary.tex
++++ b/supplementary.tex
+@@ -5,6 +5,7 @@
+ \usepackage[protrusion=true,expansion=false]{microtype}
+ \usepackage[hidelinks]{hyperref}
+ \usepackage{xurl}
++\usepackage{needspace}
+ \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+ \makeatletter
+ \newcommand{\tableinput}[1]{\@@input #1 }
+@@ -122,6 +123,7 @@
+ \begin{description}
+ \item[R/B formal evidence.] Base \path{experiments/sci34_supplement/results/recovery_boundary/}, run \path{rb_formal_20260908T023934Z_f69e6478/}. Read \path{manifest.json}, \path{analysis.json}, \path{validation.json}, \path{boundary.json}, and \path{session_0/records.jsonl} through \path{session_3/records.jsonl}. Environment and process-start records are stored per session. The clean source commit is \path{bfa7d7a37363d327cfa96b5448e151663ff578f8}, with 118 snapshotted source files. Protocol and executable timing semantics are in \path{experiments/sci34_supplement/recovery_boundary/EXPERIMENT_PLAN.md}, \path{runtime.py}, and \path{campaign.py} (the last two within the same directory). The complete sibling \path{rb_formal_20260908T023934Z_f69e6478.tar.gz} includes all 320 float32 logit sidecars and its SHA-256 file; the expanded repository copy intentionally omits NPY files. Full seal/sidecar validation therefore requires the original archive, not that incomplete expanded copy. Pilot and failed-pilot artifacts remain separate and contribute no formal estimates.
+ \item[C2 exact-only.] Base \path{experiments/sci34_supplement/results/c2_crop_integrity/}, run \path{c2crop_82103004_20260903T080512Z/}. The campaign manifest, \path{records.jsonl}, validation, analysis, acceptance, and seal record 24 cases, 27 events, and 60 matched recovery steps. The direct oracle slices the same pre-crop snapshot; it does not reconstruct a prefix independently.
++\par\Needspace{6\baselineskip}
+ \item[Rejected C2 comparisons.] Base \path{experiments/sci34_supplement/results/c2_equivalence/}; runs \path{c2eq_563dd22a_20260903T013547Z/} (v1) and \path{c2eq_5c56b014_20260903T040829Z/} (v2). V1's BF16-to-float32 logit differences exceeded its absolute thresholds; v2 passed only 42/45 numerical gates despite structural checks. Their clean-reprefill controls differ in forward topology from the production path. They neither establish numerical equivalence nor identify a crop-specific error. V3 does not change their rejected verdicts.
+ \item[C-E1/C-E2.] Base \path{experiments/sci34_supplement/results/e1e2_confirmatory/}, run \path{e1e2c_b8c758b_20260901T173306Z/}. \path{analysis_v2.json} contains all condition summaries, paired crossed estimates, output identity, per-session and leave-one-session-out diagnostics, and provenance. Its SHA-256 is \path{9bce6db5} (prefix; full value in the adjacent checksum file). Raw and version-1 analyses remain unchanged; v2 uses crossed rather than session-then-dialogue nested resampling.
+ \item[E3.] Base \path{experiments/sci34_supplement/results/e3/}, run \path{sci34_f11ccba_20260901_e3/}. \path{trajectories.jsonl}, \path{records.jsonl}, and \path{analysis_weighting_dedup_v2.json} provide fixed trajectories, paired histories, eligibility, all four estimands, detector confusion tables, and provenance. Exact processed inputs and judge payload provenance are indexed by \path{experiments/sci34_supplement/results/e3_exact_rescue/}. The v2 analysis SHA-256 starts \path{5776db23}; use its adjacent full checksum.
+@@ -137,23 +139,27 @@
+ 
+ Table~\ref{tab:s-r} supplements the main first-deliverable comparison with arm means and recovery/header endpoints for every fixed case/event. Case labels retain the frozen identifiers; their final ``eos'' or ``max'' strings are inherited fixture labels and are not natural-termination results. Event index 1 denotes the second interruption. Each cell has four paired repetitions in each of four process sessions. All recorded pairs delivered a first token, so no missing-delivery subset was selected.
+ 
+-\begin{table}[p]
+-\centering\small
+-\caption{R operation costs in ms. C/R are crop/rebuild arm means. Difference is rebuild minus crop, with the frozen session-cluster 95\% interval. Rec: recovery to user-open; Ready: recovery plus suffix/header; First: Ready plus separate first-generator-return interval.}\label{tab:s-r}
+-\begin{tabular}{@{}llrrr@{}}
++\begingroup\small
++\setlength{\LTpre}{6pt}
++\setlength{\LTpost}{6pt}
++\begin{longtable}{@{}llrrr@{}}
++\caption{R operation costs in ms. C/R are crop/rebuild arm means. Difference is rebuild minus crop, with the frozen session-cluster 95\% interval. Rec: recovery to user-open; Ready: recovery plus suffix/header; First: Ready plus separate first-generator-return interval.}\label{tab:s-r}\\
+ \toprule
+ Case/event & Endpoint & C & R & Difference [95\% CI] \\
+-\midrule
++\midrule\endfirsthead
++\multicolumn{5}{l}{Table \thetable\ (continued)}\\
++\toprule
++Case/event & Endpoint & C & R & Difference [95\% CI] \\
++\midrule\endhead
++\bottomrule\endfoot
+ \tableinput{tables/r_all_endpoints_rows.tex}
+-\bottomrule
+-\end{tabular}
+-\end{table}
++\end{longtable}
++\endgroup
+ 
+ The bootstrap uses \texttt{random.Random(20260906)}, 10,000 with-replacement draws of the four session means per case/event/metric, with sorted draw indices 249 and 9749 as bounds. Metrics are traversed in recovery, ready, first-deliverable order over sorted case/event cells. Repeats are averaged within session, not bootstrapped as independent events. These implementation details matter for exact reproduction of the stored intervals with four clusters.
+ 
+ First-deliverable cost excludes model loading, initial-history construction, fixture reconciliation, CPU state/logit audit pauses, and the remaining continuation. It includes the first generated token's KV commit and generator yield. No continuous wall-clock or speech end-to-end claim follows. All 320 saved logits are finite float32 $[1,152064]$ arrays; the maximum paired absolute difference is 0.59375. All 160 top-1 choices match, while 144/160 bounded continuations match. Every mismatch belongs to case 16/event 1. This concentration is reported rather than averaged away, and no BF16 tolerance or broad output-equivalence gate is inferred from finite values.
+ 
+-\clearpage
+ \bibliographystyle{elsarticle-harv}
+ \bibliography{references}
+ \end{document}

@@ -1,0 +1,23 @@
+ M docs/decisions.md
+ M docs/handoff.md
+ M docs/paper2_context.md
+ M paper2/tougao/SC/GUIDE_FOR_AUTHORS_CHECKLIST.md
+ M paper2/tougao/SC/Speech_Communication_LaTeX_source.zip
+ M paper2/tougao/SC/Speech_Communication_manuscript.pdf
+ M paper2/tougao/SC/latex/AUTHOR_CONFIRM.md
+ M paper2/tougao/SC/latex/README.md
+ M paper2/tougao/SC/latex/figures/Figure_5_cost_microbenchmark.pdf
+ M paper2/tougao/SC/latex/highlights.txt
+ M paper2/tougao/SC/latex/main.tex
+ M paper2/tougao/SC/latex/sections/01_introduction.tex
+ M paper2/tougao/SC/latex/sections/02_related_work.tex
+ M paper2/tougao/SC/latex/sections/04_method.tex
+ M paper2/tougao/SC/latex/sections/05_experiments_results.tex
+ M paper2/tougao/SC/latex/sections/06_discussion_conclusion.tex
+ M paper2/tougao/SC/latex/sections/07_declarations.tex
+?? paper2/review/sc_focused_revision_2026-09-08.md
+?? paper2/review/sc_revision_validation_2026-09-08/
+?? paper2/tougao/SC/Speech_Communication_supplementary.pdf
+?? paper2/tougao/SC/latex/assets/
+?? paper2/tougao/SC/latex/supplementary.tex
+?? paper2/tougao/SC/latex/tables/

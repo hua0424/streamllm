@@ -1,0 +1,51 @@
+--- a/main.tex
++++ b/main.tex
+@@ -71,7 +71,11 @@
+ \input{sections/06_discussion_conclusion}
+ \input{sections/07_declarations}
+ 
++\begingroup
++\setlength{\bibsep}{0pt plus 0.3ex}
++\interlinepenalty=10000
+ \bibliographystyle{elsarticle-harv}
+ \bibliography{references}
++\endgroup
+ 
+ \end{document}
+--- a/sections/05_experiments_results.tex
++++ b/sections/05_experiments_results.tex
+@@ -55,14 +55,14 @@
+ \subsection{R: executable same-policy next-turn recovery}
+ \label{sec:recovery-cost}
+ 
+-\paragraph{Design and comparator.}
++\paragraph{Design and comparator}
+ R used nine frozen, non-Cartesian cases: ordinary fragment boundaries at 512, 2048, and 8192 initial-context tokens; short-context zero playback, mid-fragment upward retention, reply-tail no-op, pending EOT, and complete candidate invalidation; and a 2048-token case with a second interruption. Nine cases produced ten case--event cells. Each of four sessions included one excluded warm-up pair per case and four measured pairs, yielding 144 case pairs, 160 event pairs, and 320 arm--event records. Arm order was balanced by session, case, and repetition. EOT states were controlled fixtures driven through the production generator, not observations of natural termination despite historical case-name suffixes.
+ 
+ Each arm independently prepared the same pre-interruption token history outside the timed intervals. The crop arm used the production crop and, when required, role reopening. The full-rebuild arm forwarded the identical retained token IDs and legal close/user-open sequence in one batch, keeping the resulting cache and logits in an executable state. Both then appended the same user suffix and assistant header and ran greedy decoding for at most eight token selections. Thus R compares the same retention policy and serialized next-turn history, not different history strategies. Full rebuilding is a meaningful recomputation reference but not an optimized stable-prefix serving baseline.
+ 
+ For the second interruption, the first diagnostic continuation was removed outside the measurement window and both arms were advanced through the same frozen second-assistant fixture, while preserving their repaired first-turn histories. This reconciliation prevents numerical greedy divergence from changing the prefixes being compared. It tests a second controlled repair, not unrestricted long-conversation recovery.
+ 
+-\paragraph{Endpoints and uncertainty.}
++\paragraph{Endpoints and uncertainty}
+ All operation intervals used \texttt{perf\_counter\_ns} with CUDA synchronization at their boundaries. Recovery ends at \texttt{USER\_OPEN}; suffix/header readiness ends after the next assistant role is opened. The separate decode interval ends when the first \texttt{next(generator)} returns and device synchronization completes, including the token's actual KV commit and yield rather than only its selection callback. With $T_{\mathrm{suffix}}$ measured after recovery,
+ \begin{equation}
+ T_{\mathrm{deliver}}=T_{\mathrm{recover}}+T_{\mathrm{suffix}}+T_{\mathrm{decode,first}}.
+@@ -72,7 +72,7 @@
+ 
+ For each fixed case/event, the estimand is the mean paired difference $T_{\mathrm{rebuild}}-T_{\mathrm{crop}}$. We report 95\% percentile intervals from 10,000 session-cluster bootstrap draws (seed 20260906). Repeats and second events remain within their process cluster. With only four sessions these intervals are coarse descriptions of process variation conditional on fixed fixtures, not uncertainty over 160 independent dialogues or over deployment workloads.
+ 
+-\paragraph{Results.}
++\paragraph{Results}
+ All 320 records passed the frozen structural/finite-value gates and both arms delivered a first token in all 160 pairs. Table~\ref{tab:r} reports every case/event rather than selecting only ordinary boundaries. At the three ordinary boundaries, mean first-deliverable savings were 113.621, 465.377, and 1956.100~ms, respectively. At 8192 tokens the recovery-only difference was 1951.675~ms [1937.285, 1963.226], showing that most avoided work was in reconstructing the retained context, not in the first decoding operation. Positive costs here establish the observed operational advantage over full rebuilding within this fixed design; no outcome-sign acceptance gate or broader workload claim was used.
+ 
+ \begin{table}[t]
+@@ -111,7 +111,7 @@
+ 
+ \begin{figure}[t]
+ \centering
+-\includegraphics[width=0.82\linewidth,height=0.39\textheight,keepaspectratio]{Figure_5_cost_microbenchmark.pdf}
++\includegraphics[width=\linewidth]{Figure_5_cost_microbenchmark.pdf}
+ \caption{A1 joint repair and re-prefill microbenchmark. Error bars show interquartile ranges across 50 repetitions.}
+ \label{fig:a1}
+ \end{figure}

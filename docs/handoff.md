@@ -1,4 +1,14 @@
-# 二期论文统一修订交接（C2 v3 已正式接受）
+# 二期论文统一修订交接（R/B 已接受，SC 聚焦修订完成）
+
+> **最终状态：科学修订完成，技术/视觉排版已验收，作者元数据/权利阻塞投稿**。orchestrator-dispatched read-only 科学代理 `6343...` 已完成全部 30 R CI/E3 检查 PASS；单独只读核查，不称独立 panel 或独立误差。最终 judge 主稿 26/27、补充 8 PASS，结合此前审阅关闭全部可修复视觉缺陷；主稿 25 仅已知 ACK 占位。作者事实仍阻塞主稿 1/23/24/25 与补充 1，未假造解决。主稿 27 页、补充 8 页、ZIP 23 entries；本次只更新状态文档，TeX/PDF 字节不变，无新图像 gate。当前文档包/独立编译/保护路径检查与 hashes 在 `paper2/review/sc_revision_validation_2026-09-08/final_status/`。无科学或视觉排版待办，无 GPU 待办；下一步仅作者事实/权利/披露、适用检索导出与最终投稿决定。下方所有 pending 说法均为已覆盖历史。
+
+> **2026-09-08 视觉修复更新（历史，已被上条覆盖）**：用户回传独立科学检查 PASS（30 项 R CI 与 E3 准确）。主稿 judge 要求三处 run-in 双句号、A1 图注字太小和末条参考文献跨页修复；补充稿要求 rejected-C2 heading/path 不孤悬及 Table S4 前大空白修复，均已仅改排版。现主稿 27 页、supplement 9 页、ZIP 23 entries，两者从干净 ZIP 独立编译通过。受影响主稿 16–27 / 补充 5–9 PNG 位于 `paper2/review/sc_revision_validation_2026-09-08/main_layout_repair/`，待唯一 judge 定向复验；编辑代理仍未看图。已知作者/声明占位保留。当前 hashes/checks 见该目录 `checks.json`；旧视觉/页数状态为历史。
+
+> **当前状态 2026-09-08（D-029，覆盖下列历史 pending 状态）**：R/B formal `rb_formal_20260908T023934Z_f69e6478` 已完成并接受为有限软件/结构与成本证据；完整 78MB 原 tar 前轮已核验，本轮不重验。320 records/160 event pairs、9 cases/10 cells、4 process sessions，clean `bfa7d7a`/118 sources、Qwen2-7B BF16 SDPA 单3090。B 100 trajectories/800 records/1118 cursors/27 closures。无 GPU 待办，不重跑任何旧实验。
+>
+> **SC 单方法主线已执行**：joint prefix-state repair；R 为中心 operational cost，A1/P1 支撑，C2 v3 保留 exact-only、v1/v2 rejected 不变，E3 inconclusive 主表保留。C1/C-E1/C-E2/A2 实际承接于独立编译的 Supplementary Material S1/S2，S3--S5 为敏感性/工件/全 R 端点。主稿与补充 PDF 分别上传，二者源码在干净 ZIP 中，Highlights 另上传。未触碰 src、实验脚本/结果/GPU_RUN_NOTES、中文权威章节及历史 proposal；未 commit/push/upload。
+>
+> **旧下一断点（已被最终状态覆盖）**：主 orchestrator 对所有最终主稿和 supplement PNG 执行唯一视觉 gate；编辑代理未看 PNG，不能称 visual passed。另由主 orchestrator 做独立科学只读复核（编辑端无委派工具）。作者确认身份/权利/LICENSE/公开数据链接或正当不能共享说明/伦理与 consent/funding/COI/CRediT/AI disclosure，以及可访问检索导出。指南已于 2026-09-06 IAB LIVE 核验，无全文页/词 cap、无强制 DOI；当前不是 submission-ready。技术检查、最终页数、PNG 与备份/patch 入口见 `paper2/review/sc_focused_revision_2026-09-08.md`。下文的 GPU pending 与压缩稿措辞仅为历史，已被本条覆盖；本轮无减页目标。
 
 > **2026-09-08 R/B 阻断修复（D-028）**：e82551b 报告旧 pilot `rb_pilot_20260908T021245Z_9e4b1d08` 8 records 完成后 cases tuple/list 校验失败，formal 未启动。现最小修复 validator JSON 比较，完整 CPU 合成 pilot/formal-shaped 回归及篡改负控、R/B/C2 v2/v3 smoke 通过；未跑 GPU、未 commit/push。本机无原失败归档可独立重放，旧失败报告/工件只读保留。下一步由作者交付新 clean 修复 commit，按 `recovery_boundary/GPU_HANDOFF.md` 新 pilot 成功后再 formal；下条未执行状态是历史记录。
 
